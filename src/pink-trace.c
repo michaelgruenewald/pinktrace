@@ -18,29 +18,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_H
-#define PINKTRACE_GUARD_PINKTRACE_H 1
+#include "pinktrace.h"
 
-/**
- * \file
- * Main include file
- **/
 
-#include <stdbool.h>
-
-/**
- * Indicates that this process is to be traced by its parent. Any signal
- * (except SIGKILL) delivered to this process will cause it to stop and its
- * parent to be notified via wait(2). Also, all subsequent calls to execve(2)
- * by this process will cause a SIGTRAP to be sent to it, giving the parent a
- * chance to gain control before the new program begins execution.
- *
- * Note: This function is used only by the child process; the rest are used
- * only by the parent.
- *
- * \return true on success, false on failure and sets errno accordingly.
- **/
-bool
-pink_trace_me(void);
-
-#endif /* !PINKTRACE_GUARD_PINKTRACE_H */

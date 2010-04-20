@@ -3,6 +3,7 @@ dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}}
 dnl {{{ Program, version
 AC_PREREQ(2.59)
 AC_INIT([src/pink.c])
+AC_CANONICAL_HOST
 
 # Libtool versioning - only update before a public release.
 # If the code has changed at all: REVISION++.
@@ -28,6 +29,79 @@ fi
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
+dnl }}}
+
+dnl {{{ Check for supported OS
+AC_MSG_CHECKING([for supported OS])
+case "$host_os" in
+	linux*)
+		AC_MSG_RESULT([$host_os])
+		AC_MSG_CHECKING([for supported kernel])
+		kernel_version=`uname -r | cut -d'-' -f1`
+		case "$kernel_version" in
+			2.6*)
+				AC_MSG_RESULT([$kernel_version])
+				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
+				if test "$kernel_minor_version" -lt 29; then
+					AC_MSG_WARN([pinktrace works slow on kernels <2.6.29 due to a ptrace bug!])
+					AC_MSG_WARN([See http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=53da1d9456fe7f87a920a78fdbdcf1225d197cb7 for the fix!])
+				fi
+				;;
+			2.5*)
+				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
+				if test "$kernel_minor_version" -lt 46; then
+					AC_MSG_RESULT([NO!])
+					AC_MSG_ERROR([linux kernel version $kernel_version is not supported by pinktrace])
+				fi
+				AC_MSG_RESULT([$kernel_version])
+				;;
+			*)
+				AC_MSG_RESULT([NO!])
+				AC_MSG_ERROR([linux kernel version $kernel_version is not supported by pinktrace])
+				;;
+		esac
+		;;
+	*)
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([operating system $host_os is not supported by pinktrace])
+		;;
+esac
+dnl }}}
+
+dnl {{{ Check for supported architecture
+AC_MSG_CHECKING([for supported architecture])
+case "$host_cpu" in
+i[[3456]]86|pentium)
+	arch=i386
+	AC_DEFINE([I386], 1, [Define for the i386 architecture.])
+	;;
+x86?64*)
+	arch=x86_64
+	AC_DEFINE([X86_64], 1, [Define for the AMD x86-64 architecture.])
+	;;
+ia64)
+	arch=ia64
+	AC_DEFINE([IA64], 1, [Define for the IA64 architecture.])
+	;;
+powerpc64*)
+	arch=powerpc64
+	AC_DEFINE([POWERPC64], 1, [Define for the POWERPC64 architecture.])
+	;;
+powerpc*)
+	arch=powerpc
+	AC_DEFINE([POWERPC], 1, [Define for the POWERPC architecture.])
+	;;
+*)
+	AC_MSG_RESULT([NO!])
+	AC_MSG_ERROR([architecture $host_cpu is not supported by sydbox])
+	;;
+esac
+AC_MSG_RESULT([$arch])
+AM_CONDITIONAL(I386, test x"$arch" = x"i386")
+AM_CONDITIONAL(X86_64, test x"$arch" = x"x86_64")
+AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
+AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
+AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 dnl }}}
 
 dnl {{{ Extra CFLAGS

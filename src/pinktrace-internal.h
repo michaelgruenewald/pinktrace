@@ -18,29 +18,34 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_H
-#define PINKTRACE_GUARD_PINKTRACE_H 1
+#ifndef PINKTRACE_GUARD_PINKTRACE_INTERNAL_H
+#define PINKTRACE_GUARD_PINKTRACE_INTERNAL_H 1
 
-/**
- * \file
- * Main include file
- **/
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif /* HAVE_CONFIG_H */
 
-#include <stdbool.h>
+#include <sys/types.h>
+#include <sys/ptrace.h>
+#include <sys/wait.h>
 
-/**
- * Indicates that this process is to be traced by its parent. Any signal
- * (except SIGKILL) delivered to this process will cause it to stop and its
- * parent to be notified via wait(2). Also, all subsequent calls to execve(2)
- * by this process will cause a SIGTRAP to be sent to it, giving the parent a
- * chance to gain control before the new program begins execution.
- *
- * Note: This function is used only by the child process; the rest are used
- * only by the parent.
- *
- * \return true on success, false on failure and sets errno accordingly.
- **/
-bool
-pink_trace_me(void);
+#ifdef HAVE_SYS_REG_H
+#include <sys/reg.h>
+#endif /*  HAVE_SYS_REG_H */
 
-#endif /* !PINKTRACE_GUARD_PINKTRACE_H */
+/* We need additional hackery on IA64 to include linux/ptrace.h. */
+#if defined(IA64)
+#ifdef HAVE_STRUCT_IA64_FPREG
+#define ia64_fpreg XXX_ia64_fpreg
+#endif /* HAVE_STRUCT_IA64_FPREG */
+#ifdef HAVE_STRUCT_PT_ALL_USER_REGS
+#define pt_all_user_regs XXX_pt_all_user_regs
+#endif /* HAVE_STRUCT_PT_ALL_USER_REGS */
+#endif /* defined(IA64) */
+#include <linux/ptrace.h>
+#if defined(IA64)
+#undef ia64_fpreg
+#undef pt_all_user_regs
+#endif /* defined(IA64) */
+
+#endif /* !PINKTRACE_GUARD_PINKTRACE_INTERNAL_H */
