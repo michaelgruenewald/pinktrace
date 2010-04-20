@@ -172,6 +172,38 @@ START_TEST(test_pink_trace_cont_signal)
 }
 END_TEST
 
+START_TEST(test_pink_trace_kill)
+{
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong stop signal, got: %d expected: %d",
+				WSTOPSIG(status), SIGSTOP);
+
+		fail_unless(pink_trace_kill(pid), "pink_trace_kill() failed: %s", strerror(errno));
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSIGNALED(status), "Child hasn't been signaled");
+		fail_unless(WTERMSIG(status) == SIGKILL, "Wrong signal, got: %d expected: %d",
+				WTERMSIG(status), SIGKILL);
+	}
+}
+END_TEST
+
 static Suite *
 pinktrace_suite(void)
 {
@@ -193,6 +225,13 @@ pinktrace_suite(void)
 	tcase_add_test(tc_pink_trace_cont, test_pink_trace_cont_signal);
 
 	suite_add_tcase(s, tc_pink_trace_cont);
+
+	/* pink_trace_kill() */
+	TCase *tc_pink_trace_kill = tcase_create("pink_trace_kill");
+
+	tcase_add_test(tc_pink_trace_kill, test_pink_trace_kill);
+
+	suite_add_tcase(s, tc_pink_trace_kill);
 
 	return s;
 }

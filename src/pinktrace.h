@@ -58,4 +58,14 @@ pink_trace_me(void);
 bool
 pink_trace_cont(pid_t pid, int sig);
 
+/**
+ * Kills the traced child process with SIGKILL.
+ *
+ * \param pid Process ID of the child to be killed.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_kill(pid_t pid);
+
 #endif /* !PINKTRACE_GUARD_PINKTRACE_H */

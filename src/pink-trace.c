@@ -36,3 +36,9 @@ pink_trace_cont(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_CONT, pid, NULL, (void *)sig));
 }
+
+inline bool
+pink_trace_kill(pid_t pid)
+{
+	return !(0 > ptrace(PTRACE_KILL, pid, NULL, NULL));
+}
