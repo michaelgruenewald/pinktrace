@@ -18,4 +18,59 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdbool.h>
+#include <stdlib.h>
 
+#include <pinktrace/context.h>
+#include <pinktrace/trace.h>
+
+struct pink_context
+{
+	bool attach;
+	int options;
+};
+
+pink_context_t *
+pink_context_new(void)
+{
+	pink_context_t *ctx;
+
+	if ((ctx = (pink_context_t *)malloc(sizeof(pink_context_t))) == NULL)
+		return NULL;
+
+	ctx->attach = false;
+	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
+
+	return ctx;
+}
+
+void
+pink_context_free(pink_context_t *ctx)
+{
+	free(ctx);
+}
+
+void
+pink_context_set_attach(pink_context_t *ctx, bool on)
+{
+	ctx->attach = on;
+}
+
+bool
+pink_context_get_attach(pink_context_t *ctx)
+{
+	return ctx->attach;
+}
+
+void
+pink_context_set_options(pink_context_t *ctx, int options)
+{
+	ctx->options = options;
+	ctx->options |= PINK_TRACE_OPTION_SYSGOOD;
+}
+
+int
+pink_context_get_options(pink_context_t *ctx)
+{
+	return ctx->options;
+}

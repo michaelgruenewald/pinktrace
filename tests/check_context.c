@@ -18,15 +18,39 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_CHECK_PINKTRACE_H
-#define PINKTRACE_GUARD_CHECK_PINKTRACE_H 1
+#include <errno.h>
+#include <string.h>
 
 #include <check.h>
 
-Suite *
-context_suite_create(void);
+#include <pinktrace/context.h>
+#include <pinktrace/trace.h>
+
+#include "check_pinktrace.h"
+
+START_TEST(test_pink_context_new)
+{
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+
+	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+
+	pink_context_free(ctx);
+}
+END_TEST
 
 Suite *
-trace_suite_create(void);
+context_suite_create(void)
+{
+	Suite *s = suite_create("context");
 
-#endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_H */
+	/* pink_context_new() */
+	TCase *tc_pink_context_new = tcase_create("pink_context_new");
+
+	tcase_add_test(tc_pink_context_new, test_pink_context_new);
+
+	suite_add_tcase(s, tc_pink_context_new);
+
+	return s;
+}

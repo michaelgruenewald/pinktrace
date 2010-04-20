@@ -31,6 +31,8 @@
 
 #include <pinktrace/trace.h>
 
+#include "check_pinktrace.h"
+
 START_TEST(test_pink_trace_me_basic)
 {
 	int status;
