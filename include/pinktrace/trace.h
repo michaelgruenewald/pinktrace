@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_H
-#define PINKTRACE_GUARD_PINKTRACE_H 1
+#ifndef PINKTRACE_GUARD_TRACE_H
+#define PINKTRACE_GUARD_TRACE_H 1
 
 /**
  * \file
@@ -180,4 +180,4 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
 bool
 pink_trace_setup(pid_t pid, int options);
 
-#endif /* !PINKTRACE_GUARD_PINKTRACE_H */
+#endif /* !PINKTRACE_GUARD_TRACE_H */

@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_INTERNAL_H
-#define PINKTRACE_GUARD_PINKTRACE_INTERNAL_H 1
+#ifndef PINKTRACE_GUARD_INTERNAL_H
+#define PINKTRACE_GUARD_INTERNAL_H 1
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,4 +48,4 @@
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
 
-#endif /* !PINKTRACE_GUARD_PINKTRACE_INTERNAL_H */
+#endif /* !PINKTRACE_GUARD_INTERNAL_H */

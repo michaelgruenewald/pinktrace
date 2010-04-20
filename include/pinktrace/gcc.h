@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_GCC_H
-#define PINKTRACE_GUARD_PINKTRACE_GCC_H 1
+#ifndef PINKTRACE_GUARD_GCC_H
+#define PINKTRACE_GUARD_GCC_H 1
 
 /**
  * \file
@@ -43,4 +43,4 @@
 
 #endif
 
-#endif /* !PINKTRACE_GUARD_PINKTRACE_GCC_H */
+#endif /* !PINKTRACE_GUARD_GCC_H */
