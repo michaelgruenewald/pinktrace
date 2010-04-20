@@ -9,5 +9,12 @@ SUBDIRS= src doc . tests
 pkgconfigdir=$(libdir)/pkgconfig
 pkgconfig_DATA=pinktrace.pc
 
+pinktraceincludedir= $(includedir)/pinktrace
+pinktraceinclude_HEADERS= \
+			  include/pinktrace/gcc.h \
+			  include/pinktrace/trace.h
+
+noinst_HEADERS= include/pinktrace/internal.h
+
 doxygen:
 	$(MAKE) -C doc $@

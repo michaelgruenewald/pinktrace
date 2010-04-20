@@ -18,15 +18,25 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINKTRACE_GCC_H
-#define PINKTRACE_GUARD_PINKTRACE_GCC_H 1
+#include "check_pinktrace.h"
 
-#if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
+#include <stdlib.h>
+#include <check.h>
 
-#define pink_unused __attribute__((unused))
-#define pink_likely(x) __builtin_expect(!!(x), 1)
-#define pink_unlikely(x) __builtin_expect(!!(x), 0)
+int
+main(void)
+{
+	int number_failed;
+	SRunner *sr;
 
-#endif
+	/* Add suites */
+	sr = srunner_create(trace_suite_create());
 
-#endif /* !PINKTRACE_GUARD_PINKTRACE_GCC_H */
+	/* Run and grab the results */
+	srunner_run_all(sr, CK_VERBOSE);
+	number_failed = srunner_ntests_failed(sr);
+
+	/* Cleanup and exit */
+	srunner_free(sr);
+	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+}

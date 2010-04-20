@@ -29,7 +29,7 @@
 
 #include <check.h>
 
-#include <pinktrace.h>
+#include <pinktrace/trace.h>
 
 START_TEST(test_pink_trace_me_basic)
 {
@@ -254,10 +254,10 @@ START_TEST(test_pink_trace_setup_exit)
 }
 END_TEST
 
-static Suite *
-pinktrace_suite(void)
+Suite *
+trace_suite_create(void)
 {
-	Suite *s = suite_create("pinktrace");
+	Suite *s = suite_create("trace");
 
 	/* pink_trace_me() */
 	TCase *tc_pink_trace_me = tcase_create("pink_trace_me");
@@ -312,20 +312,4 @@ pinktrace_suite(void)
 	suite_add_tcase(s, tc_pink_trace_setup);
 
 	return s;
-}
-
-int
-main(void)
-{
-	int number_failed;
-	Suite *s;
-	SRunner *sr;
-
-	s = pinktrace_suite();
-	sr = srunner_create(s);
-	srunner_run_all(sr, CK_VERBOSE);
-
-	number_failed = srunner_ntests_failed(sr);
-	srunner_free(sr);
-	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

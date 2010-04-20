@@ -23,7 +23,7 @@
 
 /**
  * \file
- * Main include file
+ * Low level wrapper around ptrace internals
  **/
 
 #include <stdbool.h>

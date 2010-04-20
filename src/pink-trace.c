@@ -18,9 +18,9 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "pinktrace-gcc.h"
-#include "pinktrace-internal.h"
-#include "pinktrace.h"
+#include <pinktrace/gcc.h>
+#include <pinktrace/internal.h>
+#include <pinktrace/trace.h>
 
 #include <errno.h>
 #include <sys/types.h>
