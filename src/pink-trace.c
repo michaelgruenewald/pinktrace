@@ -84,3 +84,15 @@ pink_trace_setup(pid_t pid, int options)
 
 	return !(0 > ptrace(PTRACE_SETOPTIONS, pid, NULL, ptrace_options));
 }
+
+inline bool
+pink_trace_attach(pid_t pid)
+{
+	return !(0 > ptrace(PTRACE_ATTACH, pid, NULL, NULL));
+}
+
+inline bool
+pink_trace_detach(pid_t pid, int sig)
+{
+	return !(0 > ptrace(PTRACE_DETACH, pid, NULL, sig));
+}

@@ -180,4 +180,30 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
 bool
 pink_trace_setup(pid_t pid, int options);
 
+/**
+ * Attaches to the process specified in pid, making it a traced "child" of the
+ * calling process; the behaviour of the child is as if it had done a
+ * PTRACE_TRACEME. The child is sent a SIGSTOP, but will not necessarily have
+ * stopped by the completion of this call; use wait(2) to wait for the child to
+ * stop.
+ *
+ * \param pid Process ID of the child to be attached.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_attach(pid_t pid);
+
+/**
+ * Restarts the stopped child as for pink_trace_cont(), but first detaches from
+ * the process, undoing the reparenting effect of pink_trace_attach().
+ *
+ * \param pid Process ID of the child to be detached.
+ * \param sig Check the second argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_detach(pid_t pid, int sig);
+
 #endif /* !PINKTRACE_GUARD_TRACE_H */
