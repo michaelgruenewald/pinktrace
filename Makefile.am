@@ -12,6 +12,8 @@ pkgconfig_DATA=pinktrace.pc
 pinktraceincludedir= $(includedir)/pinktrace
 pinktraceinclude_HEADERS= \
 			  include/pinktrace/gcc.h \
+			  include/pinktrace/context.h \
+			  include/pinktrace/fork.h \
 			  include/pinktrace/trace.h
 
 noinst_HEADERS= include/pinktrace/internal.h
