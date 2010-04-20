@@ -18,6 +18,14 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "pinktrace-gcc.h"
+#include "pinktrace-internal.h"
 #include "pinktrace.h"
 
+#include <errno.h>
 
+inline bool
+pink_trace_me(void)
+{
+	return !(0 > ptrace(PTRACE_TRACEME, 0, NULL, NULL));
+}
