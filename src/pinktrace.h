@@ -30,6 +30,68 @@
 #include <sys/types.h>
 
 /**
+ * This define represents the trace option SYSGOOD.
+ * If this flag is set in the options argument of pink_trace_setup(), when
+ * delivering syscall traps, bit 7 is set in signal number (i.e., deliver
+ * (SIGTRAP | 0x80) This makes it easy for the tracer to tell the difference
+ * between normal traps and those caused by a syscall. This option may not work
+ * on all architectures.
+ **/
+#define PINK_TRACE_OPTION_SYSGOOD   (1 << 0)
+/**
+ * This define represents the trace option FORK.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at the next fork(2) call with (SIGTRAP | PTRACE_EVENT_FORK << 8) and
+ * automatically start tracing the newly forked process, which will start with
+ * a SIGSTOP. The PID for the new process can be retrieved with
+ * pink_trace_geteventmsg().
+ **/
+#define PINK_TRACE_OPTION_FORK      (1 << 1)
+/**
+ * This define represents the trace option VFORK.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at the next vfork(2) call with (SIGTRAP | PTRACE_EVENT_VFORK << 8) and
+ * automatically start tracing the newly vforked process, which will start with
+ * a SIGSTOP. The PID for the new process can be retrieved with
+ * pink_trace_geteventmsg().
+ **/
+#define PINK_TRACE_OPTION_VFORK     (1 << 2)
+/**
+ * This define represents the trace option CLONE.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at the next clone(2) call with (SIGTRAP | PTRACE_EVENT_CLONE << 8) and
+ * automatically start tracing the newly cloned process, which will start with
+ * a SIGSTOP. The PID for the new process can be retrieved with
+ * pink_trace_geteventmsg().
+ **/
+#define PINK_TRACE_OPTION_CLONE     (1 << 3)
+/**
+ * This define represents the trace option EXEC.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at the next execve(2) call with (SIGTRAP | PTRACE_EVENT_EXEC << 8)
+ **/
+#define PINK_TRACE_OPTION_EXEC      (1 << 4)
+/**
+ * This define represents the trace option VFORKDONE.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at the completion of the next vfork(2) call with
+ * (SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8)
+ **/
+#define PINK_TRACE_OPTION_VFORKDONE (1 << 5)
+/**
+ * This define represents the trace option EXIT.
+ * If this flag is set in the options argument of pink_trace_setup(), stop the
+ * child at exit with (SIGTRAP | PTRACE_EVENT_EXIT << 8). This child's exit
+ * status can be retrieved with pink_trace_geteventmsg(). This stop will be
+ * done early during process exit when registers are still available, allowing
+ * the tracer to see where the exit occured, whereas the normal exit
+ * notification is done after the process is finished exiting. Even though
+ * context is available, the tracer cannot prevent the exit from happening at
+ * this point.
+ **/
+#define PINK_TRACE_OPTION_EXIT      (1 << 6)
+
+/**
  * Indicates that this process is to be traced by its parent. Any signal
  * (except SIGKILL) delivered to this process will cause it to stop and its
  * parent to be notified via wait(2). Also, all subsequent calls to execve(2)
@@ -67,5 +129,16 @@ pink_trace_cont(pid_t pid, int sig);
  **/
 bool
 pink_trace_kill(pid_t pid);
+
+/**
+ * Sets the tracing options.
+ *
+ * \param pid Process ID of the child to be setup.
+ * \param options Bitwise OR'ed PINK_TRACE_OPTION_* flags
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_setup(pid_t pid, int options);
 
 #endif /* !PINKTRACE_GUARD_PINKTRACE_H */

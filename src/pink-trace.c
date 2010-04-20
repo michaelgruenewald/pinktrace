@@ -34,11 +34,35 @@ pink_trace_me(void)
 inline bool
 pink_trace_cont(pid_t pid, int sig)
 {
-	return !(0 > ptrace(PTRACE_CONT, pid, NULL, (void *)sig));
+	return !(0 > ptrace(PTRACE_CONT, pid, NULL, sig));
 }
 
 inline bool
 pink_trace_kill(pid_t pid)
 {
 	return !(0 > ptrace(PTRACE_KILL, pid, NULL, NULL));
+}
+
+bool
+pink_trace_setup(pid_t pid, int options)
+{
+	int ptrace_options;
+
+	ptrace_options = 0;
+	if (options & PINK_TRACE_OPTION_SYSGOOD)
+		ptrace_options |= PTRACE_O_TRACESYSGOOD;
+	if (options & PINK_TRACE_OPTION_FORK)
+		ptrace_options |= PTRACE_O_TRACEFORK;
+	if (options & PINK_TRACE_OPTION_VFORK)
+		ptrace_options |= PTRACE_O_TRACEVFORK;
+	if (options & PINK_TRACE_OPTION_CLONE)
+		ptrace_options |= PTRACE_O_TRACECLONE;
+	if (options & PINK_TRACE_OPTION_EXEC)
+		ptrace_options |= PTRACE_O_TRACEEXEC;
+	if (options & PINK_TRACE_OPTION_VFORKDONE)
+		ptrace_options |= PTRACE_O_TRACEVFORKDONE;
+	if (options & PINK_TRACE_OPTION_EXIT)
+		ptrace_options |= PTRACE_O_TRACEEXIT;
+
+	return !(0 > ptrace(PTRACE_SETOPTIONS, pid, NULL, ptrace_options));
 }

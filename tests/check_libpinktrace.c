@@ -204,6 +204,36 @@ START_TEST(test_pink_trace_kill)
 }
 END_TEST
 
+START_TEST(test_pink_trace_setup_sysgood)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_setup_fork)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_setup_vfork)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_setup_clone)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_setup_vforkdone)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_setup_exit)
+{
+}
+END_TEST
+
 static Suite *
 pinktrace_suite(void)
 {
@@ -232,6 +262,18 @@ pinktrace_suite(void)
 	tcase_add_test(tc_pink_trace_kill, test_pink_trace_kill);
 
 	suite_add_tcase(s, tc_pink_trace_kill);
+
+	/* pink_trace_setup */
+	TCase *tc_pink_trace_setup = tcase_create("pink_trace_setup");
+
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_sysgood);
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_fork);
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_vfork);
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_clone);
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_vforkdone);
+	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_exit);
+
+	suite_add_tcase(s, tc_pink_trace_setup);
 
 	return s;
 }
