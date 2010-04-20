@@ -27,6 +27,9 @@ Suite *
 context_suite_create(void);
 
 Suite *
+fork_suite_create(void);
+
+Suite *
 trace_suite_create(void);
 
 #endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_H */

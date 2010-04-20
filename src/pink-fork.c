@@ -47,11 +47,13 @@ pink_fork(pink_context_t *ctx)
 		if (WIFEXITED(pid))
 			return PINK_FORK_ERROR_TRACE;
 
-		if (!trace_setup(pid, pink_context_get_options(ctx))) {
+		if (!pink_trace_setup(pid, pink_context_get_options(ctx))) {
 			/* Setting up child failed, kill it with fire! */
 			kill(pid, SIGKILL);
 			return PINK_FORK_ERROR_SETUP;
 		}
+
+		pink_context_set_eldest(ctx, pid);
 	}
 	return pid;
 }
@@ -76,11 +78,13 @@ pink_vfork(pink_context_t *ctx)
 		if (WIFEXITED(pid))
 			return PINK_FORK_ERROR_TRACE;
 
-		if (!trace_setup(pid, pink_context_get_options(ctx))) {
+		if (!pink_trace_setup(pid, pink_context_get_options(ctx))) {
 			/* Setting up child failed, kill it with fire! */
 			kill(pid, SIGKILL);
 			return PINK_FORK_ERROR_SETUP;
 		}
+
+		pink_context_set_eldest(ctx, pid);
 	}
 	return pid;
 }

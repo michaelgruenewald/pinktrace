@@ -37,8 +37,9 @@ enum pink_fork_error {
  * \param ctx The tracing context to be used.
  *
  * \return On success, the process ID of the child process is returned in the
- * parent, and 0 is returned in the child. On failure, one of PINK_FORK_ERROR_*
- * constants is returned, the child is either never created or killed.
+ * parent, and 0 is returned in the child and the eldest child property of the
+ * context is updated. On failure, one of PINK_FORK_ERROR_* constants is returned,
+ * the child is either never created or killed.
  **/
 pid_t
 pink_fork(pink_context_t *ctx);
@@ -51,6 +52,6 @@ pink_fork(pink_context_t *ctx);
  * \return Same as pink_fork()
  **/
 pid_t
-pid_vfork(pink_context_t *ctx);
+pink_vfork(pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_FORK_H */

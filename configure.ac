@@ -2,7 +2,7 @@ dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}}
 
 dnl {{{ Program, version
 AC_PREREQ(2.59)
-AC_INIT([src/pink.c])
+AC_INIT([src/pink-context.c])
 AC_CANONICAL_HOST
 
 # Libtool versioning - only update before a public release.
@@ -142,6 +142,10 @@ AC_ARG_ENABLE([doxygen],
 			   AC_CHECK_PROG(HAVE_DOXYGEN, [doxygen], [yes], [no])])
 AC_SUBST([HAVE_DOXYGEN])
 AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
+dnl }}}
+
+dnl {{{ Use AM_SILENT_RULES if available
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 dnl }}}
 
 dnl {{{ Output
