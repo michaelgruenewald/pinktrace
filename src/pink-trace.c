@@ -23,9 +23,16 @@
 #include "pinktrace.h"
 
 #include <errno.h>
+#include <sys/types.h>
 
 inline bool
 pink_trace_me(void)
 {
 	return !(0 > ptrace(PTRACE_TRACEME, 0, NULL, NULL));
+}
+
+inline bool
+pink_trace_cont(pid_t pid, int sig)
+{
+	return !(0 > ptrace(PTRACE_CONT, pid, NULL, (void *)sig));
 }

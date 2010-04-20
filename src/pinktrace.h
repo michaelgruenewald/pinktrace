@@ -27,6 +27,7 @@
  **/
 
 #include <stdbool.h>
+#include <sys/types.h>
 
 /**
  * Indicates that this process is to be traced by its parent. Any signal
@@ -42,5 +43,19 @@
  **/
 bool
 pink_trace_me(void);
+
+/**
+ * Restarts the stopped child process.
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig If this is non-zero and not SIGSTOP, it is interpreted as the
+ * signal to be delivered to the child; otherwise, no signal is delivered.
+ * Thus, for example, the parent can control whether a signal sent to the child
+ * is delivered or not.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_cont(pid_t pid, int sig);
 
 #endif /* !PINKTRACE_GUARD_PINKTRACE_H */
