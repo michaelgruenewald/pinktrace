@@ -24,6 +24,7 @@
 #include <check.h>
 
 #include <pinktrace/context.h>
+#include <pinktrace/error.h>
 #include <pinktrace/trace.h>
 
 #include "check_pinktrace.h"
@@ -140,6 +141,24 @@ START_TEST(test_pink_context_eldest)
 
 	pink_context_set_eldest(ctx, 123);
 	fail_unless(pink_context_get_eldest(ctx) == 123, "Wrong process ID");
+
+	pink_context_free(ctx);
+}
+END_TEST
+
+START_TEST(test_pink_context_error)
+{
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	fail_unless(pink_context_get_error(ctx) == PINK_ERROR_SUCCESS,
+			"Wrong default for error, expected: %d got: %d",
+			PINK_ERROR_SUCCESS, pink_context_get_error(ctx));
+
+	/* TODO: Test more here (no modifier functions though ;) */
+	pink_context_free(ctx);
 }
 END_TEST
 
@@ -161,6 +180,7 @@ context_suite_create(void)
 	tcase_add_test(tc_pink_context_properties, test_pink_context_attach);
 	tcase_add_test(tc_pink_context_properties, test_pink_context_options);
 	tcase_add_test(tc_pink_context_properties, test_pink_context_eldest);
+	tcase_add_test(tc_pink_context_properties, test_pink_context_error);
 
 	suite_add_tcase(s, tc_pink_context_properties);
 

@@ -23,7 +23,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <pinktrace/internal.h>
 #include <pinktrace/context.h>
+#include <pinktrace/error.h>
 #include <pinktrace/fork.h>
 #include <pinktrace/trace.h>
 
@@ -35,8 +37,10 @@ pink_fork(pink_context_t *ctx)
 
 	assert(ctx != NULL);
 
-	if ((pid = fork()) < 0)
-		return PINK_FORK_ERROR_FORK;
+	if ((pid = fork()) < 0) {
+		ctx->error = PINK_ERROR_FORK;
+		return -1;
+	}
 	else if (!pid) { /* child */
 		if (!pink_trace_me())
 			_exit(-1);
@@ -44,16 +48,19 @@ pink_fork(pink_context_t *ctx)
 	else { /* parent */
 		waitpid(pid, &status, 0);
 
-		if (WIFEXITED(pid))
-			return PINK_FORK_ERROR_TRACE;
-
-		if (!pink_trace_setup(pid, pink_context_get_options(ctx))) {
-			/* Setting up child failed, kill it with fire! */
-			kill(pid, SIGKILL);
-			return PINK_FORK_ERROR_SETUP;
+		if (WIFEXITED(pid)) {
+			ctx->error = PINK_ERROR_TRACE;
+			return -1;
 		}
 
-		pink_context_set_eldest(ctx, pid);
+		if (!pink_trace_setup(pid, ctx->options)) {
+			/* Setting up child failed, kill it with fire! */
+			kill(pid, SIGKILL);
+			ctx->error = PINK_ERROR_TRACE_SETUP;
+			return -1;
+		}
+
+		ctx->eldest = pid;
 	}
 	return pid;
 }

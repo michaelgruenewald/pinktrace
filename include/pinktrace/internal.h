@@ -25,6 +25,7 @@
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
 
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
@@ -47,5 +48,13 @@
 #undef ia64_fpreg
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
+
+struct pink_context
+{
+	bool attach;
+	int options;
+	int error;
+	pid_t eldest;
+};
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

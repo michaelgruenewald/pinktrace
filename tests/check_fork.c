@@ -27,6 +27,7 @@
 #include <check.h>
 
 #include <pinktrace/context.h>
+#include <pinktrace/error.h>
 #include <pinktrace/fork.h>
 
 #include "check_pinktrace.h"
@@ -40,12 +41,12 @@ START_TEST(test_pink_fork)
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
 	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pid) {
-		case PINK_FORK_ERROR_FORK:
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
 			fail("fork failed: %s", strerror(errno));
-		case PINK_FORK_ERROR_TRACE:
+		case PINK_ERROR_TRACE:
 			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_FORK_ERROR_SETUP:
+		case PINK_ERROR_TRACE_SETUP:
 			fail("pink_trace_setup failed: %s", strerror(errno));
 		default:
 			fail("unknown return code by pink_fork %d", pid);

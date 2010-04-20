@@ -110,4 +110,21 @@ pink_context_set_eldest(pink_context_t *ctx, pid_t pid);
 pid_t
 pink_context_get_eldest(pink_context_t *ctx);
 
+/**
+ * Get the last error of the tracing context.
+ *
+ * \param ctx The tracing context whose error is to be returned.
+ *
+ * \return The error code, one of PTRACE_ERROR_* constants.
+ **/
+int
+pink_context_get_error(pink_context_t *ctx);
+
+/**
+ * Clear the error status of the tracing context.
+ *
+ * \param ctx The tracing context whose error is to be cleared.
+ **/
+void
+pink_context_clear_error(pink_context_t *ctx);
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

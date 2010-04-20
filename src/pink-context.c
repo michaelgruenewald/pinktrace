@@ -22,15 +22,10 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
+#include <pinktrace/internal.h>
 #include <pinktrace/context.h>
+#include <pinktrace/error.h>
 #include <pinktrace/trace.h>
-
-struct pink_context
-{
-	bool attach;
-	int options;
-	pid_t eldest;
-};
 
 pink_context_t *
 pink_context_new(void)
@@ -42,8 +37,8 @@ pink_context_new(void)
 
 	ctx->attach = false;
 	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
+	ctx->error = PINK_ERROR_SUCCESS;
 	ctx->eldest = -1;
-
 	return ctx;
 }
 
@@ -88,4 +83,16 @@ pid_t
 pink_context_get_eldest(pink_context_t *ctx)
 {
 	return ctx->eldest;
+}
+
+int
+pink_context_get_error(pink_context_t *ctx)
+{
+	return ctx->error;
+}
+
+void
+pink_context_clear_error(pink_context_t *ctx)
+{
+	ctx->error = PINK_ERROR_SUCCESS;
 }
