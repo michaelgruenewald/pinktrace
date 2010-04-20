@@ -155,6 +155,21 @@ bool
 pink_trace_syscall(pid_t pid, int sig);
 
 /**
+ * Retrieve a message (as an unsigned long) about the trace event that just
+ * happened, placing it in the location given by the second argument. For
+ * EXIT event this is the child's exit status. For FORK, VFORK, CLONE and
+ * VFORKDONE events this is the process ID of the new process.
+ *
+ * \param pid Process ID of the child whose event is to be reported.
+ * \param data Pointer to an unsigned long into which the message will be
+ * stored.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_geteventmsg(pid_t pid, unsigned long *data);
+
+/**
  * Sets the tracing options.
  *
  * \param pid Process ID of the child to be setup.

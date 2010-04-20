@@ -299,7 +299,7 @@ pinktrace_suite(void)
 
 	suite_add_tcase(s, tc_pink_trace_syscall);
 
-	/* pink_trace_setup */
+	/* pink_trace_setup() and pink_trace_geteventmsg() */
 	TCase *tc_pink_trace_setup = tcase_create("pink_trace_setup");
 
 	tcase_add_test(tc_pink_trace_setup, test_pink_trace_setup_sysgood);

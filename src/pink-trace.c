@@ -55,6 +55,12 @@ pink_trace_syscall(pid_t pid, int sig)
 	return !(0 > ptrace(PTRACE_SYSCALL, pid, NULL, sig));
 }
 
+inline bool
+pink_trace_geteventmsg(pid_t pid, unsigned long *data)
+{
+	return !(0 > ptrace(PTRACE_GETEVENTMSG, pid, NULL, data));
+}
+
 bool
 pink_trace_setup(pid_t pid, int options)
 {
