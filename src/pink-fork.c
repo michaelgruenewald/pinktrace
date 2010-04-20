@@ -57,34 +57,3 @@ pink_fork(pink_context_t *ctx)
 	}
 	return pid;
 }
-
-pid_t
-pink_vfork(pink_context_t *ctx)
-{
-	int status;
-	pid_t pid;
-
-	assert(ctx != NULL);
-
-	if ((pid = vfork()) < 0)
-		return PINK_FORK_ERROR_FORK;
-	else if (!pid) { /* child */
-		if (!pink_trace_me())
-			_exit(-1);
-	}
-	else { /* parent */
-		waitpid(pid, &status, 0);
-
-		if (WIFEXITED(pid))
-			return PINK_FORK_ERROR_TRACE;
-
-		if (!pink_trace_setup(pid, pink_context_get_options(ctx))) {
-			/* Setting up child failed, kill it with fire! */
-			kill(pid, SIGKILL);
-			return PINK_FORK_ERROR_SETUP;
-		}
-
-		pink_context_set_eldest(ctx, pid);
-	}
-	return pid;
-}

@@ -63,42 +63,6 @@ START_TEST(test_pink_fork)
 }
 END_TEST
 
-#if 0
-#error This test segfaults for some reason
-START_TEST(test_pink_vfork)
-{
-	pid_t pid;
-	pink_context_t *ctx;
-	char *const myargv[] = { "/bin/true", NULL};
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_vfork(ctx)) < 0) {
-		switch (pid) {
-		case PINK_FORK_ERROR_FORK:
-			fail("vfork failed: %s", strerror(errno));
-		case PINK_FORK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_FORK_ERROR_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_vfork %d", pid);
-		}
-	}
-	else if (!pid) /* child */
-		execvp("/bin/true", myargv);
-	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
-	}
-}
-END_TEST
-#endif
-
 Suite *
 fork_suite_create(void)
 {
@@ -110,15 +74,6 @@ fork_suite_create(void)
 	tcase_add_test(tc_pink_fork, test_pink_fork);
 
 	suite_add_tcase(s, tc_pink_fork);
-
-#if 0
-	/* pink_vfork() */
-	TCase *tc_pink_vfork = tcase_create("pink_vfork");
-
-	tcase_add_test(tc_pink_vfork, test_pink_vfork);
-
-	suite_add_tcase(s, tc_pink_vfork);
-#endif
 
 	return s;
 }

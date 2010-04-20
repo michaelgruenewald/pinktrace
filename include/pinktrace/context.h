@@ -91,7 +91,7 @@ pink_context_get_options(pink_context_t *ctx);
 /**
  * Sets the process ID of the child to be traced.
  * Only necessary if the child is to be attached.
- * Note: pink_fork() and pink_vfork() sets this property if fork is successful.
+ * Note: pink_fork() sets this property if fork is successful.
  *
  * \param ctx The tracing context whose eldest process ID will be modified.
  * \param pid The process ID of the eldest child.

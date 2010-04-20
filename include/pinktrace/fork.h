@@ -26,7 +26,7 @@
 #include <pinktrace/context.h>
 
 enum pink_fork_error {
-	PINK_FORK_ERROR_FORK = -2,  /*<< fork() or vfork() failed */
+	PINK_FORK_ERROR_FORK = -2,  /*<< fork() failed */
 	PINK_FORK_ERROR_TRACE = -3, /*<< pink_trace_me() failed and child died */
 	PINK_FORK_ERROR_SETUP = -4, /*<< pink_trace_setup() failed and child was killed */
 };
@@ -43,15 +43,5 @@ enum pink_fork_error {
  **/
 pid_t
 pink_fork(pink_context_t *ctx);
-
-/**
- * vfork(2) wrapper that sets up the child for tracing.
- *
- * \param ctx The tracing context to be used.
- *
- * \return Same as pink_fork()
- **/
-pid_t
-pink_vfork(pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_FORK_H */
