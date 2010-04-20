@@ -105,6 +105,11 @@ AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 dnl }}}
 
 dnl {{{ Check headers
+REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h"
+for header in $REQUIRED_HEADERS ; do
+	AC_CHECK_HEADER([$header], [],
+					AC_MSG_ERROR([Required header $header not found!]))
+done
 AC_CHECK_HEADERS([sys/reg.h], [], [])
 dnl }}}
 
