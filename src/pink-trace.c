@@ -43,6 +43,18 @@ pink_trace_kill(pid_t pid)
 	return !(0 > ptrace(PTRACE_KILL, pid, NULL, NULL));
 }
 
+inline bool
+pink_trace_singlestep(pid_t pid, int sig)
+{
+	return !(0 > ptrace(PTRACE_SINGLESTEP, pid, NULL, sig));
+}
+
+inline bool
+pink_trace_syscall(pid_t pid, int sig)
+{
+	return !(0 > ptrace(PTRACE_SYSCALL, pid, NULL, sig));
+}
+
 bool
 pink_trace_setup(pid_t pid, int options)
 {

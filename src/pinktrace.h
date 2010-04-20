@@ -131,6 +131,30 @@ bool
 pink_trace_kill(pid_t pid);
 
 /**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * execution of a single instruction.
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_singlestep(pid_t pid, int sig);
+
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry or exit of the next system call.
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_syscall(pid_t pid, int sig);
+
+/**
  * Sets the tracing options.
  *
  * \param pid Process ID of the child to be setup.

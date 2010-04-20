@@ -204,6 +204,26 @@ START_TEST(test_pink_trace_kill)
 }
 END_TEST
 
+START_TEST(test_pink_trace_singlestep_basic)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_singlestep_signal)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_syscall_basic)
+{
+}
+END_TEST
+
+START_TEST(test_pink_trace_syscall_signal)
+{
+}
+END_TEST
+
 START_TEST(test_pink_trace_setup_sysgood)
 {
 }
@@ -262,6 +282,22 @@ pinktrace_suite(void)
 	tcase_add_test(tc_pink_trace_kill, test_pink_trace_kill);
 
 	suite_add_tcase(s, tc_pink_trace_kill);
+
+	/* pink_trace_singlestep() */
+	TCase *tc_pink_trace_singlestep = tcase_create("pink_trace_singlestep");
+
+	tcase_add_test(tc_pink_trace_singlestep, test_pink_trace_singlestep_basic);
+	tcase_add_test(tc_pink_trace_singlestep, test_pink_trace_singlestep_signal);
+
+	suite_add_tcase(s, tc_pink_trace_singlestep);
+
+	/* pink_trace_syscall() */
+	TCase *tc_pink_trace_syscall = tcase_create("pink_trace_syscall");
+
+	tcase_add_test(tc_pink_trace_syscall, test_pink_trace_syscall_basic);
+	tcase_add_test(tc_pink_trace_syscall, test_pink_trace_syscall_signal);
+
+	suite_add_tcase(s, tc_pink_trace_syscall);
 
 	/* pink_trace_setup */
 	TCase *tc_pink_trace_setup = tcase_create("pink_trace_setup");
