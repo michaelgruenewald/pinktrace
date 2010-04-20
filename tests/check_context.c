@@ -40,6 +40,95 @@ START_TEST(test_pink_context_new)
 }
 END_TEST
 
+START_TEST(test_pink_context_attach)
+{
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+
+	fail_unless(pink_context_get_attach(ctx) == false, "Attach property doesn't default to false");
+
+	pink_context_set_attach(ctx, true);
+	fail_unless(pink_context_get_attach(ctx) == true, "Failed to set attach property to true");
+
+	pink_context_set_attach(ctx, false);
+	fail_unless(pink_context_get_attach(ctx) == false, "Failed to set attach property to false");
+
+	pink_context_free(ctx);
+}
+END_TEST
+
+START_TEST(test_pink_context_options)
+{
+	int options;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_SYSGOOD, "Options doesn't have SYSGOOD set by default");
+
+	options &= ~PINK_TRACE_OPTION_SYSGOOD;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_SYSGOOD, "Options doesn't force SYSGOOD");
+
+	options |= PINK_TRACE_OPTION_FORK;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_FORK, "Options doesn't have FORK set");
+
+	options &= ~PINK_TRACE_OPTION_FORK;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_if(options & PINK_TRACE_OPTION_FORK, "Options have FORK set");
+
+	options |= PINK_TRACE_OPTION_VFORK;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_VFORK, "Options doesn't have VFORK set");
+
+	options &= ~PINK_TRACE_OPTION_VFORK;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_if(options & PINK_TRACE_OPTION_VFORK, "Options have VFORK set");
+
+	options |= PINK_TRACE_OPTION_CLONE;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_CLONE, "Options doesn't have CLONE set");
+
+	options &= ~PINK_TRACE_OPTION_CLONE;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_if(options & PINK_TRACE_OPTION_CLONE, "Options have CLONE set");
+
+	options |= PINK_TRACE_OPTION_VFORKDONE;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_VFORKDONE, "Options doesn't have VFORKDONE set");
+
+	options &= ~PINK_TRACE_OPTION_VFORKDONE;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_if(options & PINK_TRACE_OPTION_VFORKDONE, "Options have VFORKDONE set");
+
+	options |= PINK_TRACE_OPTION_EXIT;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_unless(options & PINK_TRACE_OPTION_EXIT, "Options doesn't have EXIT set");
+
+	options &= ~PINK_TRACE_OPTION_EXIT;
+	pink_context_set_options(ctx, options);
+	options = pink_context_get_options(ctx);
+	fail_if(options & PINK_TRACE_OPTION_EXIT, "Options have EXIT set");
+
+	pink_context_free(ctx);
+}
+END_TEST
+
 Suite *
 context_suite_create(void)
 {
@@ -51,6 +140,14 @@ context_suite_create(void)
 	tcase_add_test(tc_pink_context_new, test_pink_context_new);
 
 	suite_add_tcase(s, tc_pink_context_new);
+
+	/* pink_context_{g,s}_* */
+	TCase *tc_pink_context_properties = tcase_create("pink_context_properties");
+
+	tcase_add_test(tc_pink_context_properties, test_pink_context_attach);
+	tcase_add_test(tc_pink_context_properties, test_pink_context_options);
+
+	suite_add_tcase(s, tc_pink_context_properties);
 
 	return s;
 }
