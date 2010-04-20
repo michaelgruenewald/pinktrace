@@ -34,7 +34,7 @@ START_TEST(test_pink_context_new)
 
 	ctx = pink_context_new();
 
-	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
 	pink_context_free(ctx);
 }
@@ -45,7 +45,7 @@ START_TEST(test_pink_context_attach)
 	pink_context_t *ctx;
 
 	ctx = pink_context_new();
-	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
 	fail_unless(pink_context_get_attach(ctx) == false, "Attach property doesn't default to false");
 
@@ -65,7 +65,7 @@ START_TEST(test_pink_context_options)
 	pink_context_t *ctx;
 
 	ctx = pink_context_new();
-	fail_unless(ctx, "pink_context_new failed: %s", strerror(errno));
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
 	options = pink_context_get_options(ctx);
 	fail_unless(options & PINK_TRACE_OPTION_SYSGOOD, "Options doesn't have SYSGOOD set by default");
@@ -129,6 +129,20 @@ START_TEST(test_pink_context_options)
 }
 END_TEST
 
+START_TEST(test_pink_context_eldest)
+{
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	fail_unless(pink_context_get_eldest(ctx) < 0, "Wrong default for eldest process ID");
+
+	pink_context_set_eldest(ctx, 123);
+	fail_unless(pink_context_get_eldest(ctx) == 123, "Wrong process ID");
+}
+END_TEST
+
 Suite *
 context_suite_create(void)
 {
@@ -146,6 +160,7 @@ context_suite_create(void)
 
 	tcase_add_test(tc_pink_context_properties, test_pink_context_attach);
 	tcase_add_test(tc_pink_context_properties, test_pink_context_options);
+	tcase_add_test(tc_pink_context_properties, test_pink_context_eldest);
 
 	suite_add_tcase(s, tc_pink_context_properties);
 

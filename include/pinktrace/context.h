@@ -22,6 +22,7 @@
 #define PINKTRACE_GUARD_CONTEXT_H 1
 
 #include <stdbool.h>
+#include <sys/types.h>
 
 /**
  * This opaque structure represents a tracing context.
@@ -86,5 +87,27 @@ pink_context_set_options(pink_context_t *ctx, int options);
  **/
 int
 pink_context_get_options(pink_context_t *ctx);
+
+/**
+ * Sets the process ID of the child to be traced.
+ * Only necessary if the child is to be attached.
+ * Note: pink_fork() and pink_vfork() sets this property if fork is successful.
+ *
+ * \param ctx The tracing context whose eldest process ID will be modified.
+ * \param pid The process ID of the eldest child.
+ **/
+void
+pink_context_set_eldest(pink_context_t *ctx, pid_t pid);
+
+/**
+ * Accessor function for the eldest child.
+ *
+ * \param ctx The tracing context whose eldest child property is to be
+ * returned.
+ *
+ * \return Process ID of the eldest child.
+ **/
+pid_t
+pink_context_get_eldest(pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

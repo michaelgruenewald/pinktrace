@@ -19,6 +19,7 @@
  */
 
 #include <stdbool.h>
+#include <sys/types.h>
 #include <stdlib.h>
 
 #include <pinktrace/context.h>
@@ -28,6 +29,7 @@ struct pink_context
 {
 	bool attach;
 	int options;
+	pid_t eldest;
 };
 
 pink_context_t *
@@ -40,6 +42,7 @@ pink_context_new(void)
 
 	ctx->attach = false;
 	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
+	ctx->eldest = -1;
 
 	return ctx;
 }
@@ -73,4 +76,16 @@ int
 pink_context_get_options(pink_context_t *ctx)
 {
 	return ctx->options;
+}
+
+void
+pink_context_set_eldest(pink_context_t *ctx, pid_t pid)
+{
+	ctx->eldest = pid;
+}
+
+pid_t
+pink_context_get_eldest(pink_context_t *ctx)
+{
+	return ctx->eldest;
 }
