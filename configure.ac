@@ -104,6 +104,15 @@ AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 dnl }}}
 
+dnl {{{ Check headers
+AC_CHECK_HEADERS([sys/reg.h], [], [])
+dnl }}}
+
+dnl {{{ Check types
+AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,
+			   [#include <sys/ptrace.h>])
+dnl }}}
+
 dnl {{{ Extra CFLAGS
 PINKTRACE_CFLAGS=
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
