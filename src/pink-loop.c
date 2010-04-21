@@ -52,7 +52,7 @@ pink_loop_fork(pink_context_t *ctx, pink_child_func_t func, void *userdata)
 	bool followfork, issingle;
 	int status;
 	pid_t pid, wpid;
-	enum pink_event event;
+	pink_event_t event;
 
 	assert(ctx != NULL);
 	assert(ctx->handler != NULL);

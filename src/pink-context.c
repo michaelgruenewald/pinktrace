@@ -38,9 +38,9 @@ pink_context_new(void)
 
 	ctx->attach = false;
 	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
+	ctx->eldest = -1;
 	ctx->error = PINK_ERROR_SUCCESS;
 	ctx->step = PINK_STEP_SYSCALL;
-	ctx->eldest = -1;
 	ctx->handler = NULL;
 	return ctx;
 }
@@ -101,12 +101,12 @@ pink_context_clear_error(pink_context_t *ctx)
 }
 
 void
-pink_context_set_step(pink_context_t *ctx, enum pink_step type)
+pink_context_set_step(pink_context_t *ctx, pink_step_t type)
 {
 	ctx->step = type;
 }
 
-enum pink_step
+pink_step_t
 pink_context_get_step(const pink_context_t *ctx)
 {
 	return ctx->step;

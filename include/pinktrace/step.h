@@ -26,9 +26,9 @@
  * Pink's trace stepping
  **/
 
-enum pink_step {
+typedef enum {
 	PINK_STEP_SINGLE,	/*<< Single stepping */
 	PINK_STEP_SYSCALL,	/*<< System call stepping */
-};
+} pink_step_t;
 
-#endif /* !PINKTRACE_GUARD_EVENT_H */
+#endif /* !PINKTRACE_GUARD_STEP_H */

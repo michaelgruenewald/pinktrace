@@ -142,7 +142,7 @@ pink_context_clear_error(pink_context_t *ctx);
  * \param type The stepping type, one of PINK_STEP_* constants.
  **/
 void
-pink_context_set_step(pink_context_t *ctx, enum pink_step type);
+pink_context_set_step(pink_context_t *ctx, pink_step_t type);
 
 /**
  * Accessor function for the step property.
@@ -151,7 +151,7 @@ pink_context_set_step(pink_context_t *ctx, enum pink_step type);
  *
  * \return The stepping property of the given tracing context.
  **/
-enum pink_step
+pink_step_t
 pink_context_get_step(const pink_context_t *ctx);
 
 /**

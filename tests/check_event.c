@@ -41,7 +41,7 @@ START_TEST(test_pink_event_stop)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -88,7 +88,7 @@ START_TEST(test_pink_event_syscall)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -141,7 +141,7 @@ START_TEST(test_pink_event_fork)
 	int status;
 	pid_t pid, cpid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -194,7 +194,7 @@ START_TEST(test_pink_event_vfork)
 	int status;
 	pid_t pid, cpid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -257,7 +257,7 @@ START_TEST(test_pink_event_exec)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 	char *myargv[] = { "/bin/true", NULL };
 	char *myenviron[] = { NULL };
 
@@ -309,7 +309,7 @@ START_TEST(test_pink_event_exit)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -359,7 +359,7 @@ START_TEST(test_pink_event_genuine)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -406,7 +406,7 @@ START_TEST(test_pink_event_exit_genuine)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
@@ -457,7 +457,7 @@ START_TEST(test_pink_event_exit_signal)
 	int status;
 	pid_t pid;
 	pink_context_t *ctx;
-	enum pink_event event;
+	pink_event_t event;
 
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));

@@ -50,15 +50,16 @@
 #endif /* defined(IA64) */
 
 #include <pinktrace/context.h>
+#include <pinktrace/error.h>
 #include <pinktrace/step.h>
 
 struct pink_context
 {
 	bool attach;
 	int options;
-	int error;
-	enum pink_step step;
 	pid_t eldest;
+	pink_error_t error;
+	pink_step_t step;
 	pink_event_func_t handler;
 };
 

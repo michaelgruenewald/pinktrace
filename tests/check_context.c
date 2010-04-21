@@ -116,15 +116,15 @@ START_TEST(test_pink_context_options)
 	options = pink_context_get_options(ctx);
 	fail_if(options & PINK_TRACE_OPTION_CLONE, "Options have CLONE set");
 
-	options |= PINK_TRACE_OPTION_VFORKDONE;
+	options |= PINK_TRACE_OPTION_VFORK_DONE;
 	pink_context_set_options(ctx, options);
 	options = pink_context_get_options(ctx);
-	fail_unless(options & PINK_TRACE_OPTION_VFORKDONE, "Options doesn't have VFORKDONE set");
+	fail_unless(options & PINK_TRACE_OPTION_VFORK_DONE, "Options doesn't have VFORK_DONE set");
 
-	options &= ~PINK_TRACE_OPTION_VFORKDONE;
+	options &= ~PINK_TRACE_OPTION_VFORK_DONE;
 	pink_context_set_options(ctx, options);
 	options = pink_context_get_options(ctx);
-	fail_if(options & PINK_TRACE_OPTION_VFORKDONE, "Options have VFORKDONE set");
+	fail_if(options & PINK_TRACE_OPTION_VFORK_DONE, "Options have VFORK_DONE set");
 
 	options |= PINK_TRACE_OPTION_EXIT;
 	pink_context_set_options(ctx, options);

@@ -26,7 +26,7 @@
  * Pink's error constants
  **/
 
-enum pink_error {
+typedef enum {
 	PINK_ERROR_SUCCESS = 0,	/*<< Success */
 	PINK_ERROR_FORK,	/*<< Fork failed */
 	PINK_ERROR_TRACE,	/*<< pink_trace_me() failed */
@@ -34,6 +34,7 @@ enum pink_error {
 	PINK_ERROR_STEP,	/*<< pink_trace_singlestep() or pink_trace_syscall() failed */
 	PINK_ERROR_WAIT,	/*<< waitpid() failed */
 	PINK_ERROR_HANDLER,	/*<< The event handler returned smaller than zero */
-};
+	PINK_ERROR_UNKNOWN,	/*<< Unknown error */
+} pink_error_t;
 
 #endif /* !PINKTRACE_GUARD_ERROR_H */

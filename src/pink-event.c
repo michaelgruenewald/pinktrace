@@ -26,7 +26,7 @@
 #include <pinktrace/context.h>
 #include <pinktrace/trace.h>
 
-enum pink_event
+pink_event_t
 pink_event_decide(pink_context_t *ctx, int status)
 {
 	unsigned int event;

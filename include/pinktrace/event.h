@@ -28,7 +28,7 @@
 
 #include <pinktrace/context.h>
 
-enum pink_event {
+typedef enum {
 	PINK_EVENT_STOP,	/*<< Child has been stopped */
 	PINK_EVENT_SYSCALL,	/*<< Child has entered/exited a system call */
 	PINK_EVENT_FORK,	/*<< Child called fork() */
@@ -41,7 +41,7 @@ enum pink_event {
 	PINK_EVENT_EXIT_GENUINE,/*<< Child has *exited* normally */
 	PINK_EVENT_EXIT_SIGNAL, /*<< Child exited with a signal */
 	PINK_EVENT_UNKNOWN,	/*<< Unknown event, shouldn't happen */
-};
+} pink_event_t;
 
 /**
  * Return the last event made by child.
@@ -51,7 +51,7 @@ enum pink_event {
  *
  * \return One of PINK_EVENT_* constants
  **/
-enum pink_event
+pink_event_t
 pink_event_decide(pink_context_t *ctx, int status);
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */
