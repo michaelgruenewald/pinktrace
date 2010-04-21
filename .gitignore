@@ -42,4 +42,8 @@ doc/libpinktrace.tag
 m4/libtool.m4
 m4/lt*.m4
 
+src/pink-syscallent.h
+src/pink-syscallent32.h
+src/pink-syscallent64.h
+
 tests/check_libpinktrace

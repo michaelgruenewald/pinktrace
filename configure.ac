@@ -29,6 +29,7 @@ fi
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
+AC_PROG_SED
 dnl }}}
 
 dnl {{{ Check for supported OS
@@ -41,11 +42,11 @@ case "$host_os" in
 		case "$kernel_version" in
 			2.6*)
 				AC_MSG_RESULT([$kernel_version])
-				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
-				if test "$kernel_minor_version" -lt 29; then
-					AC_MSG_WARN([pinktrace works slow on kernels <2.6.29 due to a ptrace bug!])
-					AC_MSG_WARN([See http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=53da1d9456fe7f87a920a78fdbdcf1225d197cb7 for the fix!])
-				fi
+#				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
+#				if test "$kernel_minor_version" -lt 29; then
+#					AC_MSG_WARN([pinktrace works slow on kernels <2.6.29 due to a ptrace bug!])
+#					AC_MSG_WARN([See http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=53da1d9456fe7f87a920a78fdbdcf1225d197cb7 for the fix!])
+#				fi
 				;;
 			2.5*)
 				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
@@ -102,6 +103,9 @@ AM_CONDITIONAL(X86_64, test x"$arch" = x"x86_64")
 AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
 AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
+AM_CONDITIONAL(PERSONALITY_ONE,
+			   test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
+AM_CONDITIONAL(PERSONALITY_TWO, test x"$arch" = x"x86_64")
 dnl }}}
 
 dnl {{{ Check headers
@@ -116,6 +120,10 @@ dnl }}}
 dnl {{{ Check types
 AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,
 			   [#include <sys/ptrace.h>])
+dnl }}}
+
+dnl {{{ Check for gcc
+AM_CONDITIONAL(GCC, test x"$GCC" = x"yes")
 dnl }}}
 
 dnl {{{ Extra CFLAGS
