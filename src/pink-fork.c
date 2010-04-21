@@ -45,6 +45,7 @@ pink_fork(pink_context_t *ctx)
 	else if (!pid) { /* child */
 		if (!pink_trace_me())
 			_exit(-1);
+		kill(getpid(), SIGSTOP);
 	}
 	else { /* parent */
 		waitpid(pid, &status, 0);

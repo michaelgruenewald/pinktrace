@@ -53,7 +53,7 @@ START_TEST(test_pink_fork)
 		}
 	}
 	else if (!pid) /* child */
-		kill(getpid(), SIGSTOP);
+		pause();
 	else { /* parent */
 		fail_unless(pink_context_get_eldest(ctx) == pid,
 				"Wrong eldest pid, expected: %d got: %d",
