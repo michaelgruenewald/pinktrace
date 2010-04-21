@@ -73,7 +73,7 @@ pink_context_set_attach(pink_context_t *ctx, bool on);
  * \return true if attach is enabled, false otherwise.
  **/
 bool
-pink_context_get_attach(pink_context_t *ctx);
+pink_context_get_attach(const pink_context_t *ctx);
 
 /**
  * Set the options property of the given tracing context.
@@ -93,7 +93,7 @@ pink_context_set_options(pink_context_t *ctx, int options);
  * \return Bitwise OR'ed flags PINK_TRACE_OPTION_* flags.
  **/
 int
-pink_context_get_options(pink_context_t *ctx);
+pink_context_get_options(const pink_context_t *ctx);
 
 /**
  * Sets the process ID of the child to be traced.
@@ -115,7 +115,7 @@ pink_context_set_eldest(pink_context_t *ctx, pid_t pid);
  * \return Process ID of the eldest child.
  **/
 pid_t
-pink_context_get_eldest(pink_context_t *ctx);
+pink_context_get_eldest(const pink_context_t *ctx);
 
 /**
  * Get the last error of the tracing context.
@@ -125,7 +125,7 @@ pink_context_get_eldest(pink_context_t *ctx);
  * \return The error code, one of PTRACE_ERROR_* constants.
  **/
 int
-pink_context_get_error(pink_context_t *ctx);
+pink_context_get_error(const pink_context_t *ctx);
 
 /**
  * Clear the error status of the tracing context.
@@ -152,7 +152,7 @@ pink_context_set_step(pink_context_t *ctx, enum pink_step type);
  * \return The stepping property of the given tracing context.
  **/
 enum pink_step
-pink_context_get_step(pink_context_t *ctx);
+pink_context_get_step(const pink_context_t *ctx);
 
 /**
  * Sets the event handler function for the tracing context.
@@ -171,6 +171,6 @@ pink_context_set_handler(pink_context_t *ctx, pink_event_func_t func);
  * \return The event handler of the tracing context.
  **/
 pink_event_func_t
-pink_context_get_handler(pink_context_t *ctx);
+pink_context_get_handler(const pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

@@ -58,7 +58,7 @@ pink_context_set_attach(pink_context_t *ctx, bool on)
 }
 
 bool
-pink_context_get_attach(pink_context_t *ctx)
+pink_context_get_attach(const pink_context_t *ctx)
 {
 	return ctx->attach;
 }
@@ -71,7 +71,7 @@ pink_context_set_options(pink_context_t *ctx, int options)
 }
 
 int
-pink_context_get_options(pink_context_t *ctx)
+pink_context_get_options(const pink_context_t *ctx)
 {
 	return ctx->options;
 }
@@ -83,13 +83,13 @@ pink_context_set_eldest(pink_context_t *ctx, pid_t pid)
 }
 
 pid_t
-pink_context_get_eldest(pink_context_t *ctx)
+pink_context_get_eldest(const pink_context_t *ctx)
 {
 	return ctx->eldest;
 }
 
 int
-pink_context_get_error(pink_context_t *ctx)
+pink_context_get_error(const pink_context_t *ctx)
 {
 	return ctx->error;
 }
@@ -107,7 +107,7 @@ pink_context_set_step(pink_context_t *ctx, enum pink_step type)
 }
 
 enum pink_step
-pink_context_get_step(pink_context_t *ctx)
+pink_context_get_step(const pink_context_t *ctx)
 {
 	return ctx->step;
 }
@@ -119,7 +119,7 @@ pink_context_set_handler(pink_context_t *ctx, pink_event_func_t func)
 }
 
 pink_event_func_t
-pink_context_get_handler(pink_context_t *ctx)
+pink_context_get_handler(const pink_context_t *ctx)
 {
 	return ctx->handler;
 }
