@@ -21,6 +21,11 @@
 #ifndef PINKTRACE_GUARD_UTIL_H
 #define PINKTRACE_GUARD_UTIL_H 1
 
+#include <sys/types.h>
+
+#define pink_util_move(pid, addr, objp) \
+	pink_util_moven((pid), (addr), (char *)(objp), sizeof *(objp))
+
 /**
  * Reads a word at the given offset in the child's USER area,
  * and places it in res.
@@ -33,7 +38,28 @@
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_util_upeek(pid_t pid, long off, long *res);
+pink_util_peek(pid_t pid, long off, long *res);
+
+/**
+ * Move len bytes of data of process pid, at address addr, to our address space
+ * dest.
+ *
+ * \param pid Process ID of the child.
+ * \param addr Address from where the data is to be moved.
+ * \param dest Pointer to store the data.
+ * \param len Number of bytes of data to move.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
+
+/**
+ * Like pink_util_moven but make the additional effort of looking for a
+ * terminating zero-byte.
+ **/
+bool
+pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 
 /**
  * Gets the last system call called by child with the given process ID.
@@ -82,5 +108,18 @@ pink_util_get_return(pid_t pid, long *res);
  **/
 bool
 pink_util_set_return(pid_t pid, long ret);
+
+/**
+ * Get the given argument place it in res.
+ *
+ * \param pid Process ID of the child whose argument is to be received.
+ * \param bitness Bitness of the child
+ * \param arg The number of the argument (0-5)
+ * \param res Pointer to store the argument
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res);
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */

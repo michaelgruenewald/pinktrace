@@ -19,13 +19,13 @@
  */
 
 #include <errno.h>
+#include <string.h>
 
 #include <pinktrace/internal.h>
-#include <pinktrace/util.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 bool
-pink_util_upeek(pid_t pid, long off, long *res)
+pink_util_peek(pid_t pid, long off, long *res)
 {
 	long val;
 
@@ -35,5 +35,106 @@ pink_util_upeek(pid_t pid, long off, long *res)
 		return false;
 
 	*res = val;
+	return true;
+}
+
+#define MIN(a,b)	(((a) < (b)) ? (a) : (b))
+bool
+pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
+{
+	int n, m;
+	int started = 0;
+	union {
+		long val;
+		char x[sizeof(long)];
+	} u;
+
+	if (addr & (sizeof(long) -1)) {
+		/* addr not a multiple of sizeof(long) */
+		n = addr - (addr & -sizeof(long)); /* residue */
+		addr &= -sizeof(long); /* residue */
+
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return true;
+			}
+			/* But if not started, we had a bogus address */
+			return false;
+		}
+		started = 1;
+		memcpy(dest, &u.x[n], m = MIN(sizeof(long) - n, len));
+		addr += sizeof(long), dest += m, len -= m;
+	}
+	while (len > 0) {
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return true;
+			}
+			/* But if not started, we had a bogus address */
+			return false;
+		}
+		started = 1;
+		memcpy(dest, u.x, m = MIN(sizeof(long), len));
+		addr += sizeof(long), dest += m, len -= m;
+	}
+	return true;
+}
+
+bool
+pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
+{
+	int n, m;
+	int started = 0;
+	union {
+		long val;
+		char x[sizeof(long)];
+	} u;
+
+	if (addr & (sizeof(long) -1)) {
+		/* addr not a multiple of sizeof(long) */
+		n = addr - (addr & -sizeof(long)); /* residue */
+		addr &= -sizeof(long); /* residue */
+
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return true;
+			}
+			/* But if not started, we had a bogus address */
+			return false;
+		}
+		started = 1;
+		memcpy(dest, &u.x[n], m = MIN(sizeof(long) - n, len));
+		while (n & (sizeof(long) - 1))
+			if (u.x[n++] == '\0')
+				return true;
+		addr += sizeof(long), dest += m, len -= m;
+	}
+	while (len > 0) {
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return true;
+			}
+			/* But if not started, we had a bogus address */
+			return false;
+		}
+		started = 1;
+		memcpy(dest, u.x, m = MIN(sizeof(long), len));
+		for (unsigned int i = 0; i < sizeof(long); i++)
+			if (u.x[i] == '\0')
+				return true;
+		addr += sizeof(long), dest += m, len -= m;
+	}
 	return true;
 }

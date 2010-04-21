@@ -26,6 +26,24 @@
 
 #define ORIG_ACCUM	(PT_R15)
 
+static bool
+pink_util_peek_ia64(pid_t pid, int narg, long *res)
+{
+	unsigned long *out0, cfm, sof, sol;
+	long rbs_end;
+
+	if (!pink_util_peek(pid, PT_AR_BSP, &rbs_end))
+		return false;
+	if (!pink_util_peek(pid, PT_CFM, (long *)&cfm))
+		return false;
+
+	sof = (cfm >> 0) & 0x7f;
+	sol = (cfm >> 7) & 0x7f;
+	out0 = ia64_rse_skip_regs((unsigned long *)rbs_end, -sof + sol);
+
+	return pink_util_moven(pid, (unsigned long)ia64_rse_skip_regs(out0, narg), (char *)res, sizeof(long));
+}
+
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
 {
@@ -35,7 +53,7 @@ pink_bitness_get(pink_unused pid_t pid)
 bool
 pink_util_get_syscall(pid_t pid, long *res)
 {
-	return pink_util_upeek(pid, ORIG_ACCUM, res);
+	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
@@ -49,8 +67,8 @@ pink_util_get_return(pid_t pid, long *res)
 {
 	long r8, r10;
 
-	if (!ptrace_util_upeek(pid, PT_R8, &r8)
-		|| !ptrace_util_upeek(pid, PT_R10, &r10))
+	if (!pink_util_peek(pid, PT_R8, &r8)
+		|| !pink_util_peek(pid, PT_R10, &r10))
 		return false;
 
 	*res = (r10 != 0) ? -r8 : r8;
@@ -67,4 +85,12 @@ pink_util_set_return(pid_t pid, long ret)
 
 	return (0 == ptrace(PTRACE_POKEUSER, pid, PT_R8, r8)) &&
 		(0 == ptrace(PTRACE_POKEUSER, pid, PT_R10, r10));
+}
+
+bool
+pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *res)
+{
+	assert(0 >= arg && arg < MAX_ARGS);
+
+	return upeek_ia64(pid, arg, res);
 }

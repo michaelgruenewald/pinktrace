@@ -21,10 +21,18 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+#ifndef PT_ORIG_R3
+#define PT_ORIG_R3 34
+#endif /* !PT_ORIG_R3 */
+
 #define ORIG_ACCUM	(sizeof(unsigned long) * PT_R0)
 #define ACCUM		(sizeof(unsigned long) * PT_R3)
 #define ACCUM_FLAGS	(sizeof(unsigned long) * PT_CCR)
 #define SO_MASK		0x10000000
+
+#define ARG_OFFSET(i)	(((i) == 0)				\
+		? (sizeof(unsigned long) * PT_ORIG_R3)		\
+		: (sizeof(unsigned long) * ((i) + PT_R3)))
 
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
@@ -40,7 +48,7 @@ pink_bitness_get(pink_unused pid_t pid)
 bool
 pink_util_get_syscall(pid_t pid, long *res)
 {
-	return pink_util_upeek(pid, ORIG_ACCUM, res);
+	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
@@ -54,8 +62,8 @@ pink_util_get_return(pid_t pid, long *res)
 {
 	long flags;
 
-	if (!pink_util_upeek(pid, ACCUM, res) ||
-			pink_util_upeek(pid, ACCUM_FLAGS, &flags))
+	if (!pink_util_peek(pid, ACCUM, res) ||
+			pink_util_peek(pid, ACCUM_FLAGS, &flags))
 		return false;
 
 	if (flags & SO_MASK)
@@ -68,7 +76,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	long flags;
 
-	if (!pink_util_upeek(pid, ACCUM_FLAGS, &flags))
+	if (!pink_util_peek(pid, ACCUM_FLAGS, &flags))
 		return false;
 
 	if (val < 0) {
@@ -80,4 +88,12 @@ pink_util_set_return(pid_t pid, long ret)
 
 	return (0 == ptrace(PTRACE_POKEUSER, pid, ACCUM, ret)) &&
 		(0 == ptrace(PTRACE_POKEUSER, pid, ACCUM_FLAGS, flags));
+}
+
+bool
+pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *res)
+{
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	return pink_util_peek(pid, ARG_OFFSET(arg), res);
 }

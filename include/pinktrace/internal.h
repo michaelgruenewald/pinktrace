@@ -49,6 +49,8 @@
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
 
+#define MAX_ARGS	6
+
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
 #include <pinktrace/step.h>
