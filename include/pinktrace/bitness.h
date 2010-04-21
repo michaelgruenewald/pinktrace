@@ -18,21 +18,30 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
+#ifndef PINKTRACE_GUARD_BITNESS_H
+#define PINKTRACE_GUARD_BITNESS_H 1
+
+#include <sys/types.h>
 
 /**
  * \file
- * Pink's Tracing Library
+ * Pink's bitness modes
  **/
 
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/loop.h>
-#include <pinktrace/trace.h>
+typedef enum {
+	PINK_BITNESS_UNKNOWN = -1,	/*<< Unknown (error with pink_bitness_get() */
+	PINK_BITNESS_32,		/*<< 32 bit mode */
+	PINK_BITNESS_64,		/*<< 64 bit mode */
+} pink_bitness_t;
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+/**
+ * Return the bitness of the given process ID.
+ *
+ * \param pid Process ID of the process whose bitness is to be returned.
+ *
+ * \return One of PINK_BITNESS_* constants.
+ **/
+pink_bitness_t
+pink_bitness_get(pid_t pid);
+
+#endif /* !PINKTRACE_GUARD_BITNESS_H */

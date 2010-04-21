@@ -18,21 +18,31 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
-
-/**
- * \file
- * Pink's Tracing Library
- **/
-
-#include <pinktrace/gcc.h>
+#include <pinktrace/internal.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/loop.h>
 #include <pinktrace/trace.h>
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+pink_bitness_t
+pink_bitness_get(pid_t pid)
+{
+	long cs;
+
+	/*
+	 * Check CS register value,
+	 * On x86-64 linux this is:
+	 * 0x33    for long mode (64 bit)
+	 * 0x23    for compatibility mode (32 bit)
+	 */
+
+	if (!pink_trace_upeek(pid, 8 * CS, &cs))
+		return PINK_BITNESS_UNKNOWN;
+
+	switch (cs) {
+	case 0x33:
+		return PINK_BITNESS_64;
+	case 0x23:
+		return PINK_BITNESS_32;
+	default:
+		return PINK_BITNESS_UNKNOWN;
+	}
+}

@@ -18,21 +18,16 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
-
-/**
- * \file
- * Pink's Tracing Library
- **/
-
 #include <pinktrace/gcc.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/loop.h>
-#include <pinktrace/trace.h>
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+pink_bitness_t
+pink_bitness_get(pink_unused pid_t pid)
+{
+#if defined(POWERPC)
+	return PINK_BITNESS_32;
+#elif defined(POWERPC64)
+	return PINK_BITNESS_64;
+#else
+#error unsupported architecture
+}

@@ -12,6 +12,7 @@ pkgconfig_DATA=pinktrace.pc
 pinktraceincludedir= $(includedir)/pinktrace
 pinktraceinclude_HEADERS= \
 			  include/pinktrace/gcc.h \
+			  include/pinktrace/bitness.h \
 			  include/pinktrace/error.h \
 			  include/pinktrace/event.h \
 			  include/pinktrace/step.h \

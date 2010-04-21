@@ -218,4 +218,18 @@ pink_trace_attach(pid_t pid);
 bool
 pink_trace_detach(pid_t pid, int sig);
 
+/**
+ * Reads a word at the given offset in the child's USER area,
+ * and places it in res.
+ * Note: Mostly for internal use, use higher level functions where possible.
+ *
+ * \param pid Process ID of the child whose USER area is to be read.
+ * \param off Offset
+ * \param res Result
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_upeek(pid_t pid, long off, long *res);
+
 #endif /* !PINKTRACE_GUARD_TRACE_H */
