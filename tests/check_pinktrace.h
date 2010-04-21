@@ -24,6 +24,9 @@
 #include <check.h>
 
 Suite *
+bitness_suite_create(void);
+
+Suite *
 context_suite_create(void);
 
 Suite *
