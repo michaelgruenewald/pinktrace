@@ -18,33 +18,28 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_ERROR_H
-#define PINKTRACE_GUARD_ERROR_H 1
+#include <pinktrace/error.h>
 
-/**
- * \file
- * Pink's error constants
- **/
-
-typedef enum {
-	PINK_ERROR_SUCCESS = 0,	/*<< Success */
-	PINK_ERROR_FORK,	/*<< Fork failed */
-	PINK_ERROR_TRACE,	/*<< pink_trace_me() failed */
-	PINK_ERROR_TRACE_SETUP,	/*<< pink_trace_setup() failed */
-	PINK_ERROR_STEP,	/*<< pink_trace_singlestep() or pink_trace_syscall() failed */
-	PINK_ERROR_WAIT,	/*<< waitpid() failed */
-	PINK_ERROR_HANDLER,	/*<< The event handler returned smaller than zero */
-	PINK_ERROR_UNKNOWN,	/*<< Unknown error */
-} pink_error_t;
-
-/**
- * Return a string representation of the error
- *
- * \param error The error to be stringified.
- *
- * \return The string representation of the error.
- **/
 const char *
-pink_error_tostring(pink_error_t error);
-
-#endif /* !PINKTRACE_GUARD_ERROR_H */
+pink_error_tostring(pink_error_t error)
+{
+	switch (error) {
+	case PINK_ERROR_SUCCESS:
+		return "Success";
+	case PINK_ERROR_FORK:
+		return "fork failed";
+	case PINK_ERROR_TRACE:
+		return "Setting up tracing failed";
+	case PINK_ERROR_TRACE_SETUP:
+		return "Setting up tracing options failed";
+	case PINK_ERROR_STEP:
+		return "Stepping failed";
+	case PINK_ERROR_WAIT:
+		return "wait failed";
+	case PINK_ERROR_HANDLER:
+		return "Event handler returned non-zero";
+	case PINK_ERROR_UNKNOWN:
+	default:
+		return "Unknown error";
+	}
+}
