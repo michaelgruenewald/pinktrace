@@ -92,6 +92,18 @@
 #define PINK_TRACE_OPTION_EXIT      (1 << 6)
 
 /**
+ * All trace options OR'ed together.
+ **/
+#define PINK_TRACE_OPTION_ALL \
+	(PINK_TRACE_OPTION_SYSGOOD |\
+	 PINK_TRACE_OPTION_FORK |\
+	 PINK_TRACE_OPTION_VFORK |\
+	 PINK_TRACE_OPTION_CLONE |\
+	 PINK_TRACE_OPTION_EXEC |\
+	 PINK_TRACE_OPTION_VFORK_DONE |\
+	 PINK_TRACE_OPTION_EXIT)
+
+/**
  * Indicates that this process is to be traced by its parent. Any signal
  * (except SIGKILL) delivered to this process will cause it to stop and its
  * parent to be notified via wait(2). Also, all subsequent calls to execve(2)
