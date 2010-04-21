@@ -55,6 +55,9 @@ pink_fork(pink_context_t *ctx)
 			return -1;
 		}
 
+		assert(WIFSTOPPED(status));
+		assert(WSTOPSIG(status) == SIGSTOP);
+
 		if (!pink_trace_setup(pid, ctx->options)) {
 			/* Setting up child failed, kill it with fire! */
 			save_errno = errno;
