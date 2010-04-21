@@ -70,3 +70,35 @@ pink_event_decide(pink_context_t *ctx, int status)
 
 	return PINK_EVENT_UNKNOWN;
 }
+
+const char *
+pink_event_tostring(pink_event_t event)
+{
+	switch (event) {
+	case PINK_EVENT_STOP:
+		return "stop";
+	case PINK_EVENT_SYSCALL:
+		return "syscall";
+	case PINK_EVENT_FORK:
+		return "fork";
+	case PINK_EVENT_VFORK:
+		return "vfork";
+	case PINK_EVENT_CLONE:
+		return "clone";
+	case PINK_EVENT_VFORK_DONE:
+		return "vfork_done";
+	case PINK_EVENT_EXEC:
+		return "exec";
+	case PINK_EVENT_EXIT:
+		return "exit";
+	case PINK_EVENT_GENUINE:
+		return "genuine";
+	case PINK_EVENT_EXIT_GENUINE:
+		return "exit_genuine";
+	case PINK_EVENT_EXIT_SIGNAL:
+		return "exit_signal";
+	case PINK_EVENT_UNKNOWN:
+	default:
+		return "unknown";
+	}
+}

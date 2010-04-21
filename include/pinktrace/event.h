@@ -54,4 +54,14 @@ typedef enum {
 pink_event_t
 pink_event_decide(pink_context_t *ctx, int status);
 
+/**
+ * Return a string representation of the event
+ *
+ * \param event The event to be stringified.
+ *
+ * \return The string representation of the event.
+ **/
+const char *
+pink_event_tostring(pink_event_t event);
+
 #endif /* !PINKTRACE_GUARD_EVENT_H */
