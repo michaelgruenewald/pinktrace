@@ -18,40 +18,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_BITNESS_H
-#define PINKTRACE_GUARD_BITNESS_H 1
+#include <pinktrace/bitness.h>
 
-#include <sys/types.h>
-
-/**
- * \file
- * Pink's bitness modes
- **/
-
-typedef enum {
-	PINK_BITNESS_UNKNOWN = -1,	/*<< Unknown (error with pink_bitness_get() */
-	PINK_BITNESS_32,		/*<< 32 bit mode */
-	PINK_BITNESS_64,		/*<< 64 bit mode */
-} pink_bitness_t;
-
-/**
- * Return the bitness of the given process ID.
- *
- * \param pid Process ID of the process whose bitness is to be returned.
- *
- * \return One of PINK_BITNESS_* constants.
- **/
-pink_bitness_t
-pink_bitness_get(pid_t pid);
-
-/**
- * Return the string representation of the given bitness.
- *
- * \param bitness The bitness to be stringified.
- *
- * \return String representation of the bitness.
- **/
 const char *
-pink_bitness_tostring(pink_bitness_t bitness);
-
-#endif /* !PINKTRACE_GUARD_BITNESS_H */
+pink_bitness_tostring(pink_bitness_t bitness)
+{
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		return "32 bit";
+	case PINK_BITNESS_64:
+		return "64 bit";
+	case PINK_BITNESS_UNKNOWN:
+	default:
+		return "unknown";
+	}
+}
