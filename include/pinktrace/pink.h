@@ -34,5 +34,6 @@
 #include <pinktrace/fork.h>
 #include <pinktrace/loop.h>
 #include <pinktrace/trace.h>
+#include <pinktrace/util.h>
 
 #endif /* !PINKTRACE_GUARD_PINK_H */

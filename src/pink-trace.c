@@ -96,17 +96,3 @@ pink_trace_detach(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_DETACH, pid, NULL, sig));
 }
-
-bool
-pink_trace_upeek(pid_t pid, long off, long *res)
-{
-	long val;
-
-	errno = 0;
-	val = ptrace(PTRACE_PEEKUSER, pid, off, NULL);
-	if (val == -1 && errno != 0)
-		return false;
-
-	*res = val;
-	return true;
-}

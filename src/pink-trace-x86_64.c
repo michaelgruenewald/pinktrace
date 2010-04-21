@@ -20,7 +20,9 @@
 
 #include <pinktrace/internal.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/util.h>
+
+#define ORIG_ACCUM      (8 * ORIG_RAX)
 
 pink_bitness_t
 pink_bitness_get(pid_t pid)
@@ -34,7 +36,7 @@ pink_bitness_get(pid_t pid)
 	 * 0x23    for compatibility mode (32 bit)
 	 */
 
-	if (!pink_trace_upeek(pid, 8 * CS, &cs))
+	if (!pink_util_upeek(pid, 8 * CS, &cs))
 		return PINK_BITNESS_UNKNOWN;
 
 	switch (cs) {
@@ -45,4 +47,16 @@ pink_bitness_get(pid_t pid)
 	default:
 		return PINK_BITNESS_UNKNOWN;
 	}
+}
+
+bool
+pink_util_get_syscall(pid_t pid, long *res)
+{
+	return pink_util_upeek(pid, ORIG_ACCUM, res);
+}
+
+bool
+pink_util_set_syscall(pid_t pid, long scno)
+{
+	return !(0 > ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
 }

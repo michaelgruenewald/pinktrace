@@ -18,27 +18,22 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_CHECK_PINKTRACE_H
-#define PINKTRACE_GUARD_CHECK_PINKTRACE_H 1
+#include <errno.h>
 
-#include <check.h>
+#include <pinktrace/internal.h>
+#include <pinktrace/util.h>
+#include <pinktrace/trace.h>
 
-Suite *
-bitness_suite_create(void);
+bool
+pink_util_upeek(pid_t pid, long off, long *res)
+{
+	long val;
 
-Suite *
-context_suite_create(void);
+	errno = 0;
+	val = ptrace(PTRACE_PEEKUSER, pid, off, NULL);
+	if (val == -1 && errno != 0)
+		return false;
 
-Suite *
-fork_suite_create(void);
-
-Suite *
-event_suite_create(void);
-
-Suite *
-trace_suite_create(void);
-
-Suite *
-util_suite_create(void);
-
-#endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_H */
+	*res = val;
+	return true;
+}

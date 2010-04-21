@@ -18,8 +18,12 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <pinktrace/internal.h>
 #include <pinktrace/gcc.h>
 #include <pinktrace/bitness.h>
+#include <pinktrace/util.h>
+
+#define ORIG_ACCUM (sizeof(unsigned long) * PT_R0)
 
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
@@ -30,4 +34,16 @@ pink_bitness_get(pink_unused pid_t pid)
 	return PINK_BITNESS_64;
 #else
 #error unsupported architecture
+}
+
+bool
+pink_util_get_syscall(pid_t pid, long *res)
+{
+	return pink_util_upeek(pid, ORIG_ACCUM, res);
+}
+
+bool
+pink_util_set_syscall(pid_t pid, long scno)
+{
+	return !(0 > ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
 }

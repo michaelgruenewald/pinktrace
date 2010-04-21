@@ -6,7 +6,7 @@ lib_LTLIBRARIES= libpinktrace.la
 libpinktrace_la_SOURCES= pink-bitness.c pink-context.c \
 			 pink-error.c pink-event.c \
 			 pink-fork.c pink-loop.c \
-			 pink-trace.c
+			 pink-trace.c pink-util.c
 libpinktrace_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
 
 # Platform specific sources
