@@ -60,7 +60,7 @@ struct pink_context
 	pid_t eldest;
 	pink_error_t error;
 	pink_step_t step;
-	pink_event_func_t handler;
+	pink_event_handler_t *handler;
 };
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

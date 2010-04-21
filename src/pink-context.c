@@ -113,12 +113,12 @@ pink_context_get_step(const pink_context_t *ctx)
 }
 
 void
-pink_context_set_handler(pink_context_t *ctx, pink_event_func_t func)
+pink_context_set_handler(pink_context_t *ctx, pink_event_handler_t *handler)
 {
-	ctx->handler = func;
+	ctx->handler = handler;
 }
 
-pink_event_func_t
+pink_event_handler_t *
 pink_context_get_handler(const pink_context_t *ctx)
 {
 	return ctx->handler;
