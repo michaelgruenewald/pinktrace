@@ -19,6 +19,7 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -32,7 +33,7 @@
 pid_t
 pink_fork(pink_context_t *ctx)
 {
-	int status;
+	int save_errno, status;
 	pid_t pid;
 
 	assert(ctx != NULL);
@@ -55,7 +56,10 @@ pink_fork(pink_context_t *ctx)
 
 		if (!pink_trace_setup(pid, ctx->options)) {
 			/* Setting up child failed, kill it with fire! */
+			save_errno = errno;
 			kill(pid, SIGKILL);
+			errno = save_errno;
+
 			ctx->error = PINK_ERROR_TRACE_SETUP;
 			return -1;
 		}

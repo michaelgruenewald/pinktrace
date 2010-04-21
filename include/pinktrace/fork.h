@@ -25,12 +25,6 @@
 
 #include <pinktrace/context.h>
 
-enum pink_fork_error {
-	PINK_FORK_ERROR_FORK = -2,  /*<< fork() failed */
-	PINK_FORK_ERROR_TRACE = -3, /*<< pink_trace_me() failed and child died */
-	PINK_FORK_ERROR_SETUP = -4, /*<< pink_trace_setup() failed and child was killed */
-};
-
 /**
  * fork(2) wrapper that sets up the child for tracing.
  *
@@ -38,8 +32,8 @@ enum pink_fork_error {
  *
  * \return On success, the process ID of the child process is returned in the
  * parent, and 0 is returned in the child and the eldest child property of the
- * context is updated. On failure, one of PINK_FORK_ERROR_* constants is returned,
- * the child is either never created or killed.
+ * context is updated. On failure, one of PINK_ERROR_* constants is returned,
+ * the child is either never created or killed and errno is set accordingly.
  **/
 pid_t
 pink_fork(pink_context_t *ctx);
