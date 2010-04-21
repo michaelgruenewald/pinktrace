@@ -26,6 +26,8 @@
  * Pink's event handling
  **/
 
+#include <pinktrace/context.h>
+
 enum pink_event {
 	PINK_EVENT_STOP,	/*<< Child has been stopped */
 	PINK_EVENT_SYSCALL,	/*<< Child has entered/exited a system call */
@@ -51,4 +53,5 @@ enum pink_event {
  **/
 unsigned int
 pink_event(pink_context_t *ctx, int status);
+
 #endif /* !PINKTRACE_GUARD_EVENT_H */
