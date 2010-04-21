@@ -18,7 +18,8 @@ pinktraceinclude_HEADERS= \
 			  include/pinktrace/context.h \
 			  include/pinktrace/fork.h \
 			  include/pinktrace/loop.h \
-			  include/pinktrace/trace.h
+			  include/pinktrace/trace.h \
+			  include/pinktrace/pink.h
 
 noinst_HEADERS= include/pinktrace/internal.h
 
