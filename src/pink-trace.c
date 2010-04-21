@@ -77,7 +77,7 @@ pink_trace_setup(pid_t pid, int options)
 		ptrace_options |= PTRACE_O_TRACECLONE;
 	if (options & PINK_TRACE_OPTION_EXEC)
 		ptrace_options |= PTRACE_O_TRACEEXEC;
-	if (options & PINK_TRACE_OPTION_VFORKDONE)
+	if (options & PINK_TRACE_OPTION_VFORK_DONE)
 		ptrace_options |= PTRACE_O_TRACEVFORKDONE;
 	if (options & PINK_TRACE_OPTION_EXIT)
 		ptrace_options |= PTRACE_O_TRACEEXIT;
