@@ -32,13 +32,6 @@
 
 #include "check_pinktrace.h"
 
-static int
-event_dummy(pink_unused const pink_context_t *ctx,
-		pink_unused unsigned int event, pink_unused pid_t pid)
-{
-	return 0;
-}
-
 START_TEST(test_pink_context_new)
 {
 	pink_context_t *ctx;
@@ -202,7 +195,7 @@ START_TEST(test_pink_context_handler)
 	fail_unless(pink_context_get_handler(ctx) == NULL,
 			"Wrong default for the event handler");
 
-	pink_context_set_handler(ctx, (pink_event_func_t)event_dummy);
+	pink_context_set_handler(ctx, (pink_event_handler_t *)1);
 	fail_if(pink_context_get_handler(ctx) == NULL,
 			"Failed to set event handler");
 
