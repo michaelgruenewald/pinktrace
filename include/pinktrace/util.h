@@ -57,4 +57,30 @@ pink_util_get_syscall(pid_t pid, long *res);
 bool
 pink_util_set_syscall(pid_t pid, long scno);
 
+/**
+ * Gets the return value of the last system call called by child with the given
+ * process ID.
+ *
+ * \param pid Process ID of the child whose system call return value is to be
+ * returned.
+ * \param res Pointer to store the result.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_get_return(pid_t pid, long *res);
+
+/**
+ * Sets the return value of the last system call called by child with the given
+ * process ID.
+ *
+ * \param pid Process ID of the child whose system call return value is to be
+ * modified.
+ * \param ret Return value to set.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_set_return(pid_t pid, long ret);
+
 #endif /* !PINKTRACE_GUARD_UTIL_H */

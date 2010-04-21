@@ -19,11 +19,12 @@
  */
 
 #include <pinktrace/internal.h>
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/util.h>
+#include <pinktrace/pink.h>
 
-#define ORIG_ACCUM (sizeof(unsigned long) * PT_R0)
+#define ORIG_ACCUM	(sizeof(unsigned long) * PT_R0)
+#define ACCUM		(sizeof(unsigned long) * PT_R3)
+#define ACCUM_FLAGS	(sizeof(unsigned long) * PT_CCR)
+#define SO_MASK		0x10000000
 
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
@@ -45,5 +46,38 @@ pink_util_get_syscall(pid_t pid, long *res)
 bool
 pink_util_set_syscall(pid_t pid, long scno)
 {
-	return !(0 > ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+	return (0 == ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+}
+
+bool
+pink_util_get_return(pid_t pid, long *res)
+{
+	long flags;
+
+	if (!pink_util_upeek(pid, ACCUM, res) ||
+			pink_util_upeek(pid, ACCUM_FLAGS, &flags))
+		return false;
+
+	if (flags & SO_MASK)
+		*res = -(*res);
+	return true;
+}
+
+bool
+pink_util_set_return(pid_t pid, long ret)
+{
+	long flags;
+
+	if (!pink_util_upeek(pid, ACCUM_FLAGS, &flags))
+		return false;
+
+	if (val < 0) {
+		flags |= SO_MASK;
+		val = -val;
+	}
+	else
+		flags &= ~SO_MASK;
+
+	return (0 == ptrace(PTRACE_POKEUSER, pid, ACCUM, ret)) &&
+		(0 == ptrace(PTRACE_POKEUSER, pid, ACCUM_FLAGS, flags));
 }

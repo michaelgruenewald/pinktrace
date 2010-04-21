@@ -22,11 +22,9 @@
 #include <asm/rse.h>
 
 #include <pinktrace/internal.h>
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/util.h>
+#include <pinktrace/pink.h>
 
-#define ORIG_ACCUM (PT_R15)
+#define ORIG_ACCUM	(PT_R15)
 
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
@@ -43,5 +41,30 @@ pink_util_get_syscall(pid_t pid, long *res)
 bool
 pink_util_set_syscall(pid_t pid, long scno)
 {
-	return !(0 > ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+	return (0 == ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+}
+
+bool
+pink_util_get_return(pid_t pid, long *res)
+{
+	long r8, r10;
+
+	if (!ptrace_util_upeek(pid, PT_R8, &r8)
+		|| !ptrace_util_upeek(pid, PT_R10, &r10))
+		return false;
+
+	*res = (r10 != 0) ? -r8 : r8;
+	return true;
+}
+
+bool
+pink_util_set_return(pid_t pid, long ret)
+{
+	long r8, r10;
+
+	r8 = (val < 0) ? -val : val;
+	r10 = (val < 0) ? -1 : 0;
+
+	return (0 == ptrace(PTRACE_POKEUSER, pid, PT_R8, r8)) &&
+		(0 == ptrace(PTRACE_POKEUSER, pid, PT_R10, r10));
 }
