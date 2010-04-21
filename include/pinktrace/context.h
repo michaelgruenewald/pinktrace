@@ -34,7 +34,7 @@ typedef struct pink_context pink_context_t;
 /**
  * This function definition represents an event handler.
  **/
-typedef int (*pink_event_func_t) (unsigned int event, pid_t pid);
+typedef int (*pink_event_func_t) (const pink_context_t *ctx, unsigned int event, pid_t pid);
 
 /**
  * Allocate a new tracing context.

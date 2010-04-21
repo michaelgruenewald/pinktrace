@@ -33,7 +33,8 @@
 #include "check_pinktrace.h"
 
 static int
-event_dummy(pink_unused unsigned int event, pink_unused pid_t pid)
+event_dummy(pink_unused const pink_context_t *ctx,
+		pink_unused unsigned int event, pink_unused pid_t pid)
 {
 	return 0;
 }
