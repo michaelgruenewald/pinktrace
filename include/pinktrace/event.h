@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_ERROR_H
-#define PINKTRACE_GUARD_ERROR_H 1
+#ifndef PINKTRACE_GUARD_EVENT_H
+#define PINKTRACE_GUARD_EVENT_H 1
 
 /**
  * \file
@@ -51,7 +51,7 @@ enum pink_event {
  *
  * \return One of PINK_EVENT_* constants
  **/
-unsigned int
-pink_event(pink_context_t *ctx, int status);
+enum pink_event
+pink_event_decide(pink_context_t *ctx, int status);
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */

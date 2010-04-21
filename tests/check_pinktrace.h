@@ -30,6 +30,9 @@ Suite *
 fork_suite_create(void);
 
 Suite *
+event_suite_create(void);
+
+Suite *
 trace_suite_create(void);
 
 #endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_H */
