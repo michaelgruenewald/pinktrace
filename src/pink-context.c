@@ -41,6 +41,7 @@ pink_context_new(void)
 	ctx->error = PINK_ERROR_SUCCESS;
 	ctx->step = PINK_STEP_SYSCALL;
 	ctx->eldest = -1;
+	ctx->handler = NULL;
 	return ctx;
 }
 
@@ -109,4 +110,16 @@ enum pink_step
 pink_context_get_step(pink_context_t *ctx)
 {
 	return ctx->step;
+}
+
+void
+pink_context_set_handler(pink_context_t *ctx, pink_event_func_t func)
+{
+	ctx->handler = func;
+}
+
+pink_event_func_t
+pink_context_get_handler(pink_context_t *ctx)
+{
+	return ctx->handler;
 }

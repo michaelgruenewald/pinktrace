@@ -49,6 +49,7 @@
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
 
+#include <pinktrace/context.h>
 #include <pinktrace/step.h>
 
 struct pink_context
@@ -58,6 +59,7 @@ struct pink_context
 	int error;
 	enum pink_step step;
 	pid_t eldest;
+	pink_event_func_t handler;
 };
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

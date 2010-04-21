@@ -19,16 +19,24 @@
  */
 
 #include <errno.h>
+#include <sys/types.h>
 #include <string.h>
 
 #include <check.h>
 
+#include <pinktrace/gcc.h>
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
 #include <pinktrace/step.h>
 #include <pinktrace/trace.h>
 
 #include "check_pinktrace.h"
+
+static int
+event_dummy(pink_unused unsigned int event, pink_unused pid_t pid)
+{
+	return 0;
+}
 
 START_TEST(test_pink_context_new)
 {
@@ -183,6 +191,24 @@ START_TEST(test_pink_context_step)
 }
 END_TEST
 
+START_TEST(test_pink_context_handler)
+{
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	fail_unless(pink_context_get_handler(ctx) == NULL,
+			"Wrong default for the event handler");
+
+	pink_context_set_handler(ctx, (pink_event_func_t)event_dummy);
+	fail_if(pink_context_get_handler(ctx) == NULL,
+			"Failed to set event handler");
+
+	pink_context_free(ctx);
+}
+END_TEST
+
 Suite *
 context_suite_create(void)
 {
@@ -203,6 +229,7 @@ context_suite_create(void)
 	tcase_add_test(tc_pink_context_properties, test_pink_context_eldest);
 	tcase_add_test(tc_pink_context_properties, test_pink_context_error);
 	tcase_add_test(tc_pink_context_properties, test_pink_context_step);
+	tcase_add_test(tc_pink_context_properties, test_pink_context_handler);
 
 	suite_add_tcase(s, tc_pink_context_properties);
 

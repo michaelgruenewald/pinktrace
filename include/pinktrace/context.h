@@ -32,6 +32,11 @@
 typedef struct pink_context pink_context_t;
 
 /**
+ * This function definition represents an event handler.
+ **/
+typedef int (*pink_event_func_t) (unsigned int event, pid_t pid);
+
+/**
  * Allocate a new tracing context.
  *
  * \return A tracing context on success, NULL on failure and sets errno
@@ -148,5 +153,24 @@ pink_context_set_step(pink_context_t *ctx, enum pink_step type);
  **/
 enum pink_step
 pink_context_get_step(pink_context_t *ctx);
+
+/**
+ * Sets the event handler function for the tracing context.
+ *
+ * \param ctx The tracing context whose event handler is to be set.
+ * \param func The event handler function.
+ **/
+void
+pink_context_set_handler(pink_context_t *ctx, pink_event_func_t func);
+
+/**
+ * Accessor function for the event handler property.
+ *
+ * \param ctx The tracing context whose event handler is to be returned.
+ *
+ * \return The event handler of the tracing context.
+ **/
+pink_event_func_t
+pink_context_get_handler(pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */
