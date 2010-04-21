@@ -24,6 +24,8 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#include <pinktrace/step.h>
+
 /**
  * This opaque structure represents a tracing context.
  **/
@@ -127,4 +129,24 @@ pink_context_get_error(pink_context_t *ctx);
  **/
 void
 pink_context_clear_error(pink_context_t *ctx);
+
+/**
+ * Sets the stepping type for the tracing context.
+ *
+ * \param ctx The tracing context whose step property will be modified.
+ * \param type The stepping type, one of PINK_STEP_* constants.
+ **/
+void
+pink_context_set_step(pink_context_t *ctx, enum pink_step type);
+
+/**
+ * Accessor function for the step property.
+ *
+ * \param ctx The tracing context whose step property is to be returned.
+ *
+ * \return The stepping property of the given tracing context.
+ **/
+enum pink_step
+pink_context_get_step(pink_context_t *ctx);
+
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

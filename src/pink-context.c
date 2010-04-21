@@ -25,6 +25,7 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
+#include <pinktrace/step.h>
 #include <pinktrace/trace.h>
 
 pink_context_t *
@@ -38,6 +39,7 @@ pink_context_new(void)
 	ctx->attach = false;
 	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
 	ctx->error = PINK_ERROR_SUCCESS;
+	ctx->step = PINK_STEP_SYSCALL;
 	ctx->eldest = -1;
 	return ctx;
 }
@@ -95,4 +97,16 @@ void
 pink_context_clear_error(pink_context_t *ctx)
 {
 	ctx->error = PINK_ERROR_SUCCESS;
+}
+
+void
+pink_context_set_step(pink_context_t *ctx, enum pink_step type)
+{
+	ctx->step = type;
+}
+
+enum pink_step
+pink_context_get_step(pink_context_t *ctx)
+{
+	return ctx->step;
 }

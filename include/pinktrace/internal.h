@@ -49,11 +49,14 @@
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
 
+#include <pinktrace/step.h>
+
 struct pink_context
 {
 	bool attach;
 	int options;
 	int error;
+	enum pink_step step;
 	pid_t eldest;
 };
 
