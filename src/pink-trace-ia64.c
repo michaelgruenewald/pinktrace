@@ -94,3 +94,16 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *
 
 	return upeek_ia64(pid, arg, res);
 }
+
+bool
+pink_util_get_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, char *dest, size_t len)
+{
+	long addr;
+
+	assert(0 >= arg && arg < MAX_ARGS);
+
+	if (!upeek_ia64(pid, arg, &addr))
+		return false;
+
+	return pink_util_movestr(pid, addr, dest, len);
+}

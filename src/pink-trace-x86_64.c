@@ -87,3 +87,17 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res)
 
 	return pink_util_peek(pid, syscall_args[bitness][arg], res);
 }
+
+bool
+pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len)
+{
+	long addr;
+
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek(pid, syscall_args[bitness][arg], &addr))
+		return false;
+
+	return pink_util_movestr(pid, addr, dest, len);
+}

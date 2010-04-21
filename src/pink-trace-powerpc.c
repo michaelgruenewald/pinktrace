@@ -97,3 +97,16 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *
 
 	return pink_util_peek(pid, ARG_OFFSET(arg), res);
 }
+
+bool
+pink_util_get_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, char *dest, size_t len)
+{
+	long addr;
+
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek(pid, ARG_OFFSET(arg), &addr))
+		return false;
+
+	return pink_util_movestr(pid, addr, dest, len);
+}
