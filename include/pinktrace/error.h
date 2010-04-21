@@ -31,6 +31,9 @@ enum pink_error {
 	PINK_ERROR_FORK,	/*<< Fork failed */
 	PINK_ERROR_TRACE,	/*<< pink_trace_me() failed */
 	PINK_ERROR_TRACE_SETUP,	/*<< pink_trace_setup() failed */
+	PINK_ERROR_STEP,	/*<< pink_trace_singlestep() or pink_trace_syscall() failed */
+	PINK_ERROR_WAIT,	/*<< waitpid() failed */
+	PINK_ERROR_HANDLER,	/*<< The event handler returned smaller than zero */
 };
 
 #endif /* !PINKTRACE_GUARD_ERROR_H */

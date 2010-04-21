@@ -17,6 +17,7 @@ pinktraceinclude_HEADERS= \
 			  include/pinktrace/step.h \
 			  include/pinktrace/context.h \
 			  include/pinktrace/fork.h \
+			  include/pinktrace/loop.h \
 			  include/pinktrace/trace.h
 
 noinst_HEADERS= include/pinktrace/internal.h

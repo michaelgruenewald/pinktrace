@@ -18,33 +18,28 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_GCC_H
-#define PINKTRACE_GUARD_GCC_H 1
+#ifndef PINKTRACE_GUARD_LOOP_H
+#define PINKTRACE_GUARD_LOOP_H 1
+
+#include <pinktrace/context.h>
 
 /**
- * \file
- * GCC macros
+ * This function definition represents the only function to be called from the
+ * traced child.
  **/
-
-#if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
+typedef int (*pink_child_func_t) (void *userdata);
 
 /**
- * GCC noreturn attribute
+ * Enter the tracing loop.
+ *
+ * \param ctx The tracing context to govern the loop.
+ * \param func The function to be called from child, unused if the child is
+ * being attached to.
+ * \param userdata The user data to be passed to the function.
+ *
+ * \return The exit code of the eldest child.
  **/
-#define pink_noreturn __attribute__((noreturn))
-/**
- * GCC unused attribute
- **/
-#define pink_unused __attribute__((unused))
-/**
- * GCC builtin_expect macro
- **/
-#define pink_likely(x) __builtin_expect(!!(x), 1)
-/**
- * GCC builtin_expect macro
- **/
-#define pink_unlikely(x) __builtin_expect(!!(x), 0)
+int
+pink_loop(pink_context_t *ctx, pink_child_func_t func, void *userdata);
 
-#endif
-
-#endif /* !PINKTRACE_GUARD_GCC_H */
+#endif /* !PINKTRACE_GUARD_LOOP_H */
