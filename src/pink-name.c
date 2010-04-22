@@ -19,6 +19,7 @@
  */
 
 #include <asm/unistd.h>
+#include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>

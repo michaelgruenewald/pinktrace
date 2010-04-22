@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include <stdio.h>
+#include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
