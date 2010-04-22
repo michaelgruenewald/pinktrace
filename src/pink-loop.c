@@ -75,10 +75,11 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 				return errback.code;
 		}
 
+		wpid = pid;
 		for (;;) {
 			wpid = followfork
 				? waitpid(-1, &status, __WALL)
-				: waitpid(pid, &status, 0);
+				: waitpid(wpid, &status, 0);
 			if (wpid < 0) {
 				handler->ctx->error = PINK_ERROR_WAIT;
 				errback = handler->cb_error(handler, wpid, handler->userdata_error);
