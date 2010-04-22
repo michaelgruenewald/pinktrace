@@ -40,12 +40,20 @@
 
 /* Utility functions */
 static void
-print_ret(long ret)
+print_ret(pid_t pid)
 {
+	long ret;
+
+	if (!pink_util_get_return(pid, &ret)) {
+		fprintf(stderr, "pink_util_get_return: %s\n",
+				strerror(errno));
+		return;
+	}
+
 	if (ret >= 0)
-		printf("%ld", ret);
+		printf("= %ld", ret);
 	else
-		printf("%ld (%s)", ret, strerror(-ret));
+		printf("= %ld (%s)", ret, strerror(-ret));
 }
 
 static void
@@ -77,36 +85,24 @@ print_open_flags(long flags)
 
 /* A generic decoder for system calls. */
 static void
-decode_simple(pid_t pid, pink_bitness_t bitness, long scno)
+decode_simple(pink_bitness_t bitness, long scno)
 {
-	long ret;
 	const char *scname;
 
 	/* Figure out the name of the system call. */
 	scname = pink_name_syscall(scno, bitness);
-
-	/* Get the return value */
-	if (!pink_util_get_return(pid, &ret)) {
-		fprintf(stderr, "pink_util_get_return: %s\n",
-				strerror(errno));
-		return;
-	}
-
 	if (scname == NULL)
 		printf("%ld", scno);
 	else
 		printf("%s", scname);
-
-	printf("() = ");
-	print_ret(ret);
-	fputc('\n', stdout);
+	printf("()");
 }
 
 /* A very basic decoder for open(2) system call. */
 static void
 decode_open(pid_t pid, pink_bitness_t bitness)
 {
-	long flags, ret;
+	long flags;
 	char buf[MAX_STRING_LEN];
 
 	if (!pink_util_get_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
@@ -119,17 +115,10 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 				strerror(errno));
 		return;
 	}
-	if (!pink_util_get_return(pid, &ret)) {
-		fprintf(stderr, "pink_util_get_return: %s\n",
-				strerror(errno));
-		return;
-	}
 
 	printf("open(\"%s\", ", buf);
 	print_open_flags(flags);
-	printf(") = ");
-	print_ret(ret);
-	fputc('\n', stdout);
+	fputc(')', stdout);
 }
 
 int
@@ -202,8 +191,17 @@ main(int argc, char **argv)
 				 * system call and one at exiting a system
 				 * call. */
 				if (insyscall) {
+					/* Exiting the system call, print the
+					 * return value. */
+					fputc(' ', stdout);
+					print_ret(pid);
+					fputc('\n', stdout);
 					insyscall = false;
-					/* Get the system call number */
+				}
+				else {
+					insyscall = true;
+					/* Get the system call number and call
+					 * the appropriate decoder. */
 					if (!pink_util_get_syscall(pid, &scno)) {
 						fprintf(stderr, "pink_util_get_syscall: %s\n",
 								strerror(errno));
@@ -211,10 +209,8 @@ main(int argc, char **argv)
 					else if (scno == SYS_open)
 						decode_open(pid, bitness);
 					else
-						decode_simple(pid, bitness, scno);
+						decode_simple(bitness, scno);
 				}
-				else
-					insyscall = true;
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:
