@@ -996,6 +996,328 @@ START_TEST(test_pink_util_get_string_fourth)
 }
 END_TEST
 
+START_TEST(test_pink_util_get_string_persistent_null)
+{
+	int status;
+	char *buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		open(NULL, O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 0);
+		fail_if(buf != NULL, "Wrong string, expected: NULL got: %s", buf);
+		fail_unless(errno == EIO || errno == EFAULT,
+				"Wrong errno, expected: EIO/EFAULT got: %d (%s)",
+				errno, strerror(errno));
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(test_pink_util_get_string_persistent_notrailingzero)
+{
+	int status;
+	char *buf;
+	char notrailingzero[3] = {'n', 'i', 'l'};
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		open(notrailingzero, O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 0);
+		fail_if(buf == NULL,
+				"pink_util_get_string_persistent failed: %s",
+				strerror(errno));
+		fail_unless(buf[0] == 'n',
+				"Wrong first char, expected: %c got: %c",
+				'n', buf[0]);
+		fail_unless(buf[1] == 'i',
+				"Wrong second char, expected: %c got: %c",
+				'i', buf[1]);
+		fail_unless(buf[2] == 'l',
+				"Wrong third char, expected: %c got: %c",
+				'l', buf[2]);
+
+		free(buf);
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(test_pink_util_get_string_persistent_first)
+{
+	int status;
+	char *buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		open("/dev/null", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 0);
+		fail_if(buf == NULL,
+				"pink_util_get_string_persistent failed: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10),
+				"Wrong string: expected /dev/null got `%s'",
+				buf);
+
+		free(buf);
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(test_pink_util_get_string_persistent_second)
+{
+	int status;
+	char *buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		openat(-1, "/dev/null", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 1);
+		fail_if(buf == NULL,
+				"pink_util_get_string_persistent failed: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10),
+				"Wrong string: expected /dev/null got `%s'",
+				buf);
+
+		free(buf);
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(test_pink_util_get_string_persistent_third)
+{
+	int status;
+	char *buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 2);
+		fail_if(buf == NULL,
+				"pink_util_get_string_persistent failed: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10),
+				"Wrong string: expected /dev/null got `%s'",
+				buf);
+
+		free(buf);
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(test_pink_util_get_string_persistent_fourth)
+{
+	int status;
+	char *buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0) {
+		switch (pink_context_get_error(ctx)) {
+		case PINK_ERROR_FORK:
+			fail("fork failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE:
+			fail("pink_trace_me failed: %s", strerror(errno));
+		case PINK_ERROR_TRACE_SETUP:
+			fail("pink_trace_setup failed: %s", strerror(errno));
+		default:
+			fail("unknown return code by pink_fork %d", pid);
+		}
+	}
+	else if (!pid) /* child */
+		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		buf = pink_util_get_string_persistent(pid, CHECK_BITNESS, 3);
+		fail_if(buf == NULL,
+				"pink_util_get_string_persistent failed: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10),
+				"Wrong string: expected /dev/null got `%s'",
+				buf);
+
+		free(buf);
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
 Suite *
 util_suite_create(void)
 {
@@ -1020,6 +1342,12 @@ util_suite_create(void)
 	tcase_add_test(tc_pink_util, test_pink_util_get_string_second);
 	tcase_add_test(tc_pink_util, test_pink_util_get_string_third);
 	tcase_add_test(tc_pink_util, test_pink_util_get_string_fourth);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_null);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_notrailingzero);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_first);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_second);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_third);
+	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_fourth);
 
 	suite_add_tcase(s, tc_pink_util);
 

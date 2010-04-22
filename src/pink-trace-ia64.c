@@ -107,3 +107,16 @@ pink_util_get_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, cha
 
 	return pink_util_movestr(pid, addr, dest, len);
 }
+
+char *
+pink_util_get_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
+{
+	long addr;
+
+	assert(0 >= arg && arg < MAX_ARGS);
+
+	if (!upeek_ia64(pid, arg, &addr))
+		return false;
+
+	return pink_util_movestr_persistent(pid, addr);
+}

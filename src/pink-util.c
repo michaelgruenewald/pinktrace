@@ -18,7 +18,10 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <assert.h>
 #include <errno.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <pinktrace/internal.h>
@@ -137,4 +140,84 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		addr += sizeof(long), dest += m, len -= m;
 	}
 	return true;
+}
+
+char *
+pink_util_movestr_persistent(pid_t pid, long addr)
+{
+	int n, m, sum;
+	int started = 0;
+	union {
+		long val;
+		char x[sizeof(long)];
+	} u;
+	char *res, *res_ptr;
+
+#define XFREE(x)			\
+	do {				\
+		if ((x)) {		\
+			free((x));	\
+		}			\
+	} while (0)
+
+	res = NULL;
+	sum = 0;
+
+	if (addr & (sizeof(long) -1)) {
+		/* addr not a multiple of sizeof(long) */
+		n = addr - (addr & -sizeof(long)); /* residue */
+		addr &= -sizeof(long); /* residue */
+
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return res;
+			}
+			/* But if not started, we had a bogus address */
+			XFREE(res);
+			return NULL;
+		}
+		m = sizeof(long) - n;
+		sum += m;
+		if ((res = realloc(res, sum)) == NULL)
+			return NULL;
+		if (!started)
+			res_ptr = res;
+		started = 1;
+		memcpy(res_ptr, &u.x[n], m);
+		while (n & (sizeof(long) - 1))
+			if (u.x[n++] == '\0')
+				return res;
+		addr += sizeof(long), res_ptr += m;
+	}
+	for (;;) {
+		errno = 0;
+		u.val = ptrace(PTRACE_PEEKDATA, pid, (char *)addr, NULL);
+		if (errno) {
+			if (started && (errno == EPERM || errno == EIO)) {
+				/* Ran into end of memory */
+				return res;
+			}
+			/* But if not started, we had a bogus address */
+			XFREE(res);
+			return NULL;
+		}
+		m = sizeof(long);
+		sum += m;
+		if ((res = realloc(res, sum)) == NULL)
+			return NULL;
+		if (!started)
+			res_ptr = res;
+		started = 1;
+		memcpy(res_ptr, u.x, m);
+		for (unsigned int i = 0; i < sizeof(long); i++)
+			if (u.x[i] == '\0')
+				return res;
+		addr += sizeof(long), res_ptr += m;
+	}
+	/* never reached */
+	assert(false);
+#undef XFREE
 }

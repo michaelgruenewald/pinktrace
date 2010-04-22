@@ -62,6 +62,15 @@ bool
 pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 
 /**
+ * Like pink_util_movestr but allocates the string itself.
+ *
+ * \return The string on success and NULL on failure and sets errno
+ * accordingly.
+ **/
+char *
+pink_util_movestr_persistent(pid_t pid, long addr);
+
+/**
  * Gets the last system call called by child with the given process ID.
  *
  * \param pid Process ID of the child whose system call is to be returned.
@@ -135,5 +144,14 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res);
  **/
 bool
 pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len);
+
+/**
+ * Like pink_util_get_string but allocates the string itself.
+ *
+ * \return The path on success and NULL on failure and sets errno
+ * accordingly.
+ **/
+char *
+pink_util_get_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */
