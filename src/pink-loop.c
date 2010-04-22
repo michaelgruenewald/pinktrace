@@ -54,7 +54,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 	if ((pid = pink_fork(handler->ctx)) < 0)
 		return -1;
 	else if (!pid) /* child */
-		_exit((func)(userdata));
+		_exit(func(userdata));
 	else { /* parent */
 		/* After this point we never kill the children of this process.
 		 * The eldest child has been saved to handler->ctx->eldest by
