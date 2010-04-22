@@ -24,8 +24,11 @@
  **/
 
 #include <errno.h>
+#include <stdbool.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,12 +36,45 @@
 
 #include <pinktrace/pink.h>
 
+#define MAX_STRING_LEN 128
+
+static void
+decode_open(pid_t pid, pink_bitness_t bitness)
+{
+	long scarg;
+	char buf[MAX_STRING_LEN];
+
+	if (!pink_util_get_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
+		fprintf(stderr, "pink_util_get_string: %s\n",
+				strerror(errno));
+		return;
+	}
+	if (!pink_util_get_arg(pid, bitness, 1, &scarg)) {
+		fprintf(stderr, "pink_util_get_arg: %s\n",
+				strerror(errno));
+		return;
+	}
+
+	printf("open(\"%s\", ", buf);
+
+	if (scarg & O_RDONLY)
+		printf("O_RDONLY");
+	else if (scarg & O_WRONLY)
+		printf("O_WRONLY");
+	else if (scarg & O_RDWR)
+		printf("O_RDWR");
+
+	if (scarg & O_CREAT)
+		printf(" | O_CREAT");
+	printf(")\n");
+}
+
 int
 main(int argc, char **argv)
 {
-	int sig, status;
+	bool dead;
+	int sig, status, exit_code;
 	long scno;
-	const char *scname;
 	pid_t pid;
 	pink_bitness_t bitness;
 	pink_event_t event;
@@ -78,7 +114,8 @@ main(int argc, char **argv)
 		fprintf(stderr, "Child %i runs in %s mode\n",
 				pid, pink_bitness_tostring(bitness));
 
-		sig = 0;
+		dead = false;
+		sig = exit_code = 0;
 		for (;;) {
 			/* At this point child is stopped and needs to be resumed.
 			 */
@@ -96,30 +133,45 @@ main(int argc, char **argv)
 
 			/* Check the event. */
 			event = pink_event_decide(ctx, status);
-			fprintf(stderr, ">>> Received event %d from child %i: %s\n",
-					event, pid, pink_event_tostring(event));
-
-			if (event == PINK_EVENT_SYSCALL) {
+			switch (event) {
+			case PINK_EVENT_SYSCALL:
 				/* Get system call number */
-				if (!pink_util_get_syscall(pid, &scno))
+				if (!pink_util_get_syscall(pid, &scno)) {
 					fprintf(stderr, "pink_util_get_syscall: %s\n",
 							strerror(errno));
-				else {
-					scname = pink_name_syscall(scno, bitness);
-					fprintf(stderr, ">>> Decoded system call %ld, name: %s\n",
-							scno, scname ? scname : "unknown");
 				}
-			}
-
-			/* Send the signal to the child if it was a genuine
-			 * signal.
-			 */
-			if (event == PINK_EVENT_GENUINE || event == PINK_EVENT_UNKNOWN)
+				else if (scno == SYS_open)
+					decode_open(pid, bitness);
+				break;
+			case PINK_EVENT_GENUINE:
+			case PINK_EVENT_UNKNOWN:
+				/* Send the signal to the child as it was a genuine
+				 * signal.
+				 */
 				sig = WSTOPSIG(status);
+				break;
+			case PINK_EVENT_EXIT_GENUINE:
+				exit_code = WEXITSTATUS(status);
+				printf("Child %i exited normally with return code %d\n",
+						pid, exit_code);
+				dead = true;
+				break;
+			case PINK_EVENT_EXIT_SIGNAL:
+				exit_code = 128 + WTERMSIG(status);
+				printf("Child %i exited with signal %d\n",
+						pid, WTERMSIG(status));
+				dead = true;
+				break;
+			default:
+				/* Nothing */
+				;
+			}
+			if (dead)
+				break;
 		}
 
 		/* Cleanup and exit */
 		pink_context_free(ctx);
-		return 0;
+		return exit_code;
 	}
 }
