@@ -160,7 +160,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		}			\
 	} while (0)
 
-	res = NULL;
+	res = res_ptr = NULL;
 	sum = 0;
 
 	if (addr & (sizeof(long) -1)) {
