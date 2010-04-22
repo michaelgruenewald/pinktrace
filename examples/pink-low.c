@@ -59,28 +59,35 @@ print_ret(pid_t pid)
 static void
 print_open_flags(long flags)
 {
-	bool printed;
+	long aflags;
+	bool found;
 
-	printed = false;
+	found = true;
 
-	if (flags & O_RDONLY) {
-		printed = true;
+	/* Check out access flags */
+	aflags = flags & 3;
+	switch (aflags) {
+	case O_RDONLY:
 		printf("O_RDONLY");
-	}
-	else if (flags & O_WRONLY) {
-		printed = true;
+		break;
+	case O_WRONLY:
 		printf("O_WRONLY");
-	}
-	else if (flags & O_RDWR) {
-		printed = true;
+		break;
+	case O_RDWR:
 		printf("O_RDWR");
+		break;
+	default:
+		/* Nothing found */
+		found = false;
 	}
 
-	if (printed && (flags & O_CREAT))
-		printf(" | O_CREAT");
+	if (flags & O_CREAT) {
+		printf("%s | O_CREAT", found ? "" : "0");
+		found = true;
+	}
 
-	if (!printed)
-		printf("%ld", flags);
+	if (!found)
+		printf("%#x", (unsigned)flags);
 }
 
 /* A generic decoder for system calls. */
@@ -178,7 +185,7 @@ main(int argc, char **argv)
 			sig = 0;
 
 			/* Wait for the child */
-			if (waitpid(pid, &status, 0) < 0) {
+			if ((pid = waitpid(pid, &status, 0)) < 0) {
 				fprintf(stderr, "waitpid: %s\n", strerror(errno));
 				return (errno == ECHILD) ? 0 : 1;
 			}
@@ -211,6 +218,10 @@ main(int argc, char **argv)
 					else
 						decode_simple(bitness, scno);
 				}
+				break;
+			case PINK_EVENT_EXEC:
+				/* Update bitness */
+				bitness = pink_bitness_get(pid);
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:
