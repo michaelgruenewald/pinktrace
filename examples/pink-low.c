@@ -38,6 +38,7 @@
 
 #define MAX_STRING_LEN 128
 
+/* Utility functions */
 static void
 print_ret(long ret)
 {
@@ -72,6 +73,33 @@ print_open_flags(long flags)
 
 	if (!printed)
 		printf("%ld", flags);
+}
+
+/* A generic decoder for system calls. */
+static void
+decode_simple(pid_t pid, pink_bitness_t bitness, long scno)
+{
+	long ret;
+	const char *scname;
+
+	/* Figure out the name of the system call. */
+	scname = pink_name_syscall(scno, bitness);
+
+	/* Get the return value */
+	if (!pink_util_get_return(pid, &ret)) {
+		fprintf(stderr, "pink_util_get_return: %s\n",
+				strerror(errno));
+		return;
+	}
+
+	if (scname == NULL)
+		printf("%ld", scno);
+	else
+		printf("%s", scname);
+
+	printf("() = ");
+	print_ret(ret);
+	fputc('\n', stdout);
 }
 
 /* A very basic decoder for open(2) system call. */
@@ -182,6 +210,8 @@ main(int argc, char **argv)
 					}
 					else if (scno == SYS_open)
 						decode_open(pid, bitness);
+					else
+						decode_simple(pid, bitness, scno);
 				}
 				else
 					insyscall = true;
