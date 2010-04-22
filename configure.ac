@@ -166,5 +166,6 @@ AC_OUTPUT(
 		  tests/Makefile
 		  doc/Makefile
 		  doc/doxygen.conf
+		  examples/Makefile
 	)
 dnl }}}
