@@ -80,8 +80,8 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	long r8, r10;
 
-	r8 = (val < 0) ? -val : val;
-	r10 = (val < 0) ? -1 : 0;
+	r8 = (ret < 0) ? -ret : ret;
+	r10 = (ret < 0) ? -1 : 0;
 
 	return (0 == ptrace(PTRACE_POKEUSER, pid, PT_R8, r8)) &&
 		(0 == ptrace(PTRACE_POKEUSER, pid, PT_R10, r10));
@@ -92,7 +92,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *
 {
 	assert(0 >= arg && arg < MAX_ARGS);
 
-	return upeek_ia64(pid, arg, res);
+	return pink_util_peek_ia64(pid, arg, res);
 }
 
 bool
@@ -102,20 +102,20 @@ pink_util_get_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, cha
 
 	assert(0 >= arg && arg < MAX_ARGS);
 
-	if (!upeek_ia64(pid, arg, &addr))
+	if (!pink_util_peek_ia64(pid, arg, &addr))
 		return false;
 
 	return pink_util_movestr(pid, addr, dest, len);
 }
 
 char *
-pink_util_get_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
+pink_util_get_string_persistent(pid_t pid, pink_unused pink_bitness_t bitness, int arg)
 {
 	long addr;
 
 	assert(0 >= arg && arg < MAX_ARGS);
 
-	if (!upeek_ia64(pid, arg, &addr))
+	if (!pink_util_peek_ia64(pid, arg, &addr))
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
