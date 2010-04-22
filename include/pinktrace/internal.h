@@ -65,4 +65,13 @@ struct pink_context
 	pink_event_handler_t *handler;
 };
 
+const char *
+pink_name_syscall_nobitness(long scno);
+
+const char *
+pink_name_syscall32(long scno);
+
+const char *
+pink_name_syscall64(long scno);
+
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

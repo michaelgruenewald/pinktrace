@@ -18,23 +18,24 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
+#include <asm/unistd_32.h>
 
-/**
- * \file
- * Pink's Tracing Library
- **/
+#include <pinktrace/internal.h>
+#include <pinktrace/pink.h>
 
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/loop.h>
-#include <pinktrace/name.h>
-#include <pinktrace/trace.h>
-#include <pinktrace/util.h>
+static const struct {
+    int no;
+    const char *name;
+} sysnames[] = {
+#include "pink-syscallent32.h"
+    {-1,    NULL}
+};
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+const char *
+pink_name_syscall32(long scno)
+{
+	for (unsigned int i = 0; sysnames[i].name != NULL; i++)
+		if (scno == sysnames[i].no)
+			return sysnames[i].name;
+	return NULL;
+}

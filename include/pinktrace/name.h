@@ -18,23 +18,25 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
+#ifndef PINKTRACE_GUARD_NAME_H
+#define PINKTRACE_GUARD_NAME_H 1
+
+#include <pinktrace/bitness.h>
 
 /**
  * \file
- * Pink's Tracing Library
+ * Pink's system call naming
  **/
 
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/loop.h>
-#include <pinktrace/name.h>
-#include <pinktrace/trace.h>
-#include <pinktrace/util.h>
+/**
+ * Return the name of the given system call.
+ *
+ * \param scno System call number
+ * \param bitness Bitness of the child
+ *
+ * \return The name of the system call, NULL if system call name is unknown.
+ **/
+const char *
+pink_name_syscall(long scno, pink_bitness_t bitness);
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+#endif /* !PINKTRACE_GUARD_NAME_H */

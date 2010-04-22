@@ -6,24 +6,25 @@ lib_LTLIBRARIES= libpinktrace.la
 libpinktrace_la_SOURCES= pink-bitness.c pink-context.c \
 			 pink-error.c pink-event.c \
 			 pink-fork.c pink-loop.c \
-			 pink-trace.c pink-util.c
+			 pink-name-wrap.c pink-trace.c \
+			 pink-util.c
 libpinktrace_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
 
 # Platform specific sources
 if I386
-libpinktrace_la_SOURCES+= pink-trace-x86.c
+libpinktrace_la_SOURCES+= pink-trace-x86.c pink-name.c
 endif
 if X86_64
-libpinktrace_la_SOURCES+= pink-trace-x86_64.c
+libpinktrace_la_SOURCES+= pink-trace-x86_64.c pink-name32.c pink-name64.c
 endif
 if IA64
-libpinktrace_la_SOURCES+= pink-trace-ia64.c
+libpinktrace_la_SOURCES+= pink-trace-ia64.c pink-name.c
 endif
 if POWERPC
-libpinktrace_la_SOURCES+= pink-trace-powerpc.c
+libpinktrace_la_SOURCES+= pink-trace-powerpc.c pink-name.c
 endif
 if POWERPC64
-libpinktrace_la_SOURCES+= pink-trace-powerpc.c
+libpinktrace_la_SOURCES+= pink-trace-powerpc.c pink-name.c
 endif
 
 # Generated sources
