@@ -39,9 +39,46 @@
 #define MAX_STRING_LEN 128
 
 static void
+print_ret(long ret)
+{
+	if (ret >= 0)
+		printf("%ld", ret);
+	else
+		printf("%ld (%s)", ret, strerror(-ret));
+}
+
+static void
+print_open_flags(long flags)
+{
+	bool printed;
+
+	printed = false;
+
+	if (flags & O_RDONLY) {
+		printed = true;
+		printf("O_RDONLY");
+	}
+	else if (flags & O_WRONLY) {
+		printed = true;
+		printf("O_WRONLY");
+	}
+	else if (flags & O_RDWR) {
+		printed = true;
+		printf("O_RDWR");
+	}
+
+	if (printed && (flags & O_CREAT))
+		printf(" | O_CREAT");
+
+	if (!printed)
+		printf("%ld", flags);
+}
+
+/* A very basic decoder for open(2) system call. */
+static void
 decode_open(pid_t pid, pink_bitness_t bitness)
 {
-	long scarg;
+	long flags, ret;
 	char buf[MAX_STRING_LEN];
 
 	if (!pink_util_get_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
@@ -49,30 +86,28 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 				strerror(errno));
 		return;
 	}
-	if (!pink_util_get_arg(pid, bitness, 1, &scarg)) {
+	if (!pink_util_get_arg(pid, bitness, 1, &flags)) {
 		fprintf(stderr, "pink_util_get_arg: %s\n",
+				strerror(errno));
+		return;
+	}
+	if (!pink_util_get_return(pid, &ret)) {
+		fprintf(stderr, "pink_util_get_return: %s\n",
 				strerror(errno));
 		return;
 	}
 
 	printf("open(\"%s\", ", buf);
-
-	if (scarg & O_RDONLY)
-		printf("O_RDONLY");
-	else if (scarg & O_WRONLY)
-		printf("O_WRONLY");
-	else if (scarg & O_RDWR)
-		printf("O_RDWR");
-
-	if (scarg & O_CREAT)
-		printf(" | O_CREAT");
-	printf(")\n");
+	print_open_flags(flags);
+	printf(") = ");
+	print_ret(ret);
+	fputc('\n', stdout);
 }
 
 int
 main(int argc, char **argv)
 {
-	bool dead;
+	bool dead, insyscall;
 	int sig, status, exit_code;
 	long scno;
 	pid_t pid;
@@ -114,7 +149,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "Child %i runs in %s mode\n",
 				pid, pink_bitness_tostring(bitness));
 
-		dead = false;
+		dead = insyscall = false;
 		sig = exit_code = 0;
 		for (;;) {
 			/* At this point child is stopped and needs to be resumed.
@@ -135,13 +170,21 @@ main(int argc, char **argv)
 			event = pink_event_decide(ctx, status);
 			switch (event) {
 			case PINK_EVENT_SYSCALL:
-				/* Get system call number */
-				if (!pink_util_get_syscall(pid, &scno)) {
-					fprintf(stderr, "pink_util_get_syscall: %s\n",
-							strerror(errno));
+				/* We get this event twice, one at entering a
+				 * system call and one at exiting a system
+				 * call. */
+				if (insyscall) {
+					insyscall = false;
+					/* Get the system call number */
+					if (!pink_util_get_syscall(pid, &scno)) {
+						fprintf(stderr, "pink_util_get_syscall: %s\n",
+								strerror(errno));
+					}
+					else if (scno == SYS_open)
+						decode_open(pid, bitness);
 				}
-				else if (scno == SYS_open)
-					decode_open(pid, bitness);
+				else
+					insyscall = true;
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:
