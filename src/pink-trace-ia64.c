@@ -91,7 +91,7 @@ pink_util_set_return(pid_t pid, long ret)
 bool
 pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *res)
 {
-	assert(0 >= arg && arg < MAX_ARGS);
+	assert(arg >= 0 && arg < MAX_ARGS);
 
 	return pink_util_peek_ia64(pid, arg, res);
 }
@@ -101,7 +101,7 @@ pink_util_get_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, cha
 {
 	long addr;
 
-	assert(0 >= arg && arg < MAX_ARGS);
+	assert(arg >= 0 && arg < MAX_ARGS);
 
 	if (!pink_util_peek_ia64(pid, arg, &addr))
 		return false;
@@ -114,7 +114,7 @@ pink_util_get_string_persistent(pid_t pid, pink_unused pink_bitness_t bitness, i
 {
 	long addr;
 
-	assert(0 >= arg && arg < MAX_ARGS);
+	assert(arg >= 0 && arg < MAX_ARGS);
 
 	if (!pink_util_peek_ia64(pid, arg, &addr))
 		return false;
