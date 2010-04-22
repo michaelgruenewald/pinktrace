@@ -3,9 +3,10 @@ DEFS+= -DGIT_HEAD=\"$(GIT_HEAD)\"
 AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
 lib_LTLIBRARIES= libpinktrace.la
-libpinktrace_la_SOURCES= pink-bitness.c pink-context.c \
-			 pink-error.c pink-event.c \
-			 pink-fork.c pink-loop.c \
+libpinktrace_la_SOURCES= pink-bitness.c pink-callback.c \
+			 pink-context.c pink-error.c \
+			 pink-event.c pink-fork.c \
+			 pink-handler.c pink-loop.c \
 			 pink-name-wrap.c pink-trace.c \
 			 pink-util.c
 libpinktrace_la_LDFLAGS= -version-info $(LT_VERSION_INFO)

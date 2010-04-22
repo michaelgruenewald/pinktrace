@@ -53,6 +53,7 @@
 
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
+#include <pinktrace/handler.h>
 #include <pinktrace/step.h>
 
 struct pink_context
@@ -62,7 +63,48 @@ struct pink_context
 	pid_t eldest;
 	pink_error_t error;
 	pink_step_t step;
-	pink_event_handler_t *handler;
+};
+
+struct pink_event_handler
+{
+	/* Context */
+	pink_context_t *ctx;
+
+	/* Signal callbacks */
+	pink_event_handler_signal_t cb_stop;
+	pink_event_handler_signal_t cb_genuine;
+	pink_event_handler_signal_t cb_unknown;
+
+	/* Ptrace callbacks */
+	pink_event_handler_ptrace_t cb_syscall;
+	pink_event_handler_ptrace_t cb_fork;
+	pink_event_handler_ptrace_t cb_vfork;
+	pink_event_handler_ptrace_t cb_clone;
+	pink_event_handler_ptrace_t cb_exec;
+	pink_event_handler_ptrace_t cb_vfork_done;
+	pink_event_handler_ptrace_t cb_exit;
+
+	/* Exit callbacks */
+	pink_event_handler_exit_t cb_exit_genuine;
+	pink_event_handler_exit_t cb_exit_signal;
+
+	/* Error handler */
+	pink_event_handler_error_t cb_error;
+
+	/* User data */
+	void *userdata_stop;
+	void *userdata_genuine;
+	void *userdata_unknown;
+	void *userdata_syscall;
+	void *userdata_fork;
+	void *userdata_vfork;
+	void *userdata_clone;
+	void *userdata_exec;
+	void *userdata_vfork_done;
+	void *userdata_exit;
+	void *userdata_exit_genuine;
+	void *userdata_exit_signal;
+	void *userdata_error;
 };
 
 const char *

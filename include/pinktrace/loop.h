@@ -21,7 +21,7 @@
 #ifndef PINKTRACE_GUARD_LOOP_H
 #define PINKTRACE_GUARD_LOOP_H 1
 
-#include <pinktrace/context.h>
+#include <pinktrace/handler.h>
 
 /**
  * This function definition represents the only function to be called from the
@@ -30,9 +30,12 @@
 typedef int (*pink_child_func_t) (void *userdata);
 
 /**
- * Enter the tracing loop.
+ * Enter the tracing loop and use event handlers as callbacks.
+ * This function sets tracing options depending on the registered event
+ * handlers so the caller doesn't necessarily have to set tracing options
+ * beforehand.
  *
- * \param ctx The tracing context to govern the loop.
+ * \param handler The event handler to govern the loop.
  * \param func The function to be called from child, unused if the child is
  * being attached to.
  * \param userdata The user data to be passed to the function.
@@ -40,6 +43,6 @@ typedef int (*pink_child_func_t) (void *userdata);
  * \return The exit code of the eldest child.
  **/
 int
-pink_loop(pink_context_t *ctx, pink_child_func_t func, void *userdata);
+pink_loop(pink_event_handler_t *handler, pink_child_func_t func, void *userdata);
 
 #endif /* !PINKTRACE_GUARD_LOOP_H */

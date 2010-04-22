@@ -41,7 +41,6 @@ pink_context_new(void)
 	ctx->eldest = -1;
 	ctx->error = PINK_ERROR_SUCCESS;
 	ctx->step = PINK_STEP_SYSCALL;
-	ctx->handler = NULL;
 	return ctx;
 }
 
@@ -110,16 +109,4 @@ pink_step_t
 pink_context_get_step(const pink_context_t *ctx)
 {
 	return ctx->step;
-}
-
-void
-pink_context_set_handler(pink_context_t *ctx, pink_event_handler_t *handler)
-{
-	ctx->handler = handler;
-}
-
-pink_event_handler_t *
-pink_context_get_handler(const pink_context_t *ctx)
-{
-	return ctx->handler;
 }

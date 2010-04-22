@@ -32,25 +32,6 @@
 typedef struct pink_context pink_context_t;
 
 /**
- * This function definition represents an event handler.
- **/
-typedef struct {
-	int (*ev_stop) (const pink_context_t *ctx, pid_t pid, int signum);
-	int (*ev_syscall) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_fork) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_vfork) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_clone) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_exec) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_vfork_done) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_exit) (const pink_context_t *ctx, pid_t pid);
-	int (*ev_genuine) (const pink_context_t *ctx, pid_t pid, int signum);
-	int (*ev_exit_genuine) (const pink_context_t *ctx, pid_t pid, int excode);
-	int (*ev_exit_signal) (const pink_context_t *ctx, pid_t pid, int exsignum);
-	int (*ev_unknown) (const pink_context_t *ctx, pid_t pid, int signum);
-	int (*ev_error) (const pink_context_t *ctx, pid_t pid);
-} pink_event_handler_t;
-
-/**
  * Allocate a new tracing context.
  *
  * \return A tracing context on success, NULL on failure and sets errno
@@ -167,24 +148,5 @@ pink_context_set_step(pink_context_t *ctx, pink_step_t type);
  **/
 pink_step_t
 pink_context_get_step(const pink_context_t *ctx);
-
-/**
- * Sets the event handler functions for the tracing context.
- *
- * \param ctx The tracing context whose event handler functions are to be set.
- * \param handler The structure of event handler functions
- **/
-void
-pink_context_set_handler(pink_context_t *ctx, pink_event_handler_t *handler);
-
-/**
- * Accessor function for the event handler property.
- *
- * \param ctx The tracing context whose event handler is to be returned.
- *
- * \return The event handler structure of the tracing context.
- **/
-pink_event_handler_t *
-pink_context_get_handler(const pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

@@ -18,25 +18,34 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
+#include <stdbool.h>
+#include <stdlib.h>
 
-/**
- * \file
- * Pink's Tracing Library
- **/
+#include <pinktrace/internal.h>
+#include <pinktrace/pink.h>
 
-#include <pinktrace/gcc.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/callback.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/event.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/handler.h>
-#include <pinktrace/loop.h>
-#include <pinktrace/name.h>
-#include <pinktrace/trace.h>
-#include <pinktrace/util.h>
+bool
+pink_callback_signal_default(const pink_context_t *ctx, pid_t pid, int signum,
+	pink_unused void *userdata)
+{
+	return (ctx->step == PINK_STEP_SINGLE)
+		? pink_trace_singlestep(pid, signum)
+		: pink_trace_syscall(pid, signum);
+}
 
-#endif /* !PINKTRACE_GUARD_PINK_H */
+bool
+pink_callback_syscall_default(const pink_context_t *ctx, pid_t pid,
+	pink_unused void *userdata)
+{
+	return (ctx->step == PINK_STEP_SINGLE)
+		? pink_trace_singlestep(pid, 0)
+		: pink_trace_syscall(pid, 0);
+}
+
+bool
+pink_callback_exit_default(const pink_context_t *ctx, pid_t pid, int excode, void *userdata)
+{
+	if (pid == ctx->eldest)
+		exit(userdata ? 128 + excode : excode);
+	return true;
+}
