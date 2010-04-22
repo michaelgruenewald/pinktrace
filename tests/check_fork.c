@@ -32,7 +32,7 @@
 
 #include "check_pinktrace.h"
 
-START_TEST(test_pink_fork)
+START_TEST(t_fork)
 {
 	pid_t pid;
 	pink_context_t *ctx;
@@ -72,7 +72,7 @@ fork_suite_create(void)
 	/* pink_fork() */
 	TCase *tc_pink_fork = tcase_create("pink_fork");
 
-	tcase_add_test(tc_pink_fork, test_pink_fork);
+	tcase_add_test(tc_pink_fork, t_fork);
 
 	suite_add_tcase(s, tc_pink_fork);
 

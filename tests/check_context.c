@@ -32,7 +32,7 @@
 
 #include "check_pinktrace.h"
 
-START_TEST(test_pink_context_new)
+START_TEST(t_context_new)
 {
 	pink_context_t *ctx;
 
@@ -44,7 +44,7 @@ START_TEST(test_pink_context_new)
 }
 END_TEST
 
-START_TEST(test_pink_context_attach)
+START_TEST(t_context_attach)
 {
 	pink_context_t *ctx;
 
@@ -63,7 +63,7 @@ START_TEST(test_pink_context_attach)
 }
 END_TEST
 
-START_TEST(test_pink_context_options)
+START_TEST(t_context_options)
 {
 	int options;
 	pink_context_t *ctx;
@@ -133,7 +133,7 @@ START_TEST(test_pink_context_options)
 }
 END_TEST
 
-START_TEST(test_pink_context_eldest)
+START_TEST(t_context_eldest)
 {
 	pink_context_t *ctx;
 
@@ -149,7 +149,7 @@ START_TEST(test_pink_context_eldest)
 }
 END_TEST
 
-START_TEST(test_pink_context_error)
+START_TEST(t_context_error)
 {
 	pink_context_t *ctx;
 
@@ -165,7 +165,7 @@ START_TEST(test_pink_context_error)
 }
 END_TEST
 
-START_TEST(test_pink_context_step)
+START_TEST(t_context_step)
 {
 	pink_context_t *ctx;
 
@@ -185,7 +185,7 @@ START_TEST(test_pink_context_step)
 }
 END_TEST
 
-START_TEST(test_pink_context_handler)
+START_TEST(t_context_handler)
 {
 	pink_context_t *ctx;
 
@@ -209,23 +209,23 @@ context_suite_create(void)
 	Suite *s = suite_create("context");
 
 	/* pink_context_new() */
-	TCase *tc_pink_context_new = tcase_create("pink_context_new");
+	TCase *tc_context_new = tcase_create("pink_context_new");
 
-	tcase_add_test(tc_pink_context_new, test_pink_context_new);
+	tcase_add_test(tc_context_new, t_context_new);
 
-	suite_add_tcase(s, tc_pink_context_new);
+	suite_add_tcase(s, tc_context_new);
 
 	/* pink_context_{g,s}_* */
-	TCase *tc_pink_context_properties = tcase_create("pink_context_properties");
+	TCase *tc_context_properties = tcase_create("pink_context_properties");
 
-	tcase_add_test(tc_pink_context_properties, test_pink_context_attach);
-	tcase_add_test(tc_pink_context_properties, test_pink_context_options);
-	tcase_add_test(tc_pink_context_properties, test_pink_context_eldest);
-	tcase_add_test(tc_pink_context_properties, test_pink_context_error);
-	tcase_add_test(tc_pink_context_properties, test_pink_context_step);
-	tcase_add_test(tc_pink_context_properties, test_pink_context_handler);
+	tcase_add_test(tc_context_properties, t_context_attach);
+	tcase_add_test(tc_context_properties, t_context_options);
+	tcase_add_test(tc_context_properties, t_context_eldest);
+	tcase_add_test(tc_context_properties, t_context_error);
+	tcase_add_test(tc_context_properties, t_context_step);
+	tcase_add_test(tc_context_properties, t_context_handler);
 
-	suite_add_tcase(s, tc_pink_context_properties);
+	suite_add_tcase(s, tc_context_properties);
 
 	return s;
 }

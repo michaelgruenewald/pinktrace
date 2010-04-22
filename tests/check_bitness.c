@@ -46,7 +46,7 @@
 #error unsupported architecture
 #endif
 
-START_TEST(test_pink_bitness)
+START_TEST(t_bitness)
 {
 	pid_t pid;
 	pink_bitness_t bitness;
@@ -93,7 +93,7 @@ bitness_suite_create(void)
 	/* pink_bitness_get() */
 	TCase *tc_pink_bitness = tcase_create("pink_bitness");
 
-	tcase_add_test(tc_pink_bitness, test_pink_bitness);
+	tcase_add_test(tc_pink_bitness, t_bitness);
 
 	suite_add_tcase(s, tc_pink_bitness);
 

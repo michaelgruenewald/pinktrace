@@ -53,7 +53,7 @@
 #error unsupported architecture
 #endif
 
-START_TEST(test_pink_util_get_syscall)
+START_TEST(t_util_get_syscall)
 {
 	int status;
 	long scno;
@@ -117,7 +117,7 @@ START_TEST(test_pink_util_get_syscall)
 }
 END_TEST
 
-START_TEST(test_pink_util_set_syscall)
+START_TEST(t_util_set_syscall)
 {
 	int status;
 	long scno;
@@ -184,7 +184,7 @@ START_TEST(test_pink_util_set_syscall)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_return_success)
+START_TEST(t_util_get_return_success)
 {
 	int status;
 	long ret;
@@ -250,7 +250,7 @@ START_TEST(test_pink_util_get_return_success)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_return_fail)
+START_TEST(t_util_get_return_fail)
 {
 	int status;
 	long ret;
@@ -307,7 +307,7 @@ START_TEST(test_pink_util_get_return_fail)
 }
 END_TEST
 
-START_TEST(test_pink_util_set_return_success)
+START_TEST(t_util_set_return_success)
 {
 	int ret, status;
 	pid_t pid, mypid;
@@ -383,7 +383,7 @@ START_TEST(test_pink_util_set_return_success)
 }
 END_TEST
 
-START_TEST(test_pink_util_set_return_fail)
+START_TEST(t_util_set_return_fail)
 {
 	int ret, status;
 	pid_t pid;
@@ -462,7 +462,7 @@ START_TEST(test_pink_util_set_return_fail)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_first)
+START_TEST(t_util_get_arg_first)
 {
 	int status;
 	long ret;
@@ -517,7 +517,7 @@ START_TEST(test_pink_util_get_arg_first)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_second)
+START_TEST(t_util_get_arg_second)
 {
 	int status;
 	long ret;
@@ -572,7 +572,7 @@ START_TEST(test_pink_util_get_arg_second)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_third)
+START_TEST(t_util_get_arg_third)
 {
 	int status;
 	long ret;
@@ -627,7 +627,7 @@ START_TEST(test_pink_util_get_arg_third)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_fourth)
+START_TEST(t_util_get_arg_fourth)
 {
 	int status;
 	long ret;
@@ -682,7 +682,7 @@ START_TEST(test_pink_util_get_arg_fourth)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_fifth)
+START_TEST(t_util_get_arg_fifth)
 {
 	int status;
 	long ret;
@@ -737,7 +737,7 @@ START_TEST(test_pink_util_get_arg_fifth)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_arg_sixth)
+START_TEST(t_util_get_arg_sixth)
 {
 	int status;
 	long ret;
@@ -792,7 +792,7 @@ START_TEST(test_pink_util_get_arg_sixth)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_first)
+START_TEST(t_util_get_string_first)
 {
 	int status;
 	char buf[10];
@@ -843,7 +843,7 @@ START_TEST(test_pink_util_get_string_first)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_second)
+START_TEST(t_util_get_string_second)
 {
 	int status;
 	char buf[10];
@@ -894,7 +894,7 @@ START_TEST(test_pink_util_get_string_second)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_third)
+START_TEST(t_util_get_string_third)
 {
 	int status;
 	char buf[10];
@@ -945,7 +945,7 @@ START_TEST(test_pink_util_get_string_third)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_fourth)
+START_TEST(t_util_get_string_fourth)
 {
 	int status;
 	char buf[10];
@@ -996,7 +996,7 @@ START_TEST(test_pink_util_get_string_fourth)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_null)
+START_TEST(t_util_get_string_persistent_null)
 {
 	int status;
 	char *buf;
@@ -1046,7 +1046,7 @@ START_TEST(test_pink_util_get_string_persistent_null)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_notrailingzero)
+START_TEST(t_util_get_string_persistent_notrailingzero)
 {
 	int status;
 	char *buf;
@@ -1106,7 +1106,7 @@ START_TEST(test_pink_util_get_string_persistent_notrailingzero)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_first)
+START_TEST(t_util_get_string_persistent_first)
 {
 	int status;
 	char *buf;
@@ -1159,7 +1159,7 @@ START_TEST(test_pink_util_get_string_persistent_first)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_second)
+START_TEST(t_util_get_string_persistent_second)
 {
 	int status;
 	char *buf;
@@ -1212,7 +1212,7 @@ START_TEST(test_pink_util_get_string_persistent_second)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_third)
+START_TEST(t_util_get_string_persistent_third)
 {
 	int status;
 	char *buf;
@@ -1265,7 +1265,7 @@ START_TEST(test_pink_util_get_string_persistent_third)
 }
 END_TEST
 
-START_TEST(test_pink_util_get_string_persistent_fourth)
+START_TEST(t_util_get_string_persistent_fourth)
 {
 	int status;
 	char *buf;
@@ -1326,28 +1326,28 @@ util_suite_create(void)
 	/* pink_util_*() */
 	TCase *tc_pink_util = tcase_create("pink_util");
 
-	tcase_add_test(tc_pink_util, test_pink_util_get_syscall);
-	tcase_add_test(tc_pink_util, test_pink_util_set_syscall);
-	tcase_add_test(tc_pink_util, test_pink_util_get_return_success);
-	tcase_add_test(tc_pink_util, test_pink_util_get_return_fail);
-	tcase_add_test(tc_pink_util, test_pink_util_set_return_success);
-	tcase_add_test(tc_pink_util, test_pink_util_set_return_fail);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_first);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_second);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_third);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_fourth);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_fifth);
-	tcase_add_test(tc_pink_util, test_pink_util_get_arg_sixth);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_first);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_second);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_third);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_fourth);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_null);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_notrailingzero);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_first);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_second);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_third);
-	tcase_add_test(tc_pink_util, test_pink_util_get_string_persistent_fourth);
+	tcase_add_test(tc_pink_util, t_util_get_syscall);
+	tcase_add_test(tc_pink_util, t_util_set_syscall);
+	tcase_add_test(tc_pink_util, t_util_get_return_success);
+	tcase_add_test(tc_pink_util, t_util_get_return_fail);
+	tcase_add_test(tc_pink_util, t_util_set_return_success);
+	tcase_add_test(tc_pink_util, t_util_set_return_fail);
+	tcase_add_test(tc_pink_util, t_util_get_arg_first);
+	tcase_add_test(tc_pink_util, t_util_get_arg_second);
+	tcase_add_test(tc_pink_util, t_util_get_arg_third);
+	tcase_add_test(tc_pink_util, t_util_get_arg_fourth);
+	tcase_add_test(tc_pink_util, t_util_get_arg_fifth);
+	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
+	tcase_add_test(tc_pink_util, t_util_get_string_first);
+	tcase_add_test(tc_pink_util, t_util_get_string_second);
+	tcase_add_test(tc_pink_util, t_util_get_string_third);
+	tcase_add_test(tc_pink_util, t_util_get_string_fourth);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_null);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_notrailingzero);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_first);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_second);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_third);
+	tcase_add_test(tc_pink_util, t_util_get_string_persistent_fourth);
 
 	suite_add_tcase(s, tc_pink_util);
 

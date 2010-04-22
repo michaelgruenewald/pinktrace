@@ -36,7 +36,7 @@
 
 #include "check_pinktrace.h"
 
-START_TEST(test_pink_event_stop)
+START_TEST(t_event_stop)
 {
 	int status;
 	pid_t pid;
@@ -83,7 +83,7 @@ START_TEST(test_pink_event_stop)
 }
 END_TEST
 
-START_TEST(test_pink_event_syscall)
+START_TEST(t_event_syscall)
 {
 	int status;
 	pid_t pid;
@@ -136,7 +136,7 @@ START_TEST(test_pink_event_syscall)
 END_TEST
 
 
-START_TEST(test_pink_event_fork)
+START_TEST(t_event_fork)
 {
 	int status;
 	pid_t pid, cpid;
@@ -189,7 +189,7 @@ START_TEST(test_pink_event_fork)
 }
 END_TEST
 
-START_TEST(test_pink_event_vfork)
+START_TEST(t_event_vfork)
 {
 	int status;
 	pid_t pid, cpid;
@@ -242,17 +242,17 @@ START_TEST(test_pink_event_vfork)
 }
 END_TEST
 
-START_TEST(test_pink_event_clone)
+START_TEST(t_event_clone)
 {
 }
 END_TEST
 
-START_TEST(test_pink_event_vfork_done)
+START_TEST(t_event_vfork_done)
 {
 }
 END_TEST
 
-START_TEST(test_pink_event_exec)
+START_TEST(t_event_exec)
 {
 	int status;
 	pid_t pid;
@@ -304,7 +304,7 @@ START_TEST(test_pink_event_exec)
 }
 END_TEST
 
-START_TEST(test_pink_event_exit)
+START_TEST(t_event_exit)
 {
 	int status;
 	pid_t pid;
@@ -354,7 +354,7 @@ START_TEST(test_pink_event_exit)
 }
 END_TEST
 
-START_TEST(test_pink_event_genuine)
+START_TEST(t_event_genuine)
 {
 	int status;
 	pid_t pid;
@@ -401,7 +401,7 @@ START_TEST(test_pink_event_genuine)
 }
 END_TEST
 
-START_TEST(test_pink_event_exit_genuine)
+START_TEST(t_event_exit_genuine)
 {
 	int status;
 	pid_t pid;
@@ -452,7 +452,7 @@ START_TEST(test_pink_event_exit_genuine)
 }
 END_TEST
 
-START_TEST(test_pink_event_exit_signal)
+START_TEST(t_event_exit_signal)
 {
 	int status;
 	pid_t pid;
@@ -503,7 +503,7 @@ START_TEST(test_pink_event_exit_signal)
 }
 END_TEST
 
-START_TEST(test_pink_event_unknown)
+START_TEST(t_event_unknown)
 {
 }
 END_TEST
@@ -516,18 +516,18 @@ event_suite_create(void)
 	/* pink_event() */
 	TCase *tc_pink_event = tcase_create("pink_event");
 
-	tcase_add_test(tc_pink_event, test_pink_event_stop);
-	tcase_add_test(tc_pink_event, test_pink_event_syscall);
-	tcase_add_test(tc_pink_event, test_pink_event_fork);
-	tcase_add_test(tc_pink_event, test_pink_event_vfork);
-	tcase_add_test(tc_pink_event, test_pink_event_clone);
-	tcase_add_test(tc_pink_event, test_pink_event_vfork_done);
-	tcase_add_test(tc_pink_event, test_pink_event_exec);
-	tcase_add_test(tc_pink_event, test_pink_event_exit);
-	tcase_add_test(tc_pink_event, test_pink_event_genuine);
-	tcase_add_test(tc_pink_event, test_pink_event_exit_genuine);
-	tcase_add_test(tc_pink_event, test_pink_event_exit_signal);
-	tcase_add_test(tc_pink_event, test_pink_event_unknown);
+	tcase_add_test(tc_pink_event, t_event_stop);
+	tcase_add_test(tc_pink_event, t_event_syscall);
+	tcase_add_test(tc_pink_event, t_event_fork);
+	tcase_add_test(tc_pink_event, t_event_vfork);
+	tcase_add_test(tc_pink_event, t_event_clone);
+	tcase_add_test(tc_pink_event, t_event_vfork_done);
+	tcase_add_test(tc_pink_event, t_event_exec);
+	tcase_add_test(tc_pink_event, t_event_exit);
+	tcase_add_test(tc_pink_event, t_event_genuine);
+	tcase_add_test(tc_pink_event, t_event_exit_genuine);
+	tcase_add_test(tc_pink_event, t_event_exit_signal);
+	tcase_add_test(tc_pink_event, t_event_unknown);
 
 	suite_add_tcase(s, tc_pink_event);
 
