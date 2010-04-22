@@ -19,11 +19,12 @@
  */
 
 #include <errno.h>
+#include <stdbool.h>
 #include <sys/types.h>
+#include <stdio.h>
 
-#include <pinktrace/gcc.h>
 #include <pinktrace/internal.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 inline bool
 pink_trace_me(void)
