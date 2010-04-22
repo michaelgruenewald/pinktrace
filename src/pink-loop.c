@@ -65,7 +65,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 		 * handler in case of errors, so the caller can clean up and do
 		 * other things she may want in case of errors.
 		 */
-		ret = 0;
+		ret = false;
 
 		if (!(issingle
 			? pink_trace_singlestep(pid, 0)
