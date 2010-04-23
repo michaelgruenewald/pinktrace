@@ -71,7 +71,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 			? pink_trace_singlestep(pid, 0)
 			: pink_trace_syscall(pid, 0))) {
 			handler->ctx->error = PINK_ERROR_STEP;
-			errback = handler->cb_error(handler, pid, handler->userdata_error);
+			errback = handler->cb_error(handler->ctx, pid, handler->userdata_error);
 			if (errback.fatal)
 				return errback.code;
 		}
@@ -83,7 +83,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 				: waitpid(wpid, &status, 0);
 			if (wpid < 0) {
 				handler->ctx->error = PINK_ERROR_WAIT;
-				errback = handler->cb_error(handler, wpid, handler->userdata_error);
+				errback = handler->cb_error(handler->ctx, wpid, handler->userdata_error);
 				if (errback.fatal)
 					return errback.code;
 			}
@@ -166,7 +166,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 				/* Eeek! Handler returned error!
 				 */
 				handler->ctx->error = PINK_ERROR_HANDLER;
-				errback = handler->cb_error(handler, wpid, handler->userdata_error);
+				errback = handler->cb_error(handler->ctx, wpid, handler->userdata_error);
 				if (errback.fatal)
 					return errback.code;
 			}

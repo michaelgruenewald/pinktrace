@@ -86,7 +86,7 @@ typedef bool (*pink_event_handler_exit_t) (const pink_context_t *ctx,
 /**
  * This function definition represents the error handler.
  **/
-typedef pink_error_return_t (*pink_event_handler_error_t) (pink_event_handler_t *handler,
+typedef pink_error_return_t (*pink_event_handler_error_t) (const pink_context_t *ctx,
 	pid_t pid, void *userdata);
 
 /**
