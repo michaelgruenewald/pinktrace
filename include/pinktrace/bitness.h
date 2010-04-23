@@ -21,13 +21,16 @@
 #ifndef PINKTRACE_GUARD_BITNESS_H
 #define PINKTRACE_GUARD_BITNESS_H 1
 
-#include <sys/types.h>
-
 /**
  * \file
  * Pink's bitness modes
  **/
 
+#include <sys/types.h>
+
+/**
+ * Bitness modes
+ **/
 typedef enum {
 	PINK_BITNESS_UNKNOWN = -1,	/*<< Unknown (error with pink_bitness_get() */
 	PINK_BITNESS_32,		/*<< 32 bit mode */

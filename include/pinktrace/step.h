@@ -26,6 +26,9 @@
  * Pink's trace stepping
  **/
 
+/**
+ * Trace stepping modes
+ **/
 typedef enum {
 	PINK_STEP_SINGLE,	/*<< Single stepping */
 	PINK_STEP_SYSCALL,	/*<< System call stepping */

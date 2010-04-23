@@ -28,6 +28,9 @@
 
 #include <pinktrace/context.h>
 
+/**
+ * Event constants
+ **/
 typedef enum {
 	PINK_EVENT_STOP,	/*<< Child has been stopped */
 	PINK_EVENT_SYSCALL,	/*<< Child has entered/exited a system call */

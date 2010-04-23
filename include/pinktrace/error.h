@@ -26,6 +26,9 @@
  * Pink's error constants
  **/
 
+/**
+ * Error constants
+ **/
 typedef enum {
 	PINK_ERROR_SUCCESS = 0,	/*<< Success */
 	PINK_ERROR_FORK,	/*<< Fork failed */
