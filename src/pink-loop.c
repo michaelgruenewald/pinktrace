@@ -70,6 +70,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 		if (!(issingle
 			? pink_trace_singlestep(pid, 0)
 			: pink_trace_syscall(pid, 0))) {
+			handler->ctx->error = PINK_ERROR_STEP;
 			errback = handler->cb_error(handler, pid, handler->userdata_error);
 			if (errback.fatal)
 				return errback.code;
@@ -88,7 +89,7 @@ pink_loop_fork(pink_event_handler_t *handler, pink_child_func_t func, void *user
 			}
 
 			/* Decide the event */
-			event = pink_event_decide(handler->ctx, event);
+			event = pink_event_decide(handler->ctx, status);
 
 			/* Call the handler */
 			switch (event) {
