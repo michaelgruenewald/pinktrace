@@ -146,8 +146,9 @@ main(int argc, char **argv)
 	}
 
 	/* Create a tracing context. */
-	if ((ctx = pink_context_new()) == NULL) {
-		fprintf(stderr, "pink_context_new failed: %s\n", strerror(errno));
+	ctx = pink_context_new();
+	if (!ctx) {
+		fprintf(stderr, "pink_context_new: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
 
