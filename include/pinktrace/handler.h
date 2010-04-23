@@ -65,6 +65,7 @@ typedef bool (*pink_event_handler_signal_t) (const pink_context_t *ctx,
  *  - PINK_EVENT_FORK
  *  - PINK_EVENT_VFORK
  *  - PINK_EVENT_CLONE
+ *  - PINK_EVENT_EXEC
  *  - PINK_EVENT_VFORK_DONE
  *  - PINK_EVENT_EXIT
  **/
@@ -163,6 +164,7 @@ pink_event_handler_get_signal_callback(pink_event_handler_t *handler, pink_event
  *  - PINK_EVENT_FORK
  *  - PINK_EVENT_VFORK
  *  - PINK_EVENT_CLONE
+ *  - PINK_EVENT_EXEC
  *  - PINK_EVENT_VFORK_DONE
  *  - PINK_EVENT_EXIT
  * \param callback The event handler callback
@@ -182,6 +184,7 @@ pink_event_handler_set_ptrace_callback(pink_event_handler_t *handler,
  *  - PINK_EVENT_FORK
  *  - PINK_EVENT_VFORK
  *  - PINK_EVENT_CLONE
+ *  - PINK_EVENT_EXEC
  *  - PINK_EVENT_VFORK_DONE
  *  - PINK_EVENT_EXIT
  *

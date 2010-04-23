@@ -105,6 +105,7 @@ pink_event_handler_set_ptrace_callback(pink_event_handler_t *handler,
 		event == PINK_EVENT_FORK ||
 		event == PINK_EVENT_VFORK ||
 		event == PINK_EVENT_CLONE ||
+		event == PINK_EVENT_EXEC ||
 		event == PINK_EVENT_VFORK_DONE ||
 		event == PINK_EVENT_EXIT);
 
@@ -124,6 +125,10 @@ pink_event_handler_set_ptrace_callback(pink_event_handler_t *handler,
 	case PINK_EVENT_CLONE:
 		handler->cb_clone = callback;
 		handler->userdata_clone = userdata;
+		break;
+	case PINK_EVENT_EXEC:
+		handler->cb_exec = callback;
+		handler->userdata_exec = userdata;
 		break;
 	case PINK_EVENT_VFORK_DONE:
 		handler->cb_vfork_done = callback;
@@ -145,6 +150,7 @@ pink_event_handler_get_ptrace_callback(pink_event_handler_t *handler, pink_event
 		event == PINK_EVENT_FORK ||
 		event == PINK_EVENT_VFORK ||
 		event == PINK_EVENT_CLONE ||
+		event == PINK_EVENT_EXEC ||
 		event == PINK_EVENT_VFORK_DONE ||
 		event == PINK_EVENT_EXIT);
 
@@ -157,6 +163,8 @@ pink_event_handler_get_ptrace_callback(pink_event_handler_t *handler, pink_event
 		return handler->cb_vfork;
 	case PINK_EVENT_CLONE:
 		return handler->cb_clone;
+	case PINK_EVENT_EXEC:
+		return handler->cb_exec;
 	case PINK_EVENT_VFORK_DONE:
 		return handler->cb_vfork_done;
 	case PINK_EVENT_EXIT:
