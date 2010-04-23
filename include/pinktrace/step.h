@@ -30,8 +30,10 @@
  * Trace stepping modes
  **/
 typedef enum {
-	PINK_STEP_SINGLE,	/*<< Single stepping */
-	PINK_STEP_SYSCALL,	/*<< System call stepping */
+	/** Single stepping **/
+	PINK_STEP_SINGLE,
+	/** System call stepping **/
+	PINK_STEP_SYSCALL,
 } pink_step_t;
 
 #endif /* !PINKTRACE_GUARD_STEP_H */

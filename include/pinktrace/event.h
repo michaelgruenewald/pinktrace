@@ -32,18 +32,30 @@
  * Event constants
  **/
 typedef enum {
-	PINK_EVENT_STOP,	/*<< Child has been stopped */
-	PINK_EVENT_SYSCALL,	/*<< Child has entered/exited a system call */
-	PINK_EVENT_FORK,	/*<< Child called fork() */
-	PINK_EVENT_VFORK,	/*<< Child called vfork() */
-	PINK_EVENT_CLONE,	/*<< Child called clone() */
-	PINK_EVENT_VFORK_DONE,	/*<< Child is exiting a vfork() call */
-	PINK_EVENT_EXEC,	/*<< Child called execve() */
-	PINK_EVENT_EXIT,	/*<< Child is exiting (ptrace way, stopped before exit) */
-	PINK_EVENT_GENUINE,	/*<< Child has received a genuine signal */
-	PINK_EVENT_EXIT_GENUINE,/*<< Child has *exited* normally */
-	PINK_EVENT_EXIT_SIGNAL, /*<< Child exited with a signal */
-	PINK_EVENT_UNKNOWN,	/*<< Unknown event, shouldn't happen */
+	/** Child has been stopped **/
+	PINK_EVENT_STOP,
+	/** Child has entered/exited a system call **/
+	PINK_EVENT_SYSCALL,
+	/** Child has called fork() **/
+	PINK_EVENT_FORK,
+	/** Child has called vfork() **/
+	PINK_EVENT_VFORK,
+	/** Child has called clone() **/
+	PINK_EVENT_CLONE,
+	/** Child has exited a vfork() call **/
+	PINK_EVENT_VFORK_DONE,
+	/** Child has called execve() **/
+	PINK_EVENT_EXEC,
+	/** Child is exiting (ptrace way, stopped before exit) **/
+	PINK_EVENT_EXIT,
+	/** Child has received a genuine signal **/
+	PINK_EVENT_GENUINE,
+	/** Child has exited normally **/
+	PINK_EVENT_EXIT_GENUINE,
+	/** Child has been terminated with a signal **/
+	PINK_EVENT_EXIT_SIGNAL,
+	/** Unknown event, shouldn't happen **/
+	PINK_EVENT_UNKNOWN,
 } pink_event_t;
 
 /**
@@ -58,7 +70,7 @@ pink_event_t
 pink_event_decide(pink_context_t *ctx, int status);
 
 /**
- * Return a string representation of the event
+ * Return a string representation of the event.
  *
  * \param event The event to be stringified.
  *

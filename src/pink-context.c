@@ -87,7 +87,7 @@ pink_context_get_eldest(const pink_context_t *ctx)
 	return ctx->eldest;
 }
 
-int
+pink_error_t
 pink_context_get_error(const pink_context_t *ctx)
 {
 	return ctx->error;

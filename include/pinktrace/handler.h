@@ -21,16 +21,16 @@
 #ifndef PINKTRACE_GUARD_HANDLER_H
 #define PINKTRACE_GUARD_HANDLER_H 1
 
-/**
- * \file
- * Pink's high level event handler
- **/
-
 #include <stdbool.h>
 #include <sys/types.h>
 
 #include <pinktrace/context.h>
 #include <pinktrace/event.h>
+
+/**
+ * \file
+ * Pink's high level event handler
+ **/
 
 /**
  * This type definition represents the return value of the error handler
@@ -44,6 +44,8 @@ typedef struct {
 } pink_error_return_t;
 
 /**
+ * \struct pink_event_handler_t
+ *
  * This opaque structure represents an event handler.
  **/
 typedef struct pink_event_handler pink_event_handler_t;
@@ -51,9 +53,9 @@ typedef struct pink_event_handler pink_event_handler_t;
 /**
  * This function definition represents a signal event callback.
  * Corresponds to the events:
- *  - PINK_EVENT_STOP
- *  - PINK_EVENT_GENUINE
- *  - PINK_EVENT_UNKNOWN
+ * - #PINK_EVENT_STOP
+ * - #PINK_EVENT_GENUINE
+ * - #PINK_EVENT_UNKNOWN
  **/
 typedef bool (*pink_event_handler_signal_t) (const pink_context_t *ctx,
 	pid_t pid, int signum, void *userdata);
@@ -61,13 +63,13 @@ typedef bool (*pink_event_handler_signal_t) (const pink_context_t *ctx,
 /**
  * This function definition represents a ptrace event callback.
  * Corresponds to the events:
- *  - PINK_EVENT_SYSCALL
- *  - PINK_EVENT_FORK
- *  - PINK_EVENT_VFORK
- *  - PINK_EVENT_CLONE
- *  - PINK_EVENT_EXEC
- *  - PINK_EVENT_VFORK_DONE
- *  - PINK_EVENT_EXIT
+ *  - #PINK_EVENT_SYSCALL
+ *  - #PINK_EVENT_FORK
+ *  - #PINK_EVENT_VFORK
+ *  - #PINK_EVENT_CLONE
+ *  - #PINK_EVENT_EXEC
+ *  - #PINK_EVENT_VFORK_DONE
+ *  - #PINK_EVENT_EXIT
  **/
 typedef bool (*pink_event_handler_ptrace_t) (const pink_context_t *ctx,
 	pid_t pid, void *userdata);
@@ -75,10 +77,11 @@ typedef bool (*pink_event_handler_ptrace_t) (const pink_context_t *ctx,
 /**
  * This function definition represents an exit event callback.
  * Corresponds to the events:
- *  - PINK_EVENT_EXIT_GENUINE
- *  - PINK_EVENT_EXIT_SIGNAL
- * For the former event the second argument is the exit code, for the latter
- * it's the terminating signal.
+ *  - #PINK_EVENT_EXIT_GENUINE
+ *  - #PINK_EVENT_EXIT_SIGNAL
+ *
+ * For the former event the second argument is the exit code, for
+ * the latter it's the terminating signal.
  **/
 typedef bool (*pink_event_handler_exit_t) (const pink_context_t *ctx,
 	pid_t pid, int excode, void *userdata);
@@ -130,9 +133,9 @@ pink_event_handler_get_context(pink_event_handler_t *handler);
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_STOP
- *  - PINK_EVENT_GENUINE
- *  - PINK_EVENT_UNKNOWN
+ *  - #PINK_EVENT_STOP
+ *  - #PINK_EVENT_GENUINE
+ *  - #PINK_EVENT_UNKNOWN
  * \param callback The event handler callback
  * \param userdata The user data to be passed to the callback
  **/
@@ -146,9 +149,9 @@ pink_event_handler_set_signal_callback(pink_event_handler_t *handler,
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_STOP
- *  - PINK_EVENT_GENUINE
- *  - PINK_EVENT_UNKNOWN
+ *  - #PINK_EVENT_STOP
+ *  - #PINK_EVENT_GENUINE
+ *  - #PINK_EVENT_UNKNOWN
  *
  * \return The signal event callback of the given event
  **/
@@ -160,13 +163,13 @@ pink_event_handler_get_signal_callback(pink_event_handler_t *handler, pink_event
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_SYSCALL
- *  - PINK_EVENT_FORK
- *  - PINK_EVENT_VFORK
- *  - PINK_EVENT_CLONE
- *  - PINK_EVENT_EXEC
- *  - PINK_EVENT_VFORK_DONE
- *  - PINK_EVENT_EXIT
+ *  - #PINK_EVENT_SYSCALL
+ *  - #PINK_EVENT_FORK
+ *  - #PINK_EVENT_VFORK
+ *  - #PINK_EVENT_CLONE
+ *  - #PINK_EVENT_EXEC
+ *  - #PINK_EVENT_VFORK_DONE
+ *  - #PINK_EVENT_EXIT
  * \param callback The event handler callback
  * \param userdata The user data to be passed to the callback
  **/
@@ -180,13 +183,13 @@ pink_event_handler_set_ptrace_callback(pink_event_handler_t *handler,
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_SYSCALL
- *  - PINK_EVENT_FORK
- *  - PINK_EVENT_VFORK
- *  - PINK_EVENT_CLONE
- *  - PINK_EVENT_EXEC
- *  - PINK_EVENT_VFORK_DONE
- *  - PINK_EVENT_EXIT
+ *  - #PINK_EVENT_SYSCALL
+ *  - #PINK_EVENT_FORK
+ *  - #PINK_EVENT_VFORK
+ *  - #PINK_EVENT_CLONE
+ *  - #PINK_EVENT_EXEC
+ *  - #PINK_EVENT_VFORK_DONE
+ *  - #PINK_EVENT_EXIT
  *
  * \return The ptrace event callback of the given event
  **/
@@ -198,8 +201,8 @@ pink_event_handler_get_ptrace_callback(pink_event_handler_t *handler, pink_event
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_EXIT_GENUINE
- *  - PINK_EVENT_EXIT_SIGNAL
+ *  - #PINK_EVENT_EXIT_GENUINE
+ *  - #PINK_EVENT_EXIT_SIGNAL
  * \param callback The exit event handler callback
  * \param userdata The user data to be passed to the callback
  **/
@@ -213,8 +216,8 @@ pink_event_handler_set_exit_callback(pink_event_handler_t *handler,
  *
  * \param handler The event handler
  * \param event One of:
- *  - PINK_EVENT_EXIT_GENUINE
- *  - PINK_EVENT_EXIT_SIGNAL
+ *  - #PINK_EVENT_EXIT_GENUINE
+ *  - #PINK_EVENT_EXIT_SIGNAL
  *
  * \return The exit event callback of the given event
  **/

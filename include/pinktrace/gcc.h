@@ -23,28 +23,34 @@
 
 /**
  * \file
- * GCC macros
+ * Pink's GCC macros
  **/
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
 
+#define pink_noreturn __attribute__((noreturn))
+#define pink_unused __attribute__((unused))
+#define pink_likely(x) __builtin_expect(!!(x), 1)
+#define pink_unlikely(x) __builtin_expect(!!(x), 0)
+
+#else
 /**
  * GCC noreturn attribute
  **/
-#define pink_noreturn __attribute__((noreturn))
+#define pink_noreturn
 /**
  * GCC unused attribute
  **/
-#define pink_unused __attribute__((unused))
+#define pink_unused
 /**
  * GCC builtin_expect macro
  **/
-#define pink_likely(x) __builtin_expect(!!(x), 1)
+#define pink_likely(x) (x)
 /**
  * GCC builtin_expect macro
  **/
-#define pink_unlikely(x) __builtin_expect(!!(x), 0)
+#define pink_unlikely(x) (x)
 
-#endif
+#endif /* !defined(SPARSE) ... */
 
 #endif /* !PINKTRACE_GUARD_GCC_H */

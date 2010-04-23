@@ -24,9 +24,12 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#include <pinktrace/error.h>
 #include <pinktrace/step.h>
 
 /**
+ * \struct pink_context_t
+ *
  * This opaque structure represents a tracing context.
  **/
 typedef struct pink_context pink_context_t;
@@ -53,6 +56,8 @@ pink_context_free(pink_context_t *ctx);
  * set, tracing will start by attaching to the eldest child using PTRACE_ATTACH
  * and at the end of the tracing session, PTRACE_DETACH will be called.
  *
+ * \see pink_loop
+ *
  * \param ctx The tracing context whose attach property is to be modified.
  * \param on Boolean that specifies whether the attach property is enabled.
  *
@@ -63,6 +68,8 @@ pink_context_set_attach(pink_context_t *ctx, bool on);
 /**
  * Accessor function for the attach property.
  *
+ * \see pink_loop
+ *
  * \param ctx The tracing context whose attaching context is to be returned.
  *
  * \return true if attach is enabled, false otherwise.
@@ -72,7 +79,7 @@ pink_context_get_attach(const pink_context_t *ctx);
 
 /**
  * Set the options property of the given tracing context.
- * Note: PINK_TRACE_OPTION_SYSGOOD is always set if available.
+ * Note: #PINK_TRACE_OPTION_SYSGOOD is always set if available.
  *
  * \param ctx The tracing context whose options property is to be modified.
  * \param options Bitwise OR'ed PINK_TRACE_OPTION_* flags.
@@ -93,7 +100,8 @@ pink_context_get_options(const pink_context_t *ctx);
 /**
  * Sets the process ID of the child to be traced.
  * Only necessary if the child is to be attached.
- * Note: pink_fork() sets this property if fork is successful.
+ *
+ * \note pink_fork() sets this property if fork is successful.
  *
  * \param ctx The tracing context whose eldest process ID will be modified.
  * \param pid The process ID of the eldest child.
@@ -119,7 +127,7 @@ pink_context_get_eldest(const pink_context_t *ctx);
  *
  * \return The error code, one of PTRACE_ERROR_* constants.
  **/
-int
+pink_error_t
 pink_context_get_error(const pink_context_t *ctx);
 
 /**
@@ -132,6 +140,9 @@ pink_context_clear_error(pink_context_t *ctx);
 
 /**
  * Sets the stepping type for the tracing context.
+ *
+ * \see PINK_STEP_SINGLE
+ * \see PINK_STEP_SYSCALL
  *
  * \param ctx The tracing context whose step property will be modified.
  * \param type The stepping type, one of PINK_STEP_* constants.

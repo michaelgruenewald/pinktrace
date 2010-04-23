@@ -24,6 +24,11 @@
 #include <pinktrace/handler.h>
 
 /**
+ * \file
+ * Pink's trace loop
+ **/
+
+/**
  * This function definition represents the only function to be called from the
  * traced child.
  **/

@@ -32,9 +32,12 @@
  * Bitness modes
  **/
 typedef enum {
-	PINK_BITNESS_UNKNOWN = -1,	/*<< Unknown (error with pink_bitness_get() */
-	PINK_BITNESS_32,		/*<< 32 bit mode */
-	PINK_BITNESS_64,		/*<< 64 bit mode */
+	/** Unknown bitness (error with pink_bitness_get) **/
+	PINK_BITNESS_UNKNOWN = -1,
+	/** 32 bit mode **/
+	PINK_BITNESS_32,
+	/** 64 bit mode **/
+	PINK_BITNESS_64,
 } pink_bitness_t;
 
 /**

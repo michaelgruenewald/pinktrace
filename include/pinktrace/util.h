@@ -21,10 +21,13 @@
 #ifndef PINKTRACE_GUARD_UTIL_H
 #define PINKTRACE_GUARD_UTIL_H 1
 
+#include <stdbool.h>
 #include <sys/types.h>
 
-#define pink_util_move(pid, addr, objp) \
-	pink_util_moven((pid), (addr), (char *)(objp), sizeof *(objp))
+/**
+ * \file
+ * Pink's trace utility functions
+ **/
 
 /**
  * Reads a word at the given offset in the child's USER area,
@@ -53,6 +56,14 @@ pink_util_peek(pid_t pid, long off, long *res);
  **/
 bool
 pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
+
+/**
+ * Convenience macro to read an object
+ *
+ * \see pink_util_moven
+ **/
+#define pink_util_move(pid, addr, objp) \
+	pink_util_moven((pid), (addr), (char *)(objp), sizeof *(objp))
 
 /**
  * Like pink_util_moven but make the additional effort of looking for a
@@ -148,7 +159,7 @@ pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, siz
 /**
  * Like pink_util_get_string but allocates the string itself.
  *
- * \return The path on success and NULL on failure and sets errno
+ * \return The path on success, NULL on failure and sets errno
  * accordingly.
  **/
 char *

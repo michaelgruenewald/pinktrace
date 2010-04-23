@@ -21,12 +21,19 @@
 #ifndef PINKTRACE_GUARD_FORK_H
 #define PINKTRACE_GUARD_FORK_H 1
 
+/**
+ * \file
+ * Pink's fork wrapper
+ **/
+
 #include <sys/types.h>
 
 #include <pinktrace/context.h>
 
 /**
  * fork(2) wrapper that sets up the child for tracing.
+ *
+ * \see pink_error_t
  *
  * \param ctx The tracing context to be used.
  *

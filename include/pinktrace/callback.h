@@ -26,12 +26,21 @@
  * Pink's default callbacks
  **/
 
+#include <stdbool.h>
+
 #include <pinktrace/context.h>
 
 /**
  * Default callback for signal events.
  * This callback resumes the child with either pink_trace_singlestep or
- * pink_trace_syscall depending on the return value of pink_context_get_step.
+ * pink_trace_syscall() depending on the return value of
+ * pink_context_get_step().
+ *
+ * \see PINK_EVENT_STOP
+ * \see PINK_EVENT_GENUINE
+ * \see PINK_EVENT_UNKNOWN
+ *
+ * \see pink_event_handler_set_signal_callback
  *
  * \param ctx The tracing context
  * \param pid Process ID of the child being traced
@@ -45,12 +54,17 @@ pink_callback_signal_default(const pink_context_t *ctx, pid_t pid, int signum, v
 
 /**
  * Default callback for system call event.
- * This callback resumes the child with either pink_trace_singlestep or
- * pink_trace_syscall depending on the return value of pink_context_get_step.
+ * This callback resumes the child with either pink_trace_singlestep() or
+ * pink_trace_syscall() depending on the return value of
+ * pink_context_get_step().
+ *
+ * \see PINK_EVENT_SYSCALL
+ *
+ * \see pink_event_handler_set_ptrace_callback
  *
  * \param ctx The tracing context
  * \param pid Process ID of the child being traced
- * \param userdata The userdata
+ * \param userdata The user data
  *
  * \return true on success, false on failure
  **/
@@ -63,6 +77,18 @@ pink_callback_syscall_default(const pink_context_t *ctx, pid_t pid, void *userda
  * return status. In case it was terminated with a signal, this callback exits
  * with return code (128 + SIGNUM). Otherwise it does nothing and simply
  * returns.
+ *
+ * \see PINK_EVENT_EXIT_GENUINE
+ * \see PINK_EVENT_EXIT_SIGNAL
+ *
+ * \see pink_event_handler_set_exit_callback
+ *
+ * \param ctx The tracing context
+ * \param pid Process ID of the child being traced
+ * \param excode Exit code or the terminating signal depending on the event
+ * \param userdata The user data
+ *
+ * \return true on success, false on failure
  **/
 bool
 pink_callback_exit_default(const pink_context_t *ctx, pid_t pid, int excode, void *userdata);

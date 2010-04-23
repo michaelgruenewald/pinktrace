@@ -22,8 +22,27 @@
 #define PINKTRACE_GUARD_PINK_H 1
 
 /**
+ * \mainpage pinktrace
+ *
+ * pinktrace - Pink's Tracing Library
+ *
+ * pinktrace is a wrapper around ptrace(2) system call.
+ * It provides a robust API for tracing processes.
+ *
+ * Note this is a work in progress and the API is *not* stable.
+ *
+ *
+ * \author Ali Polatel <alip@exherbo.org>
+ **/
+
+/**
+ * \example pink-low.c
+ * This is an example demonstrating the low level API.
+ **/
+
+/**
  * \file
- * Pink's Tracing Library
+ * A header file including all other header files part of pinktrace
  **/
 
 #include <pinktrace/gcc.h>
