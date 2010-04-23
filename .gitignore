@@ -40,6 +40,7 @@ doc/doxygen.conf
 doc/libpinktrace.tag
 
 examples/pink-lowlevel
+examples/pink-highlevel
 
 m4/libtool.m4
 m4/lt*.m4
