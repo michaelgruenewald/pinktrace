@@ -18,11 +18,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/**
- * \file
- * Example describing the low level API
- **/
-
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/types.h>
