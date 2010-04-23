@@ -32,12 +32,6 @@ pink_error_tostring(pink_error_t error)
 		return "Setting up tracing failed";
 	case PINK_ERROR_TRACE_SETUP:
 		return "Setting up tracing options failed";
-	case PINK_ERROR_STEP:
-		return "Stepping failed";
-	case PINK_ERROR_WAIT:
-		return "wait failed";
-	case PINK_ERROR_HANDLER:
-		return "Event handler returned non-zero";
 	case PINK_ERROR_UNKNOWN:
 	default:
 		return "Unknown error";

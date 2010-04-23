@@ -38,12 +38,6 @@ typedef enum {
 	PINK_ERROR_TRACE,
 	/** pink_trace_setup() failed **/
 	PINK_ERROR_TRACE_SETUP,
-	/** pink_trace_singlestep() or pink_trace_syscall() failed **/
-	PINK_ERROR_STEP,
-	/** waitpid() failed **/
-	PINK_ERROR_WAIT,
-	/** The event handler callback returned false **/
-	PINK_ERROR_HANDLER,
 	/** Unknown error **/
 	PINK_ERROR_UNKNOWN,
 } pink_error_t;
