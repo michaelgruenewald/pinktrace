@@ -10,3 +10,8 @@ doxygen:
 	@echo "You don't have doxygen installed!"
 	exit 1
 endif
+
+upload: doxygen
+	rsync -avze ssh --delete reference/html bach.exherbo.org:public_html/pinktrace/reference
+
+.PHONY: doxygen upload
