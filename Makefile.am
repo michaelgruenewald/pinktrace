@@ -15,10 +15,8 @@ pinktraceinclude_HEADERS= \
 			  include/pinktrace/bitness.h \
 			  include/pinktrace/error.h \
 			  include/pinktrace/event.h \
-			  include/pinktrace/step.h \
 			  include/pinktrace/context.h \
 			  include/pinktrace/fork.h \
-			  include/pinktrace/loop.h \
 			  include/pinktrace/trace.h \
 			  include/pinktrace/util.h \
 			  include/pinktrace/pink.h

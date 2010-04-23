@@ -31,13 +31,12 @@
  *
  * Note this is a work in progress and the API is *not* stable.
  *
- *
  * \author Ali Polatel <alip@exherbo.org>
  **/
 
 /**
- * \example pink-low.c
- * This is an example demonstrating the low level API.
+ * \example pink-example.c
+ * This is an example demonstrating the usage of the library
  **/
 
 /**
@@ -47,13 +46,10 @@
 
 #include <pinktrace/gcc.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/callback.h>
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
 #include <pinktrace/event.h>
 #include <pinktrace/fork.h>
-#include <pinktrace/handler.h>
-#include <pinktrace/loop.h>
 #include <pinktrace/name.h>
 #include <pinktrace/trace.h>
 #include <pinktrace/util.h>

@@ -25,7 +25,6 @@
 #include <sys/types.h>
 
 #include <pinktrace/error.h>
-#include <pinktrace/step.h>
 
 /**
  * \struct pink_context_t
@@ -137,27 +136,5 @@ pink_context_get_error(const pink_context_t *ctx);
  **/
 void
 pink_context_clear_error(pink_context_t *ctx);
-
-/**
- * Sets the stepping type for the tracing context.
- *
- * \see PINK_STEP_SINGLE
- * \see PINK_STEP_SYSCALL
- *
- * \param ctx The tracing context whose step property will be modified.
- * \param type The stepping type, one of PINK_STEP_* constants.
- **/
-void
-pink_context_set_step(pink_context_t *ctx, pink_step_t type);
-
-/**
- * Accessor function for the step property.
- *
- * \param ctx The tracing context whose step property is to be returned.
- *
- * \return The stepping property of the given tracing context.
- **/
-pink_step_t
-pink_context_get_step(const pink_context_t *ctx);
 
 #endif /* !PINKTRACE_GUARD_CONTEXT_H */

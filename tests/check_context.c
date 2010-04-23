@@ -24,11 +24,7 @@
 
 #include <check.h>
 
-#include <pinktrace/gcc.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/step.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 #include "check_pinktrace.h"
 
@@ -165,44 +161,6 @@ START_TEST(t_context_error)
 }
 END_TEST
 
-START_TEST(t_context_step)
-{
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	fail_unless(pink_context_get_step(ctx) == PINK_STEP_SYSCALL,
-			"Wrong default for step, expected: %d got: %d",
-			PINK_STEP_SYSCALL, pink_context_get_step(ctx));
-
-	pink_context_set_step(ctx, PINK_STEP_SINGLE);
-	fail_unless(pink_context_get_step(ctx) == PINK_STEP_SINGLE,
-			"Failed to set step, expected: %d got: %d",
-			PINK_STEP_SINGLE, pink_context_get_step(ctx));
-
-	pink_context_free(ctx);
-}
-END_TEST
-
-START_TEST(t_context_handler)
-{
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	fail_unless(pink_context_get_handler(ctx) == NULL,
-			"Wrong default for the event handler");
-
-	pink_context_set_handler(ctx, (pink_event_handler_t *)1);
-	fail_if(pink_context_get_handler(ctx) == NULL,
-			"Failed to set event handler");
-
-	pink_context_free(ctx);
-}
-END_TEST
-
 Suite *
 context_suite_create(void)
 {
@@ -222,8 +180,6 @@ context_suite_create(void)
 	tcase_add_test(tc_context_properties, t_context_options);
 	tcase_add_test(tc_context_properties, t_context_eldest);
 	tcase_add_test(tc_context_properties, t_context_error);
-	tcase_add_test(tc_context_properties, t_context_step);
-	tcase_add_test(tc_context_properties, t_context_handler);
 
 	suite_add_tcase(s, tc_context_properties);
 

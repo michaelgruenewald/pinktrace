@@ -1,11 +1,7 @@
-EXAMPLES= pink-lowlevel pink-highlevel
+EXAMPLES= pink-example
 
-pink_lowlevel_SOURCES= pink-low.c
-pink_lowlevel_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
-pink_lowlevel_LDADD= -lpinktrace
-
-pink_highlevel_SOURCES= pink-high.c
-pink_highlevel_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
-pink_highlevel_LDADD= -lpinktrace
+pink_example_SOURCES= pink-example.c
+pink_example_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
+pink_example_LDADD= -lpinktrace
 
 noinst_PROGRAMS= $(EXAMPLES)
