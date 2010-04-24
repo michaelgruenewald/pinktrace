@@ -21,12 +21,12 @@
 #ifndef PINKTRACE_GUARD_NAME_H
 #define PINKTRACE_GUARD_NAME_H 1
 
-#include <pinktrace/bitness.h>
-
 /**
  * \file
  * Pink's system call naming
  **/
+
+#include <pinktrace/bitness.h>
 
 /**
  * Return the name of the given system call.

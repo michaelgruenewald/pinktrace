@@ -21,6 +21,11 @@
 #ifndef PINKTRACE_GUARD_CONTEXT_H
 #define PINKTRACE_GUARD_CONTEXT_H 1
 
+/**
+ * \file
+ * Pink's tracing context
+ **/
+
 #include <stdbool.h>
 #include <sys/types.h>
 

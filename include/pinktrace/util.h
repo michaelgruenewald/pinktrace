@@ -21,13 +21,13 @@
 #ifndef PINKTRACE_GUARD_UTIL_H
 #define PINKTRACE_GUARD_UTIL_H 1
 
-#include <stdbool.h>
-#include <sys/types.h>
-
 /**
  * \file
  * Pink's trace utility functions
  **/
+
+#include <stdbool.h>
+#include <sys/types.h>
 
 /**
  * Reads a word at the given offset in the child's USER area,
