@@ -41,6 +41,12 @@ pink_util_peek(pid_t pid, long off, long *res)
 	return true;
 }
 
+bool
+pink_util_poke(pid_t pid, long off, long val)
+{
+	return !(0 > ptrace(PTRACE_POKEUSER, pid, off, val));
+}
+
 #define MIN(a,b)	(((a) < (b)) ? (a) : (b))
 bool
 pink_util_moven(pid_t pid, long addr, char *dest, size_t len)

@@ -32,7 +32,8 @@
 /**
  * Reads a word at the given offset in the child's USER area,
  * and places it in res.
- * Note: Mostly for internal use, use higher level functions where possible.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
  * \param off Offset
@@ -42,6 +43,20 @@
  **/
 bool
 pink_util_peek(pid_t pid, long off, long *res);
+
+/**
+ * Copies the given word data to the given offset in the child's USER area.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param pid Process ID of the child.
+ * \param off Offset
+ * \param val Word
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_poke(pid_t pid, long off, long val);
 
 /**
  * Move len bytes of data of process pid, at address addr, to our address space
