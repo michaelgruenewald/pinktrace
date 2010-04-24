@@ -4,6 +4,6 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: pinktrace
-Description: Pink's Tracing library
+Description: Pink's Tracing Library
 Version: @VERSION@
 Libs: -L${libdir} -lpinktrace
