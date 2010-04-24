@@ -62,6 +62,8 @@ pink_util_poke(pid_t pid, long off, long val);
  * Move len bytes of data of process pid, at address addr, to our address space
  * dest.
  *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
  * \param pid Process ID of the child.
  * \param addr Address from where the data is to be moved.
  * \param dest Pointer to store the data.
@@ -75,20 +77,26 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
 /**
  * Convenience macro to read an object
  *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
  * \see pink_util_moven
  **/
 #define pink_util_move(pid, addr, objp) \
 	pink_util_moven((pid), (addr), (char *)(objp), sizeof *(objp))
 
 /**
- * Like pink_util_moven but make the additional effort of looking for a
+ * Like pink_util_moven() but make the additional effort of looking for a
  * terminating zero-byte.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
  **/
 bool
 pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 
 /**
- * Like pink_util_movestr but allocates the string itself.
+ * Like pink_util_movestr() but allocates the string itself.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
  *
  * \return The string on success and NULL on failure and sets errno
  * accordingly.
