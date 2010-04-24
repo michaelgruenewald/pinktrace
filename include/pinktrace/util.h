@@ -65,7 +65,7 @@ pink_util_poke(pid_t pid, long off, long val);
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
- * \param addr Address from where the data is to be moved.
+ * \param addr Address where the data is to be moved from.
  * \param dest Pointer to store the data.
  * \param len Number of bytes of data to move.
  *
@@ -103,6 +103,32 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
  **/
 char *
 pink_util_movestr_persistent(pid_t pid, long addr);
+
+/**
+ * Copy len bytes of data to process pid, at address addr, from our address space
+ * src.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param pid Process ID of the child being traced
+ * \param addr Address where the data is to be copied to
+ * \param src Pointer to the data to be moved
+ * \param len Length of data
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
+
+/**
+ * Convenience macro to write an object
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \see pink_util_putn
+ **/
+#define pink_util_put(pid, addr, objp) \
+	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
 
 /**
  * Gets the last system call called by child with the given process ID.

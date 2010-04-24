@@ -25,6 +25,7 @@
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
 
+#include <limits.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
@@ -50,6 +51,7 @@
 #endif /* defined(IA64) */
 
 #define MAX_ARGS	6
+#define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>

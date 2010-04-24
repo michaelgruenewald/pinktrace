@@ -47,6 +47,36 @@ pink_util_poke(pid_t pid, long off, long val)
 	return (0 == ptrace(PTRACE_POKEUSER, pid, off, val));
 }
 
+bool
+pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
+{
+	int n, m;
+	union {
+		long val;
+		char x[sizeof(long)];
+	} u;
+
+	n = 0;
+	m = len / sizeof(long);
+
+	while (n < m) {
+		memcpy(u.x, src, sizeof(long));
+		if (!pink_util_poke(pid, addr + n * ADDR_MUL, u.val))
+			return false;
+		++n;
+		src += sizeof(long);
+	}
+
+	m = len % sizeof(long);
+	if (m) {
+		memcpy(u.x, src, m);
+		if (!pink_util_poke(pid, addr + n * ADDR_MUL, u.val))
+			return false;
+	}
+
+	return true;
+}
+
 #define MIN(a,b)	(((a) < (b)) ? (a) : (b))
 bool
 pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
