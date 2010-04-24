@@ -69,7 +69,7 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res)
 }
 
 bool
-pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len)
+pink_decode_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len)
 {
 	long addr;
 
@@ -83,7 +83,7 @@ pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, siz
 }
 
 char *
-pink_util_get_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
+pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
 {
 	long addr;
 

@@ -142,27 +142,4 @@ pink_util_set_return(pid_t pid, long ret);
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res);
 
-/**
- * Get the string argument and place it in dest.
- *
- * \param pid Process ID of the child whose argument is to be received.
- * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
- * \param dest Pointer to store the string
- * \param len Length of the string
- *
- * \return true on success, false on failure and sets errno accordingly.
- **/
-bool
-pink_util_get_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len);
-
-/**
- * Like pink_util_get_string but allocates the string itself.
- *
- * \return The path on success, NULL on failure and sets errno
- * accordingly.
- **/
-char *
-pink_util_get_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
-
 #endif /* !PINKTRACE_GUARD_UTIL_H */

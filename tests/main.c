@@ -36,6 +36,7 @@ main(void)
 	srunner_add_suite(sr, event_suite_create());
 	srunner_add_suite(sr, bitness_suite_create());
 	srunner_add_suite(sr, util_suite_create());
+	srunner_add_suite(sr, decode_suite_create());
 
 	/* Run and grab the results */
 	srunner_run_all(sr, CK_VERBOSE);

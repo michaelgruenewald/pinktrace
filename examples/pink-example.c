@@ -107,8 +107,8 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 	long flags;
 	char buf[MAX_STRING_LEN];
 
-	if (!pink_util_get_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
-		fprintf(stderr, "pink_util_get_string: %s\n",
+	if (!pink_decode_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
+		fprintf(stderr, "pink_decode_string: %s\n",
 				strerror(errno));
 		return;
 	}

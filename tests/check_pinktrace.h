@@ -30,6 +30,9 @@ Suite *
 context_suite_create(void);
 
 Suite *
+decode_suite_create(void);
+
+Suite *
 fork_suite_create(void);
 
 Suite *
