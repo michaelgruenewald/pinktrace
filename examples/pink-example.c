@@ -166,8 +166,7 @@ main(int argc, char **argv)
 	else {
 		/* Figure out the bitness of the process. */
 		bitness = pink_bitness_get(pid);
-		fprintf(stderr, "Child %i runs in %s mode\n",
-				pid, pink_bitness_tostring(bitness));
+		printf("Child %i runs in %s mode\n", pid, pink_bitness_tostring(bitness));
 
 		dead = insyscall = false;
 		sig = exit_code = 0;
