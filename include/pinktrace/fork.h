@@ -40,8 +40,9 @@
  * \return On success, the process ID of the child process is returned in the
  * parent, and 0 is returned in the child and the eldest child property of the
  * context is updated. The child stops itself with a SIGSTOP and needs to be
- * resumed. On failure, one of PINK_ERROR_* constants is returned, the child is
- * either never created or killed and errno is set accordingly.
+ * resumed. On failure, -1 is returned, the child is either never created or
+ * killed and errno is set accordingly. You can get more information about the
+ * error using pink_context_get_error().
  **/
 pid_t
 pink_fork(pink_context_t *ctx);
