@@ -30,10 +30,7 @@
 
 #include <check.h>
 
-#include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/fork.h>
+#include <pinktrace/pink.h>
 
 #include "check_pinktrace.h"
 
@@ -53,20 +50,11 @@ START_TEST(t_bitness)
 	pink_context_t *ctx;
 
 	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+	fail_unless(ctx != NULL, "pink_context_new: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		pause();
 	else { /* parent */

@@ -32,8 +32,12 @@
 typedef enum {
 	/** Success **/
 	PINK_ERROR_SUCCESS = 0,
-	/** Fork failed **/
+	/** fork() failed **/
 	PINK_ERROR_FORK,
+	/** waitpid() failed **/
+	PINK_ERROR_WAIT,
+	/** The child failed to send itself a SIGSTOP **/
+	PINK_ERROR_STOP,
 	/** pink_trace_me() failed **/
 	PINK_ERROR_TRACE,
 	/** pink_trace_setup() failed **/

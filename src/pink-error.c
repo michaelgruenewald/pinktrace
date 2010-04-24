@@ -32,6 +32,8 @@ pink_error_tostring(pink_error_t error)
 		return "Setting up tracing failed";
 	case PINK_ERROR_TRACE_SETUP:
 		return "Setting up tracing options failed";
+	case PINK_ERROR_WAIT:
+		return "waitpid failed";
 	case PINK_ERROR_UNKNOWN:
 	default:
 		return "Unknown error";

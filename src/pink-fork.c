@@ -44,17 +44,35 @@ pink_fork(pink_context_t *ctx)
 	}
 	else if (!pid) { /* child */
 		if (!pink_trace_me())
-			_exit(-1);
-		kill(getpid(), SIGSTOP);
+			_exit(1);
+		if (kill(getpid(), SIGSTOP) < 0)
+			_exit(2);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
-		if (WIFEXITED(pid)) {
-			ctx->error = PINK_ERROR_TRACE;
+		if (waitpid(pid, &status, 0) < 0) {
+			/* Careful here, if the child is dead, this means that
+			 * pink_trace_me() function failed.
+			 */
+			ctx->error = (errno == ECHILD)
+				? PINK_ERROR_TRACE
+				: PINK_ERROR_WAIT;
 			return -1;
 		}
 
+		if (WIFEXITED(status)) {
+			switch (WEXITSTATUS(status)) {
+			case 1:
+				ctx->error = PINK_ERROR_TRACE;
+			case 2:
+				ctx->error = PINK_ERROR_STOP;
+			default:
+				ctx->error = PINK_ERROR_UNKNOWN;
+			}
+			return -1;
+		}
+
+		/* If we're at this point, both functions that the child called
+		 * should have succeeded. Hence we can assert these: */
 		assert(WIFSTOPPED(status));
 		assert(WSTOPSIG(status) == SIGSTOP);
 

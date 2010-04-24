@@ -64,18 +64,9 @@ START_TEST(t_util_get_syscall)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -128,18 +119,9 @@ START_TEST(t_util_set_syscall)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -195,18 +177,9 @@ START_TEST(t_util_get_return_success)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -261,18 +234,9 @@ START_TEST(t_util_get_return_fail)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		open(NULL, 0); /* Should fail with -EFAULT */
 	else { /* parent */
@@ -317,18 +281,9 @@ START_TEST(t_util_set_return_success)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -393,18 +348,9 @@ START_TEST(t_util_set_return_fail)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -473,18 +419,9 @@ START_TEST(t_util_get_arg_first)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)13, 0, 0, 0, 0, 0);
 	else { /* parent */
@@ -528,18 +465,9 @@ START_TEST(t_util_get_arg_second)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 13, 0, 0, 0, 0);
 	else { /* parent */
@@ -583,18 +511,9 @@ START_TEST(t_util_get_arg_third)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 13, 0, 0, 0);
 	else { /* parent */
@@ -638,18 +557,9 @@ START_TEST(t_util_get_arg_fourth)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 13, 0, 0);
 	else { /* parent */
@@ -693,18 +603,9 @@ START_TEST(t_util_get_arg_fifth)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 0, 13, 0);
 	else { /* parent */
@@ -748,18 +649,9 @@ START_TEST(t_util_get_arg_sixth)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 0, 0, 13);
 	else { /* parent */
@@ -803,18 +695,9 @@ START_TEST(t_util_get_string_first)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		open("/dev/null", O_RDONLY);
 	else { /* parent */
@@ -854,18 +737,9 @@ START_TEST(t_util_get_string_second)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		openat(-1, "/dev/null", O_RDONLY);
 	else { /* parent */
@@ -905,18 +779,9 @@ START_TEST(t_util_get_string_third)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	else { /* parent */
@@ -956,18 +821,9 @@ START_TEST(t_util_get_string_fourth)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	else { /* parent */
@@ -1007,18 +863,9 @@ START_TEST(t_util_get_string_persistent_null)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		open(NULL, O_RDONLY);
 	else { /* parent */
@@ -1058,18 +905,9 @@ START_TEST(t_util_get_string_persistent_notrailingzero)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		open(notrailingzero, O_RDONLY);
 	else { /* parent */
@@ -1117,18 +955,9 @@ START_TEST(t_util_get_string_persistent_first)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		open("/dev/null", O_RDONLY);
 	else { /* parent */
@@ -1170,18 +999,9 @@ START_TEST(t_util_get_string_persistent_second)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		openat(-1, "/dev/null", O_RDONLY);
 	else { /* parent */
@@ -1223,18 +1043,9 @@ START_TEST(t_util_get_string_persistent_third)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	else { /* parent */
@@ -1276,18 +1087,9 @@ START_TEST(t_util_get_string_persistent_fourth)
 	ctx = pink_context_new();
 	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
 
-	if ((pid = pink_fork(ctx)) < 0) {
-		switch (pink_context_get_error(ctx)) {
-		case PINK_ERROR_FORK:
-			fail("fork failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE:
-			fail("pink_trace_me failed: %s", strerror(errno));
-		case PINK_ERROR_TRACE_SETUP:
-			fail("pink_trace_setup failed: %s", strerror(errno));
-		default:
-			fail("unknown return code by pink_fork %d", pid);
-		}
-	}
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
 	else if (!pid) /* child */
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	else { /* parent */
