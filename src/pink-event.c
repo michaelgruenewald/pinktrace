@@ -22,9 +22,7 @@
 #include <sys/wait.h>
 
 #include <pinktrace/internal.h>
-#include <pinktrace/event.h>
-#include <pinktrace/context.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 pink_event_t
 pink_event_decide(pink_context_t *ctx, int status)
