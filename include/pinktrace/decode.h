@@ -26,9 +26,22 @@
  * Pink's system call decoders
  **/
 
+#include <stdbool.h>
 #include <sys/types.h>
 
 #include <pinktrace/bitness.h>
+
+/**
+ * Get the data in argument arg and place it in dest.
+ *
+ * \param pid Process ID of the child whose argument is to be received.
+ * \param bitness Bitness of the child
+ * \param arg The number of the argument (0-5)
+ * \param dest Pointer to store the string
+ * \param len Length of the data
+ **/
+bool
+pink_decode_simple(pid_t pid, pink_bitness_t bitness, int arg, void *dest, size_t len);
 
 /**
  * Get the string argument and place it in dest.

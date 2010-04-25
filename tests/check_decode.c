@@ -21,6 +21,7 @@
 #include "check_pinktrace.h"
 
 #include <errno.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -33,6 +34,50 @@
 #include <check.h>
 
 #include <pinktrace/pink.h>
+
+START_TEST(t_decode_stat)
+{
+	int status;
+	struct stat buf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		_exit((0 > stat("/dev/null", &buf)) ? EXIT_FAILURE : EXIT_SUCCESS);
+	else { /* parent */
+		/* Resume the child and it will stop at the end of next system call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall failed: %s",
+					strerror(errno));
+
+			/* Make sure we got the right event */
+			waitpid(pid, &status, 0);
+			event = pink_event_decide(ctx, status);
+			fail_unless(event == PINK_EVENT_SYSCALL,
+					"Wrong event, expected: %d got: %d",
+					PINK_EVENT_SYSCALL, event);
+		}
+
+		fail_unless(pink_decode_simple(pid, CHECK_BITNESS, 1, &buf, sizeof(struct stat)),
+				"pink_decode_simple: %s",
+				strerror(errno));
+		fail_unless(S_ISCHR(buf.st_mode), "Not a character device: %#x", buf.st_mode);
+		fail_unless(buf.st_rdev == 259, "Wrong device ID, expected: %d got: %d",
+				259, buf.st_rdev);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
 
 START_TEST(t_decode_string_first)
 {
@@ -478,6 +523,7 @@ decode_suite_create(void)
 	/* pink_decode_*() */
 	TCase *tc_pink_decode = tcase_create("pink_decode");
 
+	tcase_add_test(tc_pink_decode, t_decode_stat);
 	tcase_add_test(tc_pink_decode, t_decode_string_first);
 	tcase_add_test(tc_pink_decode, t_decode_string_second);
 	tcase_add_test(tc_pink_decode, t_decode_string_third);

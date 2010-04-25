@@ -99,52 +99,65 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, int arg, long *
 }
 
 bool
-pink_decode_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, char *dest, size_t len)
+pink_decode_simple(pid_t pid, pink_bitness_t bitness, int arg, void *dest, size_t len)
 {
 	long addr;
 
 	assert(arg >= 0 && arg < MAX_ARGS);
 
-	if (!pink_util_peek(pid, ARG_OFFSET(arg), &addr))
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
+		return false;
+
+	return pink_util_moven(pid, addr, dest, len);
+}
+
+bool
+pink_decode_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len)
+{
+	long addr;
+
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
 		return false;
 
 	return pink_util_movestr(pid, addr, dest, len);
 }
 
 char *
-pink_decode_string_persistent(pid_t pid, pink_unused pink_bitness_t bitness, int arg)
+pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
 {
 	long addr;
 
 	assert(arg >= 0 && arg < MAX_ARGS);
 
-	if (!pink_util_peek(pid, ARG_OFFSET(arg), &addr))
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
 }
 
 bool
-pink_encode_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, const char *src, size_t len)
+pink_encode_simple(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len)
 {
 	long addr;
 
 	assert(arg >= 0 && arg < MAX_ARGS);
 
-	if (!pink_util_peek(pid, ARG_OFFSET(arg), &addr))
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
 		return false;
 
 	return pink_util_putn(pid, addr, src, len);
 }
 
 bool
-pink_encode_string_safe(pid_t pid, pink_unused pink_bitness_t bitness, int arg, const char *src, size_t len)
+pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len)
 {
 	long addr;
 
 	assert(arg >= 0 && arg < MAX_ARGS);
 
-	if (!pink_util_peek(pid, ARG_OFFSET(arg), &addr))
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
 		return false;
 
 	return pink_util_putn_safe(pid, addr, src, len);

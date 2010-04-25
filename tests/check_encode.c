@@ -21,6 +21,7 @@
 #include "check_pinktrace.h"
 
 #include <errno.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -63,8 +64,8 @@ START_TEST(t_encode_string_first_lensame)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
 				"pink_decode_string: %s",
@@ -108,8 +109,8 @@ START_TEST(t_encode_string_first_lenshort)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
 				"pink_decode_string: %s",
@@ -153,8 +154,8 @@ START_TEST(t_encode_string_first_lenlong)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
 				"pink_decode_string: %s",
@@ -198,8 +199,8 @@ START_TEST(t_encode_string_second_lensame)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
 				"pink_decode_string: %s",
@@ -243,8 +244,8 @@ START_TEST(t_encode_string_second_lenshort)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
 				"pink_decode_string: %s",
@@ -288,8 +289,8 @@ START_TEST(t_encode_string_second_lenlong)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
 				"pink_decode_string: %s",
@@ -333,8 +334,8 @@ START_TEST(t_encode_string_third_lensame)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
 				"pink_decode_string: %s",
@@ -378,8 +379,8 @@ START_TEST(t_encode_string_third_lenshort)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
 				"pink_decode_string: %s",
@@ -423,8 +424,8 @@ START_TEST(t_encode_string_third_lenlong)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
 				"pink_decode_string: %s",
@@ -468,8 +469,8 @@ START_TEST(t_encode_string_fourth_lensame)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
 				"pink_decode_string: %s",
@@ -513,8 +514,8 @@ START_TEST(t_encode_string_fourth_lenshort)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
 				"pink_decode_string: %s",
@@ -558,8 +559,8 @@ START_TEST(t_encode_string_fourth_lenlong)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
-				"pink_encode_string: %s",
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_simple: %s",
 				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
 				"pink_decode_string: %s",
@@ -646,6 +647,56 @@ START_TEST(t_encode_string_safe_fourth_lenlong)
 }
 END_TEST
 
+START_TEST(t_encode_stat)
+{
+	int status;
+	struct stat buf, newbuf;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		stat("/dev/null", &buf);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		/* Fill in the stat structure */
+		memset(&buf, 0, sizeof(struct stat));
+		buf.st_mode = S_IFCHR;
+		buf.st_rdev = 259; /* /dev/null */
+
+		fail_unless(pink_encode_simple(pid, CHECK_BITNESS, 1, &buf, sizeof(struct stat)),
+				"pink_encode_simple: %s",
+				strerror(errno));
+		fail_unless(pink_decode_simple(pid, CHECK_BITNESS, 1, &newbuf, sizeof(struct stat)),
+				"pink_decode_simple: %s",
+				strerror(errno));
+		fail_unless(S_ISCHR(newbuf.st_mode), "Not a character device: %#x", newbuf.st_mode);
+		fail_unless(newbuf.st_rdev == 259, "Wrong device ID, expected: %d got: %d",
+				259, newbuf.st_rdev);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
 Suite *
 encode_suite_create(void)
 {
@@ -685,6 +736,8 @@ encode_suite_create(void)
 	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lensame);
 	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenshort);
 	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_stat);
 
 	suite_add_tcase(s, tc_pink_encode);
 

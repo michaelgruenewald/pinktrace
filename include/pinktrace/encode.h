@@ -26,36 +26,37 @@
  * Pink's system call encoders
  **/
 
+#include <stdbool.h>
 #include <sys/types.h>
 
 #include <pinktrace/bitness.h>
 
 /**
- * Write the string argument src to the address of the argument arg.
+ * Write the given data argument src to the address of the argument arg.
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
  * \param arg The number of the argument (0-5)
- * \param src The string to be encoded
- * \param len Length of the string
+ * \param src The data to be encoded
+ * \param len Length of the data
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_string(pid_t pid, pink_bitness_t bitness, int arg, const char *src, size_t len);
+pink_encode_simple(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len);
 
 /**
- * Write the string argument src to the address of the argument arg safely.
+ * Write the given data argument src to the address of the argument arg safely.
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
  * \param arg The number of the argument (0-5)
- * \param src The string to be encoded
- * \param len Length of the string
+ * \param src The data to be encoded
+ * \param len Length of the data
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_string_safe(pid_t pid, pink_bitness_t bitness, int arg, const char *src, size_t len);
+pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len);
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */
