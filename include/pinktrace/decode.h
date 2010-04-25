@@ -37,7 +37,7 @@
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
  * \param arg The number of the argument (0-5)
- * \param dest Pointer to store the string
+ * \param dest Pointer to store the data
  * \param len Length of the data
  **/
 bool
