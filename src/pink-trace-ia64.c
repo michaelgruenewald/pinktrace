@@ -121,3 +121,29 @@ pink_decode_string_persistent(pid_t pid, pink_unused pink_bitness_t bitness, int
 
 	return pink_util_movestr_persistent(pid, addr);
 }
+
+bool
+pink_encode_string(pid_t pid, pink_unused pink_bitness_t bitness, int arg, const char *src, size_t len)
+{
+	long addr;
+
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek_ia64(pid, arg, &addr))
+		return false;
+
+	return pink_util_putn(pid, addr, src, len);
+}
+
+bool
+pink_encode_string_safe(pid_t pid, pink_unused pink_bitness_t bitness, int arg, const char *src, size_t len)
+{
+	long addr;
+
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek_ia64(pid, arg, &addr))
+		return false;
+
+	return pink_util_putn_safe(pid, addr, src, len);
+}
