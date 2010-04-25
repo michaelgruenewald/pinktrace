@@ -37,7 +37,7 @@
  *
  * \param pid Process ID of the child whose USER area is to be read.
  * \param off Offset
- * \param res Result
+ * \param res Result (may be NULL, e.g. to test if the given offset is readable)
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
@@ -122,9 +122,8 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 
 /**
  * Like pink_util_putn() but make the additional effort not to overwrite
- * to addresses that pink_util_peek() returns -EIO. There's no guarantee that
- * the object has been written fully though. Use this e.g. to write strings
- * safely to child's address space.
+ * unreadable addresses. There's no guarantee that the object has been written
+ * fully though. Use this to e.g. write strings safely.
  *
  * \param pid Process ID of the child being traced
  * \param addr Address where the data is to be copied to
