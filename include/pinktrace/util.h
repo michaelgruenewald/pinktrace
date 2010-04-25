@@ -121,6 +121,22 @@ bool
 pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 
 /**
+ * Like pink_util_putn() but make the additional effort not to overwrite
+ * to addresses that pink_util_peek() returns -EIO. There's no guarantee that
+ * the object has been written fully though. Use this e.g. to write strings
+ * safely to child's address space.
+ *
+ * \param pid Process ID of the child being traced
+ * \param addr Address where the data is to be copied to
+ * \param src Pointer to the data to be moved
+ * \param len Length of data
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
+
+/**
  * Convenience macro to write an object
  *
  * \note Mostly for internal use, use higher level functions where possible.
@@ -129,6 +145,16 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
  **/
 #define pink_util_put(pid, addr, objp) \
 	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
+
+/**
+ * Convenience macro to write an object safely
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \see pink_util_putn_safe
+ **/
+#define pink_util_put_safe(pid, addr, objp) \
+	pink_util_putn_safe((pid), (addr), (const char *)(objp), sizeof *(objp))
 
 /**
  * Gets the last system call called by child with the given process ID.

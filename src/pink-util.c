@@ -37,7 +37,9 @@ pink_util_peek(pid_t pid, long off, long *res)
 	if (val == -1 && errno != 0)
 		return false;
 
-	*res = val;
+	if (res)
+		*res = val;
+
 	return true;
 }
 
@@ -70,6 +72,40 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 	m = len % sizeof(long);
 	if (m) {
 		memcpy(u.x, src, m);
+		if (!pink_util_poke(pid, addr + n * ADDR_MUL, u.val))
+			return false;
+	}
+
+	return true;
+}
+
+bool
+pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
+{
+	int n, m;
+	union {
+		long val;
+		char x[sizeof(long)];
+	} u;
+
+	n = 0;
+	m = len / sizeof(long);
+
+	while (n < m) {
+		memcpy(u.x, src, sizeof(long));
+		if (!pink_util_peek(pid, addr + n * ADDR_MUL, NULL))
+			return false;
+		if (!pink_util_poke(pid, addr + n * ADDR_MUL, u.val))
+			return false;
+		++n;
+		src += sizeof(long);
+	}
+
+	m = len % sizeof(long);
+	if (m) {
+		memcpy(u.x, src, m);
+		if (!pink_util_peek(pid, addr + n * ADDR_MUL, NULL))
+			return false;
 		if (!pink_util_poke(pid, addr + n * ADDR_MUL, u.val))
 			return false;
 	}
