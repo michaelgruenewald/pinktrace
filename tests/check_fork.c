@@ -18,6 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "check_pinktrace.h"
+
 #include <errno.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -26,11 +28,7 @@
 
 #include <check.h>
 
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/fork.h>
-
-#include "check_pinktrace.h"
+#include <pinktrace/pink.h>
 
 START_TEST(t_fork)
 {

@@ -18,6 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "check_pinktrace.h"
+
 #include <errno.h>
 #include <sys/types.h>
 #include <string.h>
@@ -25,8 +27,6 @@
 #include <check.h>
 
 #include <pinktrace/pink.h>
-
-#include "check_pinktrace.h"
 
 START_TEST(t_context_new)
 {

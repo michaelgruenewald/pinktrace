@@ -60,7 +60,7 @@ pink_util_get_syscall(pid_t pid, long *res)
 bool
 pink_util_set_syscall(pid_t pid, long scno)
 {
-	return (0 == ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
 
 bool
@@ -84,8 +84,8 @@ pink_util_set_return(pid_t pid, long ret)
 	r8 = (ret < 0) ? -ret : ret;
 	r10 = (ret < 0) ? -1 : 0;
 
-	return (0 == ptrace(PTRACE_POKEUSER, pid, PT_R8, r8)) &&
-		(0 == ptrace(PTRACE_POKEUSER, pid, PT_R10, r10));
+	return pink_util_poke(pid, PT_R8, r8) &&
+		pink_util_poke(pid, PT_R10, r10);
 }
 
 bool

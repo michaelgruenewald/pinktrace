@@ -13,6 +13,8 @@ pinktraceincludedir= $(includedir)/pinktrace
 pinktraceinclude_HEADERS= \
 			  include/pinktrace/gcc.h \
 			  include/pinktrace/bitness.h \
+			  include/pinktrace/decode.h \
+			  include/pinktrace/encode.h \
 			  include/pinktrace/error.h \
 			  include/pinktrace/event.h \
 			  include/pinktrace/context.h \

@@ -34,7 +34,7 @@
 
 #include <pinktrace/pink.h>
 
-START_TEST(t_decode_string_first)
+START_TEST(t_encode_string_first_lensame)
 {
 	int status;
 	char buf[10];
@@ -63,11 +63,14 @@ START_TEST(t_decode_string_first)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
 				"pink_decode_string: %s",
 				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
 		pink_context_free(ctx);
@@ -76,7 +79,97 @@ START_TEST(t_decode_string_first)
 }
 END_TEST
 
-START_TEST(t_decode_string_second)
+START_TEST(t_encode_string_first_lenshort)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		open("pi", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_first_lenlong)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		open("3,14159265", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 0, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_second_lensame)
 {
 	int status;
 	char buf[10];
@@ -105,11 +198,14 @@ START_TEST(t_decode_string_second)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
 				"pink_decode_string: %s",
 				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
 		pink_context_free(ctx);
@@ -118,7 +214,97 @@ START_TEST(t_decode_string_second)
 }
 END_TEST
 
-START_TEST(t_decode_string_third)
+START_TEST(t_encode_string_second_lenshort)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		openat(-1, "pi", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_second_lenlong)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		openat(-1, "3,14159265", O_RDONLY);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 1, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_third_lensame)
 {
 	int status;
 	char buf[10];
@@ -147,11 +333,14 @@ START_TEST(t_decode_string_third)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
 				"pink_decode_string: %s",
 				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
 		pink_context_free(ctx);
@@ -160,7 +349,97 @@ START_TEST(t_decode_string_third)
 }
 END_TEST
 
-START_TEST(t_decode_string_fourth)
+START_TEST(t_encode_string_third_lenshort)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		symlinkat("/var/empty", AT_FDCWD, "pi");
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_third_lenlong)
+{
+	int status;
+	char buf[10];
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		symlinkat("/var/empty", AT_FDCWD, "3,14159265");
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 2, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
+				buf);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_encode_string_fourth_lensame)
 {
 	int status;
 	char buf[10];
@@ -189,11 +468,14 @@ START_TEST(t_decode_string_fourth)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_string: %s",
+				strerror(errno));
 		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
 				"pink_decode_string: %s",
 				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
 		pink_context_free(ctx);
@@ -202,10 +484,10 @@ START_TEST(t_decode_string_fourth)
 }
 END_TEST
 
-START_TEST(t_decode_string_persistent_null)
+START_TEST(t_encode_string_fourth_lenshort)
 {
 	int status;
-	char *buf;
+	char buf[10];
 	pid_t pid;
 	pink_event_t event;
 	pink_context_t *ctx;
@@ -217,7 +499,7 @@ START_TEST(t_decode_string_persistent_null)
 		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
 				strerror(errno));
 	else if (!pid) /* child */
-		open(NULL, O_RDONLY);
+		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "pi", 0600);
 	else { /* parent */
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
@@ -231,117 +513,26 @@ START_TEST(t_decode_string_persistent_null)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf != NULL, "Wrong string, expected: NULL got: %s", buf);
-		fail_unless(errno == EIO || errno == EFAULT,
-				"Wrong errno, expected: EIO/EFAULT got: %d (%s)",
-				errno, strerror(errno));
-
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
-	}
-}
-END_TEST
-
-START_TEST(t_decode_string_persistent_notrailingzero)
-{
-	int status;
-	char *buf;
-	char notrailingzero[3] = {'n', 'i', 'l'};
-	pid_t pid;
-	pink_event_t event;
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_string: %s",
 				strerror(errno));
-	else if (!pid) /* child */
-		open(notrailingzero, O_RDONLY);
-	else { /* parent */
-		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
+				"pink_decode_string: %s",
 				strerror(errno));
-
-		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
-
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent failed: %s",
-				strerror(errno));
-		fail_unless(buf[0] == 'n',
-				"Wrong first char, expected: %c got: %c",
-				'n', buf[0]);
-		fail_unless(buf[1] == 'i',
-				"Wrong second char, expected: %c got: %c",
-				'i', buf[1]);
-		fail_unless(buf[2] == 'l',
-				"Wrong third char, expected: %c got: %c",
-				'l', buf[2]);
-
-		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
-	}
-}
-END_TEST
-
-START_TEST(t_decode_string_persistent_first)
-{
-	int status;
-	char *buf;
-	pid_t pid;
-	pink_event_t event;
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
-	else if (!pid) /* child */
-		open("/dev/null", O_RDONLY);
-	else { /* parent */
-		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
-
-		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
-
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
-		free(buf);
 		pink_context_free(ctx);
 		kill(pid, SIGKILL);
 	}
 }
 END_TEST
 
-START_TEST(t_decode_string_persistent_second)
+START_TEST(t_encode_string_fourth_lenlong)
 {
 	int status;
-	char *buf;
+	char buf[10];
 	pid_t pid;
 	pink_event_t event;
 	pink_context_t *ctx;
@@ -353,7 +544,7 @@ START_TEST(t_decode_string_persistent_second)
 		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
 				strerror(errno));
 	else if (!pid) /* child */
-		openat(-1, "/dev/null", O_RDONLY);
+		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "3,14159265", 0600);
 	else { /* parent */
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
@@ -367,129 +558,135 @@ START_TEST(t_decode_string_persistent_second)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 1);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
+		fail_unless(pink_encode_string(pid, CHECK_BITNESS, 3, "/dev/zero", 10),
+				"pink_encode_string: %s",
 				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
+				"pink_decode_string: %s",
+				strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10),
+				"Wrong string: expected /dev/zero got `%s'",
 				buf);
 
-		free(buf);
 		pink_context_free(ctx);
 		kill(pid, SIGKILL);
 	}
 }
 END_TEST
 
-START_TEST(t_decode_string_persistent_third)
+START_TEST(t_encode_string_safe_first_lensame)
 {
-	int status;
-	char *buf;
-	pid_t pid;
-	pink_event_t event;
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
-	else if (!pid) /* child */
-		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
-	else { /* parent */
-		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
-
-		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
-
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 2);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
-
-		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
-	}
+	/* TODO: Write a smart test case */
 }
 END_TEST
 
-START_TEST(t_decode_string_persistent_fourth)
+START_TEST(t_encode_string_safe_first_lenshort)
 {
-	int status;
-	char *buf;
-	pid_t pid;
-	pink_event_t event;
-	pink_context_t *ctx;
+	/* TODO: Write a smart test case */
+}
+END_TEST
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+START_TEST(t_encode_string_safe_first_lenlong)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
 
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
-	else if (!pid) /* child */
-		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
-	else { /* parent */
-		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+START_TEST(t_encode_string_safe_second_lensame)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
 
-		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+START_TEST(t_encode_string_safe_second_lenshort)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 3);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+START_TEST(t_encode_string_safe_second_lenlong)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
 
-		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
-	}
+START_TEST(t_encode_string_safe_third_lensame)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
+
+START_TEST(t_encode_string_safe_third_lenshort)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
+
+START_TEST(t_encode_string_safe_third_lenlong)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
+
+START_TEST(t_encode_string_safe_fourth_lensame)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
+
+START_TEST(t_encode_string_safe_fourth_lenshort)
+{
+	/* TODO: Write a smart test case */
+}
+END_TEST
+
+START_TEST(t_encode_string_safe_fourth_lenlong)
+{
+	/* TODO: Write a smart test case */
 }
 END_TEST
 
 Suite *
-decode_suite_create(void)
+encode_suite_create(void)
 {
-	Suite *s = suite_create("decode");
+	Suite *s = suite_create("encode");
 
-	/* pink_decode_*() */
-	TCase *tc_pink_decode = tcase_create("pink_decode");
+	/* pink_encode_*() */
+	TCase *tc_pink_encode = tcase_create("pink_encode");
 
-	tcase_add_test(tc_pink_decode, t_decode_string_first);
-	tcase_add_test(tc_pink_decode, t_decode_string_second);
-	tcase_add_test(tc_pink_decode, t_decode_string_third);
-	tcase_add_test(tc_pink_decode, t_decode_string_fourth);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_null);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_notrailingzero);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_first);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_second);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_third);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_fourth);
+	tcase_add_test(tc_pink_encode, t_encode_string_first_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_first_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_first_lenlong);
 
-	suite_add_tcase(s, tc_pink_decode);
+	tcase_add_test(tc_pink_encode, t_encode_string_second_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_second_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_second_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_third_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_third_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_third_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lenlong);
+
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lensame);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenshort);
+	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenlong);
+
+	suite_add_tcase(s, tc_pink_encode);
 
 	return s;
 }

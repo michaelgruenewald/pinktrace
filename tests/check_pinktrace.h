@@ -21,7 +21,24 @@
 #ifndef PINKTRACE_GUARD_CHECK_PINKTRACE_H
 #define PINKTRACE_GUARD_CHECK_PINKTRACE_H 1
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif /* HAVE_CONFIG_H */
+
+#ifndef _ATFILE_SOURCE
+#define _ATFILE_SOURCE 1
+#endif /* !_ATFILE_SOURCE */
+
 #include <check.h>
+
+/* Check bitness */
+#if defined(I386) || defined(POWERPC)
+#define CHECK_BITNESS (PINK_BITNESS_32)
+#elif defined(X86_64) || defined(IA64) || defined(POWERPC64)
+#define CHECK_BITNESS (PINK_BITNESS_64)
+#else
+#error unsupported architecture
+#endif
 
 Suite *
 bitness_suite_create(void);
@@ -31,6 +48,9 @@ context_suite_create(void);
 
 Suite *
 decode_suite_create(void);
+
+Suite *
+encode_suite_create(void);
 
 Suite *
 fork_suite_create(void);

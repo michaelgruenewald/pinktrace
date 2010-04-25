@@ -44,7 +44,7 @@ pink_util_get_syscall(pid_t pid, long *res)
 bool
 pink_util_set_syscall(pid_t pid, long scno)
 {
-	return (0 == ptrace(PTRACE_POKEUSER, pid, ORIG_ACCUM, scno));
+	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
 
 bool
@@ -56,7 +56,7 @@ pink_util_get_return(pid_t pid, long *res)
 bool
 pink_util_set_return(pid_t pid, long ret)
 {
-	return (0 == ptrace(PTRACE_POKEUSER, pid, ACCUM, ret));
+	return pink_util_poke(pid, ACCUM, ret);
 }
 
 bool
@@ -94,4 +94,32 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg)
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
+}
+
+bool
+pink_encode_string(pid_t pid, pink_bitness_t bitness, int arg, const char *src, size_t len)
+{
+	long addr;
+
+	assert(bitness == PINK_BITNESS_32);
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek(pid, syscall_args[bitness][arg], &addr))
+		return false;
+
+	return pink_util_putn(pid, addr, src, len);
+}
+
+bool
+pink_encode_string_safe(pid_t pid, pink_bitness_t bitness, int arg, const char *src, size_t len)
+{
+	long addr;
+
+	assert(bitness == PINK_BITNESS_32);
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	if (!pink_util_peek(pid, syscall_args[bitness][arg], &addr))
+		return false;
+
+	return pink_util_putn_safe(pid, addr, src, len);
 }

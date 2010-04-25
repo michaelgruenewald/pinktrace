@@ -45,7 +45,22 @@ bool
 pink_util_peek(pid_t pid, long off, long *res);
 
 /**
- * Copies the given word data to the given offset in the child's USER area.
+ * Reads a word at the given offset in the child's memory,
+ * and places it in res.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param pid Process ID of the child whose USER area is to be read.
+ * \param off Offset
+ * \param res Result (may be NULL, e.g. to test if the given offset is readable)
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_peekdata(pid_t pid, long off, long *res);
+
+/**
+ * Copies the word val to the given offset in the child's USER area.
  *
  * \note Mostly for internal use, use higher level functions where possible.
  *
@@ -57,6 +72,20 @@ pink_util_peek(pid_t pid, long off, long *res);
  **/
 bool
 pink_util_poke(pid_t pid, long off, long val);
+
+/**
+ * Copies the word data to location addr in the child's memory.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param pid Process ID of the child.
+ * \param off Offset
+ * \param val Word
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_pokedata(pid_t pid, long off, long val);
 
 /**
  * Move len bytes of data of process pid, at address addr, to our address space
@@ -122,8 +151,9 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 
 /**
  * Like pink_util_putn() but make the additional effort not to overwrite
- * unreadable addresses. There's no guarantee that the object has been written
- * fully though. Use this to e.g. write strings safely.
+ * unreadable addresses. Use this e.g. to write strings safely.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
  * \param addr Address where the data is to be copied to

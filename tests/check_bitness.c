@@ -18,9 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif /* HAVE_CONFIG_H */
+#include "check_pinktrace.h"
 
 #include <errno.h>
 #include <sys/types.h>
@@ -31,17 +29,6 @@
 #include <check.h>
 
 #include <pinktrace/pink.h>
-
-#include "check_pinktrace.h"
-
-/* Check bitness */
-#if defined(I386) || defined(POWERPC)
-#define CHECK_BITNESS (PINK_BITNESS_32)
-#elif defined(X86_64) || defined(IA64) || defined(POWERPC64)
-#define CHECK_BITNESS (PINK_BITNESS_64)
-#else
-#error unsupported architecture
-#endif
 
 START_TEST(t_bitness)
 {
