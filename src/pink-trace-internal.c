@@ -59,11 +59,11 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen)
 	case AF_INET:
 		res->family = AF_INET;
 		break;
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 	case AF_INET6:
 		res->family = AF_INET6;
 		break;
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 	default:
 		res->family = -1;
 		break;
