@@ -1,26 +1,6 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
-/*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
- *
- * This file is part of Pink's Tracing Library. pinktrace is free software; you
- * can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License version 2.1, as published by the Free Software
- * Foundation.
- *
- * pinktrace is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
- * more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
 #include <errno.h>
-#include <stdbool.h>
-#include <sys/types.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -143,7 +123,7 @@ main(int argc, char **argv)
 	/* Create a tracing context. */
 	ctx = pink_context_new();
 	if (!ctx) {
-		fprintf(stderr, "pink_context_new: %s\n", strerror(errno));
+		perror("pink_context_new");
 		return EXIT_FAILURE;
 	}
 
@@ -174,14 +154,14 @@ main(int argc, char **argv)
 			/* At this point child is stopped and needs to be resumed.
 			 */
 			if (!pink_trace_syscall(pid, sig)) {
-				fprintf(stderr, "pink_trace_syscall: %s\n", strerror(errno));
+				perror("pink_trace_syscall");
 				return (errno == ESRCH) ? 0 : 1;
 			}
 			sig = 0;
 
 			/* Wait for the child */
 			if ((pid = waitpid(pid, &status, 0)) < 0) {
-				fprintf(stderr, "waitpid: %s\n", strerror(errno));
+				perror("waitpid");
 				return (errno == ECHILD) ? 0 : 1;
 			}
 
@@ -204,10 +184,8 @@ main(int argc, char **argv)
 					insyscall = true;
 					/* Get the system call number and call
 					 * the appropriate decoder. */
-					if (!pink_util_get_syscall(pid, &scno)) {
-						fprintf(stderr, "pink_util_get_syscall: %s\n",
-								strerror(errno));
-					}
+					if (!pink_util_get_syscall(pid, &scno))
+						perror("pink_util_get_syscall");
 					else if (scno == SYS_open)
 						decode_open(pid, bitness);
 					else

@@ -45,8 +45,8 @@
  **/
 
 /**
- * \example pink-example.c
- * This is an example demonstrating the usage of the library
+ * \example pink-simple-strace.c
+ * This is a simple strace like program example written with pinktrace.
  **/
 
 /**

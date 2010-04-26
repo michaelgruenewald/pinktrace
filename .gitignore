@@ -41,7 +41,7 @@ doc/libpinktrace.tag
 
 examples/pink-about
 examples/pink-fork
-examples/pink-example
+examples/pink-simple-strace
 
 include/pinktrace/about.h
 
