@@ -43,6 +43,13 @@
 
 #include <pinktrace/pink.h>
 
+/* Some architectures only have SYS_socketcall.
+ * For those architectures we need to define SYS_socket so that compiling
+ * doesn't fail. */
+#ifndef SYS_socket
+#define SYS_socket -1
+#endif /* !SYS_socket */
+
 /* FIXME: Not sure how portable, these macros are... */
 #ifndef IN_LOOPBACK
 #define IN_LOOPBACK(a) ((ntohl((a)) >> 24) == 127)
