@@ -57,7 +57,8 @@ pink_context_free(pink_context_t *ctx);
 
 /**
  * Set the options property of the given tracing context.
- * Note: #PINK_TRACE_OPTION_SYSGOOD is always set if available.
+ *
+ * \note #PINK_TRACE_OPTION_SYSGOOD is always set if available.
  *
  * \param ctx The tracing context whose options property is to be modified.
  * \param options Bitwise OR'ed PINK_TRACE_OPTION_* flags.
