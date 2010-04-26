@@ -108,8 +108,11 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
- * \param fd The pointer to store the socket file descriptor
+ * \param arg The number of the argument. One of:
+ *  - 1 (for connect, bind etc.)
+ *  - 4 (for sendto)
+ * \param fd The pointer to store the socket file descriptor that resides in
+ * argument one with index zero.
  *
  * \return The socket address on success, NULL on failure and sets errno
  * accordingly. The caller must free the return value using
