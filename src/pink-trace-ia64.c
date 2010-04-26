@@ -19,6 +19,7 @@
  */
 
 #include <assert.h>
+
 #include <asm/ptrace_offsets.h>
 #include <asm/rse.h>
 
@@ -159,4 +160,46 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *
 		return false;
 
 	return pink_util_putn_safe(pid, addr, src, len);
+}
+
+bool
+pink_decode_socket_call(pid_t pid, pink_unused pink_bitness_t bitness, long *call, bool *decoded)
+{
+	long addr;
+
+	assert(call != NULL);
+
+	/* No decoding needed */
+	if (!pink_util_get_syscall(pid, call))
+		return false;
+
+	if (decoded)
+		*decoded = false;
+
+	return true;
+}
+
+bool
+pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+{
+	assert(fd != NULL);
+
+	/* No decoding needed */
+	return pink_util_get_arg(pid, bitness, arg, fd);
+}
+
+pink_sockaddr_t *
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+{
+	long addr, addrlen;
+
+	/* No decoding needed */
+	if (fd && !pink_util_get_arg(pid, bitness, 0, fd))
+		return NULL;
+	if (!pink_util_get_arg(pid, bitness, arg, &addr))
+		return NULL;
+	if (!pink_util_get_arg(pid, bitness, arg + 1, &addrlen))
+		return NULL;
+
+	return pink_internal_decode_socket_address(pid, addr, addrlen);
 }

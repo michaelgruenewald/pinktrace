@@ -30,6 +30,7 @@
 #include <sys/types.h>
 
 #include <pinktrace/bitness.h>
+#include <pinktrace/socket.h>
 
 /**
  * Get the data in argument arg and place it in dest.
@@ -65,5 +66,56 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_
  **/
 char *
 pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
+
+/**
+ * Decode the socket call and place it in call.
+ *
+ * \note This function decodes the socketcall(2) system call on some
+ * architectures. On others it's equivalent to pink_util_get_syscall().
+ *
+ * \param pid Process ID of the child whose argument is to be received
+ * \param bitness Bitness of the child
+ * \param call The pointer to store the decoded socket call
+ * \param decoded If non-NULL, store whether the socketcall(2) system call has
+ * been decoded
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *call, bool *decoded);
+
+/**
+ * Get the socket file descriptor in argument arg and place it in fd.
+ *
+ * \note This function decodes the socketcall(2) system call on some
+ * architectures.
+ *
+ * \param pid Process ID of the child whose argument is to be received.
+ * \param bitness Bitness of the child
+ * \param arg The number of the argument (Only 0 makes sense)
+ * \param fd The pointer to store the socket file descriptor
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
+
+/**
+ * Return the socket address in argument arg, decode as needed.
+ *
+ * \note This function decodes the socketcall(2) system call on some
+ * architectures.
+ *
+ * \param pid Process ID of the child whose argument is to be received.
+ * \param bitness Bitness of the child
+ * \param arg The number of the argument (0-5)
+ * \param fd The pointer to store the socket file descriptor
+ *
+ * \return The socket address on success, NULL on failure and sets errno
+ * accordingly. The caller must free the return value using
+ * pink_sockaddr_free().
+ **/
+pink_sockaddr_t *
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

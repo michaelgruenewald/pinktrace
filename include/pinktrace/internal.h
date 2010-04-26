@@ -31,6 +31,9 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 
+#include <netinet/in.h>
+#include <sys/un.h>
+
 #ifdef HAVE_SYS_REG_H
 #include <sys/reg.h>
 #endif /*  HAVE_SYS_REG_H */
@@ -55,6 +58,7 @@
 
 #include <pinktrace/context.h>
 #include <pinktrace/error.h>
+#include <pinktrace/socket.h>
 
 struct pink_context
 {
@@ -62,6 +66,20 @@ struct pink_context
 	int options;
 	pid_t eldest;
 	pink_error_t error;
+};
+
+struct pink_sockaddr {
+	int family;
+
+	union {
+		char pad[128];
+		struct sockaddr sa;
+		struct sockaddr_un sa_un;
+		struct sockaddr_in sa_in;
+#if HAVE_IPV6
+		struct sockaddr_in6 sa6;
+#endif /* HAVE_IPV6 */
+	} u;
 };
 
 const char *
@@ -72,5 +90,8 @@ pink_name_syscall32(long scno);
 
 const char *
 pink_name_syscall64(long scno);
+
+pink_sockaddr_t *
+pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen);
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

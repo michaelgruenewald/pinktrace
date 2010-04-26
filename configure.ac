@@ -110,7 +110,7 @@ AM_CONDITIONAL(PERSONALITY_TWO, test x"$arch" = x"x86_64")
 dnl }}}
 
 dnl {{{ Check headers
-REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h"
+REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
 for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
@@ -125,6 +125,39 @@ dnl }}}
 
 dnl {{{ Check for gcc
 AM_CONDITIONAL(GCC, test x"$GCC" = x"yes")
+dnl }}}
+
+dnl {{{ Check for IPV6 support
+AC_ARG_ENABLE([ipv6],
+			  [AS_HELP_STRING([--disable-ipv6],
+							  [disable IPV6 support for network sandboxing])],
+			  WANT_IPV6="$enableval",
+			  WANT_IPV6="yes")
+if test x"$WANT_IPV6" = x"yes" ; then
+	APR_CHECK_SOCKADDR_IN6
+	CHECK_AF_INET6_DEFINE
+	AC_MSG_CHECKING([for IPV6 support])
+	if test x"$have_sockaddr_in6" = x"1" ; then
+		if test x"$have_af_inet6" = x"1" ; then
+			AC_MSG_RESULT([yes])
+		else
+			AC_MSG_RESULT([no -- no AF_INET6 define])
+			WANT_IPV6=no
+		fi
+	else
+		AC_MSG_RESULT([no -- no sockaddr_in6])
+		WANT_IPV6=no
+	fi
+else
+	AC_MSG_CHECKING([for IPV6 support])
+	AC_MSG_RESULT([no])
+fi
+AM_CONDITIONAL(WANT_IPV6, test x"$WANT_IPV6" = x"yes")
+if test x"$WANT_IPV6" = x"yes" ; then
+	AC_DEFINE([HAVE_IPV6], 1, [Define for IPV6 support])
+else
+	AC_DEFINE([HAVE_IPV6], 0, [Define for IPV6 support])
+fi
 dnl }}}
 
 dnl {{{ Extra CFLAGS

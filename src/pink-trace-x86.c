@@ -137,3 +137,62 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *
 
 	return pink_util_putn_safe(pid, addr, src, len);
 }
+
+bool
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *call, bool *decoded)
+{
+	assert(bitness == PINK_BITNESS_32);
+	assert(call != NULL);
+
+	/* Decode socketcall(2) */
+	if (!pink_util_get_arg(pid, bitness, 0, call))
+		return false;
+
+	if (decoded)
+		*decoded = true;
+
+	return true;
+}
+
+bool
+pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+{
+	long args;
+
+	assert(bitness == PINK_BITNESS_32);
+	assert(arg >= 0 && arg < MAX_ARGS);
+	assert(fd != NULL);
+
+	/* Decode socketcall(2) */
+	if (!pink_util_get_arg(pid, bitness, 1, &args))
+		return false;
+	args += arg * sizeof(unsigned int);
+
+	return pink_util_move(pid, args, fd);
+}
+
+pink_sockaddr_t *
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+{
+	unsigned int iaddr, iaddrlen;
+	long addr, addrlen, args;
+
+	assert(bitness == PINK_BITNESS_32);
+	assert(arg >= 0 && arg < MAX_ARGS);
+
+	/* Decode socketcall(2) */
+	if (!pink_util_get_arg(pink, bitness, 1, &args))
+		return false;
+	if (fd && !pink_util_move(pid, args, fd))
+		return NULL;
+	args += arg * sizeof(unsigned int);
+	if (!pink_util_move(pid, args, &iaddr))
+		return NULL;
+	args += sizeof(unsigned int);
+	if (!pink_util_move(pid, args, &iaddrlen))
+		return NULL;
+	addr = iaddr;
+	addrlen = iaddrlen;
+
+	return pink_internal_decode_socket_address(pid, addr, addrlen);
+}

@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -31,9 +32,29 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+
+/* FIXME: We use a netlink socket as the unsupported family which is NOT
+ * portable.
+ */
+#include <linux/netlink.h>
+
 #include <check.h>
 
 #include <pinktrace/pink.h>
+
+/* FIXME: Not sure how portable, these macros are... */
+#ifndef IN_LOOPBACK
+#define IN_LOOPBACK(a) ((ntohl((a)) >> 24) == 127)
+#endif /* !IN_LOOPBACK */
+
+#ifndef IN6_LOOPBACK
+#define IN6_LOOPBACK(a)					\
+	(((const u_int32_t *) (a))[0] == 0		\
+	&& ((const u_int32_t *) (a))[1] == 0		\
+	 && ((const u_int32_t *) (a))[2] == 0		\
+	 && ((const u_int32_t *) (a))[3] == htonl(1))
+#endif /* !IN6_LOOPBACK */
 
 START_TEST(t_decode_stat)
 {
@@ -515,6 +536,1251 @@ START_TEST(t_decode_string_persistent_fourth)
 }
 END_TEST
 
+START_TEST(t_decode_socket_call)
+{
+	bool decoded;
+	int status;
+	long scall;
+	pid_t pid;
+	pink_event_t event;
+	pink_context_t *ctx;
+
+	ctx = pink_context_new();
+	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
+
+	if ((pid = pink_fork(ctx)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
+				strerror(errno));
+	else if (!pid) /* child */
+		socket(AF_UNIX, SOCK_STREAM, 0);
+	else { /* parent */
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0),
+				"pink_trace_syscall failed: %s",
+				strerror(errno));
+
+		/* Make sure we got the right event */
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(ctx, status);
+		fail_unless(event == PINK_EVENT_SYSCALL,
+				"Wrong event, expected: %d got: %d",
+				PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall, &decoded),
+				"pink_decode_socket_call: %s", strerror(errno));
+		if (decoded)
+			/* 1 is decoded system call socket() */
+			fail_unless(scall == 1, "Wrong decoded subcall, expected: %d got: %ld",
+					1, scall);
+		else
+			fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
+					SYS_socket, scall);
+
+		pink_context_free(ctx);
+		kill(pid, SIGKILL);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_fd)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_un addr;
+
+		close(pfd[0]);
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		addr.sun_family = AF_UNIX;
+		strcpy(addr.sun_path, "/dev/null");
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, SUN_LEN(&addr));
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		fail_unless(pink_decode_socket_fd(pid, CHECK_BITNESS, 0, &fd),
+				"pink_decode_socket_fd: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_null_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		close(pfd[0]);
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, NULL, 0);
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == -1,
+				"Wrong family, expected: -1 got: %d",
+				pink_sockaddr_get_family(res));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+/* FIXME: This test case uses a netlink socket which is NOT portable. */
+START_TEST(t_decode_socket_address_unknown_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_nl addr;
+
+		close(pfd[0]);
+
+		memset(&addr, 0, sizeof(addr));
+		addr.nl_family = AF_NETLINK;
+		addr.nl_pid = getpid();
+		addr.nl_groups = 0;
+
+		if ((fd = socket(AF_NETLINK, SOCK_RAW, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == -1,
+				"Wrong family, expected: -1 got: %d",
+				pink_sockaddr_get_family(res));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_unix_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_un addr;
+
+		close(pfd[0]);
+
+		addr.sun_family = AF_UNIX;
+		strcpy(addr.sun_path, "/dev/null");
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, SUN_LEN(&addr));
+	}
+	else { /* parent */
+		int realfd;
+		const struct sockaddr_un *unaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+				"Wrong family, expected: %d got: %d",
+				AF_UNIX, pink_sockaddr_get_family(res));
+
+		unaddr = pink_sockaddr_get_unix(res);
+		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
+		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, unaddr->sun_family);
+		fail_unless(strncmp(unaddr->sun_path, "/dev/null", 10) == 0,
+				"Wrong path, expected: /dev/null got: `%s'",
+				unaddr->sun_path);
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_unix_abstract_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		size_t len;
+		struct sockaddr_un addr;
+
+		close(pfd[0]);
+
+		addr.sun_family = AF_UNIX;
+		strcpy(addr.sun_path, "X/dev/null");
+		len = SUN_LEN(&addr);
+		/* Make the socket abstract */
+		addr.sun_path[0] = '\0';
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, len);
+	}
+	else { /* parent */
+		int realfd;
+		const struct sockaddr_un *unaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+				"Wrong family, expected: %d got: %d",
+				AF_UNIX, pink_sockaddr_get_family(res));
+
+		unaddr = pink_sockaddr_get_unix(res);
+		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
+		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, unaddr->sun_family);
+		fail_unless(unaddr->sun_path[0] == '\0', "Wrong initial char, expected: NULL got: `%c'",
+				unaddr->sun_path[0]);
+		fail_unless(strncmp(unaddr->sun_path + 1, "/dev/null", 10) == 0,
+				"Wrong path, expected: /dev/null got: `%s'",
+				unaddr->sun_path + 1);
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_inet_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_in addr;
+
+		close(pfd[0]);
+
+		addr.sin_family = AF_INET;
+		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		addr.sin_port = htons(23456);
+
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+		char ip[100] = { 0 };
+		const struct sockaddr_in *inaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_INET,
+				"Wrong family, expected: %d got: %d",
+				AF_INET, pink_sockaddr_get_family(res));
+
+		inaddr = pink_sockaddr_get_inet(res);
+		fail_if(inaddr == NULL, "pink_sockaddr_get_inet barfed!");
+		fail_unless(inaddr->sin_family == AF_INET,
+				"Wrong family, expected: %d got: %d",
+				AF_INET, inaddr->sin_family);
+		if (!IN_LOOPBACK(inaddr->sin_addr.s_addr)) {
+			inet_ntop(AF_INET, &inaddr->sin_addr, ip, sizeof(ip));
+			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
+		}
+		fail_unless(ntohs(inaddr->sin_port) == 23456,
+				"Wrong port, expected: 23456 got: %d",
+				ntohs(inaddr->sin_port));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+#if HAVE_IPV6
+START_TEST(t_decode_socket_address_inet6_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_in6 addr;
+
+		close(pfd[0]);
+
+		addr.sin6_family = AF_INET6;
+		addr.sin6_addr = in6addr_loopback;
+		addr.sin6_port = htons(23456);
+
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+		char ip[100] = { 0 };
+		const struct sockaddr_in6 *in6addr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_INET6,
+				"Wrong family, expected: %d got: %d",
+				AF_INET6, pink_sockaddr_get_family(res));
+
+		in6addr = pink_sockaddr_get_inet6(res);
+		fail_if(in6addr == NULL, "pink_sockaddr_get_inet6 barfed!");
+		fail_unless(in6addr->sin6_family == AF_INET6,
+				"Wrong family, expected: %d got: %d",
+				AF_INET6, in6addr->sin6_family);
+		if (!IN6_LOOPBACK(in6addr->sin6_addr.s6_addr)) {
+			inet_ntop(AF_INET6, &in6addr->sin6_addr, ip, sizeof(ip));
+			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
+		}
+		fail_unless(ntohs(in6addr->sin6_port) == 23456,
+				"Wrong port, expected: 23456 got: %d",
+				ntohs(in6addr->sin6_port));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+#endif /* HAVE_IPV6 */
+
+START_TEST(t_decode_socket_address_null_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		close(pfd[0]);
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, NULL, 0);
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == -1,
+				"Wrong family, expected: -1 got: %d",
+				pink_sockaddr_get_family(res));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+/* FIXME: This test case uses a netlink socket which is NOT portable. */
+START_TEST(t_decode_socket_address_unknown_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_nl addr;
+
+		close(pfd[0]);
+
+		memset(&addr, 0, sizeof(addr));
+		addr.nl_family = AF_NETLINK;
+		addr.nl_pid = getpid();
+		addr.nl_groups = 0;
+
+		if ((fd = socket(AF_NETLINK, SOCK_RAW, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == -1,
+				"Wrong family, expected: -1 got: %d",
+				pink_sockaddr_get_family(res));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_unix_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_un addr;
+
+		close(pfd[0]);
+
+		addr.sun_family = AF_UNIX;
+		strcpy(addr.sun_path, "/dev/null");
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, SUN_LEN(&addr));
+	}
+	else { /* parent */
+		int realfd;
+		const struct sockaddr_un *unaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+				"Wrong family, expected: %d got: %d",
+				AF_UNIX, pink_sockaddr_get_family(res));
+
+		unaddr = pink_sockaddr_get_unix(res);
+		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
+		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, unaddr->sun_family);
+		fail_unless(strncmp(unaddr->sun_path, "/dev/null", 10) == 0,
+				"Wrong path, expected: /dev/null got: `%s'",
+				unaddr->sun_path);
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_unix_abstract_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		size_t len;
+		struct sockaddr_un addr;
+
+		close(pfd[0]);
+
+		addr.sun_family = AF_UNIX;
+		strcpy(addr.sun_path, "X/dev/null");
+		len = SUN_LEN(&addr);
+		/* Make the socket abstract */
+		addr.sun_path[0] = '\0';
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, len);
+	}
+	else { /* parent */
+		int realfd;
+		const struct sockaddr_un *unaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+				"Wrong family, expected: %d got: %d",
+				AF_UNIX, pink_sockaddr_get_family(res));
+
+		unaddr = pink_sockaddr_get_unix(res);
+		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
+		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, unaddr->sun_family);
+		fail_unless(unaddr->sun_path[0] == '\0', "Wrong initial char, expected: NULL got: `%c'",
+				unaddr->sun_path[0]);
+		fail_unless(strncmp(unaddr->sun_path + 1, "/dev/null", 10) == 0,
+				"Wrong path, expected: /dev/null got: `%s'",
+				unaddr->sun_path + 1);
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_socket_address_inet_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_in addr;
+
+		close(pfd[0]);
+
+		addr.sin_family = AF_INET;
+		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		addr.sin_port = htons(23456);
+
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+		char ip[100] = { 0 };
+		const struct sockaddr_in *inaddr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_INET,
+				"Wrong family, expected: %d got: %d",
+				AF_INET, pink_sockaddr_get_family(res));
+
+		inaddr = pink_sockaddr_get_inet(res);
+		fail_if(inaddr == NULL, "pink_sockaddr_get_inet barfed!");
+		fail_unless(inaddr->sin_family == AF_INET,
+				"Wrong family, expected: %d got: %d",
+				AF_INET, inaddr->sin_family);
+		if (!IN_LOOPBACK(inaddr->sin_addr.s_addr)) {
+			inet_ntop(AF_INET, &inaddr->sin_addr, ip, sizeof(ip));
+			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
+		}
+		fail_unless(ntohs(inaddr->sin_port) == 23456,
+				"Wrong port, expected: 23456 got: %d",
+				ntohs(inaddr->sin_port));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+#if HAVE_IPV6
+START_TEST(t_decode_socket_address_inet6_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_sockaddr_t *res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %s", strerror(errno));
+
+	/* We don't use pink_fork() for this test because the child needs to
+	 * write the file descriptor to a pipe. */
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_in6 addr;
+
+		close(pfd[0]);
+
+		addr.sin6_family = AF_INET6;
+		addr.sin6_addr = in6addr_loopback;
+		addr.sin6_port = htons(23456);
+
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+		char ip[100] = { 0 };
+		const struct sockaddr_in6 *in6addr;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		waitpid(pid, &status, 0);
+		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
+		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
+				SIGSTOP, WSTOPSIG(status));
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
+				"pink_trace_setup: %s", strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		for (unsigned int i = 0; i < 2; i++) {
+			fail_unless(pink_trace_syscall(pid, 0),
+					"pink_trace_syscall: %s",
+					strerror(errno));
+
+			waitpid(pid, &status, 0);
+			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+		}
+
+		/* Get the file descriptor and compare */
+		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
+		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
+				realfd, fd);
+		fail_unless(pink_sockaddr_get_family(res) == AF_INET6,
+				"Wrong family, expected: %d got: %d",
+				AF_INET6, pink_sockaddr_get_family(res));
+
+		in6addr = pink_sockaddr_get_inet6(res);
+		fail_if(in6addr == NULL, "pink_sockaddr_get_inet6 barfed!");
+		fail_unless(in6addr->sin6_family == AF_INET6,
+				"Wrong family, expected: %d got: %d",
+				AF_INET6, in6addr->sin6_family);
+		if (!IN6_LOOPBACK(in6addr->sin6_addr.s6_addr)) {
+			inet_ntop(AF_INET6, &in6addr->sin6_addr, ip, sizeof(ip));
+			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
+		}
+		fail_unless(ntohs(in6addr->sin6_port) == 23456,
+				"Wrong port, expected: 23456 got: %d",
+				ntohs(in6addr->sin6_port));
+
+		pink_sockaddr_free(res);
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+#endif /* HAVE_IPV6 */
+
 Suite *
 decode_suite_create(void)
 {
@@ -524,16 +1790,39 @@ decode_suite_create(void)
 	TCase *tc_pink_decode = tcase_create("pink_decode");
 
 	tcase_add_test(tc_pink_decode, t_decode_stat);
+
 	tcase_add_test(tc_pink_decode, t_decode_string_first);
 	tcase_add_test(tc_pink_decode, t_decode_string_second);
 	tcase_add_test(tc_pink_decode, t_decode_string_third);
 	tcase_add_test(tc_pink_decode, t_decode_string_fourth);
+
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_null);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_notrailingzero);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_first);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_second);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_third);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_fourth);
+
+	tcase_add_test(tc_pink_decode, t_decode_socket_call);
+	tcase_add_test(tc_pink_decode, t_decode_socket_fd);
+
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_second);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unknown_second);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_second);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_second);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_second);
+#if HAVE_IPV6
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_second);
+#endif /* HAVE_IPV6 */
+
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_fifth);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unknown_fifth);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_fifth);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_fifth);
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_fifth);
+#if HAVE_IPV6
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_fifth);
+#endif /* HAVE_IPV6 */
 
 	suite_add_tcase(s, tc_pink_decode);
 
