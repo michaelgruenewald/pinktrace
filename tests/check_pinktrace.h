@@ -31,6 +31,11 @@
 
 #include <check.h>
 
+#include <pinktrace/pink.h>
+
+/* Check options */
+#define CHECK_OPTIONS PINK_TRACE_OPTION_SYSGOOD
+
 /* Check bitness */
 #if defined(I386) || defined(POWERPC)
 #define CHECK_BITNESS (PINK_BITNESS_32)
@@ -42,9 +47,6 @@
 
 Suite *
 bitness_suite_create(void);
-
-Suite *
-context_suite_create(void);
 
 Suite *
 decode_suite_create(void);

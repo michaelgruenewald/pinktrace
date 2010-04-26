@@ -25,15 +25,13 @@
 #include <pinktrace/pink.h>
 
 pink_event_t
-pink_event_decide(pink_context_t *ctx, int status)
+pink_event_decide(int status, bool sysgood)
 {
 	unsigned int event;
 
-	/* TODO: Right now this function assumes PTRACE_O_TRACESYSGOOD is set.
-	 * It might be a good idea to support event decisions when this flag
-	 * isn't set.
-	 */
-	assert(ctx->options & PINK_TRACE_OPTION_SYSGOOD);
+	/* Right now only sysgood is supported. */
+	if (!sysgood)
+		return PINK_EVENT_UNKNOWN;
 
 	if (WIFSTOPPED(status)) {
 		switch (WSTOPSIG(status)) {

@@ -17,7 +17,6 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/encode.h \
 			  include/pinktrace/error.h \
 			  include/pinktrace/event.h \
-			  include/pinktrace/context.h \
 			  include/pinktrace/fork.h \
 			  include/pinktrace/socket.h \
 			  include/pinktrace/trace.h \

@@ -34,28 +34,20 @@ START_TEST(t_bitness)
 {
 	pid_t pid;
 	pink_bitness_t bitness;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		pause();
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		bitness = pink_bitness_get(pid);
 		fail_unless(bitness == CHECK_BITNESS,
 				"Wrong bitness, expected: %d got: %d",
 				CHECK_BITNESS, bitness);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST

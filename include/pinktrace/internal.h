@@ -56,16 +56,7 @@
 #define MAX_ARGS	6
 #define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
 #include <pinktrace/socket.h>
-
-struct pink_context
-{
-	int options;
-	pid_t eldest;
-	pink_error_t error;
-};
 
 struct pink_sockaddr {
 	int family;

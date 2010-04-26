@@ -26,7 +26,7 @@
  * Pink's event handling
  **/
 
-#include <pinktrace/context.h>
+#include <stdbool.h>
 
 /**
  * Event constants
@@ -61,13 +61,16 @@ typedef enum {
 /**
  * Return the last event made by child.
  *
- * \param ctx The tracing context
+ * \bug This function doesn't work if sysgood is set to false.
+ *
  * \param status The status argument, received from wait(2) system call.
+ * \param sysgood Set this to true if you passed #PINK_TRACE_OPTION_SYSGOOD to
+ * pink_trace_setup().
  *
  * \return One of PINK_EVENT_* constants
  **/
 pink_event_t
-pink_event_decide(pink_context_t *ctx, int status);
+pink_event_decide(int status, bool sysgood);
 
 /**
  * Return a string representation of the event.

@@ -25,21 +25,20 @@
 #include <unistd.h>
 
 #include <pinktrace/internal.h>
-#include <pinktrace/context.h>
-#include <pinktrace/error.h>
-#include <pinktrace/fork.h>
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 pid_t
-pink_fork(pink_context_t *ctx)
+pink_fork(int options, pink_error_t *error_r)
 {
 	int save_errno, status;
 	pid_t pid;
 
-	assert(ctx != NULL);
+	/* Force this for now as pink_event_decide() doesn't work without it. */
+	options |= PINK_TRACE_OPTION_SYSGOOD;
 
 	if ((pid = fork()) < 0) {
-		ctx->error = PINK_ERROR_FORK;
+		if (error_r)
+			*error_r = PINK_ERROR_FORK;
 		return -1;
 	}
 	else if (!pid) { /* child */
@@ -53,20 +52,23 @@ pink_fork(pink_context_t *ctx)
 			/* Careful here, if the child is dead, this means that
 			 * pink_trace_me() function failed.
 			 */
-			ctx->error = (errno == ECHILD)
-				? PINK_ERROR_TRACE
-				: PINK_ERROR_WAIT;
+			if (error_r)
+				*error_r = (errno == ECHILD)
+						? PINK_ERROR_TRACE
+						: PINK_ERROR_WAIT;
 			return -1;
 		}
 
 		if (WIFEXITED(status)) {
-			switch (WEXITSTATUS(status)) {
-			case 1:
-				ctx->error = PINK_ERROR_TRACE;
-			case 2:
-				ctx->error = PINK_ERROR_STOP;
-			default:
-				ctx->error = PINK_ERROR_UNKNOWN;
+			if (error_r) {
+				switch (WEXITSTATUS(status)) {
+				case 1:
+					*error_r = PINK_ERROR_TRACE;
+				case 2:
+					*error_r = PINK_ERROR_STOP;
+				default:
+					*error_r = PINK_ERROR_UNKNOWN;
+				}
 			}
 			return -1;
 		}
@@ -76,17 +78,16 @@ pink_fork(pink_context_t *ctx)
 		assert(WIFSTOPPED(status));
 		assert(WSTOPSIG(status) == SIGSTOP);
 
-		if (!pink_trace_setup(pid, ctx->options)) {
+		if (!pink_trace_setup(pid, options)) {
 			/* Setting up child failed, kill it with fire! */
 			save_errno = errno;
 			kill(pid, SIGKILL);
 			errno = save_errno;
 
-			ctx->error = PINK_ERROR_TRACE_SETUP;
+			if (error_r)
+				*error_r = PINK_ERROR_TRACE_SETUP;
 			return -1;
 		}
-
-		ctx->eldest = pid;
 	}
 	return pid;
 }

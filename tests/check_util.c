@@ -42,14 +42,11 @@ START_TEST(t_util_get_syscall)
 	long scno;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -62,10 +59,6 @@ START_TEST(t_util_get_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -73,7 +66,7 @@ START_TEST(t_util_get_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -85,8 +78,7 @@ START_TEST(t_util_get_syscall)
 				"Wrong syscall, expected: %ld got: %ld",
 				SYS_getpid, scno);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -97,14 +89,11 @@ START_TEST(t_util_set_syscall)
 	long scno;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -117,10 +106,6 @@ START_TEST(t_util_set_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -128,7 +113,7 @@ START_TEST(t_util_set_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -143,8 +128,7 @@ START_TEST(t_util_set_syscall)
 				"Wrong syscall, expected: %ld got: %ld",
 				0xbadca11, scno);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -155,14 +139,11 @@ START_TEST(t_util_get_return_success)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -175,10 +156,6 @@ START_TEST(t_util_get_return_success)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0),
@@ -187,7 +164,7 @@ START_TEST(t_util_get_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -200,8 +177,7 @@ START_TEST(t_util_get_return_success)
 				"Wrong return, expected: %i got: %d",
 				pid, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -212,21 +188,14 @@ START_TEST(t_util_get_return_fail)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		open(NULL, 0); /* Should fail with -EFAULT */
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0),
@@ -235,7 +204,7 @@ START_TEST(t_util_get_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -248,8 +217,7 @@ START_TEST(t_util_get_return_fail)
 				"Wrong return, expected: %ld got: %ld",
 				-EFAULT, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -259,14 +227,11 @@ START_TEST(t_util_set_return_success)
 	int ret, status;
 	pid_t pid, mypid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -286,10 +251,6 @@ START_TEST(t_util_set_return_success)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0),
@@ -298,7 +259,7 @@ START_TEST(t_util_set_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -315,8 +276,6 @@ START_TEST(t_util_set_return_success)
 		waitpid(pid, &status, 0);
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS,
 				"Child returned non-zero");
-
-		pink_context_free(ctx);
 	}
 }
 END_TEST
@@ -326,14 +285,11 @@ START_TEST(t_util_set_return_fail)
 	int ret, status;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) { /* child */
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
@@ -356,10 +312,6 @@ START_TEST(t_util_set_return_fail)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0),
@@ -368,7 +320,7 @@ START_TEST(t_util_set_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -385,8 +337,6 @@ START_TEST(t_util_set_return_fail)
 		waitpid(pid, &status, 0);
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS,
 				"Child returned non-zero");
-
-		pink_context_free(ctx);
 	}
 }
 END_TEST
@@ -397,21 +347,14 @@ START_TEST(t_util_get_arg_first)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)13, 0, 0, 0, 0, 0);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -419,7 +362,7 @@ START_TEST(t_util_get_arg_first)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -431,8 +374,7 @@ START_TEST(t_util_get_arg_first)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -443,21 +385,14 @@ START_TEST(t_util_get_arg_second)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 13, 0, 0, 0, 0);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -465,7 +400,7 @@ START_TEST(t_util_get_arg_second)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -477,8 +412,7 @@ START_TEST(t_util_get_arg_second)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -489,21 +423,14 @@ START_TEST(t_util_get_arg_third)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 13, 0, 0, 0);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -511,7 +438,7 @@ START_TEST(t_util_get_arg_third)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -523,8 +450,7 @@ START_TEST(t_util_get_arg_third)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -535,21 +461,14 @@ START_TEST(t_util_get_arg_fourth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 13, 0, 0);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -557,7 +476,7 @@ START_TEST(t_util_get_arg_fourth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -569,8 +488,7 @@ START_TEST(t_util_get_arg_fourth)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -581,21 +499,14 @@ START_TEST(t_util_get_arg_fifth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 0, 13, 0);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -603,7 +514,7 @@ START_TEST(t_util_get_arg_fifth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -615,8 +526,7 @@ START_TEST(t_util_get_arg_fifth)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -627,21 +537,14 @@ START_TEST(t_util_get_arg_sixth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		mmap((void *)0, 0, 0, 0, 0, 13);
 	else { /* parent */
-		fail_unless(pink_context_get_eldest(ctx) == pid,
-				"Wrong eldest pid, expected: %d got: %d",
-				pink_context_get_eldest(ctx), pid);
-
 		/* Resume the child and it will stop at the next system call */
 		fail_unless(pink_trace_syscall(pid, 0),
 				"pink_trace_syscall failed: %s",
@@ -649,7 +552,7 @@ START_TEST(t_util_get_arg_sixth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -661,8 +564,7 @@ START_TEST(t_util_get_arg_sixth)
 				"Wrong return, expected: %ld got: %ld",
 				13, ret);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST

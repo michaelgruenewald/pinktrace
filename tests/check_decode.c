@@ -69,14 +69,11 @@ START_TEST(t_decode_stat)
 	struct stat buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		_exit((0 > stat("/dev/null", &buf)) ? EXIT_FAILURE : EXIT_SUCCESS);
 	else { /* parent */
@@ -88,7 +85,7 @@ START_TEST(t_decode_stat)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -101,8 +98,7 @@ START_TEST(t_decode_stat)
 		fail_unless(buf.st_rdev == 259, "Wrong device ID, expected: %d got: %d",
 				259, buf.st_rdev);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -113,14 +109,11 @@ START_TEST(t_decode_string_first)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		open("/dev/null", O_RDONLY);
 	else { /* parent */
@@ -131,7 +124,7 @@ START_TEST(t_decode_string_first)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -143,8 +136,7 @@ START_TEST(t_decode_string_first)
 				"Wrong string: expected /dev/null got `%s'",
 				buf);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -155,14 +147,11 @@ START_TEST(t_decode_string_second)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		openat(-1, "/dev/null", O_RDONLY);
 	else { /* parent */
@@ -173,7 +162,7 @@ START_TEST(t_decode_string_second)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -185,8 +174,7 @@ START_TEST(t_decode_string_second)
 				"Wrong string: expected /dev/null got `%s'",
 				buf);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -197,14 +185,11 @@ START_TEST(t_decode_string_third)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	else { /* parent */
@@ -215,7 +200,7 @@ START_TEST(t_decode_string_third)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -227,8 +212,7 @@ START_TEST(t_decode_string_third)
 				"Wrong string: expected /dev/null got `%s'",
 				buf);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -239,14 +223,11 @@ START_TEST(t_decode_string_fourth)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	else { /* parent */
@@ -257,7 +238,7 @@ START_TEST(t_decode_string_fourth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -269,8 +250,7 @@ START_TEST(t_decode_string_fourth)
 				"Wrong string: expected /dev/null got `%s'",
 				buf);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -281,14 +261,11 @@ START_TEST(t_decode_string_persistent_null)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		open(NULL, O_RDONLY);
 	else { /* parent */
@@ -299,7 +276,7 @@ START_TEST(t_decode_string_persistent_null)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -310,8 +287,7 @@ START_TEST(t_decode_string_persistent_null)
 				"Wrong errno, expected: EIO/EFAULT got: %d (%s)",
 				errno, strerror(errno));
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -323,14 +299,11 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 	char notrailingzero[3] = {'n', 'i', 'l'};
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		open(notrailingzero, O_RDONLY);
 	else { /* parent */
@@ -341,7 +314,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -361,8 +334,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 				'l', buf[2]);
 
 		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -373,14 +345,11 @@ START_TEST(t_decode_string_persistent_first)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		open("/dev/null", O_RDONLY);
 	else { /* parent */
@@ -391,7 +360,7 @@ START_TEST(t_decode_string_persistent_first)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -405,8 +374,7 @@ START_TEST(t_decode_string_persistent_first)
 				buf);
 
 		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -417,14 +385,11 @@ START_TEST(t_decode_string_persistent_second)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		openat(-1, "/dev/null", O_RDONLY);
 	else { /* parent */
@@ -435,7 +400,7 @@ START_TEST(t_decode_string_persistent_second)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -449,8 +414,7 @@ START_TEST(t_decode_string_persistent_second)
 				buf);
 
 		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -461,14 +425,11 @@ START_TEST(t_decode_string_persistent_third)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	else { /* parent */
@@ -479,7 +440,7 @@ START_TEST(t_decode_string_persistent_third)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -493,8 +454,7 @@ START_TEST(t_decode_string_persistent_third)
 				buf);
 
 		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -505,14 +465,11 @@ START_TEST(t_decode_string_persistent_fourth)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	else { /* parent */
@@ -523,7 +480,7 @@ START_TEST(t_decode_string_persistent_fourth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -537,8 +494,7 @@ START_TEST(t_decode_string_persistent_fourth)
 				buf);
 
 		free(buf);
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST
@@ -550,14 +506,11 @@ START_TEST(t_decode_socket_call)
 	long scall;
 	pid_t pid;
 	pink_event_t event;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	if ((pid = pink_fork(ctx)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(pink_context_get_error(ctx)),
-				strerror(errno));
+	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
+		fail("pink_fork: %s (%s)", pink_error_tostring(error),
+			strerror(errno));
 	else if (!pid) /* child */
 		socket(AF_UNIX, SOCK_STREAM, 0);
 	else { /* parent */
@@ -568,7 +521,7 @@ START_TEST(t_decode_socket_call)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(ctx, status);
+		event = pink_event_decide(status, true);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -583,8 +536,7 @@ START_TEST(t_decode_socket_call)
 			fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
 					SYS_socket, scall);
 
-		pink_context_free(ctx);
-		kill(pid, SIGKILL);
+		pink_trace_kill(pid);
 	}
 }
 END_TEST

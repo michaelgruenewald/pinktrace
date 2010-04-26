@@ -57,7 +57,6 @@
 #include <pinktrace/gcc.h>
 #include <pinktrace/about.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/context.h>
 #include <pinktrace/decode.h>
 #include <pinktrace/encode.h>
 #include <pinktrace/error.h>
