@@ -76,9 +76,9 @@ struct pink_sockaddr {
 		struct sockaddr sa;
 		struct sockaddr_un sa_un;
 		struct sockaddr_in sa_in;
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 		struct sockaddr_in6 sa6;
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 	} u;
 };
 

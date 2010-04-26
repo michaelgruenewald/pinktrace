@@ -51,12 +51,10 @@ pink_sockaddr_get_inet(const pink_sockaddr_t *addr)
 	return &addr->u.sa_in;
 }
 
-const void *
+#if PINKTRACE_HAVE_IPV6
+const struct sockaddr_in6 *
 pink_sockaddr_get_inet6(const pink_sockaddr_t *addr)
 {
-#if HAVE_IPV6
 	return &addr->u.sa6;
-#else
-	return NULL;
-#endif /* HAVE_IPV6 */
 }
+#endif /* PINKTRACE_HAVE_IPV6 */

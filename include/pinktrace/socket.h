@@ -89,19 +89,23 @@ pink_sockaddr_get_unix(const pink_sockaddr_t *addr);
 const struct sockaddr_in *
 pink_sockaddr_get_inet(const pink_sockaddr_t *addr);
 
+#if PINKTRACE_HAVE_IPV6 || defined(DOXYGEN)
 /**
  * Return the inet6 socket address
  *
  * \note This address is only valid if pink_sockaddr_get_family() returned
  * AF_INET6.
  *
+ * \note This function is only available if pinktrace was compiled with IPV6
+ * support.
+ *
  * \param addr The socket address
  *
- * \return The inet6 socket address, this may be casted to a
- * (struct sockaddr_in6 *). If IPV6 support wasn't enabled at compile time, this
- * function always returns NULL.
+ * \return The inet6 socket address
  **/
-const void *
+const struct sockaddr_in6 *
 pink_sockaddr_get_inet6(const pink_sockaddr_t *addr);
+
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */
