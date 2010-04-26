@@ -66,11 +66,12 @@ pink_util_get_return(pid_t pid, long *res)
 	long flags;
 
 	if (!pink_util_peek(pid, ACCUM, res) ||
-			pink_util_peek(pid, ACCUM_FLAGS, &flags))
+			!pink_util_peek(pid, ACCUM_FLAGS, &flags))
 		return false;
 
 	if (flags & SO_MASK)
 		*res = -(*res);
+
 	return true;
 }
 
