@@ -56,32 +56,6 @@ void
 pink_context_free(pink_context_t *ctx);
 
 /**
- * Set the attach property of the given tracing context. If this property is
- * set, tracing will start by attaching to the eldest child using PTRACE_ATTACH
- * and at the end of the tracing session, PTRACE_DETACH will be called.
- *
- * \see pink_loop
- *
- * \param ctx The tracing context whose attach property is to be modified.
- * \param on Boolean that specifies whether the attach property is enabled.
- *
- **/
-void
-pink_context_set_attach(pink_context_t *ctx, bool on);
-
-/**
- * Accessor function for the attach property.
- *
- * \see pink_loop
- *
- * \param ctx The tracing context whose attaching context is to be returned.
- *
- * \return true if attach is enabled, false otherwise.
- **/
-bool
-pink_context_get_attach(const pink_context_t *ctx);
-
-/**
  * Set the options property of the given tracing context.
  * Note: #PINK_TRACE_OPTION_SYSGOOD is always set if available.
  *

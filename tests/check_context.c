@@ -40,25 +40,6 @@ START_TEST(t_context_new)
 }
 END_TEST
 
-START_TEST(t_context_attach)
-{
-	pink_context_t *ctx;
-
-	ctx = pink_context_new();
-	fail_unless(ctx != NULL, "pink_context_new failed: %s", strerror(errno));
-
-	fail_unless(pink_context_get_attach(ctx) == false, "Attach property doesn't default to false");
-
-	pink_context_set_attach(ctx, true);
-	fail_unless(pink_context_get_attach(ctx) == true, "Failed to set attach property to true");
-
-	pink_context_set_attach(ctx, false);
-	fail_unless(pink_context_get_attach(ctx) == false, "Failed to set attach property to false");
-
-	pink_context_free(ctx);
-}
-END_TEST
-
 START_TEST(t_context_options)
 {
 	int options;
@@ -176,7 +157,6 @@ context_suite_create(void)
 	/* pink_context_{g,s}_* */
 	TCase *tc_context_properties = tcase_create("pink_context_properties");
 
-	tcase_add_test(tc_context_properties, t_context_attach);
 	tcase_add_test(tc_context_properties, t_context_options);
 	tcase_add_test(tc_context_properties, t_context_eldest);
 	tcase_add_test(tc_context_properties, t_context_error);

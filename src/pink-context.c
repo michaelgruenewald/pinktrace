@@ -30,10 +30,10 @@ pink_context_new(void)
 {
 	pink_context_t *ctx;
 
-	if ((ctx = (pink_context_t *)malloc(sizeof(pink_context_t))) == NULL)
+	ctx = (pink_context_t *)malloc(sizeof(pink_context_t));
+	if (!ctx)
 		return NULL;
 
-	ctx->attach = false;
 	ctx->options = PINK_TRACE_OPTION_SYSGOOD;
 	ctx->eldest = -1;
 	ctx->error = PINK_ERROR_SUCCESS;
@@ -44,18 +44,6 @@ void
 pink_context_free(pink_context_t *ctx)
 {
 	free(ctx);
-}
-
-void
-pink_context_set_attach(pink_context_t *ctx, bool on)
-{
-	ctx->attach = on;
-}
-
-bool
-pink_context_get_attach(const pink_context_t *ctx)
-{
-	return ctx->attach;
 }
 
 void

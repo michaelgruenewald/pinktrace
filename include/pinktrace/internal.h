@@ -62,7 +62,6 @@
 
 struct pink_context
 {
-	bool attach;
 	int options;
 	pid_t eldest;
 	pink_error_t error;
