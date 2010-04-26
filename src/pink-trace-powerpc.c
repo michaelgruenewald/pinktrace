@@ -18,6 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <assert.h>
+
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
@@ -80,9 +82,9 @@ pink_util_set_return(pid_t pid, long ret)
 	if (!pink_util_peek(pid, ACCUM_FLAGS, &flags))
 		return false;
 
-	if (val < 0) {
+	if (ret < 0) {
 		flags |= SO_MASK;
-		val = -val;
+		ret = -ret;
 	}
 	else
 		flags &= ~SO_MASK;
@@ -202,7 +204,7 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
 	assert(arg >= 0 && arg < MAX_ARGS);
 
 	/* Decode socketcall(2) */
-	if (!pink_util_get_arg(pink, bitness, 1, &args))
+	if (!pink_util_get_arg(pid, bitness, 1, &args))
 		return false;
 	if (fd && !pink_util_move(pid, args, fd))
 		return NULL;
