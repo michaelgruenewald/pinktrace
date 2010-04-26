@@ -40,6 +40,11 @@
  **/
 
 /**
+ * \example pink-fork.c
+ * This is an example demonstrating how to fork and start tracing a process.
+ **/
+
+/**
  * \example pink-example.c
  * This is an example demonstrating the usage of the library
  **/
