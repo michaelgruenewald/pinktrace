@@ -576,9 +576,9 @@ START_TEST(t_decode_socket_call)
 		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall, &decoded),
 				"pink_decode_socket_call: %s", strerror(errno));
 		if (decoded)
-			/* 1 is decoded system call socket() */
-			fail_unless(scall == 1, "Wrong decoded subcall, expected: %d got: %ld",
-					1, scall);
+			fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET,
+				"Wrong decoded subcall, expected: %d got: %ld",
+				PINK_SOCKET_SUBCALL_SOCKET, scall);
 		else
 			fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
 					SYS_socket, scall);

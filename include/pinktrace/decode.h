@@ -33,6 +33,48 @@
 #include <pinktrace/socket.h>
 
 /**
+ * Decoded socket subcalls
+ **/
+typedef enum {
+	/** socket() subcall **/
+	PINK_SOCKET_SUBCALL_SOCKET = 1,
+	/** bind() subcall **/
+	PINK_SOCKET_SUBCALL_BIND,
+	/** connect() subcall **/
+	PINK_SOCKET_SUBCALL_CONNECT,
+	/** listen() subcall **/
+	PINK_SOCKET_SUBCALL_LISTEN,
+	/** accept() subcall **/
+	PINK_SOCKET_SUBCALL_ACCEPT,
+	/** getsockname() subcall **/
+	PINK_SOCKET_SUBCALL_GETSOCKNAME,
+	/** getpeername() subcall **/
+	PINK_SOCKET_SUBCALL_GETPEERNAME,
+	/** socketpair() subcall **/
+	PINK_SOCKET_SUBCALL_SOCKETPAIR,
+	/** send() subcall **/
+	PINK_SOCKET_SUBCALL_SEND,
+	/** recv() subcall **/
+	PINK_SOCKET_SUBCALL_RECV,
+	/** sendto() subcall **/
+	PINK_SOCKET_SUBCALL_SENDTO,
+	/** recvfrom() subcall **/
+	PINK_SOCKET_SUBCALL_RECVFROM,
+	/** shutdown() subcall **/
+	PINK_SOCKET_SUBCALL_SHUTDOWN,
+	/** setsockopt() subcall **/
+	PINK_SOCKET_SUBCALL_SETSOCKOPT,
+	/** getsockopt() subcall **/
+	PINK_SOCKET_SUBCALL_GETSOCKOPT,
+	/** sendmsg() subcall **/
+	PINK_SOCKET_SUBCALL_SENDMSG,
+	/** recvmsg() subcall **/
+	PINK_SOCKET_SUBCALL_RECVMSG,
+	/** accept4() subcall **/
+	PINK_SOCKET_SUBCALL_ACCEPT4,
+} pink_socket_subcall_t;
+
+/**
  * Get the data in argument arg and place it in dest.
  *
  * \param pid Process ID of the child whose argument is to be received.
@@ -72,6 +114,8 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
  *
  * \note This function decodes the socketcall(2) system call on some
  * architectures. On others it's equivalent to pink_util_get_syscall().
+ *
+ * \see pink_socket_subcall_t
  *
  * \param pid Process ID of the child whose argument is to be received
  * \param bitness Bitness of the child
