@@ -45,7 +45,7 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen)
 	if (addrlen < 2 || (unsigned long)addrlen > sizeof(res->u))
 		addrlen = sizeof(res->u);
 
-	memset(res, 0, sizeof(res));
+	memset(&res->u, 0, sizeof(res->u));
 	if (!pink_util_moven(pid, addr, res->u.pad, addrlen)) {
 		free(res);
 		return NULL;
