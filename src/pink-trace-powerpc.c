@@ -43,6 +43,7 @@ pink_bitness_get(pink_unused pid_t pid)
 	return PINK_BITNESS_64;
 #else
 #error unsupported architecture
+#endif
 }
 
 bool
