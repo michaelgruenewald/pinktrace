@@ -1,0 +1,72 @@
+/* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
+
+/*
+ * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ *
+ * This file is part of Pink's Tracing Library. pinktrace is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License version 2.1, as published by the Free Software
+ * Foundation.
+ *
+ * pinktrace is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+@GENERATED_FILE@
+
+#ifndef PINKTRACE_GUARD_ABOUT_H
+#define PINKTRACE_GUARD_ABOUT_H 1
+
+/**
+ * \file
+ * Pink's version and build constants
+ **/
+
+/**
+ * The package name (eg pinktrace)
+ **/
+#define PINKTRACE_PACKAGE "@PACKAGE@"
+
+/**
+ * The major version (eg 0.4.1 -> 0)
+ **/
+#define PINKTRACE_VERSION_MAJOR @VERSION_MAJOR@
+
+/**
+ * The minor version (eg 0.4.1 -> 4)
+ **/
+#define PINKTRACE_VERSION_MINOR @VERSION_MINOR@
+
+/**
+ * The micro version (eg 0.4.1 -> 1)
+ **/
+#define PINKTRACE_VERSION_MICRO @VERSION_MICRO@
+
+/**
+ * The version suffix (eg "_alpha1"), often an empty string
+ **/
+#define PINKTRACE_VERSION_SUFFIX "@VERSION_SUFFIX@"
+
+/**
+ * The version, two digits per part (eg 1.3.5 -> 10305)
+ **/
+#define PINKTRACE_VERSION ((100 * 100 * PINKTRACE_VERSION_MAJOR) \
+		+ (100 * PINKTRACE_VERSION_MINOR) + PINKTRACE_VERSION_MICRO)
+
+/**
+ * The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
+ **/
+#define PINKTRACE_GIT_HEAD "@GITHEAD@"
+
+/**
+ * The suffix used for so names (eg "0.30" or "0.31_15ece615")
+ **/
+#define PINKTRACE_PC_SLOT "@PINKTRACE_PC_SLOT@"
+
+#endif /* !PINKTRACE_GUARD_ABOUT_H */

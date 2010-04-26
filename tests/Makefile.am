@@ -8,4 +8,4 @@ check_libpinktrace_SOURCES= main.c \
 			    check_trace.c check_util.c
 check_libpinktrace_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs \
 			   $(check_CFLAGS) @PINKTRACE_CFLAGS@
-check_libpinktrace_LDADD= -lpinktrace $(check_LIBS)
+check_libpinktrace_LDADD= -lpinktrace_@PINKTRACE_PC_SLOT@ $(check_LIBS)

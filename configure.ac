@@ -5,26 +5,63 @@ AC_PREREQ(2.59)
 AC_INIT([src/pink-context.c])
 AC_CANONICAL_HOST
 
-# Libtool versioning - only update before a public release.
-# If the code has changed at all: REVISION++.
-# If any interfaces have changed at all: CURRENT++, REVISION=0.
-# If interfaces changed but it is backwards compatible: AGE++, else AGE=0.
-#  i.e. the library supports interfaces CURRENT - AGE up to CURRENT.
-#  if two libraries have identical CURRENT and AGE, then newest REVISION used.
-CURRENT=0
-AGE=0
-REVISION=1
+VERSION_MAJOR=0
+VERSION_MINOR=0
+VERSION_MICRO=1
+VERSION_SUFFIX=
+VERSION_FULL="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_MICRO$VERSION_SUFFIX"
+VERSION="$VERSION_FULL"
+VERSION_LIB_CURRENT=`expr 100 '*' $VERSION_MAJOR + $VERSION_MINOR`
+VERSION_LIB_REVISION="$VERSION_MICRO"
 
-LT_VERSION_INFO="$CURRENT:$REVISION:$AGE"
-AC_SUBST(LT_VERSION_INFO)
+AC_SUBST([VERSION_MAJOR])
+AC_SUBST([VERSION_MINOR])
+AC_SUBST([VERSION_MICRO])
+AC_SUBST([VERSION_FULL])
+AC_SUBST([VERSION_SUFFIX])
+AC_SUBST([VERSION_LIB_CURRENT])
+AC_SUBST([VERSION_LIB_REVISION])
 
-AM_INIT_AUTOMAKE(libpinktrace, [0.01])
+AM_INIT_AUTOMAKE(pinktrace, [$VERSION_FULL])
+
+dnl {{{ Git revision
+if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
+	GITHEAD=`git describe 2>/dev/null`
+	if test -z ${GITHEAD} ; then
+		GITHEAD=`git rev-parse HEAD`
+	fi
+	if test -n "`git diff-index -m --name-only HEAD`" ; then
+		GITHEAD=${GITHEAD}-dirty
+	fi
+else
+	GITVERSION=
+fi
+AC_MSG_CHECKING([for git head])
+AC_ARG_WITH([git-head],
+	AS_HELP_STRING([--with-git-head], [Specify Git head]),
+	GITHEAD=`eval echo $withval`,
+	GITHEAD=`eval echo $GITHEAD`)
+AC_MSG_RESULT([$GITHEAD])
+AC_SUBST([GITHEAD])
+dnl }}}
+
+PINKTRACE_PC_VERSION="${VERSION_FULL}"
+PINKTRACE_PC_SLOT="${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_SUFFIX}"
+PINKTRACE_PC_SLOT="${PINKTRACE_PC_SLOT}_"`echo ${GITHEAD} | sed -e 's,\(........\(-dirty\)\?\)$,#\1,' -e 's,.*#,,'`
+
+AC_MSG_CHECKING([for slot])
+AC_MSG_RESULT([$PINKTRACE_PC_SLOT])
+AC_SUBST([PINKTRACE_PC_SLOT])
+
+PINKTRACE_CFLAGS=
+PINKTRACE_PC_CFLAGS=
+PINKTRACE_PC_LIBS="-lpinktrace_${PINKTRACE_PC_SLOT}"
 dnl }}}
 
 dnl {{{ Toolchain checks
 AC_PROG_CC_C99
 if test x"$ac_cv_prog_cc_c99" = x"no"; then
-	AC_MSG_ERROR([libpinktrace requires a C compiler that supports ISO C99!])
+	AC_MSG_ERROR([pinktrace requires a C compiler that supports ISO C99!])
 fi
 AC_GNU_SOURCE
 AC_PROG_INSTALL
@@ -155,18 +192,27 @@ fi
 AM_CONDITIONAL(WANT_IPV6, test x"$WANT_IPV6" = x"yes")
 if test x"$WANT_IPV6" = x"yes" ; then
 	AC_DEFINE([HAVE_IPV6], 1, [Define for IPV6 support])
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_IPV6=1"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_IPV6=1"
 else
-	AC_DEFINE([HAVE_IPV6], 0, [Define for IPV6 support])
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
 fi
 dnl }}}
 
 dnl {{{ Extra CFLAGS
-PINKTRACE_CFLAGS=
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
 for flag in $WANTED_CFLAGS ; do
 	AX_CHECK_COMPILER_FLAGS([$flag], [PINKTRACE_CFLAGS="$PINKTRACE_CFLAGS $flag"],)
 done
 AC_SUBST([PINKTRACE_CFLAGS])
+dnl }}}
+
+dnl {{{ pkg-config
+AC_SUBST([PINKTRACE_PC_CFLAGS])
+AC_SUBST([PINKTRACE_PC_LIBS])
+AC_SUBST([PINKTRACE_PC_VERSION])
+AC_SUBST([PINKTRACE_PC_SLOT])
 dnl }}}
 
 dnl {{{ Library checks
@@ -190,11 +236,17 @@ dnl {{{ Use AM_SILENT_RULES if available
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 dnl }}}
 
+dnl {{{ Built sources
+GENERATED_FILE=misc/generated-file.txt
+AC_SUBST_FILE([GENERATED_FILE])
+dnl }}}
+
 dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
 		  pinktrace.pc
 		  Makefile
+		  include/pinktrace/about.h
 		  src/Makefile
 		  tests/Makefile
 		  doc/Makefile

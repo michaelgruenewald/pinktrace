@@ -1126,7 +1126,7 @@ START_TEST(t_decode_socket_address_inet_second)
 }
 END_TEST
 
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 START_TEST(t_decode_socket_address_inet6_second)
 {
 	int status;
@@ -1226,7 +1226,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 	}
 }
 END_TEST
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 START_TEST(t_decode_socket_address_null_fifth)
 {
@@ -1686,7 +1686,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 }
 END_TEST
 
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 START_TEST(t_decode_socket_address_inet6_fifth)
 {
 	int status;
@@ -1786,7 +1786,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	}
 }
 END_TEST
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 Suite *
 decode_suite_create(void)
@@ -1818,18 +1818,18 @@ decode_suite_create(void)
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_second);
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_second);
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unknown_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_fifth);
-#if HAVE_IPV6
+#if PINKTRACE_HAVE_IPV6
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_fifth);
-#endif /* HAVE_IPV6 */
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 	suite_add_tcase(s, tc_pink_decode);
 

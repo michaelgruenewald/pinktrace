@@ -1,40 +1,40 @@
 CLEANFILES=
-DEFS+= -DGIT_HEAD=\"$(GIT_HEAD)\"
 AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
-lib_LTLIBRARIES= libpinktrace.la
-libpinktrace_la_SOURCES= pink-bitness.c pink-context.c \
-			 pink-error.c pink-event.c \
-			 pink-fork.c pink-name-wrap.c \
-			 pink-socket.c pink-trace.c \
-			 pink-trace-internal.c pink-util.c
-libpinktrace_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= pink-bitness.c pink-context.c \
+					     pink-error.c pink-event.c \
+					     pink-fork.c pink-name-wrap.c \
+					     pink-socket.c pink-trace.c \
+					     pink-trace-internal.c pink-util.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS = -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
+
+lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 # Platform specific sources
 if I386
-libpinktrace_la_SOURCES+= pink-trace-x86.c pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-x86.c pink-name.c
 endif
 if X86_64
-libpinktrace_la_SOURCES+= pink-trace-x86_64.c pink-name32.c pink-name64.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-x86_64.c pink-name32.c pink-name64.c
 endif
 if IA64
-libpinktrace_la_SOURCES+= pink-trace-ia64.c pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-ia64.c pink-name.c
 endif
 if POWERPC
-libpinktrace_la_SOURCES+= pink-trace-powerpc.c pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-powerpc.c pink-name.c
 endif
 if POWERPC64
-libpinktrace_la_SOURCES+= pink-trace-powerpc.c pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-powerpc.c pink-name.c
 endif
 
 # Generated sources
 # FIXME: The shell script we use to generate syscallent.h doesn't work on FreeBSD.
 # {line#\#define __NR} is probably a bash goodie.
-nodist_libpinktrace_la_SOURCES=
+nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES=
 BUILT_SOURCES=
 
 if PERSONALITY_ONE
-nodist_libpinktrace_la_SOURCES+= pink-syscallent.h
+nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-syscallent.h
 BUILT_SOURCES+= pink-syscallent.h
 CLEANFILES+= pink-syscallent.h
 if GCC
@@ -68,7 +68,7 @@ endif
 endif
 
 if PERSONALITY_TWO
-nodist_libpinktrace_la_SOURCES+= pink-syscallent32.h pink-syscallent64.h
+nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-syscallent32.h pink-syscallent64.h
 BUILT_SOURCES+= pink-syscallent32.h pink-syscallent64.h
 CLEANFILES+= pink-syscallent32.h pink-syscallent64.h
 if GCC

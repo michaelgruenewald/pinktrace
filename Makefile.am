@@ -3,14 +3,14 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 		      config.h config.h.in INSTALL
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
-EXTRA_DIST= autogen.sh README.mkd
+EXTRA_DIST= autogen.sh README.mkd misc/generated-file.txt
 SUBDIRS= src doc . tests
 
 pkgconfigdir=$(libdir)/pkgconfig
 pkgconfig_DATA=pinktrace.pc
 
-pinktraceincludedir= $(includedir)/pinktrace
-pinktraceinclude_HEADERS= \
+pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
+pinktrace_include_HEADERS= \
 			  include/pinktrace/gcc.h \
 			  include/pinktrace/bitness.h \
 			  include/pinktrace/decode.h \
