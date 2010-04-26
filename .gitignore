@@ -39,6 +39,7 @@ doc/reference
 doc/doxygen.conf
 doc/libpinktrace.tag
 
+examples/pink-about
 examples/pink-example
 
 include/pinktrace/about.h

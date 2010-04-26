@@ -35,6 +35,11 @@
  **/
 
 /**
+ * \example pink-about.c
+ * This is a simple example demonstrating how to use Pink's version macros.
+ **/
+
+/**
  * \example pink-example.c
  * This is an example demonstrating the usage of the library
  **/

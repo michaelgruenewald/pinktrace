@@ -1,7 +1,11 @@
-EXAMPLES= pink-example
+EXAMPLES= pink-about pink-example
+AM_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
+COMMON_LINK= -lpinktrace_@PINKTRACE_PC_SLOT@
+
+pink_about_SOURCES= pink-about.c
+pink_about_LDADD= $(COMMON_LINK)
 
 pink_example_SOURCES= pink-example.c
-pink_example_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
-pink_example_LDADD= -lpinktrace
+pink_example_LDADD= $(COMMON_LINK)
 
 noinst_PROGRAMS= $(EXAMPLES)
