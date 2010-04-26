@@ -44,7 +44,7 @@ typedef struct pink_sockaddr pink_sockaddr_t;
 /**
  * Free the given socket address
  *
- * \param addr The address
+ * \param addr The socket address
  **/
 void
 pink_sockaddr_free(pink_sockaddr_t *addr);
@@ -52,7 +52,7 @@ pink_sockaddr_free(pink_sockaddr_t *addr);
 /**
  * Return the family of the address.
  *
- * \param addr The address
+ * \param addr The socket address
  *
  * \return The address family. One of:
  *  - -1 (Which means the address family is unsupported)
