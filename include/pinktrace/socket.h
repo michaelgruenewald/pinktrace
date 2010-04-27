@@ -23,11 +23,53 @@
 
 /**
  * \file
- * Pink's socket address
+ * Pink's socket related data structures and functions
  **/
 
 #include <netinet/in.h>
 #include <sys/un.h>
+
+/**
+ * Decoded socket subcalls
+ **/
+typedef enum {
+	/** socket() subcall **/
+	PINK_SOCKET_SUBCALL_SOCKET = 1,
+	/** bind() subcall **/
+	PINK_SOCKET_SUBCALL_BIND,
+	/** connect() subcall **/
+	PINK_SOCKET_SUBCALL_CONNECT,
+	/** listen() subcall **/
+	PINK_SOCKET_SUBCALL_LISTEN,
+	/** accept() subcall **/
+	PINK_SOCKET_SUBCALL_ACCEPT,
+	/** getsockname() subcall **/
+	PINK_SOCKET_SUBCALL_GETSOCKNAME,
+	/** getpeername() subcall **/
+	PINK_SOCKET_SUBCALL_GETPEERNAME,
+	/** socketpair() subcall **/
+	PINK_SOCKET_SUBCALL_SOCKETPAIR,
+	/** send() subcall **/
+	PINK_SOCKET_SUBCALL_SEND,
+	/** recv() subcall **/
+	PINK_SOCKET_SUBCALL_RECV,
+	/** sendto() subcall **/
+	PINK_SOCKET_SUBCALL_SENDTO,
+	/** recvfrom() subcall **/
+	PINK_SOCKET_SUBCALL_RECVFROM,
+	/** shutdown() subcall **/
+	PINK_SOCKET_SUBCALL_SHUTDOWN,
+	/** setsockopt() subcall **/
+	PINK_SOCKET_SUBCALL_SETSOCKOPT,
+	/** getsockopt() subcall **/
+	PINK_SOCKET_SUBCALL_GETSOCKOPT,
+	/** sendmsg() subcall **/
+	PINK_SOCKET_SUBCALL_SENDMSG,
+	/** recvmsg() subcall **/
+	PINK_SOCKET_SUBCALL_RECVMSG,
+	/** accept4() subcall **/
+	PINK_SOCKET_SUBCALL_ACCEPT4,
+} pink_socket_subcall_t;
 
 typedef struct {
 	/** Family of the socket address **/
@@ -60,5 +102,15 @@ typedef struct {
 #endif /* PINKTRACE_HAVE_IPV6... */
 	} u;
 } pink_socket_address_t;
+
+/**
+ * Name the given socket subcall
+ *
+ * \param subcall The socket subcall
+ *
+ * \return The name of the subcall
+ **/
+const char *
+pink_name_socket_subcall(pink_socket_subcall_t subcall);
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */
