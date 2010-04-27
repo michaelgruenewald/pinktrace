@@ -21,6 +21,6 @@ doxygen:
 endif
 
 upload: doxygen
-	rsync -avze ssh --delete reference/html bach.exherbo.org:public_html/pinktrace/reference
+	rsync -avze ssh --delete api/c bach.exherbo.org:public_html/pinktrace/api
 
 .PHONY: doxygen upload
