@@ -2,7 +2,7 @@ dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}}
 
 dnl {{{ Program, version
 AC_PREREQ(2.59)
-AC_INIT([src/pink-context.c])
+AC_INIT([src/pink-bitness.c])
 AC_CANONICAL_HOST
 
 VERSION_MAJOR=0
