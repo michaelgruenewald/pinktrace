@@ -54,7 +54,7 @@ typedef struct {
 		/**
 		 * Inet6 socket address, only valid if family is AF_INET6.
 		 * This member is only available if IPV6 support was enabled at
-		 * compile time. Check with #PINKTRACE_HAVE_IPV6.
+		 * compile time. Check with PINKTRACE_HAVE_IPV6.
 		 **/
 		struct sockaddr_in6 sa6;
 #endif /* PINKTRACE_HAVE_IPV6... */
