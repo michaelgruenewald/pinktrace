@@ -144,6 +144,19 @@ AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 AM_CONDITIONAL(PERSONALITY_ONE,
 			   test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
 AM_CONDITIONAL(PERSONALITY_TWO, test x"$arch" = x"x86_64")
+
+dnl Export some useful information via pkg-config --cflags
+if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" ; then
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_DEFAULT_PERSONALITY=32"
+else
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_DEFAULT_PERSONALITY=64"
+fi
+
+if test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64" ; then
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_SUPPORTED_PERSONALITIES=1"
+else
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_SUPPORTED_PERSONALITIES=2"
+fi
 dnl }}}
 
 dnl {{{ Check headers
