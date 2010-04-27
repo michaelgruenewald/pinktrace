@@ -11,12 +11,13 @@ pkgconfig_DATA=pinktrace.pc
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
-			  include/pinktrace/gcc.h \
+			  include/pinktrace/about.h \
 			  include/pinktrace/bitness.h \
 			  include/pinktrace/decode.h \
 			  include/pinktrace/encode.h \
 			  include/pinktrace/error.h \
 			  include/pinktrace/event.h \
+			  include/pinktrace/gcc.h \
 			  include/pinktrace/fork.h \
 			  include/pinktrace/socket.h \
 			  include/pinktrace/trace.h \
