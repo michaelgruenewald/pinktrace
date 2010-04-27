@@ -501,7 +501,6 @@ END_TEST
 
 START_TEST(t_decode_socket_call)
 {
-	bool decoded;
 	int status;
 	long scall;
 	pid_t pid;
@@ -526,15 +525,16 @@ START_TEST(t_decode_socket_call)
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall, &decoded),
+		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall),
 				"pink_decode_socket_call: %s", strerror(errno));
-		if (decoded)
-			fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET,
-				"Wrong decoded subcall, expected: %d got: %ld",
-				PINK_SOCKET_SUBCALL_SOCKET, scall);
-		else
-			fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
-					SYS_socket, scall);
+#if defined(SYS_socketcall)
+		fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET,
+			"Wrong decoded subcall, expected: %d got: %ld",
+			PINK_SOCKET_SUBCALL_SOCKET, scall);
+#else
+		fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
+				SYS_socket, scall);
+#endif /* defined(SYS_socketcall) */
 
 		pink_trace_kill(pid);
 	}

@@ -77,14 +77,12 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
  *
  * \param pid Process ID of the child whose argument is to be received
  * \param bitness Bitness of the child
- * \param call The pointer to store the decoded socket call
- * \param decoded If non-NULL, store whether the socketcall(2) system call has
- * been decoded
+ * \param subcall_r The pointer to store the decoded socket call
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *call, bool *decoded);
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
 
 /**
  * Get the socket file descriptor in argument arg and place it in fd.

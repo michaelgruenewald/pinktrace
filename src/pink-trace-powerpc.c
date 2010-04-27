@@ -168,16 +168,13 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *
 }
 
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *call, bool *decoded)
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 {
-	assert(call != NULL);
+	assert(subcall_r != NULL);
 
 	/* Decode socketcall(2) */
-	if (!pink_util_get_arg(pid, bitness, 0, call))
+	if (!pink_util_get_arg(pid, bitness, 0, subcall_r))
 		return false;
-
-	if (decoded)
-		*decoded = true;
 
 	return true;
 }
