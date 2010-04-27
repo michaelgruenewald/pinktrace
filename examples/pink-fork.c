@@ -12,23 +12,13 @@ int
 main(void)
 {
 	pid_t pid;
-	pink_context_t *ctx;
+	pink_error_t error;
 
-	/* Create a tracing context. */
-	ctx = pink_context_new();
-	if (!ctx) {
-		perror("pink_context_new");
-		return EXIT_FAILURE;
-	}
-
-	/* Set tracing options */
-	pink_context_set_options(ctx, PINK_TRACE_OPTION_EXEC);
-
-	if ((pid = pink_fork(ctx)) < 0) {
+	/* Fork and start tracing. */
+	if ((pid = pink_fork(PINK_TRACE_OPTION_ALL, &error)) < 0) {
 		fprintf(stderr, "pink_fork: %s, %s\n",
-			pink_error_tostring(pink_context_get_error(ctx)),
+			pink_error_tostring(error),
 			strerror(errno));
-		pink_context_free(ctx);
 		return EXIT_FAILURE;
 	}
 	else if (!pid) /* child */
@@ -40,9 +30,6 @@ main(void)
 
 		/* Kill the child */
 		pink_trace_kill(pid);
-
-		/* Cleanup and exit */
-		pink_context_free(ctx);
 		return EXIT_SUCCESS;
 	}
 }

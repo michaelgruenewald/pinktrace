@@ -111,8 +111,8 @@ main(int argc, char **argv)
 	long scno;
 	pid_t pid;
 	pink_bitness_t bitness;
+	pink_error_t error;
 	pink_event_t event;
-	pink_context_t *ctx;
 
 	/* Parse arguments */
 	if (argc < 2) {
@@ -120,20 +120,10 @@ main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	/* Create a tracing context. */
-	ctx = pink_context_new();
-	if (!ctx) {
-		perror("pink_context_new");
-		return EXIT_FAILURE;
-	}
-
-	/* Set tracing options */
-	pink_context_set_options(ctx, PINK_TRACE_OPTION_EXEC);
-
 	/* Fork */
-	if ((pid = pink_fork(ctx)) < 0) {
+	if ((pid = pink_fork(PINK_TRACE_OPTION_EXEC, &error)) < 0) {
 		fprintf(stderr, "pink_fork: %s, %s\n",
-				pink_error_tostring(pink_context_get_error(ctx)),
+				pink_error_tostring(error),
 				strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -166,7 +156,7 @@ main(int argc, char **argv)
 			}
 
 			/* Check the event. */
-			event = pink_event_decide(ctx, status);
+			event = pink_event_decide(status, true);
 			switch (event) {
 			case PINK_EVENT_SYSCALL:
 				/* We get this event twice, one at entering a
@@ -223,8 +213,6 @@ main(int argc, char **argv)
 				break;
 		}
 
-		/* Cleanup and exit */
-		pink_context_free(ctx);
 		return exit_code;
 	}
 }
