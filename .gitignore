@@ -35,7 +35,7 @@ gprof*
 /libtool
 /ltmain.sh
 
-doc/reference
+doc/api
 doc/doxygen.conf
 doc/libpinktrace.tag
 
