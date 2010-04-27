@@ -260,9 +260,9 @@ dnl }}}
 dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
-		  pinktrace.pc
 		  Makefile
 		  include/pinktrace/about.h
+		  pkg-config/Makefile
 		  src/Makefile
 		  tests/Makefile
 		  doc/Makefile

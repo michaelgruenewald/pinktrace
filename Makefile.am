@@ -4,10 +4,7 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
 EXTRA_DIST= autogen.sh README.mkd misc/generated-file.txt
-SUBDIRS= src doc . tests
-
-pkgconfigdir=$(libdir)/pkgconfig
-pkgconfig_DATA=pinktrace.pc
+SUBDIRS= src doc pkg-config . tests
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
