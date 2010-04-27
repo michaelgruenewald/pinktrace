@@ -23,89 +23,42 @@
 
 /**
  * \file
- * Pink's socket call decoders
+ * Pink's socket address
  **/
-
-#include <stdbool.h>
-#include <sys/types.h>
 
 #include <netinet/in.h>
 #include <sys/un.h>
 
-#include <pinktrace/bitness.h>
+typedef struct {
+	/** Family of the socket address **/
+	int family;
 
-/**
- * \struct pink_sockaddr_t
- *
- * This opaque structure represents a decoded socket address.
- **/
-typedef struct pink_sockaddr pink_sockaddr_t;
+	/**
+	 * This union contains type-safe pointers to the real socket address.
+	 * Check the family before attempting to obtain the real object.
+	 **/
+	union {
+		/** Padding, for internal use only **/
+		char _pad[128];
 
-/**
- * Free the given socket address
- *
- * \param addr The socket address
- **/
-void
-pink_sockaddr_free(pink_sockaddr_t *addr);
+		/** Socket address, for internal use only **/
+		struct sockaddr _sa;
 
-/**
- * Return the family of the address.
- *
- * \param addr The socket address
- *
- * \return The address family. One of:
- *  - -1 (Which means the address family is unsupported)
- *  - AF_UNIX
- *  - AF_INET
- *  - AF_INET6 (If IPV6 support was enabled at compile time)
- **/
-int
-pink_sockaddr_get_family(const pink_sockaddr_t *addr);
+		/** Unix socket address, only valid if family is AF_UNIX. **/
+		struct sockaddr_un sa_un;
 
-/**
- * Return the UNIX socket address
- *
- * \note This address is only valid if pink_sockaddr_get_family() returned
- * AF_UNIX.
- *
- * \param addr The socket address
- *
- * \return The UNIX socket address
- **/
-const struct sockaddr_un *
-pink_sockaddr_get_unix(const pink_sockaddr_t *addr);
-
-/**
- * Return the inet socket address
- *
- * \note This address is only valid if pink_sockaddr_get_family() returned
- * AF_INET.
- *
- * \param addr The socket address
- *
- * \return The inet socket address
- **/
-const struct sockaddr_in *
-pink_sockaddr_get_inet(const pink_sockaddr_t *addr);
+		/** Inet socket address, only valid if family is AF_INET. **/
+		struct sockaddr_in sa_in;
 
 #if PINKTRACE_HAVE_IPV6 || defined(DOXYGEN)
-/**
- * Return the inet6 socket address
- *
- * \note This address is only valid if pink_sockaddr_get_family() returned
- * AF_INET6.
- *
- * \note This function is only available if pinktrace was compiled with IPV6
- * support.
- *
- * \param addr The socket address
- *
- * \return The inet6 socket address
- **/
-const struct sockaddr_in6 *
-pink_sockaddr_get_inet6(const pink_sockaddr_t *addr);
-
-#endif /* PINKTRACE_HAVE_IPV6 */
+		/**
+		 * Inet6 socket address, only valid if family is AF_INET6.
+		 * This member is only available if IPV6 support was enabled at
+		 * compile time. Check with #PINKTRACE_HAVE_IPV6.
+		 **/
+		struct sockaddr_in6 sa6;
+#endif /* PINKTRACE_HAVE_IPV6... */
+	} u;
+} pink_socket_address_t;
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */

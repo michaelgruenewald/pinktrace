@@ -627,7 +627,7 @@ START_TEST(t_decode_socket_address_null_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -685,15 +685,13 @@ START_TEST(t_decode_socket_address_null_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == -1,
-				"Wrong family, expected: -1 got: %d",
-				pink_sockaddr_get_family(res));
+		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
+				res.family);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -707,7 +705,7 @@ START_TEST(t_decode_socket_address_unknown_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -772,15 +770,13 @@ START_TEST(t_decode_socket_address_unknown_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == -1,
-				"Wrong family, expected: -1 got: %d",
-				pink_sockaddr_get_family(res));
+		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
+				res.family);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -793,7 +789,7 @@ START_TEST(t_decode_socket_address_unix_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -829,7 +825,6 @@ START_TEST(t_decode_socket_address_unix_second)
 	}
 	else { /* parent */
 		int realfd;
-		const struct sockaddr_un *unaddr;
 
 		close(pfd[1]);
 
@@ -857,23 +852,20 @@ START_TEST(t_decode_socket_address_unix_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, res.family);
+
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
 				"Wrong family, expected: %d got: %d",
-				AF_UNIX, pink_sockaddr_get_family(res));
-
-		unaddr = pink_sockaddr_get_unix(res);
-		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
-		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, unaddr->sun_family);
-		fail_unless(strncmp(unaddr->sun_path, "/dev/null", 10) == 0,
+				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
 				"Wrong path, expected: /dev/null got: `%s'",
-				unaddr->sun_path);
+				res.u.sa_un.sun_path);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -886,7 +878,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -926,7 +918,6 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 	}
 	else { /* parent */
 		int realfd;
-		const struct sockaddr_un *unaddr;
 
 		close(pfd[1]);
 
@@ -954,25 +945,23 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, res.family);
+
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
 				"Wrong family, expected: %d got: %d",
-				AF_UNIX, pink_sockaddr_get_family(res));
-
-		unaddr = pink_sockaddr_get_unix(res);
-		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
-		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, unaddr->sun_family);
-		fail_unless(unaddr->sun_path[0] == '\0', "Wrong initial char, expected: NULL got: `%c'",
-				unaddr->sun_path[0]);
-		fail_unless(strncmp(unaddr->sun_path + 1, "/dev/null", 10) == 0,
+				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_path[0] == '\0',
+				"Wrong initial char, expected: 0 got: `%c'",
+				res.u.sa_un.sun_path[0]);
+		fail_unless(strncmp(res.u.sa_un.sun_path + 1, "/dev/null", 10) == 0,
 				"Wrong path, expected: /dev/null got: `%s'",
-				unaddr->sun_path + 1);
+				res.u.sa_un.sun_path + 1);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -985,7 +974,7 @@ START_TEST(t_decode_socket_address_inet_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1023,7 +1012,6 @@ START_TEST(t_decode_socket_address_inet_second)
 	else { /* parent */
 		int realfd;
 		char ip[100] = { 0 };
-		const struct sockaddr_in *inaddr;
 
 		close(pfd[1]);
 
@@ -1051,28 +1039,24 @@ START_TEST(t_decode_socket_address_inet_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_INET,
-				"Wrong family, expected: %d got: %d",
-				AF_INET, pink_sockaddr_get_family(res));
+		fail_unless(res.family == AF_INET, "Wrong family, expected: %d got: %d",
+				AF_INET, res.family);
 
-		inaddr = pink_sockaddr_get_inet(res);
-		fail_if(inaddr == NULL, "pink_sockaddr_get_inet barfed!");
-		fail_unless(inaddr->sin_family == AF_INET,
+		fail_unless(res.u.sa_in.sin_family == AF_INET,
 				"Wrong family, expected: %d got: %d",
-				AF_INET, inaddr->sin_family);
-		if (!IN_LOOPBACK(inaddr->sin_addr.s_addr)) {
-			inet_ntop(AF_INET, &inaddr->sin_addr, ip, sizeof(ip));
+				AF_INET, res.u.sa_in.sin_family);
+		if (!IN_LOOPBACK(res.u.sa_in.sin_addr.s_addr)) {
+			inet_ntop(AF_INET, &res.u.sa_in.sin_addr, ip, sizeof(ip));
 			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
 		}
-		fail_unless(ntohs(inaddr->sin_port) == 23456,
+		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456,
 				"Wrong port, expected: 23456 got: %d",
-				ntohs(inaddr->sin_port));
+				ntohs(res.u.sa_in.sin_port));
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1086,7 +1070,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1124,7 +1108,6 @@ START_TEST(t_decode_socket_address_inet6_second)
 	else { /* parent */
 		int realfd;
 		char ip[100] = { 0 };
-		const struct sockaddr_in6 *in6addr;
 
 		close(pfd[1]);
 
@@ -1152,28 +1135,24 @@ START_TEST(t_decode_socket_address_inet6_second)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_INET6,
-				"Wrong family, expected: %d got: %d",
-				AF_INET6, pink_sockaddr_get_family(res));
+		fail_unless(res.family == AF_INET6, "Wrong family, expected: %d got: %d",
+				AF_INET6, res.family);
 
-		in6addr = pink_sockaddr_get_inet6(res);
-		fail_if(in6addr == NULL, "pink_sockaddr_get_inet6 barfed!");
-		fail_unless(in6addr->sin6_family == AF_INET6,
+		fail_unless(res.u.sa6.sin6_family == AF_INET6,
 				"Wrong family, expected: %d got: %d",
-				AF_INET6, in6addr->sin6_family);
-		if (!IN6_LOOPBACK(in6addr->sin6_addr.s6_addr)) {
-			inet_ntop(AF_INET6, &in6addr->sin6_addr, ip, sizeof(ip));
+				AF_INET6, res.u.sa6.sin6_family);
+		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
+			inet_ntop(AF_INET6, &res.u.sa6.sin6_addr, ip, sizeof(ip));
 			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
 		}
-		fail_unless(ntohs(in6addr->sin6_port) == 23456,
+		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456,
 				"Wrong port, expected: 23456 got: %d",
-				ntohs(in6addr->sin6_port));
+				ntohs(res.u.sa6.sin6_port));
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1187,7 +1166,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1245,15 +1224,13 @@ START_TEST(t_decode_socket_address_null_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == -1,
-				"Wrong family, expected: -1 got: %d",
-				pink_sockaddr_get_family(res));
+		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
+				res.family);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1267,7 +1244,7 @@ START_TEST(t_decode_socket_address_unknown_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1332,15 +1309,13 @@ START_TEST(t_decode_socket_address_unknown_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == -1,
-				"Wrong family, expected: -1 got: %d",
-				pink_sockaddr_get_family(res));
+		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
+				res.family);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1353,7 +1328,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1389,7 +1364,6 @@ START_TEST(t_decode_socket_address_unix_fifth)
 	}
 	else { /* parent */
 		int realfd;
-		const struct sockaddr_un *unaddr;
 
 		close(pfd[1]);
 
@@ -1417,23 +1391,20 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, res.family);
+
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
 				"Wrong family, expected: %d got: %d",
-				AF_UNIX, pink_sockaddr_get_family(res));
-
-		unaddr = pink_sockaddr_get_unix(res);
-		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
-		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, unaddr->sun_family);
-		fail_unless(strncmp(unaddr->sun_path, "/dev/null", 10) == 0,
+				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
 				"Wrong path, expected: /dev/null got: `%s'",
-				unaddr->sun_path);
+				res.u.sa_un.sun_path);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1446,7 +1417,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1486,7 +1457,6 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 	}
 	else { /* parent */
 		int realfd;
-		const struct sockaddr_un *unaddr;
 
 		close(pfd[1]);
 
@@ -1514,25 +1484,23 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_UNIX,
+		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
+				AF_UNIX, res.family);
+
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
 				"Wrong family, expected: %d got: %d",
-				AF_UNIX, pink_sockaddr_get_family(res));
-
-		unaddr = pink_sockaddr_get_unix(res);
-		fail_if(unaddr == NULL, "pink_sockaddr_get_unix barfed!");
-		fail_unless(unaddr->sun_family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, unaddr->sun_family);
-		fail_unless(unaddr->sun_path[0] == '\0', "Wrong initial char, expected: NULL got: `%c'",
-				unaddr->sun_path[0]);
-		fail_unless(strncmp(unaddr->sun_path + 1, "/dev/null", 10) == 0,
+				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_path[0] == '\0',
+				"Wrong initial char, expected: 0 got: `%c'",
+				res.u.sa_un.sun_path[0]);
+		fail_unless(strncmp(res.u.sa_un.sun_path + 1, "/dev/null", 10) == 0,
 				"Wrong path, expected: /dev/null got: `%s'",
-				unaddr->sun_path + 1);
+				res.u.sa_un.sun_path + 1);
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1545,7 +1513,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1583,7 +1551,6 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	else { /* parent */
 		int realfd;
 		char ip[100] = { 0 };
-		const struct sockaddr_in *inaddr;
 
 		close(pfd[1]);
 
@@ -1611,28 +1578,24 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_INET,
-				"Wrong family, expected: %d got: %d",
-				AF_INET, pink_sockaddr_get_family(res));
+		fail_unless(res.family == AF_INET, "Wrong family, expected: %d got: %d",
+				AF_INET, res.family);
 
-		inaddr = pink_sockaddr_get_inet(res);
-		fail_if(inaddr == NULL, "pink_sockaddr_get_inet barfed!");
-		fail_unless(inaddr->sin_family == AF_INET,
+		fail_unless(res.u.sa_in.sin_family == AF_INET,
 				"Wrong family, expected: %d got: %d",
-				AF_INET, inaddr->sin_family);
-		if (!IN_LOOPBACK(inaddr->sin_addr.s_addr)) {
-			inet_ntop(AF_INET, &inaddr->sin_addr, ip, sizeof(ip));
+				AF_INET, res.u.sa_in.sin_family);
+		if (!IN_LOOPBACK(res.u.sa_in.sin_addr.s_addr)) {
+			inet_ntop(AF_INET, &res.u.sa_in.sin_addr, ip, sizeof(ip));
 			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
 		}
-		fail_unless(ntohs(inaddr->sin_port) == 23456,
+		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456,
 				"Wrong port, expected: 23456 got: %d",
-				ntohs(inaddr->sin_port));
+				ntohs(res.u.sa_in.sin_port));
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }
@@ -1646,7 +1609,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	int pfd[2];
 	char strfd[16];
 	pid_t pid;
-	pink_sockaddr_t *res;
+	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %s", strerror(errno));
@@ -1684,7 +1647,6 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	else { /* parent */
 		int realfd;
 		char ip[100] = { 0 };
-		const struct sockaddr_in6 *in6addr;
 
 		close(pfd[1]);
 
@@ -1712,28 +1674,24 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		res = pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd);
-		fail_if(res == NULL, "pink_decode_socket_address: %s", strerror(errno));
+		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+				"pink_decode_socket_address: %s", strerror(errno));
 		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
 				realfd, fd);
-		fail_unless(pink_sockaddr_get_family(res) == AF_INET6,
-				"Wrong family, expected: %d got: %d",
-				AF_INET6, pink_sockaddr_get_family(res));
+		fail_unless(res.family == AF_INET6, "Wrong family, expected: %d got: %d",
+				AF_INET6, res.family);
 
-		in6addr = pink_sockaddr_get_inet6(res);
-		fail_if(in6addr == NULL, "pink_sockaddr_get_inet6 barfed!");
-		fail_unless(in6addr->sin6_family == AF_INET6,
+		fail_unless(res.u.sa6.sin6_family == AF_INET6,
 				"Wrong family, expected: %d got: %d",
-				AF_INET6, in6addr->sin6_family);
-		if (!IN6_LOOPBACK(in6addr->sin6_addr.s6_addr)) {
-			inet_ntop(AF_INET6, &in6addr->sin6_addr, ip, sizeof(ip));
+				AF_INET6, res.u.sa6.sin6_family);
+		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
+			inet_ntop(AF_INET6, &res.u.sa6.sin6_addr, ip, sizeof(ip));
 			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
 		}
-		fail_unless(ntohs(in6addr->sin6_port) == 23456,
+		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456,
 				"Wrong port, expected: 23456 got: %d",
-				ntohs(in6addr->sin6_port));
+				ntohs(res.u.sa6.sin6_port));
 
-		pink_sockaddr_free(res);
 		pink_trace_kill(pid);
 	}
 }

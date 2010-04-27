@@ -209,8 +209,9 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
 	}
 }
 
-pink_sockaddr_t *
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+bool
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg,
+	long *fd_r, pink_socket_address_t *addr_r)
 {
 	unsigned int iaddr, iaddrlen;
 	long addr, addrlen, args;
@@ -222,30 +223,30 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
 		if (!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args))
-			return NULL;
-		if (fd && !pink_util_move(pid, args, fd))
-			return NULL;
+			return false;
+		if (fd_r && !pink_util_move(pid, args, fd_r))
+			return false;
 		args += arg * sizeof(unsigned int);
 		if (!pink_util_move(pid, args, &iaddr))
-			return NULL;
+			return false;
 		args += sizeof(unsigned int);
 		if (!pink_util_move(pid, args, &iaddrlen))
-			return NULL;
+			return false;
 		addr = iaddr;
 		addrlen = iaddrlen;
 		break;
 	case PINK_BITNESS_64:
-		if (fd && !pink_util_get_arg(pid, PINK_BITNESS_64, 0, fd))
-			return NULL;
+		if (fd_r && !pink_util_get_arg(pid, PINK_BITNESS_64, 0, fd_r))
+			return false;
 		if (!pink_util_get_arg(pid, PINK_BITNESS_64, arg, &addr))
-			return NULL;
+			return false;
 		if (!pink_util_get_arg(pid, PINK_BITNESS_64, arg + 1, &addrlen))
-			return NULL;
+			return false;
 		break;
 	case PINK_BITNESS_UNKNOWN:
 	default:
 		abort();
 	}
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen);
+	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
 }

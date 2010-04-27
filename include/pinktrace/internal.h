@@ -58,20 +58,6 @@
 
 #include <pinktrace/socket.h>
 
-struct pink_sockaddr {
-	int family;
-
-	union {
-		char pad[128];
-		struct sockaddr sa;
-		struct sockaddr_un sa_un;
-		struct sockaddr_in sa_in;
-#if PINKTRACE_HAVE_IPV6
-		struct sockaddr_in6 sa6;
-#endif /* PINKTRACE_HAVE_IPV6 */
-	} u;
-};
-
 const char *
 pink_name_syscall_nobitness(long scno);
 
@@ -81,7 +67,8 @@ pink_name_syscall32(long scno);
 const char *
 pink_name_syscall64(long scno);
 
-pink_sockaddr_t *
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen);
+bool
+pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
+	pink_socket_address_t *addr_r);
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

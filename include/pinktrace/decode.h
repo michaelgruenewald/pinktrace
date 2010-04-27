@@ -145,7 +145,7 @@ bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
 
 /**
- * Return the socket address in argument arg, decode as needed.
+ * Get the socket address and place it in dest.
  *
  * \note This function decodes the socketcall(2) system call on some
  * architectures.
@@ -155,14 +155,15 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
  * \param arg The number of the argument. One of:
  *  - 1 (for connect, bind etc.)
  *  - 4 (for sendto)
- * \param fd The pointer to store the socket file descriptor that resides in
- * argument one with index zero.
+ * \param fd_r The pointer to store the socket file descriptor that resides in
+ * argument one with index zero. Set this to NULL if you don't need the file
+ * descriptor to be decoded.
+ * \param addr_r The pointer to store the decoded socket address
  *
- * \return The socket address on success, NULL on failure and sets errno
- * accordingly. The caller must free the return value using
- * pink_sockaddr_free().
+ * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_sockaddr_t *
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
+bool
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg,
+	long *fd_r, pink_socket_address_t *addr_r);
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

@@ -188,18 +188,19 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
 	return pink_util_get_arg(pid, bitness, arg, fd);
 }
 
-pink_sockaddr_t *
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg, long *fd)
+bool
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg,
+	long *fd_r, pink_socket_address_t *addr_r)
 {
 	long addr, addrlen;
 
 	/* No decoding needed */
-	if (fd && !pink_util_get_arg(pid, bitness, 0, fd))
-		return NULL;
+	if (fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r))
+		return false;
 	if (!pink_util_get_arg(pid, bitness, arg, &addr))
-		return NULL;
+		return false;
 	if (!pink_util_get_arg(pid, bitness, arg + 1, &addrlen))
-		return NULL;
+		return false;
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen);
+	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
 }

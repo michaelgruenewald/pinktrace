@@ -18,7 +18,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <pinktrace/internal.h>
@@ -28,46 +27,39 @@
  * Internal tracing/decoding functions common among architectures.
  **/
 
-pink_sockaddr_t *
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen)
+bool
+pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
+	pink_socket_address_t *addr_r)
 {
-	pink_sockaddr_t *res;
-
-	res = malloc(sizeof(pink_sockaddr_t));
-	if (!res)
-		return NULL;
-
 	if (addr == 0) {
 		/* Unknown family */
-		res->family = -1;
-		return res;
+		addr_r->family = -1;
+		return true;
 	}
-	if (addrlen < 2 || (unsigned long)addrlen > sizeof(res->u))
-		addrlen = sizeof(res->u);
+	if (addrlen < 2 || (unsigned long)addrlen > sizeof(addr_r->u))
+		addrlen = sizeof(addr_r->u);
 
-	memset(&res->u, 0, sizeof(res->u));
-	if (!pink_util_moven(pid, addr, res->u.pad, addrlen)) {
-		free(res);
-		return NULL;
-	}
-	res->u.pad[sizeof(res->u.pad) - 1] = '\0';
+	memset(&addr_r->u, 0, sizeof(addr_r->u));
+	if (!pink_util_moven(pid, addr, addr_r->u._pad, addrlen))
+		return false;
+	addr_r->u._pad[sizeof(addr_r->u._pad) - 1] = '\0';
 
-	switch (res->u.sa.sa_family) {
+	switch (addr_r->u._sa.sa_family) {
 	case AF_UNIX:
-		res->family = AF_UNIX;
+		addr_r->family = AF_UNIX;
 		break;
 	case AF_INET:
-		res->family = AF_INET;
+		addr_r->family = AF_INET;
 		break;
 #if PINKTRACE_HAVE_IPV6
 	case AF_INET6:
-		res->family = AF_INET6;
+		addr_r->family = AF_INET6;
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		res->family = -1;
+		addr_r->family = -1;
 		break;
 	}
 
-	return res;
+	return true;
 }

@@ -3,9 +3,8 @@ AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= pink-bitness.c pink-error.c \
 					     pink-event.c pink-fork.c \
-					     pink-name-wrap.c pink-socket.c \
-					     pink-trace.c pink-trace-internal.c \
-					     pink-util.c
+					     pink-name-wrap.c pink-trace.c \
+					     pink-trace-internal.c pink-util.c
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS = -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
 
 lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
