@@ -91,7 +91,7 @@ pink_util_set_return(pid_t pid, long ret)
 		flags &= ~SO_MASK;
 
 	return pink_util_poke(pid, ACCUM, ret) &&
-		pink_util_poke(pid, ACCUM_FLAGS, ret);
+		pink_util_poke(pid, ACCUM_FLAGS, flags);
 }
 
 bool
