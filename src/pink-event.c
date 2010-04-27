@@ -25,13 +25,9 @@
 #include <pinktrace/pink.h>
 
 pink_event_t
-pink_event_decide(int status, bool sysgood)
+pink_event_decide(int status)
 {
 	unsigned int event;
-
-	/* Right now only sysgood is supported. */
-	if (!sysgood)
-		return PINK_EVENT_UNKNOWN;
 
 	if (WIFSTOPPED(status)) {
 		switch (WSTOPSIG(status)) {

@@ -61,16 +61,15 @@ typedef enum {
 /**
  * Return the last event made by child.
  *
- * \bug This function doesn't work if sysgood is set to false.
+ * \note This function expectes #PINK_TRACE_OPTION_SYSGOOD has been passed to
+ * pink_trace_setup() or pink_fork().
  *
  * \param status The status argument, received from wait(2) system call.
- * \param sysgood Set this to true if you passed #PINK_TRACE_OPTION_SYSGOOD to
- * pink_trace_setup().
  *
  * \return One of PINK_EVENT_* constants
  **/
 pink_event_t
-pink_event_decide(int status, bool sysgood);
+pink_event_decide(int status);
 
 /**
  * Return a string representation of the event.

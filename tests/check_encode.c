@@ -56,7 +56,7 @@ START_TEST(t_encode_string_first_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -97,7 +97,7 @@ START_TEST(t_encode_string_first_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -138,7 +138,7 @@ START_TEST(t_encode_string_first_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -179,7 +179,7 @@ START_TEST(t_encode_string_second_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -220,7 +220,7 @@ START_TEST(t_encode_string_second_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -261,7 +261,7 @@ START_TEST(t_encode_string_second_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -302,7 +302,7 @@ START_TEST(t_encode_string_third_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -343,7 +343,7 @@ START_TEST(t_encode_string_third_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -384,7 +384,7 @@ START_TEST(t_encode_string_third_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -425,7 +425,7 @@ START_TEST(t_encode_string_fourth_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -466,7 +466,7 @@ START_TEST(t_encode_string_fourth_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -507,7 +507,7 @@ START_TEST(t_encode_string_fourth_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -620,7 +620,7 @@ START_TEST(t_encode_stat)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);

@@ -52,7 +52,7 @@ START_TEST(t_event_stop)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_STOP,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_STOP, event);
@@ -87,7 +87,7 @@ START_TEST(t_event_syscall)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -121,7 +121,7 @@ START_TEST(t_event_fork)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_FORK,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_FORK, event);
@@ -154,7 +154,7 @@ START_TEST(t_event_vfork)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_VFORK,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_VFORK, event);
@@ -196,7 +196,7 @@ START_TEST(t_event_exec)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXEC,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_EXEC, event);
@@ -226,7 +226,7 @@ START_TEST(t_event_exit)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_EXIT, event);
@@ -256,7 +256,7 @@ START_TEST(t_event_genuine)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_GENUINE,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_EXIT, event);
@@ -288,7 +288,7 @@ START_TEST(t_event_exit_genuine)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT_GENUINE,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_EXIT_GENUINE, event);
@@ -320,7 +320,7 @@ START_TEST(t_event_exit_signal)
 		fail_if(waitpid(pid, &status, 0) < 0,
 				"waitpid failed: %s",
 				strerror(errno));
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT_SIGNAL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_EXIT_SIGNAL, event);

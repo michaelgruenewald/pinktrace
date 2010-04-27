@@ -66,7 +66,7 @@ START_TEST(t_util_get_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -113,7 +113,7 @@ START_TEST(t_util_set_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -164,7 +164,7 @@ START_TEST(t_util_get_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status, true);
+			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -204,7 +204,7 @@ START_TEST(t_util_get_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status, true);
+			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -259,7 +259,7 @@ START_TEST(t_util_set_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status, true);
+			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -320,7 +320,7 @@ START_TEST(t_util_set_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status, true);
+			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL,
 					"Wrong event, expected: %d got: %d",
 					PINK_EVENT_SYSCALL, event);
@@ -362,7 +362,7 @@ START_TEST(t_util_get_arg_first)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -400,7 +400,7 @@ START_TEST(t_util_get_arg_second)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -438,7 +438,7 @@ START_TEST(t_util_get_arg_third)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -476,7 +476,7 @@ START_TEST(t_util_get_arg_fourth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -514,7 +514,7 @@ START_TEST(t_util_get_arg_fifth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);
@@ -552,7 +552,7 @@ START_TEST(t_util_get_arg_sixth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status, true);
+		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL,
 				"Wrong event, expected: %d got: %d",
 				PINK_EVENT_SYSCALL, event);

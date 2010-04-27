@@ -156,7 +156,7 @@ main(int argc, char **argv)
 			}
 
 			/* Check the event. */
-			event = pink_event_decide(status, true);
+			event = pink_event_decide(status);
 			switch (event) {
 			case PINK_EVENT_SYSCALL:
 				/* We get this event twice, one at entering a
