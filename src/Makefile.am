@@ -32,7 +32,7 @@ endif
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES=
 BUILT_SOURCES=
 
-if PERSONALITY_ONE
+if BITNESS_ONE
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-syscallent.h
 BUILT_SOURCES+= pink-syscallent.h
 CLEANFILES+= pink-syscallent.h
@@ -66,7 +66,7 @@ pink-syscallent.h:
 endif
 endif
 
-if PERSONALITY_TWO
+if BITNESS_TWO
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-syscallent32.h pink-syscallent64.h
 BUILT_SOURCES+= pink-syscallent32.h pink-syscallent64.h
 CLEANFILES+= pink-syscallent32.h pink-syscallent64.h

@@ -136,14 +136,31 @@ powerpc*)
 	;;
 esac
 AC_MSG_RESULT([$arch])
+
 AM_CONDITIONAL(I386, test x"$arch" = x"i386")
 AM_CONDITIONAL(X86_64, test x"$arch" = x"x86_64")
 AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
 AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
-AM_CONDITIONAL(PERSONALITY_ONE,
+
+AM_CONDITIONAL(BITNESS_ONE,
 			   test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
-AM_CONDITIONAL(PERSONALITY_TWO, test x"$arch" = x"x86_64")
+AM_CONDITIONAL(BITNESS_TWO, test x"$arch" = x"x86_64")
+
+dnl Export some useful information for pinktrace/about.h
+if test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64" ; then
+	PINKTRACE_SUPPORTED_BITNESS=1
+else
+	PINKTRACE_SUPPORTED_BITNESS=2
+fi
+AC_SUBST([PINKTRACE_SUPPORTED_BITNESS])
+
+if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" ; then
+	PINKTRACE_DEFAULT_BITNESS="PINK_BITNESS_32"
+else
+	PINKTRACE_DEFAULT_BITNESS="PINK_BITNESS_64"
+fi
+AC_SUBST([PINKTRACE_DEFAULT_BITNESS])
 dnl }}}
 
 dnl {{{ Check headers
