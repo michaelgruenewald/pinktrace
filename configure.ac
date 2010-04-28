@@ -80,29 +80,24 @@ case "$host_os" in
 		case "$kernel_version" in
 			2.6*)
 				AC_MSG_RESULT([$kernel_version])
-#				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
-#				if test "$kernel_minor_version" -lt 29; then
-#					AC_MSG_WARN([pinktrace works slow on kernels <2.6.29 due to a ptrace bug!])
-#					AC_MSG_WARN([See http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=53da1d9456fe7f87a920a78fdbdcf1225d197cb7 for the fix!])
-#				fi
 				;;
 			2.5*)
 				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
 				if test "$kernel_minor_version" -lt 46; then
 					AC_MSG_RESULT([NO!])
-					AC_MSG_ERROR([linux kernel version $kernel_version is not supported by pinktrace])
+					AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
 				fi
 				AC_MSG_RESULT([$kernel_version])
 				;;
 			*)
 				AC_MSG_RESULT([NO!])
-				AC_MSG_ERROR([linux kernel version $kernel_version is not supported by pinktrace])
+				AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
 				;;
 		esac
 		;;
 	*)
 		AC_MSG_RESULT([NO!])
-		AC_MSG_ERROR([operating system $host_os is not supported by pinktrace])
+		AC_MSG_ERROR([Operating system $host_os is not supported by pinktrace!])
 		;;
 esac
 dnl }}}
@@ -132,7 +127,7 @@ powerpc*)
 	;;
 *)
 	AC_MSG_RESULT([NO!])
-	AC_MSG_ERROR([architecture $host_cpu is not supported by sydbox])
+	AC_MSG_ERROR([Architecture $host_cpu is not supported by sydbox])
 	;;
 esac
 AC_MSG_RESULT([$arch])
