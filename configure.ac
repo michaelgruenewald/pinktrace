@@ -242,6 +242,89 @@ AC_SUBST([HAVE_DOXYGEN])
 AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
 dnl }}}
 
+dnl {{{ Ruby interface
+AC_ARG_VAR([RUBY], [Path to the ruby interpreter])
+AC_MSG_CHECKING([whether to build the Ruby interface])
+AC_ARG_ENABLE([ruby],
+			  AS_HELP_STRING([--enable-ruby], [Enable Ruby interface (default: disable)]),
+			  enable_ruby="$enableval",
+			  enable_ruby=no)
+AC_MSG_RESULT([$enable_ruby])
+
+if test x"$enable_ruby" = x"yes" ; then
+	AC_PATH_PROG([RUBY], ruby)
+	if test x"$RUBY" = x ; then
+		AC_MSG_ERROR([Ruby is required for --enable-ruby])
+	fi
+
+	AC_MSG_CHECKING([for Ruby archdir])
+	RUBY_ARCHDIR=`$RUBY -r rbconfig -e 'puts Config::CONFIG@<:@"archdir"@:>@'`
+	if test x"$RUBY_ARCHDIR" = x ; then
+		AC_MSG_ERROR([Could not find Ruby archdir])
+	fi
+	AC_MSG_RESULT([$RUBY_ARCHDIR])
+	AC_SUBST([RUBY_ARCHDIR])
+
+	AC_MSG_CHECKING([for Ruby sitearchdir])
+	RUBY_SITEARCHDIR=`$RUBY -r rbconfig -e 'puts Config::CONFIG@<:@"sitearchdir"@:>@'`
+	if test x"$RUBY_SITEARCHDIR" = x ; then
+		AC_MSG_ERROR([Could not find Ruby sitearchdir])
+	fi
+	AC_MSG_RESULT([$RUBY_SITEARCHDIR])
+	AC_SUBST([RUBY_SITEARCHDIR])
+
+	AC_MSG_CHECKING([for Ruby soname])
+	RUBY_SONAME=`$RUBY -r rbconfig -e 'puts Config::CONFIG@<:@"RUBY_SO_NAME"@:>@'`
+	if test x"$RUBY_SONAME" = x ; then
+		AC_MSG_ERROR([Could not find Ruby soname])
+	fi
+	AC_MSG_RESULT([$RUBY_SONAME])
+	AC_SUBST([RUBY_SONAME])
+
+	AC_ARG_WITH([ruby-install-dir],
+		AS_HELP_STRING([--with-ruby-install-dir=dir], [Specify Ruby installation dir]),
+		RUBY_INSTALL_DIR=`eval echo $withval`,
+		RUBY_INSTALL_DIR=)
+	AC_MSG_CHECKING([for Ruby installation dir])
+	if test x"$RUBY_INSTALL_DIR" = x ; then
+		RUBY_INSTALL_DIR="$RUBY_SITEARCHDIR"
+	fi
+	AC_MSG_RESULT([$RUBY_INSTALL_DIR])
+	AC_SUBST([RUBY_INSTALL_DIR])
+
+	AC_MSG_CHECKING([for Ruby hdrdir])
+	RUBY_HDRDIR=`$RUBY -r rbconfig -e 'puts Config::CONFIG@<:@"rubyhdrdir"@:>@'`
+	if test x"$RUBY_HDRDIR" = x ; then
+		AC_MSG_ERROR([Could not find Ruby hdrdir])
+	elif test x"$RUBY_HDRDIR" = x"nil" ; then
+		RUBY_HDRDIR=$RUBY_ARCHDIR
+	fi
+	AC_MSG_RESULT([$RUBY_HDRDIR])
+	AC_SUBST([RUBY_HDRDIR])
+
+	AC_MSG_CHECKING([for Ruby hdrarchdir])
+	if test x"$RUBY_ARCHDIR" = x"$RUBY_HDRDIR" ; then
+		RUBY_HDRARCHDIR=$RUBY_ARCHDIR
+	else
+		RUBY_HDRARCHDIR=`$RUBY -r rbconfig -e 'puts File.join(Config::CONFIG@<:@"rubyhdrdir"@:>@, Config::CONFIG@<:@"arch"@:>@'\)`
+		if test x"$RUBY_HDRARCHDIR" = x ; then
+			AC_MSG_ERROR([Could not find Ruby hdrarchdir])
+		fi
+	fi
+	AC_MSG_RESULT([$RUBY_HDRARCHDIR])
+	AC_SUBST([RUBY_HDRARCHDIR])
+
+	# Extra cflags for Ruby to quiet useless warnings
+	WANTED_RUBY_CFLAGS="-Wno-strict-prototypes -Wno-missing-prototypes -Wno-redundant-decls"
+	PINKTRACE_RUBY_CFLAGS=
+	for flag in $WANTED_RUBY_CFLAGS ; do
+		AX_CHECK_COMPILER_FLAGS([$flag], [PINKTRACE_RUBY_CFLAGS="$PINKTRACE_RUBY_CFLAGS $flag"],)
+	done
+	AC_SUBST([PINKTRACE_RUBY_CFLAGS])
+fi
+AM_CONDITIONAL([ENABLE_RUBY], test x"$enable_ruby" = x"yes")
+dnl }}}
+
 dnl {{{ Use AM_SILENT_RULES if available
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 dnl }}}
@@ -262,5 +345,6 @@ AC_OUTPUT(
 		  doc/Makefile
 		  doc/doxygen.conf
 		  examples/Makefile
+		  ruby/Makefile
 	)
 dnl }}}
