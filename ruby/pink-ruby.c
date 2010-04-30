@@ -18,6 +18,10 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <pinktrace/pink.h>
 #include <ruby.h>
 
@@ -547,7 +551,11 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
 		return Qnil;
 	}
 	else
+#ifdef PIDT2NUM /* ruby-1.9 */
 		return PIDT2NUM(pid);
+#else /* ruby-1.8 */
+		return LONG2NUM(pid);
+#endif /* PIDT2NUM */
 }
 
 /*
@@ -621,8 +629,17 @@ pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
 		else
 			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 	}
-	else
+	else {
+#ifdef HAVE_RB_LAST_STATUS_GET /* ruby-1.9 */
 		status = FIX2INT(rb_iv_get(rb_last_status_get(), "status"));
+#else /* ruby-1.8 */
+		VALUE ls = rb_gv_get("$?");
+		if (NIL_P(ls))
+			rb_raise(rb_eTypeError, "$? is nil");
+		else
+			status = FIX2INT(rb_iv_get(ls, "status"));
+#endif /* HAVE_RB_LAST_STATUS_GET */
+	}
 
 	event = pink_event_decide(status);
 	if (event == PINK_EVENT_UNKNOWN)

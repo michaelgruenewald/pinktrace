@@ -314,6 +314,18 @@ if test x"$enable_ruby" = x"yes" ; then
 	AC_MSG_RESULT([$RUBY_HDRARCHDIR])
 	AC_SUBST([RUBY_HDRARCHDIR])
 
+	dnl We need a way to check if rb_last_status_get() is available.
+	dnl Since it's an internal function only available to modules as of 1.9.0;
+	dnl AC_COMPILE_IFELSE or AC_LINK_IFELSE doesn't work.
+	dnl So we check if ruby is newer than 1.9 or not.
+	AC_MSG_CHECKING([whether we can use rb_last_status_get()])
+	if $RUBY -e '(VERSION rescue RUBY_VERSION) > "1.9.0" or exit 1' >/dev/null 2>/dev/null ; then
+		AC_MSG_RESULT([yes, rb_last_status_get() is available])
+		AC_DEFINE([HAVE_RB_LAST_STATUS_GET], 1, [Define for rb_last_status_get() function])
+	else
+		AC_MSG_RESULT([no])
+	fi
+
 	# Extra cflags for Ruby to quiet useless warnings
 	WANTED_RUBY_CFLAGS="-Wno-strict-prototypes -Wno-missing-prototypes -Wno-redundant-decls"
 	PINKTRACE_RUBY_CFLAGS=
@@ -333,6 +345,7 @@ AC_ARG_ENABLE([ruby-doc],
 							 [Enable Ruby documentation, requires --enable-ruby (default: disable)]),
 			  enable_ruby_doc="$enableval",
 			  enable_ruby_doc=no)
+AC_MSG_RESULT([$enable_ruby_doc])
 
 if test x"$enable_ruby_doc" = x"yes" && test x"$enable_ruby" = x"no"; then
 	AC_MSG_ERROR([--enable-ruby-doc requires --enable-ruby])
