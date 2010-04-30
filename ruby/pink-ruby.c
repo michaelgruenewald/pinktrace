@@ -41,7 +41,8 @@ static VALUE pinkrb_eUnknownEventError;
  *   - PinkTrace::Trace
  *   - PinkTrace::Event
  *   - PinkTrace::Bitness
- *   - PinkTrace::Util
+ *   - PinkTrace::SysCall
+ *   - PinkTrace::String
  *
  * == Constants
  *
@@ -87,7 +88,7 @@ static VALUE
 pinkrb_trace_me(pink_unused VALUE mod)
 {
 	if (!pink_trace_me())
-		rb_sys_fail("ptrace(PTRACE_TRACEME, ...)");
+		rb_sys_fail("pink_trace_me()");
 
 	return Qnil;
 }
@@ -122,7 +123,7 @@ pinkrb_trace_cont(int argc, VALUE *argv, pink_unused VALUE mod)
 		sig = 0;
 
 	if (!pink_trace_cont(pid, sig))
-		rb_sys_fail("ptrace(PTRACE_CONT, ...)");
+		rb_sys_fail("pink_trace_cont()");
 
 	return Qnil;
 }
@@ -144,7 +145,7 @@ pinkrb_trace_kill(pink_unused VALUE mod, VALUE pidv)
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
 	if (!pink_trace_kill(pid))
-		rb_sys_fail("ptrace(PTRACE_KILL, ...)");
+		rb_sys_fail("pink_trace_kill()");
 
 	return Qnil;
 }
@@ -180,7 +181,7 @@ pinkrb_trace_singlestep(int argc, VALUE *argv, pink_unused VALUE mod)
 		sig = 0;
 
 	if (!pink_trace_singlestep(pid, sig))
-		rb_sys_fail("ptrace(PTRACE_SINGLESTEP, ...)");
+		rb_sys_fail("pink_trace_singlestep()");
 
 	return Qnil;
 }
@@ -216,7 +217,7 @@ pinkrb_trace_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 		sig = 0;
 
 	if (!pink_trace_syscall(pid, sig))
-		rb_sys_fail("ptrace(PTRACE_SYSCALL, ...)");
+		rb_sys_fail("pink_trace_syscall()");
 
 	return Qnil;
 }
@@ -241,7 +242,7 @@ pinkrb_trace_geteventmsg(pink_unused VALUE mod, VALUE pidv)
 		rb_raise(rb_eTypeError, "Process ID is not a Fixnum");
 
 	if (!pink_trace_geteventmsg(pid, &data))
-		rb_sys_fail("ptrace(PTRACE_GETEVENTMSG, ...)");
+		rb_sys_fail("pink_trace_geteventmsg()");
 
 	return ULONG2NUM(data);
 }
@@ -276,7 +277,7 @@ pinkrb_trace_setup(int argc, VALUE *argv, pink_unused VALUE mod)
 		opts = PINK_TRACE_OPTION_SYSGOOD;
 
 	if (!pink_trace_setup(pid, opts))
-		rb_sys_fail("ptrace(PTRACE_SETOPTIONS, ...)");
+		rb_sys_fail("pink_trace_setup()");
 
 	return Qnil;
 }
@@ -299,7 +300,7 @@ pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
 		rb_raise(rb_eTypeError, "Process ID is not a Fixnum");
 
 	if (!pink_trace_attach(pid))
-		rb_sys_fail("ptrace(PTRACE_ATTACH, ...)");
+		rb_sys_fail("pink_trace_attach()");
 
 	return Qnil;
 }
@@ -328,7 +329,7 @@ pinkrb_trace_detach(pink_unused VALUE mod, VALUE pidv, VALUE sigv)
 		rb_raise(rb_eTypeError, "Signal is not a Fixnum");
 
 	if (!pink_trace_detach(pid, sig))
-		rb_sys_fail("ptrace(PTRACE_DETACH, ...)");
+		rb_sys_fail("pink_trace_detach()");
 
 	return Qnil;
 }
@@ -368,9 +369,9 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
 		case PINK_ERROR_STOP:
 			rb_sys_fail("kill(2)");
 		case PINK_ERROR_TRACE:
-			rb_sys_fail("ptrace(PTRACE_TRACEME, ...");
+			rb_sys_fail("pink_trace_me()");
 		case PINK_ERROR_TRACE_SETUP:
-			rb_sys_fail("ptrace(PTRACE_SETOPTIONS, ...");
+			rb_sys_fail("pink_trace_setup()");
 		case PINK_ERROR_UNKNOWN:
 		default:
 			rb_sys_fail("unknown");
@@ -483,18 +484,18 @@ static VALUE
 pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
 {
 	pid_t pid;
-	int bitness;
+	int bit;
 
 	if (FIXNUM_P(pidv))
 		pid = FIX2INT(pidv);
 	else
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
-	bitness = pink_bitness_get(pid);
-	if (bitness == PINK_BITNESS_UNKNOWN)
-		rb_sys_fail("ptrace(PTRACE_PEEKUSER, ...)");
+	bit = pink_bitness_get(pid);
+	if (bit == PINK_BITNESS_UNKNOWN)
+		rb_sys_fail("pink_bitness_get()");
 
-	return INT2FIX(bitness);
+	return INT2FIX(bit);
 }
 
 /*
@@ -505,7 +506,7 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
 
 /*
  * Document-method: PinkTrace::SysCall.name
- * call-seq: PinkTrace::SysCall.name(scno, bitness=PinkTrace::Bitness::DEFAULT) => String or nil
+ * call-seq: PinkTrace::SysCall.name(scno, [bitness=PinkTrace::Bitness::DEFAULT]) => String or nil
  *
  * Return the name of the given system call.
  */
@@ -555,7 +556,7 @@ pinkrb_util_get_syscall(pink_unused VALUE mod, VALUE pidv)
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
 	if (!pink_util_get_syscall(pid, &scno))
-		rb_sys_fail("ptrace(PTRACE_PEEKUSER, ...)");
+		rb_sys_fail("pink_util_get_syscall()");
 
 	return LONG2FIX(scno);
 }
@@ -583,7 +584,7 @@ pinkrb_util_set_syscall(pink_unused VALUE mod, VALUE pidv, VALUE scnov)
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
 	if (!pink_util_set_syscall(pid, scno))
-		rb_sys_fail("ptrace(PTRACE_POKEUSER, ...)");
+		rb_sys_fail("pink_util_set_syscall()");
 
 	return Qnil;
 }
@@ -606,7 +607,7 @@ pinkrb_util_get_return(pink_unused VALUE mod, VALUE pidv)
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
 	if (!pink_util_get_return(pid, &ret))
-		rb_sys_fail("ptrace(PTRACE_PEEKUSER)");
+		rb_sys_fail("pink_util_get_return()");
 
 	return LONG2FIX(ret);
 }
@@ -634,7 +635,7 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
 	if (!pink_util_set_return(pid, ret))
-		rb_sys_fail("ptrace(PTRACE_POKEUSER, ...)");
+		rb_sys_fail("pink_util_set_return()");
 
 	return Qnil;
 }
@@ -675,7 +676,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 		bit = PINKTRACE_DEFAULT_BITNESS;
 
 	if (!pink_util_get_arg(pid, bit, ind, &arg))
-		rb_sys_fail("ptrace(PTRACE_PEEKUSER, ...)");
+		rb_sys_fail("pink_util_get_arg()");
 
 	return LONG2FIX(arg);
 }
@@ -828,5 +829,4 @@ Init_PinkTrace(void)
 	/* decode.h && encode.h (only string {en,de}coding) */
 	stmod = rb_define_module_under(mod, "String");
 	rb_define_module_function(stmod, "decode", pinkrb_decode_string, -1);
-	/* TODO: rb_define_module_function(stmod, "encode", pinkrb_encode_string, -1); */
 }
