@@ -974,6 +974,129 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	return ret;
 }
 
+/*
+ * Document-method: PinkTrace::String.encode
+ * call-seq: PinkTrace::String.encode(pid, index, str, [bitness=PinkTrace::Bitness::DEFAULT]) => nil
+ *
+ * Encode a string into the argument of the given index safely.
+ */
+static VALUE
+pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	pid_t pid;
+	unsigned bit, ind;
+	size_t len;
+	char *src;
+
+	if (argc < 3 || argc > 4)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2UINT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[1])) {
+		ind = FIX2UINT(argv[1]);
+		if (ind >= PINK_MAX_INDEX)
+			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+	}
+	else
+		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+
+#if !defined(RSTRING_LEN)
+#define RSTRING_LEN(v) (RSTRING((v))->len)
+#define RSTRING_PTR(v) (RSTRING((v))->ptr)
+#endif /* !defined(RSTRING_LEN) */
+
+#if !defined(STRING_P)
+#define STRING_P(v) (TYPE((v)) == T_STRING && CLASS_OF((v)) == rb_cString)
+#endif /* !defined(STRING_P) */
+
+	if (STRING_P(argv[2])) {
+		src = RSTRING_PTR(argv[2]);
+		len = RSTRING_LEN(argv[2]);
+	}
+	else
+		rb_raise(rb_eTypeError, "Third argument is not a String");
+
+	if (argc > 3) {
+		if (FIXNUM_P(argv[3]))
+			bit = FIX2UINT(argv[3]);
+		else
+			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_DEFAULT_BITNESS;
+
+	if (!pink_encode_simple_safe(pid, bit, ind, src, ++len))
+		rb_sys_fail("pink_encode_simple_safe()");
+
+	return Qnil;
+}
+
+/*
+ * Document-method: PinkTrace::String.encode
+ * call-seq: PinkTrace::String.encode!(pid, index, str, [bitness=PinkTrace::Bitness::DEFAULT]) => nil
+ *
+ * Encode a string into the argument of the given index.
+ */
+static VALUE
+pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	pid_t pid;
+	unsigned bit, ind;
+	size_t len;
+	char *src;
+
+	if (argc < 3 || argc > 4)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2UINT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[1])) {
+		ind = FIX2UINT(argv[1]);
+		if (ind >= PINK_MAX_INDEX)
+			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+	}
+	else
+		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+
+#if !defined(RSTRING_LEN)
+#define RSTRING_LEN(v) (RSTRING((v))->len)
+#define RSTRING_PTR(v) (RSTRING((v))->ptr)
+#endif /* !defined(RSTRING_LEN) */
+
+#if !defined(STRING_P)
+#define STRING_P(v) (TYPE((v)) == T_STRING && CLASS_OF((v)) == rb_cString)
+#endif /* !defined(STRING_P) */
+
+	if (STRING_P(argv[2])) {
+		src = RSTRING_PTR(argv[2]);
+		len = RSTRING_LEN(argv[2]);
+	}
+	else
+		rb_raise(rb_eTypeError, "Third argument is not a String");
+
+	if (argc > 3) {
+		if (FIXNUM_P(argv[3]))
+			bit = FIX2UINT(argv[3]);
+		else
+			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_DEFAULT_BITNESS;
+
+	if (!pink_encode_simple(pid, bit, ind, src, ++len))
+		rb_sys_fail("pink_encode_simple()");
+
+	return Qnil;
+}
+
+
 void
 Init_PinkTrace(void)
 {
@@ -1053,4 +1176,6 @@ Init_PinkTrace(void)
 	/* decode.h && encode.h (only string {en,de}coding) */
 	stmod = rb_define_module_under(mod, "String");
 	rb_define_module_function(stmod, "decode", pinkrb_decode_string, -1);
+	rb_define_module_function(stmod, "encode", pinkrb_encode_string_safe, -1);
+	rb_define_module_function(stmod, "encode!", pinkrb_encode_string, -1);
 }

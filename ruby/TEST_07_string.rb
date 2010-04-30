@@ -21,7 +21,7 @@ class TestPinkString < Test::Unit::TestCase
       File.open '/dev/null'
     end
 
-    # Loop until we get to the kill() system call as there's no guarantee that
+    # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
     event = -1
     while event != PinkTrace::Event::EXIT_GENUINE
@@ -49,7 +49,7 @@ class TestPinkString < Test::Unit::TestCase
       File.open '/dev/null'
     end
 
-    # Loop until we get to the kill() system call as there's no guarantee that
+    # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
     event = -1
     while event != PinkTrace::Event::EXIT_GENUINE
@@ -67,6 +67,40 @@ class TestPinkString < Test::Unit::TestCase
         end
       end
     end
+
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
+
+  def test_string_encode
+    pid = PinkTrace.fork do
+      begin
+        File.open '/dev/null'
+      rescue Errno::ENOENT
+        exit 0
+      end
+      exit 1
+    end
+
+    # Loop until we get to the open() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    event = -1
+    while event != PinkTrace::Event::EXIT_GENUINE
+      PinkTrace::Trace.syscall pid
+      Process.waitpid pid
+
+      event = PinkTrace::Event.decide
+      if event == PinkTrace::Event::SYSCALL then
+        scno = PinkTrace::SysCall.get_no pid
+        name = PinkTrace::SysCall.name scno
+        if name == 'open' then
+          PinkTrace::String.encode pid, 0, '/dev/NULL'
+        end
+      end
+    end
+
+    assert $?.exited?, "Child hasn't exited!"
+    assert($?.exitstatus == 0, 'Wrong exit status, expected: 0 got: ' + $?.exitstatus.to_s)
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end

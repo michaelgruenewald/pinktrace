@@ -263,6 +263,66 @@ class TestString < Test::Unit::TestCase
       PinkTrace::String.decode 0, 1
     end
   end
+
+  def test_string_encode_invalid
+    assert_raise ArgumentError do
+      PinkTrace::String.encode
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0, 1
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0, 1, 2, 3, 4
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 'pink', 1, 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 0, 'pink', 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 0, 1, Object
+    end
+  end
+
+  def test_string_encode_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::String.encode 0, 1, 'pink'
+    end
+  end
+
+  def test_string_encode!_invalid
+    assert_raise ArgumentError do
+      PinkTrace::String.encode!
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0, 1
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0, 1, 2, 3, 4
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 'pink', 1, 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 0, 'pink', 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 0, 1, Object
+    end
+  end
+
+  def test_string_encode!_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::String.encode! 0, 1, 'pink'
+    end
+  end
 end
 
 #
