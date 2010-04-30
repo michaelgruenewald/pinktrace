@@ -21,11 +21,9 @@
 #include <pinktrace/pink.h>
 #include <ruby.h>
 
-/* Prototypes */
 void
 Init_PinkTrace(void);
 
-/* Global variables */
 static VALUE pinkrb_eUnknownEventError;
 
 /*
@@ -33,56 +31,167 @@ static VALUE pinkrb_eUnknownEventError;
  *
  * == Summary
  *
- * Ruby extension to the pinktrace library.
+ * Ruby extension to the <tt>pinktrace</tt> library.
+ *
+ * <tt>pinktrace</tt> is a lightweight library which provides a robust API for
+ * tracing processes.
  *
  * == Classes
  *
  * Following are the classes that are most likely to be of interest to the user:
- *   - PinkTrace::Trace
- *   - PinkTrace::Event
- *   - PinkTrace::Bitness
- *   - PinkTrace::SysCall
- *   - PinkTrace::String
+ *
+ * - PinkTrace::Trace
+ * - PinkTrace::Event
+ * - PinkTrace::Bitness
+ * - PinkTrace::SysCall
+ * - PinkTrace::String
  *
  * == Constants
  *
- *   PinkTrace::VERSION_MAJOR
- *     The major version (eg 0.4.1 -> 0)
- *   PinkTrace::VERSION_MINOR
- *     The minor version (eg 0.4.1 -> 4)
- *   PinkTrace::VERSION_MICRO
- *     The micro version (eg 0.4.1 -> 1)
- *   PinkTrace::VERSION
- *     The version, two digits per part (eg 1.3.5 -> 10305)
- *   PinkTrace::VERSION_SUFFIX
- *     The version suffix (eg "_alpha1"), often an empty string
- *   PinkTrace::GIT_HEAD
- *     The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
+ * - PinkTrace::VERSION_MAJOR
+ *
+ *   The major version (eg 0.4.1 -> 0)
+ *
+ * - PinkTrace::VERSION_MINOR
+ *
+ *   The minor version (eg 0.4.1 -> 4)
+ *
+ * - PinkTrace::VERSION_MICRO
+ *
+ *   The micro version (eg 0.4.1 -> 1)
+ *
+ * - PinkTrace::VERSION
+ *
+ *   The version, two digits per part (eg 1.3.5 -> 10305)
+ *
+ * - PinkTrace::VERSION_SUFFIX
+ *
+ *   The version suffix (eg "_alpha1"), often an empty string
+ *
+ * - PinkTrace::GIT_HEAD
+ *
+ *   The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
  */
 
 /*
  * Document-class: PinkTrace::Trace
  *
- * This class includes thin wrappers around <tt>ptrace()</tt> system call.
+ * This class includes thin wrappers around the <tt>ptrace()</tt> system call.
  *
  * == Constants
  *
- *   PinkTrace::Trace::SYSGOOD
- *     This constant represents the trace option SYSGOOD.
- *     If this flag is set in the options argument of PinkTrace::Trace.setup,
- *     when delivering syscall traps, bit 7 is set in signal number (i.e.,
- *     deliver (SIGTRAP | 0x80) This makes it easy for the tracer to tell the
- *     difference between normal traps and those caused by a sycall. This
- *     option may not work on all architectures.
+ * - PinkTrace::Trace::SYSGOOD
  *
- *   TODO: Document other constants
+ *   This constant represents the trace option SYSGOOD.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   when delivering syscall traps, bit 7 is set in signal number (i.e.,
+ *   deliver (SIGTRAP | 0x80) This makes it easy for the tracer to tell the
+ *   difference between normal traps and those caused by a sycall. This
+ *   option may not work on all architectures.
+ *
+ * - PinkTrace::Trace::FORK
+ *
+ *   This constant represents the trace option FORK.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at the next fork(2) call with (SIGTRAP | PTRACE_EVENT_FORK << 8)
+ *   and automatically start tracing the newly forked process, which will start with
+ *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
+ *
+ * - PinkTrace::Trace::VFORK
+ *
+ *   This constant represents the trace option VFORK.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at the next vfork(2) call with (SIGTRAP | PTRACE_EVENT_VFORK << 8)
+ *   and automatically start tracing the newly vforked process, which will start with
+ *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
+ *
+ * - PinkTrace::Trace::CLONE
+ *
+ *   This constant represnets the trace option CLONE.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at the next clone(2) call with (SIGTRAP | PTRACE_EVENT_CLONE << 8)
+ *   and automatically start tracing the newly cloned process, which will start with
+ *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
+ *
+ * - PinkTrace::Trace::EXEC
+ *
+ *   This constant represents the trace option EXEC.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at the next execve(2) call with (SIGTRAP | PTRACE_EVENT_EXEC << 8).
+ *
+ * - PinkTrace::Trace::VFORK_DONE
+ *
+ *   This constant represents the trace option VFORK_DONE.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at the completion of the next vfork(2) call with
+ *   (SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8).
+ *
+ * - PinkTrace::Trace::EXIT
+ *
+ *   This constant represents the trace option EXIT.
+ *   If this flag is set in the options argument of PinkTrace::Trace.setup,
+ *   stop the child at exit with (SIGTRAP | PTRACE_EVENT_EXIT << 8).
+ *   This child's exit status can be retrieved with PinkTrace::Trace.geteventmsg.
+ *   This stop will be done early during process exit when registers are still available,
+ *   allowing the tracer to see where the exit occured, whereas the normal exit
+ *   notification is done after the process is finished exiting. Even though
+ *   context is available, the tracer cannot prevent the exit from happening at
+ *   this point.
+ *
+ * - PinkTrace::Trace::ALL
+ *
+ *   This constant represents all option flags bitwise OR'ed together.
+ *
+ * == Exceptions
+ *
+ * - Errno::EBUSY
+ *
+ *   (i386 only) There was an error with allocating or freeing a debug register.
+ *
+ * - Errno::EFAULT
+ *
+ *   There  was  an  attempt  to read from or write to an invalid area in
+ *   the parent's or child's memory, probably because the area wasn't mapped
+ *   or accessible. Unfortunately, under Linux, different variations of
+ *   this fault will return Errno::EIO or Errno::EFAULT more or less arbitrarily.
+ *
+ * - Errno::EINVAL
+ *
+ *   An attempt was made to set an invalid option.
+ *
+ * - Errno::EIO
+ *
+ *   Request is invalid, or an attempt was made to read from or write to an
+ *   invalid area in the parent's or child's memory, or there was a word-alignment
+ *   violation, or an invalid signal was specified during a restart request.
+ *
+ * - Errno::EPERM
+ *
+ *   The  specified  process  cannot be traced.  This could be because the
+ *   parent has insufficient privileges (the required capability is CAP_SYS_PTRACE);
+ *   unprivileged processes  cannot  trace processes that  they  cannot  send
+ *   signals to or those running set-user-ID/set-group-ID programs,
+ *   for obvious reasons. Alternatively, the process may already be being traced,
+ *   or be init(8) (PID 1).
+ *
+ * - Errno::ESRCH
+ *
+ *   The specified process does not exist, or is not currently being traced
+ *   by the caller, or is not stopped (for requests that require that).
  */
 
 /*
  * Document-method: PinkTrace::Trace.me
- * call-seq: PinkTrace::Trace.me
+ * call-seq: PinkTrace::Trace.me() => nil
  *
- * Indicates that this process is to be traced by its parent.
+ * Indicates that this process is to be traced by its parent. Any signal
+ * (except SIGKILL) delivered to this process will cause it to stop and its
+ * parent to be notified via Process.wait. Also, all subsequent calls to
+ * execve(2) by this process will cause a SIGTRAP to be sent to it, giving the
+ * parent a chance to gain control before the new program begins execution.
+ *
+ * Note: This function is used only by the child process; the rest are used
+ * only by the parent.
  */
 static VALUE
 pinkrb_trace_me(pink_unused VALUE mod)
@@ -95,9 +204,14 @@ pinkrb_trace_me(pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::Trace.cont
- * call-seq: PinkTrace::Trace.cont(pid, sig=0) => nil
+ * call-seq: PinkTrace::Trace.cont(pid, [sig=0]) => nil
  *
  * Restarts the stopped child process.
+ *
+ * If +sig+ argument is non-zero and not SIGSTOP, it is interpreted as the
+ * signal to be delivered to the child; otherwise, no signal is delivered.
+ * Thus, for example, the parent can control whether a signal sent to the child
+ * is delivered or not.
  */
 static VALUE
 pinkrb_trace_cont(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -152,10 +266,13 @@ pinkrb_trace_kill(pink_unused VALUE mod, VALUE pidv)
 
 /*
  * Document-method: PinkTrace::Trace.singlestep
- * call-seq: PinkTrace::Trace.singlestep(pid, sig=0) => nil
+ * call-seq: PinkTrace::Trace.singlestep(pid, [sig=0]) => nil
  *
  * Restarts the stopped child process and arranges it to be stopped after
  * execution of a single instruction.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
  */
 static VALUE
 pinkrb_trace_singlestep(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -188,10 +305,13 @@ pinkrb_trace_singlestep(int argc, VALUE *argv, pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::Trace.syscall
- * call-seq: PinkTrace::Trace.syscall(pid, sig=0) => nil
+ * call-seq: PinkTrace::Trace.syscall(pid, [sig=0]) => nil
  *
  * Restarts the stopped child process and arranges it to be stopped after
  * the entry or exit of the next system call.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
  */
 static VALUE
 pinkrb_trace_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -226,9 +346,10 @@ pinkrb_trace_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
  * Document-method: PinkTrace::Trace.geteventmsg
  * call-seq: PinkTrace::Trace.geteventmsg(pid) => fixnum
  *
- * Returns a message (as a Fixnum) about the trace event that just
- * happened, For EXIT event this is the child's exit status. For FORK, VFORK,
- * CLONE and VFORK_DONE events this is the process ID of the new process.
+ * Returns a message (as a <tt>fixnum</tt>) about the trace event that just
+ * happened, For *EXIT* event this is the child's exit status. For *FORK*,
+ * *VFORK*, *CLONE* and *VFORK_DONE* events this is the process ID of the new
+ * process.
  */
 static VALUE
 pinkrb_trace_geteventmsg(pink_unused VALUE mod, VALUE pidv)
@@ -249,9 +370,9 @@ pinkrb_trace_geteventmsg(pink_unused VALUE mod, VALUE pidv)
 
 /*
  * Document-method: PinkTrace::Trace.setup
- * call-seq: PinkTrace::Trace.setup(pid, options=PinkTrace::Trace::SYSGOOD) => nil
+ * call-seq: PinkTrace::Trace.setup(pid, [options=PinkTrace::Trace::SYSGOOD]) => nil
  *
- * Sets the tracing options
+ * Sets the tracing options.
  */
 static VALUE
 pinkrb_trace_setup(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -287,7 +408,10 @@ pinkrb_trace_setup(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::Trace.attach(pid) => nil
  *
  * Attaches to the process specified in pid, making it a traced "child" of the
- * calling process.
+ * calling process; the behaviour of the child is as if it had done a
+ * PinkTrace::Trace.me. The child is sent a SIGSTOP, but will not necessarily have
+ * stopped by the completion of this call; use Process.waitpid to wait for the
+ * child to stop.
  */
 static VALUE
 pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
@@ -307,10 +431,13 @@ pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
 
 /*
  * Document-method: PinkTrace::Trace.detach
- * call-seq: PinkTrace::Trace.detach(pid, sig=0) => nil
+ * call-seq: PinkTrace::Trace.detach(pid, [sig=0]) => nil
  *
  * Restarts the stopped child as for PinkTrace::Trace.cont, but first detaches
  * from the process, undoing the reparenting effect of PinkTrace::Trace.attach.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
  */
 static VALUE
 pinkrb_trace_detach(pink_unused VALUE mod, VALUE pidv, VALUE sigv)
@@ -336,9 +463,18 @@ pinkrb_trace_detach(pink_unused VALUE mod, VALUE pidv, VALUE sigv)
 
 /*
  * Document-method: PinkTrace.fork
- * call-seq: PinkTrace.fork(opts=PinkTrace::Trace::SYSGOOD) [{ block }] => fixnum or nil
+ * call-seq: PinkTrace.fork([opts=PinkTrace::Trace::SYSGOOD]) [{ block }] => fixnum or nil
  *
  * fork(2) wrapper that sets up the child for tracing.
+ *
+ * Creates a subprocess. If a block is specified, that block is run in the
+ * subprocess, and the subprocess terminates with a status of zero. Otherwise
+ * the +fork+ call returns twice, once in the parent, returning the process ID
+ * of the child, and once in the child, returning _nil_. The child stops itself
+ * with a SIGSTOP and needs to be resumed with either Ptrace::Trace.cont or
+ * Ptrace::Trace.singlestep or Ptrace::Trace.syscall.
+ *
+ * On failure, the child is either never created or killed.
  */
 static VALUE
 pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -396,41 +532,62 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * == Constants
  *
- *   PinkTrace::Event::STOP
- *     The traced child has received a SIGSTOP.
- *   PinkTrace::Event::SYSCALL
- *     The traced child is entering or exiting a system call.
- *   PinkTrace::Event::FORK
- *     The traced child called fork(2).
- *   PinkTrace::Event::VFORK
- *     The traced child called vfork(2).
- *   PinkTrace::Event::CLONE
- *     The traced child called clone(2).
- *   PinkTrace::Event::VFORK_DONE
- *     The traced child is exiting a vfork(2) call.
- *   PinkTrace::Event::EXEC
- *     The traced child is exiting. (ptrace way, stopped before exit)
- *   PinkTrace::Event::GENUINE
- *     The traced child has received a genuine signal.
- *   PinkTrace::Event::EXIT_GENUINE
- *     The traced child has exited normally.
- *   PinkTrace::Event::EXIT_SIGNAL
- *     The traced child has been terminated with a signal.
+ * - PinkTrace::Event::STOP
+ *
+ *   The traced child has received a SIGSTOP.
+ *
+ * - PinkTrace::Event::SYSCALL
+ *
+ *   The traced child is entering or exiting a system call.
+ *
+ * - PinkTrace::Event::FORK
+ *
+ *   The traced child called fork(2).
+ *
+ * - PinkTrace::Event::VFORK
+ *
+ *   The traced child called vfork(2).
+ *
+ * - PinkTrace::Event::CLONE
+ *
+ *   The traced child called clone(2).
+ *
+ * - PinkTrace::Event::VFORK_DONE
+ *
+ *   The traced child is exiting a vfork(2) call.
+ *
+ * - PinkTrace::Event::EXEC
+ *
+ *   The traced child is exiting. (ptrace way, stopped before exit)
+ *
+ * - PinkTrace::Event::GENUINE
+ *
+ *   The traced child has received a genuine signal.
+ *
+ * - PinkTrace::Event::EXIT_GENUINE
+ *
+ *   The traced child has exited normally.
+ *
+ * - PinkTrace::Event::EXIT_SIGNAL
+ *
+ *   The traced child has been terminated with a signal.
  *
  * == Exceptions
- *   PinkTrace::Event::UnknownEventError
- *     Raised by PinkTrace::Event.decide in case the event is unknown
+ *
+ * - PinkTrace::Event::UnknownEventError
+ *
+ *   Raised by PinkTrace::Event.decide in case the event is unknown
  */
 
 /*
  * Document-class: PinkTrace::Event::UnknownEventError
  *
- * Raised by PinkTrace::Event.decide in case the event is unknown
+ * Raised by PinkTrace::Event.decide in case the event is unknown.
  */
 
 /*
  * Document-method: PinkTrace::Event.decide
- * call-seq: PinkTrace::Event.decide(status=$?.status) => fixnum
+ * call-seq: PinkTrace::Event.decide([status=$?.status]) => fixnum
  *
  * Returns the last event made by child.
  */
@@ -464,14 +621,22 @@ pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
  * This class defines constants and functions about bitness.
  *
  * == Constants
- *   PinkTrace::Bitness::SUPPORTED
- *     Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
- *   PinkTrace::Bitness::DEFAULT
- *     The default bitness
- *   PinkTrace::Bitness::BITNESS_32
- *     32 bit mode
- *   PinkTrace::Bitness::BITNESS_64
- *     64 bit mode
+ *
+ * - PinkTrace::Bitness::SUPPORTED
+ *
+ *   Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
+ *
+ * - PinkTrace::Bitness::DEFAULT
+ *
+ *   The default bitness
+ *
+ * - PinkTrace::Bitness::BITNESS_32
+ *
+ *   32 bit mode
+ *
+ * - PinkTrace::Bitness::BITNESS_64
+ *
+ *   64 bit mode
  */
 
 /*
@@ -509,6 +674,16 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
  * call-seq: PinkTrace::SysCall.name(scno, [bitness=PinkTrace::Bitness::DEFAULT]) => String or nil
  *
  * Return the name of the given system call.
+ *
+ * Note: This call depends on the generated system call names.
+ *
+ * You can check whether they are generated with:
+ *
+ *   unless PinkTrace::SysCall.name 0
+ *     # Names weren't generated
+ *   else
+ *     # Names were generated
+ *   end
  */
 static VALUE
 pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
