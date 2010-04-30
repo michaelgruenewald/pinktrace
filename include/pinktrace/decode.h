@@ -37,26 +37,26 @@
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
+ * \param ind The index of the argument (0-5)
  * \param dest Pointer to store the data
  * \param len Length of the data
  **/
 bool
-pink_decode_simple(pid_t pid, pink_bitness_t bitness, int arg, void *dest, size_t len);
+pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
 
 /**
  * Get the string argument and place it in dest.
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
+ * \param ind The index of the argument (0-5)
  * \param dest Pointer to store the string
  * \param len Length of the string
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_t len);
+pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
 
 /**
  * Like pink_decode_string() but allocates the string itself.
@@ -65,7 +65,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, int arg, char *dest, size_
  * accordingly.
  **/
 char *
-pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, int arg);
+pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
 /**
  * Decode the socket call and place it in call.
@@ -92,13 +92,13 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (Only 0 makes sense)
+ * \param ind The index of the argument (Only 0 makes sense)
  * \param fd The pointer to store the socket file descriptor
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
+pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
 
 /**
  * Get the socket address and place it in dest.
@@ -108,7 +108,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument. One of:
+ * \param ind The index of the argument. One of:
  *  - 1 (for connect, bind etc.)
  *  - 4 (for sendto)
  * \param fd_r The pointer to store the socket file descriptor that resides in
@@ -119,7 +119,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, int arg, long *fd);
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, int arg,
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 	long *fd_r, pink_socket_address_t *addr_r);
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

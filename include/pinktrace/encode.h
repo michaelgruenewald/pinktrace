@@ -36,27 +36,27 @@
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
+ * \param ind The index of the argument (0-5)
  * \param src The data to be encoded
  * \param len Length of the data
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_simple(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len);
+pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 
 /**
  * Write the given data argument src to the address of the argument arg safely.
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
+ * \param ind The index of the argument (0-5)
  * \param src The data to be encoded
  * \param len Length of the data
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, int arg, const void *src, size_t len);
+pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */

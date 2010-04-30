@@ -238,12 +238,12 @@ pink_util_set_return(pid_t pid, long ret);
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param arg The number of the argument (0-5)
+ * \param ind The index of the argument (0-5)
  * \param res Pointer to store the argument
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_util_get_arg(pid_t pid, pink_bitness_t bitness, int arg, long *res);
+pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */
