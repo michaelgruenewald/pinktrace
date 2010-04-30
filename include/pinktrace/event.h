@@ -61,7 +61,7 @@ typedef enum {
 /**
  * Return the last event made by child.
  *
- * \note This function expectes #PINK_TRACE_OPTION_SYSGOOD has been passed to
+ * \note This function expects #PINK_TRACE_OPTION_SYSGOOD has been passed to
  * pink_trace_setup() or pink_fork().
  *
  * \param status The status argument, received from wait(2) system call.

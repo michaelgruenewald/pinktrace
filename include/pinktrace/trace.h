@@ -110,7 +110,7 @@
  * by this process will cause a SIGTRAP to be sent to it, giving the parent a
  * chance to gain control before the new program begins execution.
  *
- * Note: This function is used only by the child process; the rest are used
+ * \note This function is used only by the child process; the rest are used
  * only by the parent.
  *
  * \return true on success, false on failure and sets errno accordingly.
@@ -170,7 +170,7 @@ pink_trace_syscall(pid_t pid, int sig);
  * Retrieve a message (as an unsigned long) about the trace event that just
  * happened, placing it in the location given by the second argument. For
  * EXIT event this is the child's exit status. For FORK, VFORK, CLONE and
- * VFORKDONE events this is the process ID of the new process.
+ * VFORK_DONE events this is the process ID of the new process.
  *
  * \param pid Process ID of the child whose event is to be reported.
  * \param data Pointer to an unsigned long into which the message will be

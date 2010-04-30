@@ -43,10 +43,9 @@
  * error condition.
  *
  * \return On success, the process ID of the child process is returned in the
- * parent, and 0 is returned in the child and the eldest child property of the
- * context is updated. The child stops itself with a SIGSTOP and needs to be
- * resumed. On failure, -1 is returned, the child is either never created or
- * killed and errno is set accordingly.
+ * parent, and 0 is returned in the child. The child stops itself with a
+ * SIGSTOP and needs to be resumed. On failure, -1 is returned, the child is
+ * either never created or killed and errno is set accordingly.
  **/
 pid_t
 pink_fork(int options, pink_error_t *error_r);
