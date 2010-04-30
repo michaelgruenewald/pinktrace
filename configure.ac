@@ -243,7 +243,7 @@ AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
 dnl }}}
 
 dnl {{{ Ruby interface
-AC_ARG_VAR([RUBY], [Path to the ruby interpreter])
+AC_ARG_VAR([RUBY], [Path to the Ruby interpreter])
 AC_MSG_CHECKING([whether to build the Ruby interface])
 AC_ARG_ENABLE([ruby],
 			  AS_HELP_STRING([--enable-ruby], [Enable Ruby interface (default: disable)]),
@@ -325,6 +325,28 @@ fi
 AM_CONDITIONAL([ENABLE_RUBY], test x"$enable_ruby" = x"yes")
 dnl }}}
 
+dnl {{{ Ruby documentation
+AC_MSG_CHECKING([whether to build the Ruby documentation])
+AC_ARG_VAR([RDOC], [Path to rdoc documentation tool])
+AC_ARG_ENABLE([ruby-doc],
+			  AS_HELP_STRING([--enable-ruby-doc],
+							 [Enable Ruby documentation, requires --enable-ruby (default: disable)]),
+			  enable_ruby_doc="$enableval",
+			  enable_ruby_doc=no)
+
+if test x"$enable_ruby_doc" = x"yes" && test x"$enable_ruby" = x"no"; then
+	AC_MSG_ERROR([--enable-ruby-doc requires --enable-ruby])
+fi
+
+if test x"$enable_ruby_doc" = x"yes" ; then
+	AC_PATH_PROG([RDOC], rdoc)
+	if test x"$RDOC" = x ; then
+		AC_MSG_ERROR([rdoc is required for --enable-ruby-doc])
+	fi
+fi
+AM_CONDITIONAL([ENABLE_RUBY_DOC], test x"$enable_ruby_doc" = x"yes")
+dnl }}}
+
 dnl {{{ Use AM_SILENT_RULES if available
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 dnl }}}
@@ -343,7 +365,10 @@ AC_OUTPUT(
 		  src/Makefile
 		  tests/Makefile
 		  doc/Makefile
-		  doc/doxygen.conf
+		  doc/api/Makefile
+		  doc/api/c/Makefile
+		  doc/api/c/doxygen.conf
+		  doc/api/ruby/Makefile
 		  examples/Makefile
 		  ruby/Makefile
 	)

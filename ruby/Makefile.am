@@ -17,10 +17,6 @@ TESTS= TEST_01_trace_invalid.rb TEST_02_trace.rb \
        TEST_05_bitness.rb TEST_06_syscall.rb \
        TEST_07_string.rb
 
-rdoc: $(IF_RUBY_SOURCES)
-	rdoc $(IF_RUBY_SOURCES)
-.PHONY: rdoc
-
 # Remove the .la file - PinkTrace.la is never linked against (it's a module)
 # and Ruby doesn't use libltdl. Note that the library gets installed by
 # install-data, so that's where we need to hook.

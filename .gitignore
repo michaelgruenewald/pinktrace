@@ -34,9 +34,10 @@ gprof*
 /libtool
 /ltmain.sh
 
-doc/api
-doc/doxygen.conf
-doc/libpinktrace.tag
+doc/api/c/c
+doc/api/c/doxygen.conf
+doc/api/c/libpinktrace.tag
+doc/api/ruby/ruby
 
 examples/pink-about
 examples/pink-fork
