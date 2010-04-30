@@ -30,6 +30,20 @@
 #include <sys/types.h>
 
 /**
+ * The index arguments should be smaller than this define.
+ *
+ * \see pink_util_get_arg
+ * \see pink_decode_simple
+ * \see pink_decode_string
+ * \see pink_decode_string_persistent
+ * \see pink_decode_socket_fd
+ * \see pink_decode_socket_address
+ * \see pink_encode_simple
+ * \see pink_encode_simple_safe
+ **/
+#define PINK_MAX_INDEX 6
+
+/**
  * Reads a word at the given offset in the child's USER area,
  * and places it in res.
  *
@@ -238,7 +252,7 @@ pink_util_set_return(pid_t pid, long ret);
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param ind The index of the argument (0-5)
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
  * \param res Pointer to store the argument
  *
  * \return true on success, false on failure and sets errno accordingly.

@@ -37,7 +37,7 @@
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param ind The index of the argument (0-5)
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
  * \param dest Pointer to store the data
  * \param len Length of the data
  **/
@@ -49,7 +49,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
- * \param ind The index of the argument (0-5)
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
  * \param dest Pointer to store the string
  * \param len Length of the string
  *

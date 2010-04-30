@@ -53,7 +53,6 @@
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
 
-#define MAX_ARGS	6
 #define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 
 #include <pinktrace/socket.h>

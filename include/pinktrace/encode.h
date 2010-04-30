@@ -36,7 +36,7 @@
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
- * \param ind The index of the argument (0-5)
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
  * \param src The data to be encoded
  * \param len Length of the data
  *
@@ -50,7 +50,7 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
- * \param ind The index of the argument (0-5)
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
  * \param src The data to be encoded
  * \param len Length of the data
  *
