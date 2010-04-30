@@ -12,7 +12,7 @@ PinkTrace_la_SOURCES= $(IF_RUBY_SOURCES)
 PinkTrace_la_LDFLAGS= -module -avoid-version -shared
 PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-TESTS= TEST_01_trace_invalid.rb TEST_02_trace.rb \
+TESTS= TEST_01_invalid.rb TEST_02_trace.rb \
        TEST_03_fork.rb TEST_04_event.rb \
        TEST_05_bitness.rb TEST_06_syscall.rb \
        TEST_07_string.rb

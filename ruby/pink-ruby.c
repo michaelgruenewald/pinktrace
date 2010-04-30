@@ -24,7 +24,8 @@
 void
 Init_PinkTrace(void);
 
-static VALUE pinkrb_eUnknownEventError;
+static VALUE pinkrb_eEventError;
+static VALUE pinkrb_eIndexError;
 
 /*
  * Document-class: PinkTrace
@@ -71,6 +72,23 @@ static VALUE pinkrb_eUnknownEventError;
  * - PinkTrace::GIT_HEAD
  *
  *   The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
+ *
+ * == Exceptions
+ *
+ * - PinkTrace::EventError
+ * - PinkTrace::IndexError
+ */
+
+/*
+ * Document-class: PinkTrace::EventError
+ *
+ * Raised when PinkTrace::Event.decide can't decide an event.
+ */
+
+/*
+ * Document-class: PinkTrace::IndexError
+ *
+ * Raised when an index argument is not smaller than PinkTrace::MAX_INDEX.
  */
 
 /*
@@ -440,20 +458,27 @@ pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_detach(pink_unused VALUE mod, VALUE pidv, VALUE sigv)
+pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
 {
 	pid_t pid;
 	long sig;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "Process ID is not a Fixnum");
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
 
-	if (FIXNUM_P(sigv))
-		sig = FIX2LONG(sigv);
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
 	else
-		rb_raise(rb_eTypeError, "Signal is not a Fixnum");
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc == 2) {
+		if (FIXNUM_P(argv[1]))
+			sig = FIX2LONG(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		sig = 0;
 
 	if (!pink_trace_detach(pid, sig))
 		rb_sys_fail("pink_trace_detach()");
@@ -572,17 +597,6 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  *   The traced child has been terminated with a signal.
  *
- * == Exceptions
- *
- * - PinkTrace::Event::UnknownEventError
- *
- *   Raised by PinkTrace::Event.decide in case the event is unknown
- */
-
-/*
- * Document-class: PinkTrace::Event::UnknownEventError
- *
- * Raised by PinkTrace::Event.decide in case the event is unknown.
  */
 
 /*
@@ -590,6 +604,8 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::Event.decide([status=$?.status]) => fixnum
  *
  * Returns the last event made by child.
+ *
+ * Note: This function raises PinkTrace::EventError if the event is unknown.
  */
 static VALUE
 pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -610,7 +626,7 @@ pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	event = pink_event_decide(status);
 	if (event == PINK_EVENT_UNKNOWN)
-		rb_raise(pinkrb_eUnknownEventError, "Unknown event (status: %#x)", status);
+		rb_raise(pinkrb_eEventError, "Unknown event (status: %#x)", status);
 
 	return UINT2NUM(event);
 }
@@ -820,6 +836,9 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
  * call-seq: PinkTrace::SysCall.get_arg(pid, index, [bitness=PinkTrace::Bitness::Default]) => fixnum
  *
  * Returns the system call argument at the given index for the traced child.
+ *
+ * Note: PinKTrace::EventError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
  */
 static VALUE
 pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -836,8 +855,11 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 	else
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
-	if (FIXNUM_P(argv[1]))
+	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
+		if (ind >= PINK_MAX_INDEX)
+			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
@@ -867,6 +889,9 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::String.decode(pid, index, [[max=0], [bitness=PinkTrace::Bitness::DEFAULT]]) => String
  *
  * This function decodes the string at the argument of the given index.
+ *
+ * Note: PinKTrace::EventError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
  */
 static VALUE
 pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -884,8 +909,11 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	else
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
-	if (FIXNUM_P(argv[1]))
+	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
+		if (ind >= PINK_MAX_INDEX)
+			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
@@ -936,7 +964,10 @@ Init_PinkTrace(void)
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
+	pinkrb_eEventError = rb_define_class_under(mod, "EventError", rb_eStandardError);
+	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
 
+	/* Global Constants */
 	/* about.h */
 	rb_define_const(mod, "VERSION", INT2FIX(PINKTRACE_VERSION));
 	rb_define_const(mod, "VERSION_MAJOR", INT2FIX(PINKTRACE_VERSION_MAJOR));
@@ -944,6 +975,8 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "VERSION_MICRO", INT2FIX(PINKTRACE_VERSION_MICRO));
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
+	/* util.h */
+	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
 	/* trace.h */
 	tmod = rb_define_module_under(mod, "Trace");
@@ -962,15 +995,14 @@ Init_PinkTrace(void)
 	rb_define_module_function(tmod, "syscall", pinkrb_trace_syscall, -1);
 	rb_define_module_function(tmod, "geteventmsg", pinkrb_trace_geteventmsg, 1);
 	rb_define_module_function(tmod, "setup", pinkrb_trace_setup, -1);
-	rb_define_module_function(tmod, "attach", pinkrb_trace_attach, 2);
-	rb_define_module_function(tmod, "detach", pinkrb_trace_detach, 2);
+	rb_define_module_function(tmod, "attach", pinkrb_trace_attach, 1);
+	rb_define_module_function(tmod, "detach", pinkrb_trace_detach, -1);
 
 	/* fork.h */
 	rb_define_module_function(mod, "fork", pinkrb_fork, -1);
 
 	/* event.h */
 	emod = rb_define_module_under(mod, "Event");
-	pinkrb_eUnknownEventError = rb_define_class_under(emod, "UnknownEventError", rb_eStandardError);
 	rb_define_const(emod, "STOP", INT2FIX(PINK_EVENT_STOP));
 	rb_define_const(emod, "SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
 	rb_define_const(emod, "FORK", INT2FIX(PINK_EVENT_FORK));
