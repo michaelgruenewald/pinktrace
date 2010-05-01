@@ -33,6 +33,7 @@
 void
 Init_PinkTrace(void);
 
+static VALUE pinkrb_eAddressError;
 static VALUE pinkrb_eBitnessError;
 static VALUE pinkrb_eEventError;
 static VALUE pinkrb_eIndexError;
@@ -98,9 +99,22 @@ static VALUE pinkrb_cINET6Address;
  *
  * == Exceptions
  *
+ * - PinkTrace::AddressError
  * - PinkTrace::BitnessError
  * - PinkTrace::EventError
  * - PinkTrace::IndexError
+ */
+
+/*
+ * Document-class: PinkTrace::AddressError
+ *
+ * Raised when address family of a system call is unsupported.
+ *
+ * Currently three families are supported:
+ *
+ * - AF_UNIX
+ * - AF_INET
+ * - AF_INET6
  */
 
 /*
@@ -1443,7 +1457,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		rb_bug("Unsupported address family: %d", addr->family);
+		rb_raise(pinkrb_eAddressError, "Unsupported address family");
 	}
 
 	addrObj = Data_Make_Struct(addrKlass, pink_socket_address_t, NULL, free, caddr);
@@ -1533,7 +1547,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		rb_bug("Unsupported address family: %d", addr->family);
+		rb_raise(pinkrb_eAddressError, "Unsupported address family");
 	}
 
 	addrObj = Data_Make_Struct(addrKlass, pink_socket_address_t, NULL, free, caddr);
@@ -1686,6 +1700,7 @@ Init_PinkTrace(void)
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
+	pinkrb_eAddressError = rb_define_class_under(mod, "AddressError", rb_eStandardError);
 	pinkrb_eBitnessError = rb_define_class_under(mod, "BitnessError", rb_eStandardError);
 	pinkrb_eEventError = rb_define_class_under(mod, "EventError", rb_eStandardError);
 	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
