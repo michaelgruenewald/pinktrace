@@ -16,13 +16,13 @@ class TestPinkTrace < Test::Unit::TestCase
     end
   end
 
-  def test_trace_me_twice
-    assert_raise Errno::EPERM do
-      PinkTrace::Trace.me
-      # The second call should fail with EPERM.
-      PinkTrace::Trace.me
-    end
-  end
+  #def test_trace_me_twice
+  #  assert_raise Errno::EPERM do
+  #    PinkTrace::Trace.me
+  #    # The second call should fail with EPERM.
+  #    PinkTrace::Trace.me
+  #  end
+  #end
 
   def test_trace_me
     pid = fork do

@@ -1009,16 +1009,9 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
 #define RSTRING_PTR(v) (RSTRING((v))->ptr)
 #endif /* !defined(RSTRING_LEN) */
 
-#if !defined(STRING_P)
-#define STRING_P(v) (TYPE((v)) == T_STRING && CLASS_OF((v)) == rb_cString)
-#endif /* !defined(STRING_P) */
-
-	if (STRING_P(argv[2])) {
-		src = RSTRING_PTR(argv[2]);
-		len = RSTRING_LEN(argv[2]);
-	}
-	else
-		rb_raise(rb_eTypeError, "Third argument is not a String");
+	SafeStringValue(argv[2]);
+	src = RSTRING_PTR(argv[2]);
+	len = RSTRING_LEN(argv[2]);
 
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3]))
@@ -1070,16 +1063,9 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 #define RSTRING_PTR(v) (RSTRING((v))->ptr)
 #endif /* !defined(RSTRING_LEN) */
 
-#if !defined(STRING_P)
-#define STRING_P(v) (TYPE((v)) == T_STRING && CLASS_OF((v)) == rb_cString)
-#endif /* !defined(STRING_P) */
-
-	if (STRING_P(argv[2])) {
-		src = RSTRING_PTR(argv[2]);
-		len = RSTRING_LEN(argv[2]);
-	}
-	else
-		rb_raise(rb_eTypeError, "Third argument is not a String");
+	SafeStringValue(argv[2]);
+	src = RSTRING_PTR(argv[2]);
+	len = RSTRING_LEN(argv[2]);
 
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3]))
