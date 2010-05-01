@@ -1,12 +1,11 @@
-IF_PYTHON_SOURCES= pinktrace.pyx
-EXTRA_DIST= $(IF_PYTHON_SOURCES)
+EXTRA_DIST= pinktrace.pyx
 
 if ENABLE_PYTHON
 AM_CFLAGS= -I. -I@PYTHON_INCLUDE_DIR@ -I$(top_srcdir)/include \
 	   @PINKTRACE_CFLAGS@
 
 BUILT_SOURCES= pinktrace.c
-pinktrace.c: $(IF_PYTHON_SOURCES)
+pinktrace.c: pinktrace.pyx
 	$(AM_V_GEN)
 	$(AM_V_at)$(CYTHON) -o $@ $<
 

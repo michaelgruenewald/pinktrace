@@ -1,7 +1,10 @@
-SUBDIRS= c ruby .
+SUBDIRS= c python ruby .
 
 doxygen:
 	$(MAKE) -C c $@
+
+epydoc:
+	$(MAKE) -C python $@
 
 rdoc:
 	$(MAKE) -C ruby $@
@@ -9,5 +12,6 @@ rdoc:
 upload-doc:
 	$(MAKE) -C c $@
 	$(MAKE) -C ruby $@
+	$(MAKE) -C python $@
 
-.PHONY: doxygen rdoc upload-doc
+.PHONY: doxygen epydoc rdoc upload-doc

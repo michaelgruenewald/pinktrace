@@ -389,7 +389,7 @@ if test x"$enable_python" = x"yes" ; then
 
 	AC_PATH_PROG([CYTHON], cython)
 	if test x"$CYTHON" = x ; then
-		AC_MSG_ERROR([Cython is required to build Python interface])
+		AC_MSG_ERROR([Cython (http://cython.org) is required to build Python interface])
 	fi
 
 	AC_MSG_CHECKING([for Python install directory])
@@ -405,6 +405,29 @@ if test x"$enable_python" = x"yes" ; then
 	AC_SUBST([PYTHON_INSTALL_DIR])
 fi
 AM_CONDITIONAL([ENABLE_PYTHON], test x"$enable_python" = x"yes")
+dnl }}}
+
+dnl {{{ Python documentation
+AC_ARG_VAR([EPYDOC], [Path to the epydoc documentation tool])
+AC_MSG_CHECKING([whether to build the Python documentation])
+AC_ARG_ENABLE([python-doc],
+			  AS_HELP_STRING([--enable-python-doc],
+							 [Enable Python documentation, requires --enable-python (default: disable)]),
+			  enable_python_doc="$enableval",
+			  enable_python_doc=no)
+AC_MSG_RESULT([$enable_python_doc])
+
+if test x"$enable_python_doc" = x"yes" && test x"$enable_python" = x"no"; then
+	AC_MSG_ERROR([--enable-python-doc requires --enable-python])
+fi
+
+if test x"$enable_python_doc" = x"yes" ; then
+	AC_PATH_PROG([EPYDOC], epydoc)
+	if test x"$EPYDOC" = x ; then
+		AC_MSG_ERROR([epydoc (http://epydoc.sourceforge.net) is required to build Python documentation])
+	fi
+fi
+AM_CONDITIONAL([ENABLE_PYTHON_DOC], test x"$enable_python_doc" = x"yes")
 dnl }}}
 
 dnl {{{ Use AM_SILENT_RULES if available
@@ -428,9 +451,10 @@ AC_OUTPUT(
 		  doc/api/Makefile
 		  doc/api/c/Makefile
 		  doc/api/c/doxygen.conf
+		  doc/api/python/Makefile
 		  doc/api/ruby/Makefile
 		  examples/Makefile
-		  ruby/Makefile
 		  python/Makefile
+		  ruby/Makefile
 	)
 dnl }}}

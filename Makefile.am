@@ -27,10 +27,13 @@ noinst_HEADERS= include/pinktrace/internal.h
 doxygen:
 	$(MAKE) -C doc $@
 
+epydoc:
+	$(MAKE) -C doc $@
+
 rdoc:
 	$(MAKE) -C doc $@
 
 upload-doc:
 	$(MAKE) -C doc $@
 
-.PHONY: doxygen rdoc upload-doc
+.PHONY: doxygen epydoc rdoc upload-doc
