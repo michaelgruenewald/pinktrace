@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <stdlib.h> /* free() */
 #include <string.h> /* memcpy() */
+#include <arpa/inet.h> /* inet_ntop() */
 
 #include <pinktrace/pink.h>
 #include <ruby.h>
@@ -1588,6 +1589,96 @@ pinkrb_unix_abstract(VALUE self)
 	return Qfalse;
 }
 
+/*
+ * Document-method: ntop
+ * call-seq: addr.ntop(max=128) => String
+ *
+ * Returns a string representation of the INET address.
+ */
+static VALUE
+pinkrb_inet_ntop(int argc, VALUE *argv, VALUE self)
+{
+	int save_errno;
+	unsigned max;
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ipv;
+
+	if (argc > 1)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+	else if (argc > 0) {
+		if (FIXNUM_P(argv[0]))
+			max = FIX2UINT(argv[0]);
+		else
+			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+	}
+	else
+		max = 128;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET)
+		rb_bug("Unsupported family, expected: AF_INET, got: %d", addr->family);
+
+	ip = ALLOC_N(char, max);
+
+	if (!inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, ip, max)) {
+		save_errno = errno;
+		free(ip);
+		errno = save_errno;
+		rb_sys_fail("inet_ntop(3)");
+	}
+
+	ipv = rb_str_new2(ip);
+	free(ip);
+	return ipv;
+}
+
+/*
+ * Document-method: ntop6
+ * call-seq: addr.ntop6(max=128) => String
+ *
+ * Returns a string representation of the INET6 address.
+ */
+#if PINKTRACE_HAVE_IPV6
+static VALUE
+pinkrb_inet6_ntop(int argc, VALUE *argv, VALUE self)
+{
+	int save_errno;
+	unsigned max;
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ipv;
+
+	if (argc > 1)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+	else if (argc > 0) {
+		if (FIXNUM_P(argv[0]))
+			max = FIX2UINT(argv[0]);
+		else
+			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+	}
+	else
+		max = 128;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET6)
+		rb_bug("Unsupported family, expected: AF_INET6, got: %d", addr->family);
+
+	ip = ALLOC_N(char, max);
+
+	if (!inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, ip, max)) {
+		save_errno = errno;
+		free(ip);
+		errno = save_errno;
+		rb_sys_fail("inet_ntop(3)");
+	}
+
+	ipv = rb_str_new2(ip);
+	free(ip);
+	return ipv;
+}
+#endif /* PINKTRACE_HAVE_IPV6 */
+
 void
 Init_PinkTrace(void)
 {
@@ -1686,7 +1777,9 @@ Init_PinkTrace(void)
 	pinkrb_cAddress = rb_define_class_under(scmod, "Address", rb_cObject);
 	pinkrb_cUNIXAddress = rb_define_class_under(scmod, "UNIXAddress", pinkrb_cAddress);
 	pinkrb_cINETAddress = rb_define_class_under(scmod, "INETAddress", pinkrb_cAddress);
+#if PINKTRACE_HAVE_IPV6
 	pinkrb_cINET6Address = rb_define_class_under(scmod, "INET6Address", pinkrb_cAddress);
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 	/* The address objects are only returned by PinkTrace::Socket.decode_address;
 	 * thus we don't need an initialize method. */
@@ -1695,6 +1788,14 @@ Init_PinkTrace(void)
 	/* UNIX Address methods */
 	rb_define_method(pinkrb_cUNIXAddress, "path", pinkrb_unix_path, 0);
 	rb_define_method(pinkrb_cUNIXAddress, "abstract?", pinkrb_unix_abstract, 0);
+
+	/* INET Address methods */
+	rb_define_method(pinkrb_cINETAddress, "ntop", pinkrb_inet_ntop, 1);
+
+#if PINKTRACE_HAVE_IPV6
+	/* INET6 Address methods */
+	rb_define_method(pinkrb_cINET6Address, "ntop6", pinkrb_inet6_ntop, 1);
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 	rb_define_module_function(scmod, "decode_address", pinkrb_decode_socket_address, -1);
 	rb_define_module_function(scmod, "decode_address_fd", pinkrb_decode_socket_address_fd, -1);
