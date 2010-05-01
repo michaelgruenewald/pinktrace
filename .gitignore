@@ -50,6 +50,8 @@ m4/lt*.m4
 
 pkg-config/pinktrace.pc
 
+python/pinktrace.c
+
 ruby/PinkTrace.so
 
 src/pink-syscallent.h
