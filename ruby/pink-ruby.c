@@ -1096,11 +1096,128 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	return Qnil;
 }
 
+/*
+ * Document-class: PinkTrace::Socket
+ *
+ * This class includes functions for decoding socket calls.
+ */
+
+/*
+ * Document-method: PinkTrace::Socket.subcall
+ * call-seq: PinkTrace::Socket.name(subcall) => String or nil
+ *
+ * Returns a string representation of the socket subcall.
+ */
+static VALUE
+pinkrb_name_socket_subcall(pink_unused VALUE mod, VALUE subcallv)
+{
+	unsigned subcall;
+	const char *subname;
+
+	if (FIXNUM_P(subcallv))
+		subcall = FIX2UINT(subcallv);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	subname = pink_name_socket_subcall(subcall);
+
+	return subname ? rb_str_new2(subname) : Qnil;
+}
+
+/*
+ * Document-method: PinkTrace::Socket.decode_call
+ * call-seq: PinkTrace::Socket.decode_call(pid, [bitness=PinkTrace::Bitness::DEFAULT]) => fixnum
+ *
+ * Returns the decoded socket call.
+ *
+ * Note: This function decodes the socketcall(2) system call on some
+ * architectures. On others it's equivalent to PinkTrace::SysCall.get_no
+ */
+static VALUE
+pinkrb_decode_socket_call(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	pid_t pid;
+	unsigned bit;
+	long subcall;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc > 1) {
+		if (FIXNUM_P(argv[1]))
+			bit = FIX2UINT(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_DEFAULT_BITNESS;
+
+	if (!pink_decode_socket_call(pid, bit, &subcall))
+		rb_sys_fail("pink_decode_socket_call()");
+
+	return LONG2NUM(subcall);
+}
+
+/*
+ * Document-method: PinkTrace::Socket.decode_fd
+ * call-seq: PinkTrace::Socket.decode_fd(pid, [[index=0], [bitness=PinkTrace::Bitness::DEFAULT]]) => fixnum
+ *
+ * Returns the socket file descriptor.
+ *
+ * Note: This function decodes the socketcall(2) system call on some
+ * architectures.
+ */
+static VALUE
+pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	pid_t pid;
+	unsigned bit, ind;
+	long fd;
+
+	if (argc < 1 || argc > 3)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc > 1) {
+		if (FIXNUM_P(argv[1])) {
+			ind = FIX2UINT(argv[1]);
+			if (ind >= PINK_MAX_INDEX)
+				rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		}
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		ind = 0;
+
+	if (argc > 2) {
+		if (FIXNUM_P(argv[2]))
+			bit = FIX2UINT(argv[2]);
+		else
+			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_DEFAULT_BITNESS;
+
+	if (!pink_decode_socket_fd(pid, bit, ind, &fd))
+		rb_sys_fail("pink_decode_socket_fd()");
+
+	return LONG2NUM(fd);
+}
 
 void
 Init_PinkTrace(void)
 {
-	VALUE mod, tmod, emod, bmod, smod, stmod;
+	VALUE mod, tmod, emod, bmod, smod, stmod, scmod;
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
@@ -1178,4 +1295,10 @@ Init_PinkTrace(void)
 	rb_define_module_function(stmod, "decode", pinkrb_decode_string, -1);
 	rb_define_module_function(stmod, "encode", pinkrb_encode_string_safe, -1);
 	rb_define_module_function(stmod, "encode!", pinkrb_encode_string, -1);
+
+	/* decode.h && socket.h */
+	scmod = rb_define_module_under(mod, "Socket");
+	rb_define_module_function(scmod, "name", pinkrb_name_socket_subcall, 1);
+	rb_define_module_function(scmod, "decode_call", pinkrb_decode_socket_call, -1);
+	rb_define_module_function(scmod, "decode_fd", pinkrb_decode_socket_fd, -1);
 }
