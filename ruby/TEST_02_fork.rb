@@ -14,6 +14,7 @@ class TestPinkFork < Test::Unit::TestCase
     pid = PinkTrace.fork do
       exit 13
     end
+
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     assert($?.exitstatus == 13, 'Wrong exit status, expected: 13 got: ' + $?.exitstatus.to_s)

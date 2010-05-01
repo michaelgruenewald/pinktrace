@@ -10,6 +10,21 @@ $: << File.expand_path('.libs')
 require 'PinkTrace'
 
 class TestPinkEvent < Test::Unit::TestCase
+  def test_event_decide_invalid
+    assert_raise ArgumentError do
+      PinkTrace::Event.decide 0, 1
+    end
+    assert_raise TypeError do
+      PinkTrace::Event.decide 'pink'
+    end
+  end
+
+  def test_event_decide_unknown
+    assert_raise PinkTrace::EventError do
+      PinkTrace::Event.decide -1
+    end
+  end
+
   def test_event_stop
     pid = PinkTrace.fork do
       Process.kill Signal.list['STOP'], Process.pid

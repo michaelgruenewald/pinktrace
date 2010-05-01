@@ -9,13 +9,108 @@ require 'test/unit'
 $: << File.expand_path('.libs')
 require 'PinkTrace'
 
+class TestPinkString < Test::Unit::TestCase
+  def test_string_decode_invalid
+    assert_raise ArgumentError do
+      PinkTrace::String.decode
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.decode 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.decode 0, 1, 2, 3, 4
+    end
+    assert_raise TypeError do
+      PinkTrace::String.decode 'pink', 0
+    end
+    assert_raise TypeError do
+      PinkTrace::String.decode 0, 'pink'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.decode 0, 1, 'pink'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.decode 0, 1, 2, 'pink'
+    end
+    assert_raise PinkTrace::IndexError do
+      PinkTrace::String.decode 0, PinkTrace::MAX_INDEX
+    end
+  end
+
+  def test_string_decode_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::String.decode 0, 1
+    end
+  end
+
+  def test_string_encode_invalid
+    assert_raise ArgumentError do
+      PinkTrace::String.encode
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0, 1
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode 0, 1, 2, 3, 4
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 'pink', 1, 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 0, 'pink', 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode 0, 1, Object
+    end
+  end
+
+  def test_string_encode_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::String.encode 0, 1, 'pink'
+    end
+  end
+
+  def test_string_encode_unsafe_invalid
+    assert_raise ArgumentError do
+      PinkTrace::String.encode!
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0, 1
+    end
+    assert_raise ArgumentError do
+      PinkTrace::String.encode! 0, 1, 2, 3, 4
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 'pink', 1, 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 0, 'pink', 'floyd'
+    end
+    assert_raise TypeError do
+      PinkTrace::String.encode! 0, 1, Object
+    end
+  end
+
+  def test_string_encode_unsafe_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::String.encode! 0, 1, 'pink'
+    end
+  end
+end
+
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
 unless PinkTrace::SysCall.name 0
   exit 0
 end
 
-class TestPinkString < Test::Unit::TestCase
+class TestPinkString
   def test_string_decode
     pid = PinkTrace.fork do
       File.open '/dev/null'
@@ -61,8 +156,8 @@ class TestPinkString < Test::Unit::TestCase
         scno = PinkTrace::SysCall.get_no pid
         name = PinkTrace::SysCall.name scno
         if name == 'open' then
-          s = PinkTrace::String.decode pid, 0, 2
-          assert(s == '/d', 'Wrong string, expected: /de got: "' + s + '"')
+          s = PinkTrace::String.decode pid, 0, 10
+          assert(s == '/dev/null', 'Wrong string, expected: /de got: "' + s + '"')
           break
         end
       end

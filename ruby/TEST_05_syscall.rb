@@ -9,13 +9,141 @@ require 'test/unit'
 $: << File.expand_path('.libs')
 require 'PinkTrace'
 
+class TestPinkSyscall < Test::Unit::TestCase
+  def test_syscall_get_arg_invalid
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_arg
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_arg 0, 1, 2, 3
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.get_arg 'pink', 0
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.get_arg 0, 'pink'
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.get_arg 0, 1, 'pink'
+    end
+    assert_raise PinkTrace::IndexError do
+      PinkTrace::SysCall.get_arg 0, PinkTrace::MAX_INDEX
+    end
+  end
+
+  def test_syscall_get_arg_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::SysCall.get_arg 0, 1
+    end
+  end
+
+  def test_syscall_get_no
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_no
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_no 0, 1
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.get_no 'pink'
+    end
+  end
+
+  def test_syscall_get_no_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::SysCall.get_no 0
+    end
+  end
+
+  def test_syscall_get_ret
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_ret
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.get_ret 0, 1
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.get_ret 'pink'
+    end
+  end
+
+  def test_syscall_get_ret_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::SysCall.get_ret 0
+    end
+  end
+
+  def test_syscall_name_invalid
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.name
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.name 0, 1, 2
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.name 'pink'
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.name 0, 'pink'
+    end
+  end
+
+  def test_syscall_set_no_invalid
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_no
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_no 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_no 0, 1, 2
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.set_no 'pink', 1
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.set_no 0, 'pink'
+    end
+  end
+
+  def test_syscall_set_no_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::SysCall.set_no 0, 1
+    end
+  end
+
+  def test_syscall_set_ret_invalid
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_ret
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_ret 0
+    end
+    assert_raise ArgumentError do
+      PinkTrace::SysCall.set_ret 0, 1, 2
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.set_ret 'pink', 1
+    end
+    assert_raise TypeError do
+      PinkTrace::SysCall.set_ret 0, 'pink'
+    end
+  end
+
+  def test_syscall_set_ret_esrch
+    assert_raise Errno::ESRCH do
+      PinkTrace::SysCall.set_ret 0, 1
+    end
+  end
+end
+
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
 unless PinkTrace::SysCall.name 0
   exit 0
 end
 
-class TestPinkSysCall < Test::Unit::TestCase
+class TestPinkSysCall
   def test_syscall_get_no
     pid = PinkTrace.fork do
       Process.kill 0, Process.pid
