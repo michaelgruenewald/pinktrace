@@ -360,6 +360,53 @@ fi
 AM_CONDITIONAL([ENABLE_RUBY_DOC], test x"$enable_ruby_doc" = x"yes")
 dnl }}}
 
+dnl {{{ Python interface
+AC_ARG_VAR([PYTHON], [path to the Python interpreter])
+AC_ARG_VAR([CYTHON], [path to the Cython tool])
+AC_MSG_CHECKING([whether to build the Python interface])
+AC_ARG_ENABLE([python],
+			  AS_HELP_STRING([--enable-python], [Enable Python interface (default: disable)]),
+			  enable_python="$enableval",
+			  enable_python=no)
+AC_MSG_RESULT([$enable_python])
+
+if test x"$enable_python" = x"yes" ; then
+	AM_PATH_PYTHON([2.3])
+	if test x"$PYTHON" = x ; then
+		AC_MSG_ERROR([Python is required for --enable-python])
+	fi
+	AC_SUBST([PYTHON_INSTALL_DIR])
+
+	AC_MSG_CHECKING([for headers required to compile python extensions])
+	py_prefix=`$PYTHON -c "import sys; print sys.prefix"`
+	py_exec_prefix=`$PYTHON -c "import sys; print sys.exec_prefix"`
+	PYTHON_INCLUDE_DIR="${py_prefix}/include/python${PYTHON_VERSION}"
+	if test "$py_prefix" != "$py_exec_prefix"; then
+		PYTHON_INCLUDE_DIR="$PYTHON_INCLUDE_DIR -I${py_exec_prefix}/include/python${PYTHON_VERSION}"
+	fi
+	AC_MSG_RESULT([$PYTHON_INCLUDE_DIR])
+	AC_SUBST([PYTHON_INCLUDE_DIR])
+
+	AC_PATH_PROG([CYTHON], cython)
+	if test x"$CYTHON" = x ; then
+		AC_MSG_ERROR([Cython is required to build Python interface])
+	fi
+
+	AC_MSG_CHECKING([for Python install directory])
+	AC_ARG_WITH([python-install-dir],
+				AS_HELP_STRING([--with-python-install-dir=dir],
+							   [Specify Python installation directory]),
+				PYTHON_INSTALL_DIR=`eval echo $withval`
+				PYTHON_INSTALL_DIR=)
+	if test x"$PYTHON_INSTALL_DIR" = x ; then
+		PYTHON_INSTALL_DIR="$pyexecdir"
+	fi
+	AC_MSG_RESULT([$PYTHON_INSTALL_DIR])
+	AC_SUBST([PYTHON_INSTALL_DIR])
+fi
+AM_CONDITIONAL([ENABLE_PYTHON], test x"$enable_python" = x"yes")
+dnl }}}
+
 dnl {{{ Use AM_SILENT_RULES if available
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 dnl }}}
@@ -384,5 +431,6 @@ AC_OUTPUT(
 		  doc/api/ruby/Makefile
 		  examples/Makefile
 		  ruby/Makefile
+		  python/Makefile
 	)
 dnl }}}
