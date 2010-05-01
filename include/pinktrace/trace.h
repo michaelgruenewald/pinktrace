@@ -147,7 +147,7 @@ pink_trace_kill(pid_t pid);
  * execution of a single instruction.
  *
  * \param pid Process ID of the child to be restarted.
- * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ * \param sig Treated the same as the signal argument of pink_trace_cont().
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
