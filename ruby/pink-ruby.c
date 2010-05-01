@@ -1839,14 +1839,17 @@ Init_PinkTrace(void)
 
 	/* UNIX Address methods */
 	rb_define_method(pinkrb_cUNIXAddress, "path", pinkrb_unix_path, 0);
+	rb_define_alias(pinkrb_cUNIXAddress, "to_s", "path");
 	rb_define_method(pinkrb_cUNIXAddress, "abstract?", pinkrb_unix_abstract, 0);
 
 	/* INET Address methods */
 	rb_define_method(pinkrb_cINETAddress, "ntop", pinkrb_inet_ntop, -1);
+	rb_define_alias(pinkrb_cINETAddress, "to_s", "ntop");
 
 #if PINKTRACE_HAVE_IPV6
 	/* INET6 Address methods */
 	rb_define_method(pinkrb_cINET6Address, "ntop6", pinkrb_inet6_ntop, -1);
+	rb_define_alias(pinkrb_cINET6Address, "to_s", "ntop6");
 #endif /* PINKTRACE_HAVE_IPV6 */
 
 	rb_define_module_function(scmod, "decode_address", pinkrb_decode_socket_address, -1);
