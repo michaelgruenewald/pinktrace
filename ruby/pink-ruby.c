@@ -25,10 +25,22 @@
 #include <errno.h>
 #include <stdlib.h> /* free() */
 #include <string.h> /* memcpy() */
+
+#include <netinet/in.h> /* INET{,6}_ADDRSTRLEN */
 #include <arpa/inet.h> /* inet_ntop() */
 
 #include <pinktrace/pink.h>
 #include <ruby.h>
+
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif /* !INET_ADDRSTRLEN */
+
+#if PINKTRACE_HAVE_IPV6
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif /* !INET6_ADDRSTRLEN */
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 void
 Init_PinkTrace(void);
@@ -1206,6 +1218,16 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  * Document-class: PinkTrace::Socket
  *
  * This class includes functions for decoding socket calls.
+ *
+ * == Constants
+ *
+ * - PinkTrace::Socket::INET_ADDRSTRLEN
+ *
+ *   Maximum length of an INET address string
+ *
+ * - PinkTrace::String::INET6_ADDRSTRLEN
+ *
+ *   Maximum length of an INET6 address string
  */
 
 /*
@@ -1381,9 +1403,10 @@ pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::Socket.decode_address
- * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr
+ * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr or nil
  *
  * Decodes the socket address at the given index.
+ * If the system call's address argument was NULL, this function returns +nil+.
  */
 static VALUE
 pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1445,6 +1468,10 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 	}
 
 	switch (addr->family) {
+	case -1:
+		/* Special case, the argument was NULL */
+		free(addr);
+		return Qnil;
 	case AF_UNIX:
 		addrKlass = pinkrb_cUNIXAddress;
 		break;
@@ -1457,7 +1484,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		rb_raise(pinkrb_eAddressError, "Unsupported address family");
+		rb_raise(pinkrb_eAddressError, "Unsupported address family: %d", addr->family);
 	}
 
 	addrObj = Data_Make_Struct(addrKlass, pink_socket_address_t, NULL, free, caddr);
@@ -1470,9 +1497,11 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::Socket.decode_address2
- * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr, fd
+ * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr|nil, fd
  *
  * Decodes the socket address at the given index and the file descriptor at index 0.
+ * If the system call's address argument was NULL this function returns +nil+
+ * and the file descriptor.
  */
 static VALUE
 pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1535,6 +1564,10 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 	}
 
 	switch (addr->family) {
+	case -1:
+		/* Special case, the argument was NULL */
+		free(addr);
+		return rb_assoc_new(Qnil, LONG2NUM(fd));
 	case AF_UNIX:
 		addrKlass = pinkrb_cUNIXAddress;
 		break;
@@ -1547,7 +1580,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		rb_raise(pinkrb_eAddressError, "Unsupported address family");
+		rb_raise(pinkrb_eAddressError, "Unsupported address family: %d", addr->family);
 	}
 
 	addrObj = Data_Make_Struct(addrKlass, pink_socket_address_t, NULL, free, caddr);
@@ -1605,7 +1638,7 @@ pinkrb_unix_abstract(VALUE self)
 
 /*
  * Document-method: ntop
- * call-seq: addr.ntop(max=128) => String
+ * call-seq: addr.ntop([max=PinkTrace::Socket::INET_ADDRSTRLEN]) => String
  *
  * Returns a string representation of the INET address.
  */
@@ -1627,7 +1660,7 @@ pinkrb_inet_ntop(int argc, VALUE *argv, VALUE self)
 			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 	}
 	else
-		max = 128;
+		max = INET_ADDRSTRLEN;
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	if (addr->family != AF_INET)
@@ -1649,7 +1682,7 @@ pinkrb_inet_ntop(int argc, VALUE *argv, VALUE self)
 
 /*
  * Document-method: ntop6
- * call-seq: addr.ntop6(max=128) => String
+ * call-seq: addr.ntop6([max=PinkTrace::Socket::INET6_ADDRSTRLEN]) => String
  *
  * Returns a string representation of the INET6 address.
  */
@@ -1672,7 +1705,7 @@ pinkrb_inet6_ntop(int argc, VALUE *argv, VALUE self)
 			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 	}
 	else
-		max = 128;
+		max = INET6_ADDRSTRLEN;
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	if (addr->family != AF_INET6)
@@ -1784,6 +1817,10 @@ Init_PinkTrace(void)
 
 	/* decode.h && socket.h */
 	scmod = rb_define_module_under(mod, "Socket");
+	rb_define_const(scmod, "INET_ADDRSTRLEN", INT2FIX(INET_ADDRSTRLEN));
+#ifdef PINKTRACE_HAVE_IPV6
+	rb_define_const(scmod, "INET6_ADDRSTRLEN", INT2FIX(INET6_ADDRSTRLEN));
+#endif /* PINKTRACE_HAVE_IPV6 */
 	rb_define_module_function(scmod, "name", pinkrb_name_socket_subcall, 1);
 	rb_define_module_function(scmod, "decode_call", pinkrb_decode_socket_call, -1);
 	rb_define_module_function(scmod, "decode_fd", pinkrb_decode_socket_fd, -1);
@@ -1805,11 +1842,11 @@ Init_PinkTrace(void)
 	rb_define_method(pinkrb_cUNIXAddress, "abstract?", pinkrb_unix_abstract, 0);
 
 	/* INET Address methods */
-	rb_define_method(pinkrb_cINETAddress, "ntop", pinkrb_inet_ntop, 1);
+	rb_define_method(pinkrb_cINETAddress, "ntop", pinkrb_inet_ntop, -1);
 
 #if PINKTRACE_HAVE_IPV6
 	/* INET6 Address methods */
-	rb_define_method(pinkrb_cINET6Address, "ntop6", pinkrb_inet6_ntop, 1);
+	rb_define_method(pinkrb_cINET6Address, "ntop6", pinkrb_inet6_ntop, -1);
 #endif /* PINKTRACE_HAVE_IPV6 */
 
 	rb_define_module_function(scmod, "decode_address", pinkrb_decode_socket_address, -1);
