@@ -59,6 +59,9 @@ class TestPinkSocket < Test::Unit::TestCase
     assert_raise TypeError do
       PinkTrace::Socket.decode_fd 0, 1, 'pink'
     end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::Socket.decode_fd 0, 1, 13
+    end
     assert_raise PinkTrace::IndexError do
       PinkTrace::Socket.decode_fd 0, PinkTrace::MAX_INDEX
     end

@@ -28,6 +28,7 @@
 void
 Init_PinkTrace(void);
 
+static VALUE pinkrb_eBitnessError;
 static VALUE pinkrb_eEventError;
 static VALUE pinkrb_eIndexError;
 
@@ -50,6 +51,7 @@ static VALUE pinkrb_eIndexError;
  * - PinkTrace::Bitness
  * - PinkTrace::SysCall
  * - PinkTrace::String
+ * - PinkTrace::Socket
  *
  * == Constants
  *
@@ -79,8 +81,15 @@ static VALUE pinkrb_eIndexError;
  *
  * == Exceptions
  *
+ * - PinkTrace::BitnessError
  * - PinkTrace::EventError
  * - PinkTrace::IndexError
+ */
+
+/*
+ * Document-class: PinkTrace::BitnessError
+ *
+ * Raised when the given bitness argument is either unsupported or undefined.
  */
 
 /*
@@ -721,7 +730,7 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
 static VALUE
 pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 {
-	unsigned bitness;
+	unsigned bit;
 	long scno;
 	const char *scname;
 
@@ -734,15 +743,31 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
 	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			bitness = FIX2UINT(argv[1]);
+		if (FIXNUM_P(argv[1])) {
+			bit = FIX2UINT(argv[1]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bitness = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_DEFAULT_BITNESS;
 
-	scname = pink_name_syscall(scno, bitness);
+	scname = pink_name_syscall(scno, bit);
 	return scname ? rb_str_new2(scname) : Qnil;
 }
 
@@ -880,9 +905,25 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
-	if (argc == 3) {
-		if (FIXNUM_P(argv[2]))
+	if (argc > 2) {
+		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
@@ -934,7 +975,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 
-	if (argc >= 3) {
+	if (argc > 2) {
 		if (FIXNUM_P(argv[2]))
 			max = FIX2UINT(argv[2]);
 		else
@@ -944,8 +985,24 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 		max = 0;
 
 	if (argc > 3) {
-		if (FIXNUM_P(argv[3]))
+		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
@@ -1014,8 +1071,24 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
 	len = RSTRING_LEN(argv[2]);
 
 	if (argc > 3) {
-		if (FIXNUM_P(argv[3]))
+		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
@@ -1068,8 +1141,24 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	len = RSTRING_LEN(argv[2]);
 
 	if (argc > 3) {
-		if (FIXNUM_P(argv[3]))
+		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
@@ -1135,8 +1224,24 @@ pinkrb_decode_socket_call(int argc, VALUE *argv, pink_unused VALUE mod)
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
 	if (argc > 1) {
-		if (FIXNUM_P(argv[1]))
+		if (FIXNUM_P(argv[1])) {
 			bit = FIX2UINT(argv[1]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
@@ -1186,8 +1291,24 @@ pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 		ind = 0;
 
 	if (argc > 2) {
-		if (FIXNUM_P(argv[2]))
+		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
+			switch (bit) {
+			case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+				break;
+			default:
+				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+				break;
+			}
+		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
@@ -1207,6 +1328,7 @@ Init_PinkTrace(void)
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
+	pinkrb_eBitnessError = rb_define_class_under(mod, "BitnessError", rb_eStandardError);
 	pinkrb_eEventError = rb_define_class_under(mod, "EventError", rb_eStandardError);
 	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
 

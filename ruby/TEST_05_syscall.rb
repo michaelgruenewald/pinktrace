@@ -26,6 +26,9 @@ class TestPinkSyscall < Test::Unit::TestCase
     assert_raise TypeError do
       PinkTrace::SysCall.get_arg 0, 1, 'pink'
     end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::SysCall.get_arg 0, 1, 13
+    end
     assert_raise PinkTrace::IndexError do
       PinkTrace::SysCall.get_arg 0, PinkTrace::MAX_INDEX
     end
@@ -85,6 +88,9 @@ class TestPinkSyscall < Test::Unit::TestCase
     end
     assert_raise TypeError do
       PinkTrace::SysCall.name 0, 'pink'
+    end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::SysCall.name 0, 13
     end
   end
 

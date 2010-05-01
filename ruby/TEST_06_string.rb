@@ -32,6 +32,9 @@ class TestPinkString < Test::Unit::TestCase
     assert_raise TypeError do
       PinkTrace::String.decode 0, 1, 2, 'pink'
     end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::String.decode 0, 1, 2, 13
+    end
     assert_raise PinkTrace::IndexError do
       PinkTrace::String.decode 0, PinkTrace::MAX_INDEX
     end
@@ -65,6 +68,12 @@ class TestPinkString < Test::Unit::TestCase
     assert_raise TypeError do
       PinkTrace::String.encode 0, 1, Object
     end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::String.encode 0, 1, 'pink', 13
+    end
+    assert_raise PinkTrace::IndexError do
+      PinkTrace::String.encode 0, PinkTrace::MAX_INDEX, 'pink'
+    end
   end
 
   def test_string_encode_esrch
@@ -94,6 +103,12 @@ class TestPinkString < Test::Unit::TestCase
     end
     assert_raise TypeError do
       PinkTrace::String.encode! 0, 1, Object
+    end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::String.encode! 0, 1, 'pink', 13
+    end
+    assert_raise PinkTrace::IndexError do
+      PinkTrace::String.encode! 0, PinkTrace::MAX_INDEX, 'pink'
     end
   end
 
