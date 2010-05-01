@@ -40,7 +40,7 @@
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif /* !INET6_ADDRSTRLEN */
-#endif /* PINKTRACE_HAVE_IPV6 */
+#endif
 
 void
 Init_PinkTrace(void);
@@ -55,7 +55,7 @@ static VALUE pinkrb_cUNIXAddress;
 static VALUE pinkrb_cINETAddress;
 #if PINKTRACE_HAVE_IPV6
 static VALUE pinkrb_cINET6Address;
-#endif /* PINKTRACE_HAVE_IPV6 */
+#endif
 
 /*
  * Document-class: PinkTrace
@@ -120,7 +120,7 @@ static VALUE pinkrb_cINET6Address;
 /*
  * Document-class: PinkTrace::AddressError
  *
- * Raised when address family of a system call is unsupported.
+ * Raised when the address family of a system call is unsupported.
  *
  * Currently three families are supported:
  *
@@ -1145,7 +1145,7 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
- * Document-method: PinkTrace::String.encode
+ * Document-method: PinkTrace::String.encode!
  * call-seq: PinkTrace::String.encode!(pid, index, str, [bitness=PinkTrace::Bitness::DEFAULT]) => nil
  *
  * Encode a string into the argument of the given index.
@@ -1482,7 +1482,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 	case AF_INET6:
 		addrKlass = pinkrb_cINET6Address;
 		break;
-#endif /* PINKTRACE_HAVE_IPV6 */
+#endif
 	default:
 		rb_raise(pinkrb_eAddressError, "Unsupported address family: %d", addr->family);
 	}
@@ -1578,7 +1578,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 	case AF_INET6:
 		addrKlass = pinkrb_cINET6Address;
 		break;
-#endif /* PINKTRACE_HAVE_IPV6 */
+#endif
 	default:
 		rb_raise(pinkrb_eAddressError, "Unsupported address family: %d", addr->family);
 	}
@@ -1724,7 +1724,7 @@ pinkrb_inet6_ntop(int argc, VALUE *argv, VALUE self)
 	free(ip);
 	return ipv;
 }
-#endif /* PINKTRACE_HAVE_IPV6 */
+#endif
 
 void
 Init_PinkTrace(void)
