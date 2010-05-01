@@ -16,6 +16,8 @@ pinktrace_la_SOURCES= pinktrace.c
 pinktrace_la_LDFLAGS= -module -avoid-version -shared
 pinktrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
+TESTS= TEST_01_trace.py
+
 # Remove the .la file - pinktrace.la is never linked against (it's a module)
 # and Python doesn't use libltdl. Note that the library gets installed by
 # install-data, so that's where we need to hook.
