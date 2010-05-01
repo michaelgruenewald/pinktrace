@@ -37,6 +37,7 @@ gprof*
 doc/api/c/c
 doc/api/c/doxygen.conf
 doc/api/c/libpinktrace.tag
+doc/api/python/python
 doc/api/ruby/ruby
 
 examples/pink-about
