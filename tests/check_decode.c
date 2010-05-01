@@ -34,11 +34,6 @@
 
 #include <arpa/inet.h>
 
-/* FIXME: We use a netlink socket as the unsupported family which is NOT
- * portable.
- */
-#include <linux/netlink.h>
-
 #include <check.h>
 
 #include <pinktrace/pink.h>
@@ -697,91 +692,6 @@ START_TEST(t_decode_socket_address_null_second)
 }
 END_TEST
 
-/* FIXME: This test case uses a netlink socket which is NOT portable. */
-START_TEST(t_decode_socket_address_unknown_second)
-{
-	int status;
-	long fd;
-	int pfd[2];
-	char strfd[16];
-	pid_t pid;
-	pink_socket_address_t res;
-
-	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
-
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
-	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
-	else if (!pid) { /* child */
-		struct sockaddr_nl addr;
-
-		close(pfd[0]);
-
-		memset(&addr, 0, sizeof(addr));
-		addr.nl_family = AF_NETLINK;
-		addr.nl_pid = getpid();
-		addr.nl_groups = 0;
-
-		if ((fd = socket(AF_NETLINK, SOCK_RAW, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
-			_exit(EXIT_FAILURE);
-		}
-
-		snprintf(strfd, 16, "%i", (int)fd);
-		write(pfd[1], strfd, 16);
-		close(pfd[1]);
-
-		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
-			_exit(EXIT_FAILURE);
-		}
-
-		kill(getpid(), SIGSTOP);
-		bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-	}
-	else { /* parent */
-		int realfd;
-
-		close(pfd[1]);
-
-		read(pfd[0], strfd, 16);
-		realfd = atoi(strfd);
-		close(pfd[0]);
-
-		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
-
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
-
-		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
-
-			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		}
-
-		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
-				res.family);
-
-		pink_trace_kill(pid);
-	}
-}
-END_TEST
-
 START_TEST(t_decode_socket_address_unix_second)
 {
 	int status;
@@ -1236,91 +1146,6 @@ START_TEST(t_decode_socket_address_null_fifth)
 }
 END_TEST
 
-/* FIXME: This test case uses a netlink socket which is NOT portable. */
-START_TEST(t_decode_socket_address_unknown_fifth)
-{
-	int status;
-	long fd;
-	int pfd[2];
-	char strfd[16];
-	pid_t pid;
-	pink_socket_address_t res;
-
-	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
-
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
-	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
-	else if (!pid) { /* child */
-		struct sockaddr_nl addr;
-
-		close(pfd[0]);
-
-		memset(&addr, 0, sizeof(addr));
-		addr.nl_family = AF_NETLINK;
-		addr.nl_pid = getpid();
-		addr.nl_groups = 0;
-
-		if ((fd = socket(AF_NETLINK, SOCK_RAW, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
-			_exit(EXIT_FAILURE);
-		}
-
-		snprintf(strfd, 16, "%i", (int)fd);
-		write(pfd[1], strfd, 16);
-		close(pfd[1]);
-
-		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
-			_exit(EXIT_FAILURE);
-		}
-
-		kill(getpid(), SIGSTOP);
-		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
-	}
-	else { /* parent */
-		int realfd;
-
-		close(pfd[1]);
-
-		read(pfd[0], strfd, 16);
-		realfd = atoi(strfd);
-		close(pfd[0]);
-
-		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
-
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
-
-		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
-
-			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		}
-
-		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
-				res.family);
-
-		pink_trace_kill(pid);
-	}
-}
-END_TEST
-
 START_TEST(t_decode_socket_address_unix_fifth)
 {
 	int status;
@@ -1724,7 +1549,6 @@ decode_suite_create(void)
 	tcase_add_test(tc_pink_decode, t_decode_socket_fd);
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_second);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_unknown_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_second);
@@ -1733,7 +1557,6 @@ decode_suite_create(void)
 #endif /* PINKTRACE_HAVE_IPV6 */
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_fifth);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_unknown_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_abstract_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_fifth);

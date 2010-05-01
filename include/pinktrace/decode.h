@@ -106,6 +106,9 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  * \note This function decodes the socketcall(2) system call on some
  * architectures.
  *
+ * \note If the address argument of the system call was NULL, this function
+ * returns true and sets addr->family to -1.
+ *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
  * \param ind The index of the argument. One of:

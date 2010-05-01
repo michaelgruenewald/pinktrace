@@ -32,7 +32,7 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
 	pink_socket_address_t *addr_r)
 {
 	if (addr == 0) {
-		/* Unknown family */
+		/* NULL */
 		addr_r->family = -1;
 		return true;
 	}
@@ -44,22 +44,6 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
 		return false;
 	addr_r->u._pad[sizeof(addr_r->u._pad) - 1] = '\0';
 
-	switch (addr_r->u._sa.sa_family) {
-	case AF_UNIX:
-		addr_r->family = AF_UNIX;
-		break;
-	case AF_INET:
-		addr_r->family = AF_INET;
-		break;
-#if PINKTRACE_HAVE_IPV6
-	case AF_INET6:
-		addr_r->family = AF_INET6;
-		break;
-#endif /* PINKTRACE_HAVE_IPV6 */
-	default:
-		addr_r->family = -1;
-		break;
-	}
-
+	addr_r->family = addr_r->u._sa.sa_family;
 	return true;
 }
