@@ -13,9 +13,6 @@ cdef extern from "stdbool.h":
 cdef extern from "string.h":
     char *strerror(int errnum)
 
-cdef extern from "Python.h":
-    object PyInt_FromLong(long x)
-
 cdef extern from "pinktrace/pink.h":
     cdef enum:
         PINK_TRACE_OPTION_SYSGOOD
@@ -55,17 +52,17 @@ def me():
     execve(2) by this process will cause a SIGTRAP to be sent to it, giving the
     parent a chance to gain control before the new program begins execution.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
     """
 
     if pink_trace_me() != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def cont(pid, sig=0):
     """
     Restarts the stopped child process.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be restarted
     @param sig: If this is non-zero and not SIGSTOP, it is interpreted as the
@@ -76,26 +73,26 @@ def cont(pid, sig=0):
     """
 
     if pink_trace_cont(pid, sig) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def kill(pid):
     """
     Kills the traced child process with SIGKILL.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be killed
     """
 
     if pink_trace_kill(pid) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def singlestep(pid, sig=0):
     """
     Restarts the stopped child process and arranges it to be stopped after
     execution of a single instruction.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be restarted
     @param sig: Treated the same as the signal argument of pinktrace.trace.cont()
@@ -103,21 +100,21 @@ def singlestep(pid, sig=0):
     """
 
     if pink_trace_singlestep(pid, sig) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def syscall(pid, sig=0):
     """
     Restarts the stopped child process and arranges it to be stopped after the
     entry or exit of the next system call.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be restarted
     @param sig: Treated the same as the signal argument of pinktrace.trace.cont()
     """
 
     if pink_trace_syscall(pid, sig) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def geteventmsg(pid):
     """
@@ -126,32 +123,32 @@ def geteventmsg(pid):
     event this is the child's exit status. For FORK, VFORK, CLONE and VFORK_DONE
     events this is the process ID of the new process.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child whose event is to be reported
-    @rtype: Integer
+    @rtype: int
     @return: The message
     """
 
     cdef unsigned long data
 
     if pink_trace_geteventmsg(pid, &data) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
-    return PyInt_FromLong(data)
+    return data
 
 def setup(pid, options=OPTION_SYSGOOD):
     """
     Sets the tracing options.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be set up.
     @param options: Bitwise OR'ed pinktrace.trace.OPTION_* flags
     """
 
     if pink_trace_setup(pid, options) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def attach(pid):
     """
@@ -161,13 +158,13 @@ def attach(pid):
     have stopped by the completion of this call; use wait(2) to wait for the
     child to stop.
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be attached
     """
 
     if pink_trace_attach(pid) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))
 
 def detach(pid, sig=0):
     """
@@ -175,11 +172,11 @@ def detach(pid, sig=0):
     from the process, undoing the reparenting effect of
     pinktrace.trace.attach().
 
-    Note: This function raises SystemError if the call fails.
+    Note: This function raises OSError if the call fails.
 
     @param pid: Process ID of the child to be detached
     @param sig: Treated the same as the signal argument of pinktrace.trace.cont()
     """
 
     if pink_trace_detach(pid, sig) != true:
-        raise SystemError("[Errno %d] %s" % (errno, strerror(errno)))
+        raise OSError("[Errno %d] %s" % (errno, strerror(errno)))

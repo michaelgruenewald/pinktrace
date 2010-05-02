@@ -11,6 +11,10 @@ epydoc: python
 symlinks:
 	test -e $(top_builddir)/python/pinktrace/about.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/about.so about.so )
+	test -e $(top_builddir)/python/pinktrace/event.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/event.so event.so )
+	test -e $(top_builddir)/python/pinktrace/fork.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/fork.so fork.so )
 	test -e $(top_builddir)/python/pinktrace/trace.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/trace.so trace.so )
 

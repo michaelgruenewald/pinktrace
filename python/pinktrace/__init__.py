@@ -11,4 +11,4 @@ pinktrace Python bindings
 __author__ = "Ali Polatel <alip@exherbo.org>"
 __license__ = "LGPL-2.1"
 
-__all__ = ('about', 'trace')
+__all__ = ('about', 'event', 'fork', 'trace')
