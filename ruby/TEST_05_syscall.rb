@@ -231,7 +231,7 @@ class TestPinkSysCall
           assert(ret == 0, 'Wrong system call return, expected: 0 got: ' + ret.to_s)
           break
         end
-        insyscall = true unless insyscall
+        insyscall = insyscall ? false : true
       end
     end
 
@@ -262,7 +262,7 @@ class TestPinkSysCall
           assert(ret == -Errno::ENOENT::Errno, 'Wrong system call return, expected: ' + (-Errno::ENOENT::Errno).to_s + 'got: ' + ret.to_s)
           break
         end
-        insyscall = true unless insyscall
+        insyscall = insyscall ? false : true
       end
     end
 
@@ -291,7 +291,7 @@ class TestPinkSysCall
         if insyscall and name == 'kill' then
           PinkTrace::SysCall.set_ret pid, 1
         end
-        insyscall = true unless insyscall
+        insyscall = insyscall ? false : true
       end
     end
 
@@ -326,7 +326,7 @@ class TestPinkSysCall
         if insyscall and name == 'kill' then
           PinkTrace::SysCall.set_ret pid, -Errno::EPERM::Errno
         end
-        insyscall = true unless insyscall
+        insyscall = insyscall ? false : true
       end
     end
 
