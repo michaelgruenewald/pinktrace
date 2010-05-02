@@ -67,6 +67,7 @@ AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 AC_PROG_SED
+AC_PROG_LN_S
 dnl }}}
 
 dnl {{{ Check for supported OS
@@ -455,6 +456,7 @@ AC_OUTPUT(
 		  doc/api/ruby/Makefile
 		  examples/Makefile
 		  python/Makefile
+		  python/pinktrace/Makefile
 		  ruby/Makefile
 	)
 dnl }}}

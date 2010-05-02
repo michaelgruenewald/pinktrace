@@ -2,6 +2,7 @@
 .*.swp
 *~
 *.[oa]
+*.py[co]
 
 tags
 
@@ -51,7 +52,11 @@ m4/lt*.m4
 
 pkg-config/pinktrace.pc
 
-python/pinktrace.c
+python/pinktrace/about.c
+python/pinktrace/trace.c
+
+python/pinktrace/about.so
+python/pinktrace/trace.so
 
 ruby/PinkTrace.so
 
