@@ -27,7 +27,12 @@ cdef extern from "pinktrace/pink.h":
     cdef enum:
         PINK_MAX_INDEX
 
-    char *PINKTRACE_ARCHITECTURE
+    cdef enum:
+        PINKTRACE_ARCH_I386
+        PINKTRACE_ARCH_X86_64
+        PINKTRACE_ARCH_IA64
+        PINKTRACE_ARCH_POWERPC
+        PINKTRACE_ARCH_POWERPC64
 
     int pink_decode_string(int pid, int bitness, unsigned ind, char *dest, size_t length)
     char *pink_decode_string_persistent(int pid, int bitness, unsigned ind)
@@ -35,10 +40,18 @@ cdef extern from "pinktrace/pink.h":
     int pink_encode_simple(int pid, int bitness, unsigned ind, char *src, size_t length)
     int pink_encode_simple_safe(int pid, int bitness, unsigned ind, char *src, size_t length)
 
-__MAX_INDEX = PINK_MAX_INDEX
-__ARCHITECTURE = PINKTRACE_ARCHITECTURE
-
 import pinktrace.bitness
+
+def __assert_bitness(bitness):
+    if PINKTRACE_ARCH_X86_64 != 0:
+        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
+    elif PINKTRACE_ARCH_I386 != 0 or PINKTRACE_ARCH_POWERPC != 0:
+        if bitness != pinktrace.bitness.BITNESS_32:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
+    elif PINKTRACE_ARCH_IA64 != 0 or PINKTRACE_ARCH_POWERPC64 != 0:
+        if bitness != pinktrace.bitness.BITNESS_64:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
 
 def decode(pid, index, maxlen=-1, bitness=pinktrace.bitness.DEFAULT_BITNESS):
     """
@@ -64,19 +77,8 @@ def decode(pid, index, maxlen=-1, bitness=pinktrace.bitness.DEFAULT_BITNESS):
     cdef char *string
     cdef object obj
 
-    # Ugly hack, we don't want to edit the resulting C file (ugh!) or use
-    # UNAME_MACHINE, because the idea is to distribute the generated C file.
-    if __ARCHITECTURE == "x86_64":
-        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("i386", "powerpc"):
-        if bitness != pinktrace.bitness.BITNESS_32:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("ia64", "powerpc64"):
-        if bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-
-    if index >= __MAX_INDEX:
+    __assert_bitness(bitness)
+    if index < 0 or index >= PINK_MAX_INDEX:
         raise IndexError("Unsupported index: %d", index)
 
     if maxlen < 0:
@@ -117,19 +119,8 @@ def encode(pid, index, string, bitness=pinktrace.bitness.DEFAULT_BITNESS):
 
     cdef Py_ssize_t length
 
-    # Ugly hack, we don't want to edit the resulting C file (ugh!) or use
-    # UNAME_MACHINE, because the idea is to distribute the generated C file.
-    if __ARCHITECTURE == "x86_64":
-        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("i386", "powerpc"):
-        if bitness != pinktrace.bitness.BITNESS_32:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("ia64", "powerpc64"):
-        if bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-
-    if index >= __MAX_INDEX:
+    __assert_bitness(bitness)
+    if index < 0 or index >= PINK_MAX_INDEX:
         raise IndexError("Unsupported index: %d", index)
 
     length = PyString_Size(string)
@@ -158,19 +149,8 @@ def encode_unsafe(pid, index, string, bitness=pinktrace.bitness.DEFAULT_BITNESS)
 
     cdef Py_ssize_t length
 
-    # Ugly hack, we don't want to edit the resulting C file (ugh!) or use
-    # UNAME_MACHINE, because the idea is to distribute the generated C file.
-    if __ARCHITECTURE == "x86_64":
-        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("i386", "powerpc"):
-        if bitness != pinktrace.bitness.BITNESS_32:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("ia64", "powerpc64"):
-        if bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-
-    if index >= __MAX_INDEX:
+    __assert_bitness(bitness)
+    if index < 0 or index >= PINK_MAX_INDEX:
         raise IndexError("Unsupported index: %d", index)
 
     length = PyString_Size(string)

@@ -17,7 +17,12 @@ cdef extern from "pinktrace/pink.h":
     cdef enum:
         PINK_MAX_INDEX
 
-    char *PINKTRACE_ARCHITECTURE
+    cdef enum:
+        PINKTRACE_ARCH_I386
+        PINKTRACE_ARCH_X86_64
+        PINKTRACE_ARCH_IA64
+        PINKTRACE_ARCH_POWERPC
+        PINKTRACE_ARCH_POWERPC64
 
     char *pink_name_syscall(long scno, int bit)
 
@@ -30,7 +35,17 @@ cdef extern from "pinktrace/pink.h":
 import pinktrace.bitness
 
 MAX_INDEX = PINK_MAX_INDEX
-__ARCHITECTURE = PINKTRACE_ARCHITECTURE
+
+def __assert_bitness(bitness):
+    if PINKTRACE_ARCH_X86_64 != 0:
+        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
+    elif PINKTRACE_ARCH_I386 != 0 or PINKTRACE_ARCH_POWERPC != 0:
+        if bitness != pinktrace.bitness.BITNESS_32:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
+    elif PINKTRACE_ARCH_IA64 != 0 or PINKTRACE_ARCH_POWERPC64 != 0:
+        if bitness != pinktrace.bitness.BITNESS_64:
+            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
 
 def name(scno, bitness=pinktrace.bitness.DEFAULT_BITNESS):
     """
@@ -51,17 +66,7 @@ def name(scno, bitness=pinktrace.bitness.DEFAULT_BITNESS):
 
     cdef char *scname
 
-    # Ugly hack, we don't want to edit the resulting C file (ugh!) or use
-    # UNAME_MACHINE, because the idea is to distribute the generated C file.
-    if __ARCHITECTURE == "x86_64":
-        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("i386", "powerpc"):
-        if bitness != pinktrace.bitness.BITNESS_32:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("ia64", "powerpc64"):
-        if bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
+    __assert_bitness(bitness)
 
     scname = pink_name_syscall(scno, bitness)
     if scname is NULL:
@@ -148,19 +153,8 @@ def get_arg(pid, index, bitness=pinktrace.bitness.DEFAULT_BITNESS):
     """
     cdef long arg
 
-    # Ugly hack, we don't want to edit the resulting C file (ugh!) or use
-    # UNAME_MACHINE, because the idea is to distribute the generated C file.
-    if __ARCHITECTURE == "x86_64":
-        if bitness != pinktrace.bitness.BITNESS_32 and bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("i386", "powerpc"):
-        if bitness != pinktrace.bitness.BITNESS_32:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-    elif __ARCHITECTURE in ("ia64", "powerpc64"):
-        if bitness != pinktrace.bitness.BITNESS_64:
-            raise pinktrace.bitness.BitnessError("Unsupported bitness: %d" % bitness)
-
-    if index >= MAX_INDEX:
+    __assert_bitness(bitness)
+    if index < 0 or index >= MAX_INDEX:
         raise IndexError("Unsupported index: %d", index)
 
     if pink_util_get_arg(pid, bitness, index, &arg) != true:

@@ -762,6 +762,9 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
  *
  * Note: This call depends on the generated system call names.
  *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ *
  * You can check whether they are generated with:
  *
  *   unless PinkTrace::SysCall.name 0
@@ -922,8 +925,11 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
  *
  * Returns the system call argument at the given index for the traced child.
  *
- * Note: PinKTrace::EventError is raised if +index+ argument is not smaller
+ * Note: PinKTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1751,6 +1757,32 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "VERSION_MICRO", INT2FIX(PINKTRACE_VERSION_MICRO));
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
+	rb_define_const(mod, "ARCHITECTURE", rb_str_new2(PINKTRACE_ARCHITECTURE));
+#if PINKTRACE_ARCH_I386
+	rb_define_const(mod, "ARCH_I386", Qtrue);
+#else
+	rb_define_const(mod, "ARCH_I386", Qfalse);
+#endif /* PINKTRACE_ARCH_I386 */
+#if PINKTRACE_ARCH_X86_64
+	rb_define_const(mod, "ARCH_X86_64", Qtrue);
+#else
+	rb_define_const(mod, "ARCH_X86_64", Qfalse);
+#endif /* PINKTRACE_ARCH_X86_64 */
+#if PINKTRACE_ARCH_IA64
+	rb_define_const(mod, "ARCH_IA64", Qtrue);
+#else
+	rb_define_const(mod, "ARCH_IA64", Qfalse);
+#endif /* PINKTRACE_ARCH_IA64 */
+#if PINKTRACE_ARCH_POWERPC
+	rb_define_const(mod, "ARCH_POWERPC", Qtrue);
+#else
+	rb_define_const(mod, "ARCH_POWERPC", Qfalse);
+#endif /* PINKTRACE_ARCH_POWERPC */
+#if PINKTRACE_ARCH_POWERPC64
+	rb_define_const(mod, "ARCH_POWERPC64", Qtrue);
+#else
+	rb_define_const(mod, "ARCH_POWERPC64", Qfalse);
+#endif /* PINKTRACE_ARCH_POWERPC64 */
 	/* util.h */
 	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
