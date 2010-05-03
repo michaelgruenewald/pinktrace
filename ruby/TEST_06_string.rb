@@ -127,7 +127,7 @@ end
 
 class TestPinkString
   def test_string_decode
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       File.open '/dev/null'
     end
 
@@ -155,7 +155,7 @@ class TestPinkString
   end
 
   def test_string_decode_max
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       File.open '/dev/null'
     end
 
@@ -183,7 +183,7 @@ class TestPinkString
   end
 
   def test_string_encode
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       begin
         File.open '/dev/null'
       rescue Errno::ENOENT

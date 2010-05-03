@@ -11,7 +11,7 @@ require 'PinkTrace'
 
 class TestPinkFork < Test::Unit::TestCase
   def test_fork
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       exit 13
     end
 

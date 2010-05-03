@@ -151,7 +151,7 @@ end
 
 class TestPinkSysCall
   def test_syscall_get_no
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       Process.kill 0, Process.pid
     end
 
@@ -181,7 +181,7 @@ class TestPinkSysCall
   end
 
   def test_syscall_set_no
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       Process.kill 0, Process.pid
     end
 
@@ -210,7 +210,7 @@ class TestPinkSysCall
   end
 
   def test_syscall_get_ret_success
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       Process.kill 0, Process.pid
     end
 
@@ -240,7 +240,7 @@ class TestPinkSysCall
   end
 
   def test_syscall_get_ret_fail
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       begin File.open ''
       rescue Errno::ENOENT ;end
     end
@@ -271,7 +271,7 @@ class TestPinkSysCall
   end
 
   def test_syscall_set_ret_success
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       ret = Process.kill 0, Process.pid
       exit 0 if ret == 1
       exit 1
@@ -303,7 +303,7 @@ class TestPinkSysCall
   end
 
   def test_syscall_set_ret_fail
-    pid = PinkTrace.fork do
+    pid = Pinktrace::Fork.fork do
       begin
         Process.kill 0, Process.pid
       rescue Errno::EPERM

@@ -26,7 +26,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_stop
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       Process.kill Signal.list['STOP'], Process.pid
     end
     PinkTrace::Trace.cont pid
@@ -38,7 +38,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_syscall
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       sleep 1
     end
     PinkTrace::Trace.syscall pid
@@ -50,7 +50,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_fork
-    pid = PinkTrace.fork(PinkTrace::Trace::FORK) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::FORK) do
       fork { exit 0 }
     end
     PinkTrace::Trace.cont pid
@@ -71,7 +71,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_exec
-    pid = PinkTrace.fork(PinkTrace::Trace::EXEC) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::EXEC) do
       exec '/bin/true'
     end
     PinkTrace::Trace.cont pid
@@ -83,7 +83,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_exit
-    pid = PinkTrace.fork(PinkTrace::Trace::EXIT) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::EXIT) do
       exit 0
     end
     PinkTrace::Trace.cont pid
@@ -95,7 +95,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_genuine
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       Process.kill Signal.list['INT'], Process.pid
     end
     PinkTrace::Trace.cont pid
@@ -107,7 +107,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_exit_genuine
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       exit 0
     end
     PinkTrace::Trace.cont pid
@@ -119,7 +119,7 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_exit_signal
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       Process.kill Signal.list['KILL'], Process.pid
     end
     PinkTrace::Trace.cont pid

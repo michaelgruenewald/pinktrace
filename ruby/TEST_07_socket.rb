@@ -91,7 +91,7 @@ class TestPinkSocket
   end
 
   def test_decode_socket_call
-    pid = PinkTrace::fork do
+    pid = PinkTrace::Fork.fork do
       s = UNIXServer.new './TEST_unix_socket'
     end
 

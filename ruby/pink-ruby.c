@@ -78,6 +78,7 @@ static VALUE pinkrb_cINET6Address;
  * - PinkTrace::Trace
  * - PinkTrace::Event
  * - PinkTrace::Bitness
+ * - PinkTrace::Fork
  * - PinkTrace::SysCall
  * - PinkTrace::String
  * - PinkTrace::Socket
@@ -547,8 +548,14 @@ pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
- * Document-method: PinkTrace.fork
- * call-seq: PinkTrace.fork([opts=PinkTrace::Trace::SYSGOOD]) [{ block }] => fixnum or nil
+ * Document-class: PinkTrace::Fork
+ *
+ * This class includes a fork(2) wrapper that handles the tracing setup.
+ */
+
+/*
+ * Document-method: PinkTrace::Fork.fork
+ * call-seq: PinkTrace::Fork.fork([opts=PinkTrace::Trace::SYSGOOD]) [{ block }] => fixnum or nil
  *
  * fork(2) wrapper that sets up the child for tracing.
  *
@@ -1775,13 +1782,13 @@ void
 Init_PinkTrace(void)
 {
 	VALUE mod;
-	VALUE trace_mod;
-	VALUE event_mod;
 	VALUE bitness_mod;
-	VALUE syscall_mod;
+	VALUE event_mod;
+	VALUE fork_mod;
 	VALUE string_mod;
 	VALUE socket_mod;
-
+	VALUE syscall_mod;
+	VALUE trace_mod;
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
@@ -1827,7 +1834,8 @@ Init_PinkTrace(void)
 	rb_define_module_function(trace_mod, "detach", pinkrb_trace_detach, -1);
 
 	/* fork.h */
-	rb_define_module_function(mod, "fork", pinkrb_fork, -1);
+	fork_mod = rb_define_module_under(mod, "Fork");
+	rb_define_module_function(fork_mod, "fork", pinkrb_fork, -1);
 
 	/* event.h */
 	event_mod = rb_define_module_under(mod, "Event");
