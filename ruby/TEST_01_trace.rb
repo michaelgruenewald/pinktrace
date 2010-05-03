@@ -30,7 +30,7 @@ class TestPinkTrace < Test::Unit::TestCase
     end
 
     Process.waitpid pid
-    assert($?.exitstatus == 0, 'Wrong exit status ' + $?.exitstatus.to_s)
+    assert($?.exitstatus == 0, "Wrong exit status #{$?.exitstatus}")
   end
 
   def test_trace_signal
@@ -53,7 +53,7 @@ class TestPinkTrace < Test::Unit::TestCase
 
     Process.waitpid pid
     assert $?.stopped?, "Child hasn't been stopped"
-    assert($?.stopsig == Signal.list["TRAP"], 'Wrong signal, expected: TRAP, got ' + $?.stopsig.to_s)
+    assert($?.stopsig == Signal.list["TRAP"], "Wrong signal, expected: TRAP, got #{$?.stopsig}")
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
@@ -86,12 +86,12 @@ class TestPinkTrace < Test::Unit::TestCase
 
     Process.waitpid pid
     assert $?.stopped?, "Child hasn't stopped"
-    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: " + $?.stopsig.to_s)
+    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: #{$?.stopsig}")
 
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     assert $?.exited?, "Child hasn't exited"
-    assert($?.exitstatus == 13, 'Wrong exit status, expected: 13, got: ' + $?.exitstatus.to_s)
+    assert($?.exitstatus == 13, "Wrong exit status, expected: 13, got: #{$?.exitstatus}")
   end
 
   def test_trace_cont_signal
@@ -103,12 +103,12 @@ class TestPinkTrace < Test::Unit::TestCase
 
     Process.waitpid pid
     assert $?.stopped?, "Child hasn't stopped"
-    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: " + $?.stopsig.to_s)
+    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: #{$?.stopsig}")
 
     PinkTrace::Trace.cont pid, Signal.list['KILL']
     Process.waitpid pid
     assert $?.signaled?, "Child hasn't been signaled"
-    assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: " + $?.termsig.to_s)
+    assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: #{$?.termsig}")
   end
 
   def test_trace_kill_invalid
@@ -138,12 +138,12 @@ class TestPinkTrace < Test::Unit::TestCase
 
     Process.waitpid pid
     assert $?.stopped?, "Child hasn't stopped"
-    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: " + $?.stopsig.to_s)
+    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: #{$?.stopsig}")
 
     PinkTrace::Trace.kill pid
     Process.waitpid pid
     assert $?.signaled?, "Child hasn't been signaled"
-    assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: " + $?.termsig.to_s)
+    assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: #{$?.termsig}")
   end
 
   def test_trace_attach_invalid

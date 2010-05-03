@@ -114,7 +114,7 @@ class TestPinkSocket
           else
             subname = PinkTrace::SysCall.name subcall
           end
-          assert(subname == 'socket', 'Wrong subcall name, expected: socket got: "' + subname + '"')
+          assert(subname == 'socket', "Wrong subcall name, expected: socket got: '#{subname}'")
           break
         end
       end

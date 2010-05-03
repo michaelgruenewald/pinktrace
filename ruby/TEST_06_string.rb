@@ -144,7 +144,7 @@ class TestPinkString
         name = PinkTrace::SysCall.name scno
         if name == 'open' then
           s = PinkTrace::String.decode pid, 0
-          assert(s == '/dev/null', 'Wrong string, expected: /dev/null got: "' + s + '"')
+          assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
           break
         end
       end
@@ -172,7 +172,7 @@ class TestPinkString
         name = PinkTrace::SysCall.name scno
         if name == 'open' then
           s = PinkTrace::String.decode pid, 0, 10
-          assert(s == '/dev/null', 'Wrong string, expected: /de got: "' + s + '"')
+          assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
           break
         end
       end
@@ -210,7 +210,7 @@ class TestPinkString
     end
 
     assert $?.exited?, "Child hasn't exited!"
-    assert($?.exitstatus == 0, 'Wrong exit status, expected: 0 got: ' + $?.exitstatus.to_s)
+    assert($?.exitstatus == 0, "Wrong exit status, expected: 0 got: #{$?.exitstatus}")
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end

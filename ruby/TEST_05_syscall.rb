@@ -199,7 +199,7 @@ class TestPinkSysCall
         if name == 'kill' then
           PinkTrace::SysCall.set_no pid, 0xbadca11
           scno = PinkTrace::SysCall.get_no pid
-          assert(scno == 0xbadca11, 'Wrong system call no, expected: 0xbadca11 got: ' + scno.to_s)
+          assert(scno == 0xbadca11, "Wrong system call no, expected: 0xbadca11 got: #{scno}")
           break
         end
       end
@@ -228,7 +228,7 @@ class TestPinkSysCall
         name = PinkTrace::SysCall.name scno
         if insyscall and name == 'kill' then
           ret = PinkTrace::SysCall.get_ret pid
-          assert(ret == 0, 'Wrong system call return, expected: 0 got: ' + ret.to_s)
+          assert(ret == 0, "Wrong system call return, expected: 0 got: #{ret}")
           break
         end
         insyscall = insyscall ? false : true
@@ -259,7 +259,7 @@ class TestPinkSysCall
         name = PinkTrace::SysCall.name scno
         if insyscall and name == 'open' then
           ret = PinkTrace::SysCall.get_ret pid
-          assert(ret == -Errno::ENOENT::Errno, 'Wrong system call return, expected: ' + (-Errno::ENOENT::Errno).to_s + 'got: ' + ret.to_s)
+          assert(ret == -Errno::ENOENT::Errno, "Wrong system call return, expected: #{-Errno::ENOENT::Errno} got: #{ret}")
           break
         end
         insyscall = insyscall ? false : true
@@ -296,7 +296,7 @@ class TestPinkSysCall
     end
 
     assert $?.exited?, "Child hasn't exited!"
-    assert($?.exitstatus == 0, 'Wrong exit status, expected: 0 got: ' + $?.exitstatus.to_s)
+    assert($?.exitstatus == 0, "Wrong exit status, expected: 0 got: #{$?.exitstatus}")
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
@@ -331,7 +331,7 @@ class TestPinkSysCall
     end
 
     assert $?.exited?, "Child hasn't exited!"
-    assert($?.exitstatus == 0, 'Wrong exit status, expected: 0 got: ' + $?.exitstatus.to_s)
+    assert($?.exitstatus == 0, "Wrong exit status, expected: 0 got: #{$?.exitstatus}")
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end

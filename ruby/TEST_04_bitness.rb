@@ -31,7 +31,7 @@ class TestPinkBitness < Test::Unit::TestCase
   def test_bitness_get
     pid = PinkTrace.fork {}
     bitness = PinkTrace::Bitness.get pid
-    assert(bitness == PinkTrace::Bitness::DEFAULT, 'Wrong bitness, expected: ' + PinkTrace::Bitness::DEFAULT.to_s + ' got: ' + bitness.to_s)
+    assert(bitness == PinkTrace::Bitness::DEFAULT, "Wrong bitness, expected: #{PinkTrace::Bitness::DEFAULT} got: #{bitness}")
 
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
