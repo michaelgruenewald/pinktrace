@@ -105,18 +105,18 @@ class TestPinkSocketAddress
   end
 
   def test_address_decode
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       UNIXServer.new TEST_UNIX_SOCKET
     end
 
     # Loop until we get to the bind() system call.
     event = -1
-    while event != PinkTrace::Event::EXIT_GENUINE
+    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
       PinkTrace::Trace.syscall pid
       Process.waitpid pid
 
       event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::SYSCALL
+      if event == PinkTrace::Event::EVENT_SYSCALL
         scno = PinkTrace::SysCall.get_no pid
         name = PinkTrace::SysCall.name scno
 
@@ -143,18 +143,18 @@ class TestPinkSocketAddress
   end
 
   def test_decode_address_fd
-    pid = PinkTrace.fork do
+    pid = PinkTrace::Fork.fork do
       UNIXServer.new TEST_UNIX_SOCKET
     end
 
     # Loop until we get to the bind() system call.
     event = -1
-    while event != PinkTrace::Event::EXIT_GENUINE
+    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
       PinkTrace::Trace.syscall pid
       Process.waitpid pid
 
       event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::SYSCALL
+      if event == PinkTrace::Event::EVENT_SYSCALL
         scno = PinkTrace::SysCall.get_no pid
         name = PinkTrace::SysCall.name scno
 

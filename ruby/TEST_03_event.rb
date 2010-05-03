@@ -32,7 +32,7 @@ class TestPinkEvent < Test::Unit::TestCase
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::STOP, "Wrong event, expected: STOP got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_STOP, "Wrong event, expected: STOP got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
@@ -44,19 +44,19 @@ class TestPinkEvent < Test::Unit::TestCase
     PinkTrace::Trace.syscall pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::SYSCALL, "Wrong event, expected: SYSCALL got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_SYSCALL, "Wrong event, expected: SYSCALL got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
 
   def test_event_fork
-    pid = PinkTrace::Fork.fork(PinkTrace::Trace::FORK) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::OPTION_FORK) do
       fork { exit 0 }
     end
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::FORK, "Wrong event, expected: FORK got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_FORK, "Wrong event, expected: FORK got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
@@ -71,25 +71,25 @@ class TestPinkEvent < Test::Unit::TestCase
   end
 
   def test_event_exec
-    pid = PinkTrace::Fork.fork(PinkTrace::Trace::EXEC) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::OPTION_EXEC) do
       exec '/bin/true'
     end
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::EXEC, "Wrong event, expected: EXEC got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_EXEC, "Wrong event, expected: EXEC got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
 
   def test_event_exit
-    pid = PinkTrace::Fork.fork(PinkTrace::Trace::EXIT) do
+    pid = PinkTrace::Fork.fork(PinkTrace::Trace::OPTION_EXIT) do
       exit 0
     end
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::EXIT, "Wrong event, expected: EXIT got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_EXIT, "Wrong event, expected: EXIT got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
@@ -101,7 +101,7 @@ class TestPinkEvent < Test::Unit::TestCase
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::GENUINE, "Wrong event, expected: GENUINE got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_GENUINE, "Wrong event, expected: GENUINE got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
@@ -113,7 +113,7 @@ class TestPinkEvent < Test::Unit::TestCase
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::EXIT_GENUINE, "Wrong event, expected: EXIT_GENUINE got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_EXIT_GENUINE, "Wrong event, expected: EXIT_GENUINE got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
@@ -125,7 +125,7 @@ class TestPinkEvent < Test::Unit::TestCase
     PinkTrace::Trace.cont pid
     Process.waitpid pid
     event = PinkTrace::Event.decide
-    assert(event == PinkTrace::Event::EXIT_SIGNAL, "Wrong event, expected: EXIT_SIGNAL got: #{event}")
+    assert(event == PinkTrace::Event::EVENT_EXIT_SIGNAL, "Wrong event, expected: EXIT_SIGNAL got: #{event}")
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end

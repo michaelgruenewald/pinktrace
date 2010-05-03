@@ -98,12 +98,12 @@ class TestPinkSocket
     # Loop until we get to the socket() system call as there's no guarantee
     # that other system calls won't be called beforehand.
     event = -1
-    while event != PinkTrace::Event::EXIT_GENUINE
+    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
       PinkTrace::Trace.syscall pid
       Process.waitpid pid
 
       event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::SYSCALL then
+      if event == PinkTrace::Event::EVENT_SYSCALL then
         scno = PinkTrace::SysCall.get_no pid
         name = PinkTrace::SysCall.name scno
         if name == 'socketcall' or name == 'socket' then

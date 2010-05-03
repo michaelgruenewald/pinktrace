@@ -159,7 +159,7 @@ static VALUE pinkrb_cINET6Address;
  *
  * == Constants
  *
- * - PinkTrace::Trace::SYSGOOD
+ * - PinkTrace::Trace::OPTION_SYSGOOD
  *
  *   This constant represents the trace option SYSGOOD.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
@@ -168,7 +168,7 @@ static VALUE pinkrb_cINET6Address;
  *   difference between normal traps and those caused by a sycall. This
  *   option may not work on all architectures.
  *
- * - PinkTrace::Trace::FORK
+ * - PinkTrace::Trace::OPTION_FORK
  *
  *   This constant represents the trace option FORK.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
@@ -176,7 +176,7 @@ static VALUE pinkrb_cINET6Address;
  *   and automatically start tracing the newly forked process, which will start with
  *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
  *
- * - PinkTrace::Trace::VFORK
+ * - PinkTrace::Trace::OPTION_VFORK
  *
  *   This constant represents the trace option VFORK.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
@@ -184,7 +184,7 @@ static VALUE pinkrb_cINET6Address;
  *   and automatically start tracing the newly vforked process, which will start with
  *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
  *
- * - PinkTrace::Trace::CLONE
+ * - PinkTrace::Trace::OPTION_CLONE
  *
  *   This constant represnets the trace option CLONE.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
@@ -192,20 +192,20 @@ static VALUE pinkrb_cINET6Address;
  *   and automatically start tracing the newly cloned process, which will start with
  *   a SIGSTOP. The PID for the new process can be retrieved with PinkTrace::Trace.geteventmsg.
  *
- * - PinkTrace::Trace::EXEC
+ * - PinkTrace::Trace::OPTION_EXEC
  *
  *   This constant represents the trace option EXEC.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
  *   stop the child at the next execve(2) call with (SIGTRAP | PTRACE_EVENT_EXEC << 8).
  *
- * - PinkTrace::Trace::VFORK_DONE
+ * - PinkTrace::Trace::OPTION_VFORK_DONE
  *
  *   This constant represents the trace option VFORK_DONE.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
  *   stop the child at the completion of the next vfork(2) call with
  *   (SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8).
  *
- * - PinkTrace::Trace::EXIT
+ * - PinkTrace::Trace::OPTION_EXIT
  *
  *   This constant represents the trace option EXIT.
  *   If this flag is set in the options argument of PinkTrace::Trace.setup,
@@ -217,7 +217,7 @@ static VALUE pinkrb_cINET6Address;
  *   context is available, the tracer cannot prevent the exit from happening at
  *   this point.
  *
- * - PinkTrace::Trace::ALL
+ * - PinkTrace::Trace::OPTION_ALL
  *
  *   This constant represents all option flags bitwise OR'ed together.
  *
@@ -449,7 +449,7 @@ pinkrb_trace_geteventmsg(pink_unused VALUE mod, VALUE pidv)
 
 /*
  * Document-method: PinkTrace::Trace.setup
- * call-seq: PinkTrace::Trace.setup(pid, [options=PinkTrace::Trace::SYSGOOD]) => nil
+ * call-seq: PinkTrace::Trace.setup(pid, [options=PinkTrace::Trace::OPTION_SYSGOOD]) => nil
  *
  * Sets the tracing options.
  */
@@ -555,7 +555,7 @@ pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::Fork.fork
- * call-seq: PinkTrace::Fork.fork([opts=PinkTrace::Trace::SYSGOOD]) [{ block }] => fixnum or nil
+ * call-seq: PinkTrace::Fork.fork([opts=PinkTrace::Trace::OPTION_SYSGOOD]) [{ block }] => fixnum or nil
  *
  * fork(2) wrapper that sets up the child for tracing.
  *
@@ -624,43 +624,43 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * == Constants
  *
- * - PinkTrace::Event::STOP
+ * - PinkTrace::Event::EVENT_STOP
  *
  *   The traced child has received a SIGSTOP.
  *
- * - PinkTrace::Event::SYSCALL
+ * - PinkTrace::Event::EVENT_SYSCALL
  *
  *   The traced child is entering or exiting a system call.
  *
- * - PinkTrace::Event::FORK
+ * - PinkTrace::Event::EVENT_FORK
  *
  *   The traced child called fork(2).
  *
- * - PinkTrace::Event::VFORK
+ * - PinkTrace::Event::EVENT_VFORK
  *
  *   The traced child called vfork(2).
  *
- * - PinkTrace::Event::CLONE
+ * - PinkTrace::Event::EVENT_CLONE
  *
  *   The traced child called clone(2).
  *
- * - PinkTrace::Event::VFORK_DONE
+ * - PinkTrace::Event::EVENT_VFORK_DONE
  *
  *   The traced child is exiting a vfork(2) call.
  *
- * - PinkTrace::Event::EXEC
+ * - PinkTrace::Event::EVENT_EXEC
  *
  *   The traced child is exiting. (ptrace way, stopped before exit)
  *
- * - PinkTrace::Event::GENUINE
+ * - PinkTrace::Event::EVENT_GENUINE
  *
  *   The traced child has received a genuine signal.
  *
- * - PinkTrace::Event::EXIT_GENUINE
+ * - PinkTrace::Event::EVENT_EXIT_GENUINE
  *
  *   The traced child has exited normally.
  *
- * - PinkTrace::Event::EXIT_SIGNAL
+ * - PinkTrace::Event::EVENT_EXIT_SIGNAL
  *
  *   The traced child has been terminated with a signal.
  *
@@ -1815,14 +1815,14 @@ Init_PinkTrace(void)
 
 	/* trace.h */
 	trace_mod = rb_define_module_under(mod, "Trace");
-	rb_define_const(trace_mod, "SYSGOOD", INT2FIX(PINK_TRACE_OPTION_SYSGOOD));
-	rb_define_const(trace_mod, "FORK", INT2FIX(PINK_TRACE_OPTION_FORK));
-	rb_define_const(trace_mod, "VFORK", INT2FIX(PINK_TRACE_OPTION_VFORK));
-	rb_define_const(trace_mod, "CLONE", INT2FIX(PINK_TRACE_OPTION_CLONE));
-	rb_define_const(trace_mod, "EXEC", INT2FIX(PINK_TRACE_OPTION_EXEC));
-	rb_define_const(trace_mod, "VFORK_DONE", INT2FIX(PINK_TRACE_OPTION_VFORK_DONE));
-	rb_define_const(trace_mod, "EXIT", INT2FIX(PINK_TRACE_OPTION_EXIT));
-	rb_define_const(trace_mod, "ALL", INT2FIX(PINK_TRACE_OPTION_ALL));
+	rb_define_const(trace_mod, "OPTION_SYSGOOD", INT2FIX(PINK_TRACE_OPTION_SYSGOOD));
+	rb_define_const(trace_mod, "OPTION_FORK", INT2FIX(PINK_TRACE_OPTION_FORK));
+	rb_define_const(trace_mod, "OPTION_VFORK", INT2FIX(PINK_TRACE_OPTION_VFORK));
+	rb_define_const(trace_mod, "OPTION_CLONE", INT2FIX(PINK_TRACE_OPTION_CLONE));
+	rb_define_const(trace_mod, "OPTION_EXEC", INT2FIX(PINK_TRACE_OPTION_EXEC));
+	rb_define_const(trace_mod, "OPTION_VFORK_DONE", INT2FIX(PINK_TRACE_OPTION_VFORK_DONE));
+	rb_define_const(trace_mod, "OPTION_EXIT", INT2FIX(PINK_TRACE_OPTION_EXIT));
+	rb_define_const(trace_mod, "OPTION_ALL", INT2FIX(PINK_TRACE_OPTION_ALL));
 	rb_define_module_function(trace_mod, "me", pinkrb_trace_me, 0);
 	rb_define_module_function(trace_mod, "cont", pinkrb_trace_cont, -1);
 	rb_define_module_function(trace_mod, "kill", pinkrb_trace_kill, 1);
@@ -1839,17 +1839,17 @@ Init_PinkTrace(void)
 
 	/* event.h */
 	event_mod = rb_define_module_under(mod, "Event");
-	rb_define_const(event_mod, "STOP", INT2FIX(PINK_EVENT_STOP));
-	rb_define_const(event_mod, "SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
-	rb_define_const(event_mod, "FORK", INT2FIX(PINK_EVENT_FORK));
-	rb_define_const(event_mod, "VFORK", INT2FIX(PINK_EVENT_VFORK));
-	rb_define_const(event_mod, "CLONE", INT2FIX(PINK_EVENT_CLONE));
-	rb_define_const(event_mod, "VFORK_DONE", INT2FIX(PINK_EVENT_VFORK_DONE));
-	rb_define_const(event_mod, "EXEC", INT2FIX(PINK_EVENT_EXEC));
-	rb_define_const(event_mod, "EXIT", INT2FIX(PINK_EVENT_EXIT));
-	rb_define_const(event_mod, "GENUINE", INT2FIX(PINK_EVENT_GENUINE));
-	rb_define_const(event_mod, "EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
-	rb_define_const(event_mod, "EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
+	rb_define_const(event_mod, "EVENT_STOP", INT2FIX(PINK_EVENT_STOP));
+	rb_define_const(event_mod, "EVENT_SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
+	rb_define_const(event_mod, "EVENT_FORK", INT2FIX(PINK_EVENT_FORK));
+	rb_define_const(event_mod, "EVENT_VFORK", INT2FIX(PINK_EVENT_VFORK));
+	rb_define_const(event_mod, "EVENT_CLONE", INT2FIX(PINK_EVENT_CLONE));
+	rb_define_const(event_mod, "EVENT_VFORK_DONE", INT2FIX(PINK_EVENT_VFORK_DONE));
+	rb_define_const(event_mod, "EVENT_EXEC", INT2FIX(PINK_EVENT_EXEC));
+	rb_define_const(event_mod, "EVENT_EXIT", INT2FIX(PINK_EVENT_EXIT));
+	rb_define_const(event_mod, "EVENT_GENUINE", INT2FIX(PINK_EVENT_GENUINE));
+	rb_define_const(event_mod, "EVENT_EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
+	rb_define_const(event_mod, "EVENT_EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
 	rb_define_module_function(event_mod, "decide", pinkrb_event_decide, -1);
 
 	/* bitness.h */
