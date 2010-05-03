@@ -13,11 +13,6 @@ require 'PinkTrace'
 class TestPinkSocketAddress < Test::Unit::TestCase
   def test_address_no_initialize
     assert !(PinkTrace::Socket::Address.respond_to? :initialize)
-    assert !(PinkTrace::Socket::UNIXAddress.respond_to? :initialize)
-    assert !(PinkTrace::Socket::INETAddress.respond_to? :initialize)
-    if PinkTrace::HAVE_IPV6
-      assert !(PinkTrace::Socket::INET6Address.respond_to? :initialize)
-    end
   end
 
   def test_address_decode_invalid
@@ -97,19 +92,12 @@ end
 class TestPinkSocketAddress
   TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 
-  def teardown
-    begin
-      File.unlink TEST_UNIX_SOCKET
-    rescue Errno::ENOENT
-    end
-  end
-
   def test_address_decode
     pid = PinkTrace::Fork.fork do
-      UNIXServer.new TEST_UNIX_SOCKET
+      UNIXSocket.new TEST_UNIX_SOCKET
     end
 
-    # Loop until we get to the bind() system call.
+    # Loop until we get to the connect() system call.
     event = -1
     while event != PinkTrace::Event::EVENT_EXIT_GENUINE
       PinkTrace::Trace.syscall pid
@@ -123,14 +111,15 @@ class TestPinkSocketAddress
         if name == 'socketcall'
           subcall = PinkTrace::Socket.decode_call pid
           subname = PinkTrace::Socket.name subcall
-          next unless subname == 'bind'
+          next unless subname == 'connect'
         else
-          next unless name == 'bind'
+          next unless name == 'connect'
         end
 
-        # We are at the beginning of the bind() call!
+        # We are at the beginning of the connect() call!
         addr = PinkTrace::Socket.decode_address pid, 1
-        assert(addr.class == PinkTrace::Socket::UNIXAddress, "#{addr.class}")
+        assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
+        assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
         assert !addr.abstract?, "Expected non-abstract socket, got abstract"
         assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
@@ -143,10 +132,10 @@ class TestPinkSocketAddress
 
   def test_decode_address_fd
     pid = PinkTrace::Fork.fork do
-      UNIXServer.new TEST_UNIX_SOCKET
+      UNIXSocket.new TEST_UNIX_SOCKET
     end
 
-    # Loop until we get to the bind() system call.
+    # Loop until we get to the connect() system call.
     event = -1
     while event != PinkTrace::Event::EVENT_EXIT_GENUINE
       PinkTrace::Trace.syscall pid
@@ -160,16 +149,16 @@ class TestPinkSocketAddress
         if name == 'socketcall'
           subcall = PinkTrace::Socket.decode_call pid
           subname = PinkTrace::Socket.name subcall
-          next unless subname == 'bind'
+          next unless subname == 'connect'
         else
-          next unless name == 'bind'
+          next unless name == 'connect'
         end
 
-        # We are at the beginning of the bind() call!
+        # We are at the beginning of the connect() call!
         addr, fd = PinkTrace::Socket.decode_address_fd pid, 1
         assert(fd.class == Fixnum, "#{fd.class}")
-        assert(addr.class == PinkTrace::Socket::UNIXAddress, "#{addr.class}")
-        assert_kind_of PinkTrace::Socket::UNIXAddress, addr
+        assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
+        assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
         assert(!addr.abstract?, "Expected non-abstract socket, got abstract")
         assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
