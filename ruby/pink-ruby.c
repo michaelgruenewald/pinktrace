@@ -42,6 +42,10 @@
 #endif /* !INET6_ADDRSTRLEN */
 #endif
 
+#ifndef PIDT2NUM
+#define PIDT2NUM(p) LONG2NUM((p))
+#endif /* !PIDT2NUM */
+
 void
 Init_PinkTrace(void);
 
@@ -603,11 +607,7 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
 		return Qnil;
 	}
 	else
-#ifdef PIDT2NUM /* ruby-1.9 */
 		return PIDT2NUM(pid);
-#else /* ruby-1.8 */
-		return LONG2NUM(pid);
-#endif /* PIDT2NUM */
 }
 
 /*

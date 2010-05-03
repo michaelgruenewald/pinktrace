@@ -196,6 +196,18 @@ fi
 AC_SUBST([PINKTRACE_DEFAULT_BITNESS])
 dnl }}}
 
+dnl {{{ Check for types
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+dnl }}}
+
+dnl {{{ Check for sizes
+AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([long])
+AC_CHECK_SIZEOF([long long])
+AC_CHECK_SIZEOF([pid_t])
+dnl }}}
+
 dnl {{{ Check headers
 REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
 for header in $REQUIRED_HEADERS ; do
