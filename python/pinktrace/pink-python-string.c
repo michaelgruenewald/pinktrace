@@ -45,7 +45,7 @@ static char pinkpy_string_decode_doc[] = ""
 	"(Optional, defaults to -1, if smaller than zero, pinktrace tries to determine the string length itself)\n"
 	"@raise IndexError: Raised if the index is not smaller than MAX_INDEX\n"
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@rtype: str\n"
 	"@return: The decoded string";
 static PyObject *
@@ -116,7 +116,8 @@ pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
 }
 
 static char pinkpy_string_encode_doc[] = ""
-	"Encode a string into the argument of the given index safely.\n"
+	"Encode a string into the argument of the given index.\n"
+	"@bug: Care must be taken when using this function as unexpected things may happen.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param index: The index of the argument\n"
@@ -125,7 +126,7 @@ static char pinkpy_string_encode_doc[] = ""
 	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
 	"@raise IndexError: Raised if the index is not smaller than C{MAX_INDEX}\n"
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
 pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 {
@@ -171,6 +172,7 @@ pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 static char pinkpy_string_encode_unsafe_doc[] = ""
 	"Encode a string into the argument of the given index without additional\n"
 	"checking for writable areas.\n"
+	"@bug: Care must be taken when using this function as unexpected things may happen.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param index: The index of the argument\n"
@@ -179,7 +181,7 @@ static char pinkpy_string_encode_unsafe_doc[] = ""
 	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
 	"@raise IndexError: Raised if the index is not smaller than C{MAX_INDEX}\n"
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
 pinkpy_string_encode_unsafe(pink_unused PyObject *self, PyObject *args)
 {

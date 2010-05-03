@@ -37,7 +37,7 @@ initsyscall(void);
 static char pinkpy_syscall_name_doc[] = ""
 	"Return the name of the given system call.\n"
 	"\n"
-	"Note: This call depends on the generated system call names.\n"
+	"@note: This call depends on the generated system call names.\n"
 	"You can check whether they are generated with:\n"
 	"C{pinktrace.syscall.name(0) is not None}\n"
 	"@param scno: System call number\n"

@@ -174,7 +174,7 @@ static char pinkpy_trace_setup_doc[] = ""
 	"@param pid: Process ID of the traced child\n"
 	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
 	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
 pinkpy_trace_setup(pink_unused PyObject *self, PyObject *args)
 {
@@ -252,7 +252,7 @@ trace_init(PyObject *mod)
 	PyModule_AddIntConstant(mod, "OPTION_ALL", PINK_TRACE_OPTION_ALL);
 }
 
-static char trace_doc[] = "Pink's low level wrappers around ptrace internals";
+static char trace_doc[] = "Pink's low level wrappers around I{ptrace(2)} internals";
 static PyMethodDef trace_methods[] = {
 	{"me", pinkpy_trace_me, METH_NOARGS, pinkpy_trace_me_doc},
 	{"cont", pinkpy_trace_cont, METH_VARARGS, pinkpy_trace_cont_doc},

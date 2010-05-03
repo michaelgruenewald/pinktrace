@@ -37,7 +37,7 @@ static PyObject *EventError;
 static char pinkpy_event_decide_doc[] = ""
 	"Return the last event made by child.\n"
 	"\n"
-	"Note: This function expected pinktrace.trace.OPTION_SYSGOOD has been passed\n"
+	"@note: This function expects C{pinktrace.trace.OPTION_SYSGOOD} has been passed\n"
 	"to C{pinktrace.trace.setup()} or C{pinktrace.fork.fork()}.\n"
 	"@param status: The status argument, received from os.waitpid() call.\n"
 	"@raise event.EventError: Raised when the event is unknown.\n"

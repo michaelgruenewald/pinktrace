@@ -38,7 +38,7 @@ static char pinkpy_bitness_get_doc[] = ""
 	"Returns the bitness of the given Process ID.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@rtype: int\n"
 	"@return: One of C{pinktrace.bitness.BITNESS_*} constants";
 static PyObject *
