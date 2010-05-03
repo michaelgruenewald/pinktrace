@@ -14,10 +14,6 @@ about_la_SOURCES= about.c
 about_la_LDFLAGS= -module -avoid-version -shared
 about_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-BUILT_SOURCES+= bitness.c
-bitness.c: bitness.pyx
-	$(AM_V_GEN)
-	$(AM_V_at)$(CYTHON) -o $@ $<
 pythonlib_LTLIBRARIES+= bitness.la
 bitness_la_SOURCES= bitness.c
 bitness_la_LDFLAGS= -module -avoid-version -shared
