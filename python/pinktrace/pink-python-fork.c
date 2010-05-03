@@ -28,7 +28,11 @@
 #include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_fork(void);
+#else
 initfork(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static char pinkpy_fork_doc[] = ""
 	"fork(2) wrapper that sets up the child for tracing.\n"
@@ -59,14 +63,40 @@ pinkpy_fork(pink_unused PyObject *self, PyObject *args)
 }
 
 static char fork_doc[] = "Pink's fork(2) wrapper";
-static PyMethodDef methods[] = {
+static PyMethodDef fork_methods[] = {
 	{"fork", pinkpy_fork, METH_VARARGS, pinkpy_fork_doc},
 	{NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef fork_module = {
+	PyModuleDef_HEAD_INIT,
+	"fork",
+	fork_doc,
+	-1,
+	fork_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_fork(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&fork_module);
+	if (!mod)
+		return NULL;
+
+	return mod;
+}
+#else
 PyMODINIT_FUNC
 initfork(void)
 {
 	PyObject *mod;
-	mod = Py_InitModule3("fork", methods, fork_doc);
+	mod = Py_InitModule3("fork", fork_methods, fork_doc);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

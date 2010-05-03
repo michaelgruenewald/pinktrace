@@ -45,7 +45,11 @@
 	 && (addr).u.sa_un.sun_path[1] != '\0')
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_socket(void);
+#else
 initsocket(void);
+#endif /* PY_MAJOR_VERSION */
 
 typedef struct {
 	PyObject_HEAD
@@ -191,7 +195,11 @@ static PyObject *
 Address_family(PyObject *self, pink_unused void *x)
 {
 	Address *addr = (Address *)self;
+#if PY_MAJOR_VERSION > 2
+	return PyLong_FromLong(addr->addr.family);
+#else
 	return PyInt_FromLong(addr->addr.family);
+#endif /* PY_MAJOR_VERSION > 2 */
 }
 
 static PyObject *
@@ -209,6 +217,30 @@ Address_abstract(PyObject *self, pink_unused void *x)
 
 static PyObject *
 Address_repr(PyObject *self)
+#if PY_MAJOR_VERSION > 2
+{
+	Address *addr = (Address *)self;
+
+	switch (addr->addr.family) {
+	case -1:
+		return PyUnicode_FromString("<Address family=-1 addr=NULL>");
+	case AF_UNIX:
+		return PyUnicode_FromFormat("<Address family=AF_UNIX, addr=%p>",
+			(void *)&addr->addr);
+	case AF_INET:
+		return PyUnicode_FromFormat("<Address family=AF_INET, addr=%p>",
+			(void *)&addr->addr);
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		return PyUnicode_FromFormat("<Address family=AF_INET6, addr=%p>",
+			(void *)&addr->addr);
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		return PyUnicode_FromFormat("<Address family=%d, addr=NULL>",
+			addr->addr.family);
+	}
+}
+#else
 {
 	Address *addr = (Address *)self;
 
@@ -231,9 +263,43 @@ Address_repr(PyObject *self)
 			addr->addr.family);
 	}
 }
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static PyObject *
 Address_str(PyObject *self)
+#if PY_MAJOR_VERSION > 2
+{
+	char *ip;
+	PyObject *ipObj;
+	Address *addr = (Address *)self;
+
+	switch (addr->addr.family) {
+	case -1:
+		return PyUnicode_FromString("NULL");
+	case AF_UNIX:
+		/* Check for abstract socket */
+		if (IS_ABSTRACT(addr->addr))
+			return PyUnicode_FromFormat("@%s", addr->addr.u.sa_un.sun_path + 1);
+		return PyUnicode_FromString(addr->addr.u.sa_un.sun_path);
+	case AF_INET:
+		ip = PyMem_New(char, INET_ADDRSTRLEN);
+		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
+		ipObj = PyUnicode_FromString(ip);
+		PyMem_Free(ip);
+		return ipObj;
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		ip = PyMem_New(char, INET6_ADDRSTRLEN);
+		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
+		ipObj = PyUnicode_FromString(ip);
+		PyMem_Free(ip);
+		return ipObj;
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		return PyUnicode_FromFormat("Unknown address (family: %d)", addr->addr.family);
+	}
+}
+#else
 {
 	char *ip;
 	PyObject *ipObj;
@@ -265,6 +331,7 @@ Address_str(PyObject *self)
 		return PyString_FromFormat("Unknown address (family: %d)", addr->addr.family);
 	}
 }
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static struct PyGetSetDef Address_get_sets[] = {
 	{"family", Address_family, 0, 0, 0},
@@ -282,8 +349,12 @@ static char Address_doc[] = ""
 	"- B{abstract}:\n"
 	"    - Returns True if the Address represents an abstract UNIX socket, False otherwise\n";
 static PyTypeObject Address_type = {
+#if PY_MAJOR_VERSION > 2
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
 	PyObject_HEAD_INIT(NULL)
 	0,						/* ob_size */
+#endif /* PY_MAJOR_VERSION > 2 */
 	"socket.Address",				/* tp_name */
 	sizeof(Address),				/* tp_basicsize */
 	0,						/* tp_itemsize */
@@ -395,8 +466,15 @@ pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
 	return obj;
 }
 
+static void
+socket_init(PyObject *mod)
+{
+	Py_INCREF(&Address_type);
+	PyModule_AddObject(mod, "Address", (PyObject *)&Address_type);
+}
+
 static char socket_doc[] = "Pink's socket decoding functions";
-static PyMethodDef methods[] = {
+static PyMethodDef socket_methods[] = {
 	{"name", pinkpy_socket_name, METH_VARARGS, pinkpy_socket_name_doc},
 	{"decode_call", pinkpy_socket_decode_call, METH_VARARGS, pinkpy_socket_decode_call_doc},
 	{"decode_fd", pinkpy_socket_decode_fd, METH_VARARGS, pinkpy_socket_decode_fd_doc},
@@ -404,6 +482,36 @@ static PyMethodDef methods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef socket_module = {
+	PyModuleDef_HEAD_INIT,
+	"socket",
+	socket_doc,
+	-1,
+	socket_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_socket(void)
+{
+	PyObject *mod;
+
+	if (PyType_Ready(&Address_type) < 0)
+		return NULL;
+
+	mod = PyModule_Create(&socket_module);
+	if (!mod)
+		return NULL;
+
+	socket_init(mod);
+
+	return mod;
+}
+#else
 PyMODINIT_FUNC
 initsocket(void)
 {
@@ -412,8 +520,8 @@ initsocket(void)
 	if (PyType_Ready(&Address_type) < 0)
 		return;
 
-	mod = Py_InitModule3("socket", methods, socket_doc);
+	mod = Py_InitModule3("socket", socket_methods, socket_doc);
 
-	Py_INCREF(&Address_type);
-	PyModule_AddObject(mod, "Address", (PyObject *)&Address_type);
+	socket_init(mod);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

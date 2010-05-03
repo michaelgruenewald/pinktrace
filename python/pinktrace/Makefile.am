@@ -50,45 +50,12 @@ trace_la_LDFLAGS= -module -avoid-version -shared
 trace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 # Hack to make tests work.
-check_DATA=
+check_DATA= about.so bitness.so \
+	    event.so fork.so \
+	    socket.so string.so \
+	    syscall.so trace.so
 
-check_DATA+= about.so
-about.so: .libs/about.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= bitness.so
-bitness.so: .libs/bitness.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= event.so
-event.so: .libs/event.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= fork.so
-fork.so: .libs/fork.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= socket.so
-socket.so: .libs/socket.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= string.so
-string.so: .libs/string.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= syscall.so
-syscall.so: .libs/syscall.so
-	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
-
-check_DATA+= trace.so
-trace.so: .libs/trace.so
+%.so: .libs/%.so
 	$(AM_V_GEN)
 	$(AM_V_at)$(LN_S) $< $@
 

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env ##PYTHON##
+# coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et tw=80 :
 
 import os, signal, sys, unittest
@@ -72,7 +72,7 @@ class TestEvent_02(unittest.TestCase):
     def test_07_event_exec(self):
         pid = fork.fork(trace.OPTION_EXEC)
         if (pid == 0): # child
-            os.execvp('true', ())
+            os.execvp("/bin/true", ("true",))
             os._exit(0)
         else: # parent
             trace.cont(pid)
@@ -93,7 +93,7 @@ class TestEvent_02(unittest.TestCase):
             ev = event.decide(status)
             self.assertEqual(ev, event.EVENT_EXIT)
             msg = trace.geteventmsg(pid)
-            self.assertEqual(os.WEXITSTATUS(msg), 13L)
+            self.assertEqual(os.WEXITSTATUS(msg), 13)
 
             try: trace.kill(pid)
             except OSError: pass

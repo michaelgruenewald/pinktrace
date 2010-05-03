@@ -28,7 +28,11 @@
 #include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_string(void);
+#else
 initstring(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static char pinkpy_string_decode_doc[] = ""
 	"This function decodes the string at the argument of the given index.\n"
@@ -86,7 +90,11 @@ pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
 		str = pink_decode_string_persistent(pid, bit, ind);
 		if (!str)
 			return PyErr_SetFromErrno(PyExc_OSError);
+#if PY_MAJOR_VERSION > 2
+		obj = PyUnicode_FromString(str);
+#else
 		obj = PyString_FromString(str);
+#endif /* PY_MAJOR_VERSION > 2 */
 		free(str);
 		return obj;
 	}
@@ -98,7 +106,11 @@ pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
 	if (!pink_decode_string(pid, bit, ind, str, maxlen))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
+#if PY_MAJOR_VERSION > 2
+	obj = PyUnicode_FromStringAndSize(str, maxlen);
+#else
 	obj = PyString_FromStringAndSize(str, maxlen);
+#endif /* PY_MAJOR_VERSION > 2 */
 	PyMem_Free(str);
 	return obj;
 }
@@ -211,16 +223,42 @@ pinkpy_string_encode_unsafe(pink_unused PyObject *self, PyObject *args)
 }
 
 static char string_doc[] = "Pink's string decoding and encoding functions";
-static PyMethodDef methods[] = {
+static PyMethodDef string_methods[] = {
 	{"decode", pinkpy_string_decode, METH_VARARGS, pinkpy_string_decode_doc},
 	{"encode", pinkpy_string_encode, METH_VARARGS, pinkpy_string_encode_doc},
 	{"encode_unsafe", pinkpy_string_encode_unsafe, METH_VARARGS, pinkpy_string_encode_unsafe_doc},
 	{NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef string_module = {
+	PyModuleDef_HEAD_INIT,
+	"string",
+	string_doc,
+	-1,
+	string_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_string(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&string_module);
+	if (!mod)
+		return NULL;
+
+	return mod;
+}
+#else
 PyMODINIT_FUNC
 initstring(void)
 {
 	PyObject *mod;
-	mod = Py_InitModule3("string", methods, string_doc);
+	mod = Py_InitModule3("string", string_methods, string_doc);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

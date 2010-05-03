@@ -28,7 +28,11 @@
 #include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_syscall(void);
+#else
 initsyscall(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static char pinkpy_syscall_name_doc[] = ""
 	"Return the name of the given system call.\n"
@@ -215,8 +219,14 @@ pinkpy_syscall_get_arg(pink_unused PyObject *self, PyObject *args)
 	return Py_BuildValue("l", arg);
 }
 
+static void
+syscall_init(PyObject *mod)
+{
+	PyModule_AddIntConstant(mod, "MAX_INDEX", PINK_MAX_INDEX);
+}
+
 static char syscall_doc[] = "Pink's system call utility functions";
-static PyMethodDef methods[] = {
+static PyMethodDef syscall_methods[] = {
 	{"name", pinkpy_syscall_name, METH_VARARGS, pinkpy_syscall_name_doc},
 	{"get_no", pinkpy_syscall_get_no, METH_VARARGS, pinkpy_syscall_get_no_doc},
 	{"set_no", pinkpy_syscall_set_no, METH_VARARGS, pinkpy_syscall_set_no_doc},
@@ -226,14 +236,42 @@ static PyMethodDef methods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef syscall_module = {
+	PyModuleDef_HEAD_INIT,
+	"syscall",
+	syscall_doc,
+	-1,
+	syscall_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_syscall(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&syscall_module);
+	if (!mod)
+		return NULL;
+
+	syscall_init(mod);
+
+	return mod;
+}
+#else
 PyMODINIT_FUNC
 initsyscall(void)
 {
 	PyObject *mod;
 
-	mod = Py_InitModule3("syscall", methods, syscall_doc);
+	mod = Py_InitModule3("syscall", syscall_methods, syscall_doc);
 	if (!mod)
 		return;
 
-	PyModule_AddIntConstant(mod, "MAX_INDEX", PINK_MAX_INDEX);
+	syscall_init(mod);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

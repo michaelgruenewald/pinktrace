@@ -25,23 +25,23 @@
 #include <Python.h>
 #include <pinktrace/pink.h>
 
+#include "pink-python-hacks.h"
+
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_about(void);
+#else
 initabout(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static char about_doc[] = "Pink's version and build constants";
-static PyMethodDef methods[] = {
+static PyMethodDef about_methods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initabout(void)
+static void
+about_init(PyObject *mod)
 {
-	PyObject *mod;
-
-	mod = Py_InitModule3("about", methods, about_doc);
-	if (!mod)
-		return;
-
 	PyModule_AddIntConstant(mod, "VERSION_MAJOR", PINKTRACE_VERSION_MAJOR);
 	PyModule_AddIntConstant(mod, "VERSION_MINOR", PINKTRACE_VERSION_MINOR);
 	PyModule_AddIntConstant(mod, "VERSION_MICRO", PINKTRACE_VERSION_MICRO);
@@ -51,3 +51,41 @@ initabout(void)
 	PyModule_AddStringConstant(mod, "GIT_HEAD", PINKTRACE_GIT_HEAD);
 	PyModule_AddIntConstant(mod, "HAVE_IPV6", PINKTRACE_HAVE_IPV6);
 }
+
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef about_module = {
+	PyModuleDef_HEAD_INIT,
+	"about",
+	about_doc,
+	-1,
+	about_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_about(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&about_module);
+	if (!mod)
+		return NULL;
+
+	about_init(mod);
+
+	return mod;
+}
+#else
+PyMODINIT_FUNC
+initabout(void)
+{
+	PyObject *mod = Py_InitModule3("about", about_methods, about_doc);
+	if (!mod)
+		return;
+
+	about_init(mod);
+}
+#endif /* PY_MAJOR_VERSION > 2 */

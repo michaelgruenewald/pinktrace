@@ -28,7 +28,11 @@
 #include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_trace(void);
+#else
 inittrace(void);
+#endif /* PY_MAJOR_VERSION */
 
 static char pinkpy_trace_me_doc[] = ""
 	"Indicates that this process is to be traced by its parent.\n"
@@ -235,8 +239,21 @@ pinkpy_trace_detach(pink_unused PyObject *self, PyObject *args)
 	return Py_BuildValue("");
 }
 
+static void
+trace_init(PyObject *mod)
+{
+	PyModule_AddIntConstant(mod, "OPTION_SYSGOOD", PINK_TRACE_OPTION_SYSGOOD);
+	PyModule_AddIntConstant(mod, "OPTION_FORK", PINK_TRACE_OPTION_FORK);
+	PyModule_AddIntConstant(mod, "OPTION_VFORK", PINK_TRACE_OPTION_VFORK);
+	PyModule_AddIntConstant(mod, "OPTION_CLONE", PINK_TRACE_OPTION_CLONE);
+	PyModule_AddIntConstant(mod, "OPTION_EXEC", PINK_TRACE_OPTION_EXEC);
+	PyModule_AddIntConstant(mod, "OPTION_VFORK_DONE", PINK_TRACE_OPTION_VFORK_DONE);
+	PyModule_AddIntConstant(mod, "OPTION_EXIT", PINK_TRACE_OPTION_EXIT);
+	PyModule_AddIntConstant(mod, "OPTION_ALL", PINK_TRACE_OPTION_ALL);
+}
+
 static char trace_doc[] = "Pink's low level wrappers around ptrace internals";
-static PyMethodDef methods[] = {
+static PyMethodDef trace_methods[] = {
 	{"me", pinkpy_trace_me, METH_NOARGS, pinkpy_trace_me_doc},
 	{"cont", pinkpy_trace_cont, METH_VARARGS, pinkpy_trace_cont_doc},
 	{"kill", pinkpy_trace_kill, METH_VARARGS, pinkpy_trace_kill_doc},
@@ -249,21 +266,42 @@ static PyMethodDef methods[] = {
 	{NULL, NULL, 0, NULL},
 };
 
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef trace_module = {
+	PyModuleDef_HEAD_INIT,
+	"trace",
+	trace_doc,
+	-1,
+	trace_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_trace(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&trace_module);
+	if (!mod)
+		return NULL;
+
+	trace_init(mod);
+
+	return mod;
+}
+#else
 PyMODINIT_FUNC
 inittrace(void)
 {
 	PyObject *mod;
 
-	mod = Py_InitModule3("trace", methods, trace_doc);
+	mod = Py_InitModule3("trace", trace_methods, trace_doc);
 	if (!mod)
 		return;
 
-	PyModule_AddIntConstant(mod, "OPTION_SYSGOOD", PINK_TRACE_OPTION_SYSGOOD);
-	PyModule_AddIntConstant(mod, "OPTION_FORK", PINK_TRACE_OPTION_FORK);
-	PyModule_AddIntConstant(mod, "OPTION_VFORK", PINK_TRACE_OPTION_VFORK);
-	PyModule_AddIntConstant(mod, "OPTION_CLONE", PINK_TRACE_OPTION_CLONE);
-	PyModule_AddIntConstant(mod, "OPTION_EXEC", PINK_TRACE_OPTION_EXEC);
-	PyModule_AddIntConstant(mod, "OPTION_VFORK_DONE", PINK_TRACE_OPTION_VFORK_DONE);
-	PyModule_AddIntConstant(mod, "OPTION_EXIT", PINK_TRACE_OPTION_EXIT);
-	PyModule_AddIntConstant(mod, "OPTION_ALL", PINK_TRACE_OPTION_ALL);
+	trace_init(mod);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

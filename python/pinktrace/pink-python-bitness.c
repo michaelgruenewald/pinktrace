@@ -28,7 +28,11 @@
 #include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_bitness(void);
+#else
 initbitness(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static char pinkpy_bitness_get_doc[] = ""
 	"Returns the bitness of the given Process ID.\n"
@@ -54,22 +58,56 @@ pinkpy_bitness_get(pink_unused PyObject *self, PyObject *args)
 }
 
 static char bitness_doc[] = "Pink's bitness modes";
-static PyMethodDef methods[] = {
+static PyMethodDef bitness_methods[] = {
 	{"get", pinkpy_bitness_get, METH_VARARGS, pinkpy_bitness_get_doc},
 	{NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initbitness(void)
+static void
+bitness_init(PyObject *mod)
 {
-	PyObject *mod;
-
-	mod = Py_InitModule3("bitness", methods, bitness_doc);
-	if (!mod)
-		return;
-
 	PyModule_AddIntConstant(mod, "BITNESS_32", PINK_BITNESS_32);
 	PyModule_AddIntConstant(mod, "BITNESS_64", PINK_BITNESS_64);
 	PyModule_AddIntConstant(mod, "DEFAULT_BITNESS", PINKTRACE_DEFAULT_BITNESS);
 	PyModule_AddIntConstant(mod, "SUPPORTED_BITNESS", PINKTRACE_SUPPORTED_BITNESS);
 }
+
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef bitness_module = {
+	PyModuleDef_HEAD_INIT,
+	"bitness",
+	bitness_doc,
+	-1,
+	bitness_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_bitness(void)
+{
+	PyObject *mod;
+
+	mod = PyModule_Create(&bitness_module);
+	if (!mod)
+		return NULL;
+
+	bitness_init(mod);
+
+	return mod;
+}
+#else
+PyMODINIT_FUNC
+initbitness(void)
+{
+	PyObject *mod;
+
+	mod = Py_InitModule3("bitness", bitness_methods, bitness_doc);
+	if (!mod)
+		return;
+
+	bitness_init(mod);
+}
+#endif /* PY_MAJOR_VERSION > 2 */

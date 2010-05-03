@@ -25,10 +25,12 @@
 #include <Python.h>
 #include <pinktrace/pink.h>
 
-#include <stdio.h> /* snprintf() */
-
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION > 2
+PyInit_event(void);
+#else
 initevent(void);
+#endif /* PY_MAJOR_VERSION > 2 */
 
 static PyObject *EventError;
 
@@ -51,31 +53,21 @@ pinkpy_event_decide(pink_unused PyObject *self, PyObject *args)
 		return NULL;
 
 	event = pink_event_decide(status);
-	if (event == PINK_EVENT_UNKNOWN) {
-		char errmsg[128];
-		snprintf(errmsg, 128, "Unknown event (%#x)", status);
-		PyErr_SetString(EventError, errmsg);
-		return NULL;
-	}
+	if (event == PINK_EVENT_UNKNOWN)
+		return PyErr_Format(EventError, "Unknown event (%x)", status);
 
 	return Py_BuildValue("I", event);
 }
 
 static char event_doc[] = "Pink's event handling";
-static PyMethodDef methods[] = {
+static PyMethodDef event_methods[] = {
 	{"decide", pinkpy_event_decide, METH_VARARGS, pinkpy_event_decide_doc},
 	{NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initevent(void)
+static void
+event_init(PyObject *mod)
 {
-	PyObject *mod, *dict;
-
-	mod = Py_InitModule3("event", methods, event_doc);
-	if (!mod)
-		return;
-
 	PyModule_AddIntConstant(mod, "EVENT_STOP", PINK_EVENT_STOP);
 	PyModule_AddIntConstant(mod, "EVENT_SYSCALL", PINK_EVENT_SYSCALL);
 	PyModule_AddIntConstant(mod, "EVENT_FORK", PINK_EVENT_FORK);
@@ -87,6 +79,56 @@ initevent(void)
 	PyModule_AddIntConstant(mod, "EVENT_GENUINE", PINK_EVENT_GENUINE);
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_GENUINE", PINK_EVENT_EXIT_GENUINE);
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_SIGNAL", PINK_EVENT_EXIT_SIGNAL);
+}
+
+#if PY_MAJOR_VERSION > 2
+static struct PyModuleDef event_module = {
+	PyModuleDef_HEAD_INIT,
+	"event",
+	event_doc,
+	-1,
+	event_methods,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+};
+
+PyMODINIT_FUNC
+PyInit_event(void)
+{
+	PyObject *mod, *dict;
+
+	mod = PyModule_Create(&event_module);
+	if (!mod)
+		return NULL;
+
+	event_init(mod);
+
+	dict = PyModule_GetDict(mod);
+	if (!dict) {
+		PyErr_SetString(PyExc_ImportError, "pinktrace.event: init failed");
+		return NULL;
+	}
+
+	EventError = PyErr_NewException("event.EventError", PyExc_RuntimeError, NULL);
+	if (!EventError)
+		PyErr_SetString(PyExc_ImportError, "pinktrace.event: init failed");
+	PyDict_SetItemString(dict, "EventError", EventError);
+
+	return mod;
+}
+#else
+PyMODINIT_FUNC
+initevent(void)
+{
+	PyObject *mod, *dict;
+
+	mod = Py_InitModule3("event", event_methods, event_doc);
+	if (!mod)
+		return;
+
+	event_init(mod);
 
 	dict = PyModule_GetDict(mod);
 	if (!dict)
@@ -97,3 +139,4 @@ initevent(void)
 		PyErr_SetString(PyExc_ImportError, "pinktrace.event: init failed");
 	PyDict_SetItemString(dict, "EventError", EventError);
 }
+#endif /* PY_MAJOR_VERSION > 2 */

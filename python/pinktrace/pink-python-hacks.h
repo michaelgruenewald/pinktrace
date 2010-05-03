@@ -30,6 +30,8 @@
 
 #include <Python.h>
 
+#if PY_MAJOR_VERSION < 3
+
 #if !defined(SIZEOF_PID_T) || SIZEOF_PID_T == SIZEOF_INT
 #define PARSE_PID "i"
 #define PyLong_FromPid PyInt_FromLong
@@ -45,5 +47,25 @@
 #else
 #error "sizeof(pid_t) is neither sizeof(int), sizeof(long) or sizeof(long long)"
 #endif /* SIZEOF_PID_T */
+
+#else
+
+#if !defined(SIZEOF_PID_T) || SIZEOF_PID_T == SIZEOF_INT
+#define PARSE_PID "i"
+#define PyLong_FromPid PyLong_FromLong
+#define PyLong_AsPid PyLong_AsLong
+#elif SIZEOF_PID_T == SIZEOF_LONG
+#define PARSE_PID "l"
+#define PyLong_FromPid PyLong_FromLong
+#define PyLong_AsPid PyLong_AsLong
+#elif defined(SIZEOF_LONG_LONG) && SIZEOF_PID_T == SIZEOF_LONG_LONG
+#define PARSE_PID "L"
+#define PyLong_FromPid PyLong_FromLongLong
+#define PyLong_AsPid PyLong_AsLongLong
+#else
+#error "sizeof(pid_t) is neither sizeof(int), sizeof(long) or sizeof(long long)"
+#endif /* SIZEOF_PID_T */
+
+#endif /* PY_MAJOR_VERSION */
 
 #endif /* !PINKTRACE_GUARD_PINK_HACKS_H */
