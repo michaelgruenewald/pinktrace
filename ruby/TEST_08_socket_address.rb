@@ -132,8 +132,7 @@ class TestPinkSocketAddress
         addr = PinkTrace::Socket.decode_address pid, 1
         assert(addr.class == PinkTrace::Socket::UNIXAddress, "#{addr.class}")
         assert !addr.abstract?, "Expected non-abstract socket, got abstract"
-        assert(addr.path.class == String, "#{addr.path.class}")
-        assert(addr.path == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.path}'")
+        assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
       end
     end
@@ -172,8 +171,7 @@ class TestPinkSocketAddress
         assert(addr.class == PinkTrace::Socket::UNIXAddress, "#{addr.class}")
         assert_kind_of PinkTrace::Socket::UNIXAddress, addr
         assert(!addr.abstract?, "Expected non-abstract socket, got abstract")
-        assert(addr.path.class == String, "#{addr.path.class}")
-        assert(addr.path == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.path}'")
+        assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
       end
     end
