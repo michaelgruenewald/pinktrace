@@ -25,9 +25,24 @@
 #include <Python.h>
 #include <pinktrace/pink.h>
 
+#include <netinet/in.h> /* INET{,6}_ADDRSTRLEN */
 #include <arpa/inet.h> /* inet_ntop() */
 
 #include "pink-python-hacks.h"
+
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif /* !INET_ADDRSTRLEN */
+
+#if PINKTRACE_HAVE_IPV6
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif /* !INET6_ADDRSTRLEN */
+#endif
+
+#define IS_ABSTRACT(addr) \
+	((addr).u.sa_un.sun_path[0] == '\0' \
+	 && (addr).u.sa_un.sun_path[1] != '\0')
 
 PyMODINIT_FUNC
 initsocket(void);
@@ -175,47 +190,93 @@ Address_dealloc(PyObject *o)
 static PyObject *
 Address_family(PyObject *self, pink_unused void *x)
 {
-	return PyInt_FromLong(((Address *)self)->addr.family);
+	Address *addr = (Address *)self;
+	return PyInt_FromLong(addr->addr.family);
 }
 
 static PyObject *
-Address_path(PyObject *self, pink_unused void *x)
+Address_abstract(PyObject *self, pink_unused void *x)
 {
 	Address *addr = (Address *)self;
 
-	if (addr->addr.family == AF_UNIX)
-		return Py_BuildValue("s", addr->addr.u.sa_un.sun_path);
-	return Py_BuildValue("");
-}
-
-static PyObject *
-Address_ip(PyObject *self, pink_unused void *x)
-{
-	Address *addr = (Address *)self;
-
-	if (addr->addr.family == AF_INET) {
-		char ip[INET_ADDRSTRLEN] = { 0 };
-		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
-		return Py_BuildValue("s", ip);
+	if (addr->addr.family == AF_UNIX && IS_ABSTRACT(addr->addr)) {
+		Py_INCREF(Py_True);
+		return Py_True;
 	}
+	Py_INCREF(Py_False);
+	return Py_False;
+}
+
+static PyObject *
+Address_repr(PyObject *self)
+{
+	Address *addr = (Address *)self;
+
+	switch (addr->addr.family) {
+	case AF_UNIX:
+		return PyString_FromFormat("<Address family=AF_UNIX, addr=%p>",
+			(void *)&addr->addr);
+	case AF_INET:
+		return PyString_FromFormat("<Address family=AF_INET, addr=%p>",
+			(void *)&addr->addr);
 #if PINKTRACE_HAVE_IPV6
-	else if (addr->addr.family == AF_INET6) {
-		char ip6[INET6_ADDRSTRLEN] = { 0 };
-		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip6, INET6_ADDRSTRLEN);
-		return Py_BuildValue("s", ip6);
-	}
+	case AF_INET6:
+		return PyString_FromFormat("<Address family=AF_INET6, addr=%p>",
+			(void *)&addr->addr);
 #endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		return PyString_FromFormat("<Address family=%d, addr=NULL>",
+			addr->addr.family);
+	}
+}
 
-	return Py_BuildValue("");
+static PyObject *
+Address_str(PyObject *self)
+{
+	char *ip;
+	PyObject *ipObj;
+	Address *addr = (Address *)self;
+
+	switch (addr->addr.family) {
+	case AF_UNIX:
+		/* Check for abstract socket */
+		if (IS_ABSTRACT(addr->addr))
+			return PyString_FromFormat("@%s", addr->addr.u.sa_un.sun_path + 1);
+		return PyString_FromString(addr->addr.u.sa_un.sun_path);
+	case AF_INET:
+		ip = PyMem_New(char, INET_ADDRSTRLEN);
+		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
+		ipObj = PyString_FromString(ip);
+		PyMem_Free(ip);
+		return ipObj;
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		ip = PyMem_New(char, INET6_ADDRSTRLEN);
+		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
+		ipObj = PyString_FromString(ip);
+		PyMem_Free(ip);
+		return ipObj;
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		return PyString_FromString("NULL");
+	}
 }
 
 static struct PyGetSetDef Address_get_sets[] = {
 	{"family", Address_family, 0, 0, 0},
-	{"path", Address_path, 0, 0, 0},
-	{"ip", Address_ip, 0, 0, 0},
+	{"abstract", Address_abstract, 0, 0, 0},
 	{NULL, NULL, 0, 0, 0}
 };
 
+static char Address_doc[] = ""
+	"This class represents a decoded socket address\n"
+	"\n"
+	"Methods:"
+	"\n"
+	"- B{family}:\n"
+	"    - Returns the family of the Address (AF_UNIX, AF_INET, etc.)\n"
+	"- B{abstract}:\n"
+	"    - Returns True if the Address represents an abstract UNIX socket, False otherwise\n";
 static PyTypeObject Address_type = {
 	PyObject_HEAD_INIT(NULL)
 	0,						/* ob_size */
@@ -227,18 +288,18 @@ static PyTypeObject Address_type = {
 	0,						/* tp_getattr */
 	0,						/* tp_setattr */
 	0,						/* tp_compare */
-	0,						/* tp_repr */
+	(reprfunc)Address_repr,				/* tp_repr */
 	0,						/* tp_as_number*/
 	0,						/* tp_as_sequence*/
 	0,						/* tp_as_mapping*/
 	0,						/* tp_hash */
 	0,						/* tp_call*/
-	0,						/* tp_str*/
+	(reprfunc)Address_str,				/* tp_str*/
 	0,						/* tp_getattro*/
 	0,						/* tp_setattro*/
 	0,						/* tp_as_buffer*/
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags*/
-	"Decoded socket address",			/* tp_doc */
+	Address_doc,					/* tp_doc */
 	0,						/* tp_traverse */
 	0,						/* tp_clear */
 	0,						/* tp_richcompare */
@@ -324,6 +385,7 @@ pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
 
 	addr = (Address *)obj;
 	if (!pink_decode_socket_address(pid, bit, ind, NULL, &addr->addr))
+		/* FIXME: Do we need to free obj here? */
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return obj;
