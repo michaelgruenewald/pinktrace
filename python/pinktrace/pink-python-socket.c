@@ -213,6 +213,8 @@ Address_repr(PyObject *self)
 	Address *addr = (Address *)self;
 
 	switch (addr->addr.family) {
+	case -1:
+		return PyString_FromString("<Address family=-1 addr=NULL>");
 	case AF_UNIX:
 		return PyString_FromFormat("<Address family=AF_UNIX, addr=%p>",
 			(void *)&addr->addr);
@@ -238,6 +240,8 @@ Address_str(PyObject *self)
 	Address *addr = (Address *)self;
 
 	switch (addr->addr.family) {
+	case -1:
+		return PyString_FromString("NULL");
 	case AF_UNIX:
 		/* Check for abstract socket */
 		if (IS_ABSTRACT(addr->addr))
@@ -258,7 +262,7 @@ Address_str(PyObject *self)
 		return ipObj;
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
-		return PyString_FromString("NULL");
+		return PyString_FromFormat("Unknown address (family: %d)", addr->addr.family);
 	}
 }
 
