@@ -143,44 +143,6 @@ AM_CONDITIONAL(BITNESS_ONE,
 AM_CONDITIONAL(BITNESS_TWO, test x"$arch" = x"x86_64")
 
 dnl Export some useful information via pinktrace/about.h
-PINKTRACE_ARCHITECTURE="$arch"
-AC_SUBST([PINKTRACE_ARCHITECTURE])
-
-if test x"$arch" = x"i386" ; then
-	PINKTRACE_ARCH_I386=1
-else
-	PINKTRACE_ARCH_I386=0
-fi
-AC_SUBST([PINKTRACE_ARCH_I386])
-
-if test x"$arch" = x"x86_64" ; then
-	PINKTRACE_ARCH_X86_64=1
-else
-	PINKTRACE_ARCH_X86_64=0
-fi
-AC_SUBST([PINKTRACE_ARCH_X86_64])
-
-if test x"$arch" = "ia64" ; then
-	PINKTRACE_ARCH_IA64=1
-else
-	PINKTRACE_ARCH_IA64=0
-fi
-AC_SUBST([PINKTRACE_ARCH_IA64])
-
-if test x"$arch" = x"powerpc" ; then
-	PINKTRACE_ARCH_POWERPC=1
-else
-	PINKTRACE_ARCH_POWERPC=0
-fi
-AC_SUBST([PINKTRACE_ARCH_POWERPC])
-
-if test x"$arch" = x"powerpc64" ; then
-	PINKTRACE_ARCH_POWERPC64=1
-else
-	PINKTRACE_ARCH_POWERPC64=0
-fi
-AC_SUBST([PINKTRACE_ARCH_POWERPC64])
-
 if test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64" ; then
 	PINKTRACE_SUPPORTED_BITNESS=1
 else

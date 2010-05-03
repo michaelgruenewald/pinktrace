@@ -1796,32 +1796,6 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "VERSION_MICRO", INT2FIX(PINKTRACE_VERSION_MICRO));
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
-	rb_define_const(mod, "ARCHITECTURE", rb_str_new2(PINKTRACE_ARCHITECTURE));
-#if PINKTRACE_ARCH_I386
-	rb_define_const(mod, "ARCH_I386", Qtrue);
-#else
-	rb_define_const(mod, "ARCH_I386", Qfalse);
-#endif /* PINKTRACE_ARCH_I386 */
-#if PINKTRACE_ARCH_X86_64
-	rb_define_const(mod, "ARCH_X86_64", Qtrue);
-#else
-	rb_define_const(mod, "ARCH_X86_64", Qfalse);
-#endif /* PINKTRACE_ARCH_X86_64 */
-#if PINKTRACE_ARCH_IA64
-	rb_define_const(mod, "ARCH_IA64", Qtrue);
-#else
-	rb_define_const(mod, "ARCH_IA64", Qfalse);
-#endif /* PINKTRACE_ARCH_IA64 */
-#if PINKTRACE_ARCH_POWERPC
-	rb_define_const(mod, "ARCH_POWERPC", Qtrue);
-#else
-	rb_define_const(mod, "ARCH_POWERPC", Qfalse);
-#endif /* PINKTRACE_ARCH_POWERPC */
-#if PINKTRACE_ARCH_POWERPC64
-	rb_define_const(mod, "ARCH_POWERPC64", Qtrue);
-#else
-	rb_define_const(mod, "ARCH_POWERPC64", Qfalse);
-#endif /* PINKTRACE_ARCH_POWERPC64 */
 	/* util.h */
 	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 

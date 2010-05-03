@@ -72,36 +72,6 @@
 #define PINKTRACE_PC_SLOT "@PINKTRACE_PC_SLOT@"
 
 /**
- * The architecture of the machine that compiled pinktrace (eg "x86_64" or "i386")
- **/
-#define PINKTRACE_ARCHITECTURE "@PINKTRACE_ARCHITECTURE@"
-
-/**
- * Check define for the i386 architecture (1 on i386 or 0 on others)
- **/
-#define PINKTRACE_ARCH_I386 @PINKTRACE_ARCH_I386@
-
-/**
- * Check define for the x86_64 architecture (1 on x86_64 or 0 on others)
- **/
-#define PINKTRACE_ARCH_X86_64 @PINKTRACE_ARCH_X86_64@
-
-/**
- * Check define for the ia64 architecture (1 on ia64 or 0 on others)
- **/
-#define PINKTRACE_ARCH_IA64 @PINKTRACE_ARCH_IA64@
-
-/**
- * Check define for the powerpc architecture (1 on powerpc or 0 on others)
- **/
-#define PINKTRACE_ARCH_POWERPC @PINKTRACE_ARCH_POWERPC@
-
-/**
- * Check define for the powerpc64 architecture (1 on powerpc64 or 0 on others)
- **/
-#define PINKTRACE_ARCH_POWERPC64 @PINKTRACE_ARCH_POWERPC64@
-
-/**
  * Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
  **/
 #define PINKTRACE_SUPPORTED_BITNESS @PINKTRACE_SUPPORTED_BITNESS@
