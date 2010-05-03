@@ -9,12 +9,12 @@ from pinktrace import trace
 
 class TestTrace_01_Invalid(unittest.TestCase):
 
-    #def testTraceMe(self):
-    #    trace.me()
-    #    self.assertRaises(OSError, trace.me)
+    def test_01_me(self):
+        self.assertRaises(TypeError, trace.me, 1)
 
-    def test_01_cont(self):
+    def test_02_cont(self):
         self.assertRaises(TypeError, trace.cont)
+        self.assertRaises(TypeError, trace.cont, 1, 2, 3)
         self.assertRaises(TypeError, trace.cont, 'pink')
         self.assertRaises(TypeError, trace.cont, 0, 'pink')
         self.assertRaises(OSError, trace.cont, 0)

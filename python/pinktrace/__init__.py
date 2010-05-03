@@ -11,4 +11,15 @@ pinktrace Python bindings
 __author__ = "Ali Polatel <alip@exherbo.org>"
 __license__ = "LGPL-2.1"
 
-__all__ = ('about', 'event', 'fork', 'trace')
+__all__ = ('about', 'bitness', 'event', 'fork', 'socket', 'string', 'syscall', 'trace')
+
+import pinktrace.about
+from pinktrace.about import *
+
+import pinktrace.bitness
+import pinktrace.event
+import pinktrace.fork
+import pinktrace.socket
+import pinktrace.string
+import pinktrace.syscall
+import pinktrace.trace

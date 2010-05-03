@@ -52,7 +52,6 @@ m4/lt*.m4
 
 pkg-config/pinktrace.pc
 
-python/pinktrace/*.c
 python/pinktrace/*.so
 
 ruby/PinkTrace.so

@@ -13,7 +13,21 @@ class TestString_01_Invalid(unittest.TestCase):
         self.assertRaises(TypeError, string.decode)
         self.assertRaises(TypeError, string.decode, 0)
         self.assertRaises(IndexError, string.decode, 0, syscall.MAX_INDEX)
-        self.assertRaises(bitness.BitnessError, string.decode, 0, 1, -1, 13)
+        self.assertRaises(ValueError, string.decode, 0, 1, -1, 13)
+
+    def test_02_encode(self):
+        self.assertRaises(TypeError, string.encode)
+        self.assertRaises(TypeError, string.encode, 0)
+        self.assertRaises(TypeError, string.encode, 0, 1)
+        self.assertRaises(IndexError, string.encode, 0, syscall.MAX_INDEX, 'pink')
+        self.assertRaises(ValueError, string.encode, 0, 1, 'pink', 13)
+
+    def test_03_encode_unsafe(self):
+        self.assertRaises(TypeError, string.encode_unsafe)
+        self.assertRaises(TypeError, string.encode_unsafe, 0)
+        self.assertRaises(TypeError, string.encode_unsafe, 0, 1)
+        self.assertRaises(IndexError, string.encode_unsafe, 0, syscall.MAX_INDEX, 'pink')
+        self.assertRaises(ValueError, string.encode_unsafe, 0, 1, 'pink', 13)
 
 class TestString_02(unittest.TestCase):
 

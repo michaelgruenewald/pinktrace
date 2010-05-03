@@ -401,7 +401,6 @@ dnl }}}
 
 dnl {{{ Python interface
 AC_ARG_VAR([PYTHON], [path to the Python interpreter])
-AC_ARG_VAR([CYTHON], [path to the Cython tool])
 AC_MSG_CHECKING([whether to build the Python interface])
 AC_ARG_ENABLE([python],
 			  AS_HELP_STRING([--enable-python], [Enable Python interface (default: disable)]),
@@ -425,11 +424,6 @@ if test x"$enable_python" = x"yes" ; then
 	fi
 	AC_MSG_RESULT([$PYTHON_INCLUDE_DIR])
 	AC_SUBST([PYTHON_INCLUDE_DIR])
-
-	AC_PATH_PROG([CYTHON], cython)
-	if test x"$CYTHON" = x ; then
-		AC_MSG_ERROR([Cython (http://cython.org) is required to build Python interface])
-	fi
 
 	AC_MSG_CHECKING([for Python install directory])
 	AC_ARG_WITH([python-install-dir],
