@@ -4,48 +4,48 @@ AM_CFLAGS= -I. -I@PYTHON_INCLUDE_DIR@ -I$(top_srcdir)/include \
 	   @PINKTRACE_CFLAGS@
 BUILT_SOURCES=
 
-noinst_HEADERS= pink-hacks.h
+noinst_HEADERS= pink-python-hacks.h
 
 pythonlibdir= @PYTHON_INSTALL_DIR@/pinktrace
 pythonlib_LTLIBRARIES=
 
 pythonlib_LTLIBRARIES+= about.la
-about_la_SOURCES= about.c
+about_la_SOURCES= pink-python-about.c
 about_la_LDFLAGS= -module -avoid-version -shared
 about_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= bitness.la
-bitness_la_SOURCES= bitness.c
+bitness_la_SOURCES= pink-python-bitness.c
 bitness_la_LDFLAGS= -module -avoid-version -shared
 bitness_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= event.la
-event_la_SOURCES= event.c
+event_la_SOURCES= pink-python-event.c
 event_la_LDFLAGS= -module -avoid-version -shared
 event_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= fork.la
-fork_la_SOURCES= fork.c
+fork_la_SOURCES= pink-python-fork.c
 fork_la_LDFLAGS= -module -avoid-version -shared
 fork_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= socket.la
-socket_la_SOURCES= socket.c
+socket_la_SOURCES= pink-python-socket.c
 socket_la_LDFLAGS= -module -avoid-version -shared
 socket_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= string.la
-string_la_SOURCES= string.c
+string_la_SOURCES= pink-python-string.c
 string_la_LDFLAGS= -module -avoid-version -shared
 string_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= syscall.la
-syscall_la_SOURCES= syscall.c
+syscall_la_SOURCES= pink-python-syscall.c
 syscall_la_LDFLAGS= -module -avoid-version -shared
 syscall_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 pythonlib_LTLIBRARIES+= trace.la
-trace_la_SOURCES= trace.c
+trace_la_SOURCES= pink-python-trace.c
 trace_la_LDFLAGS= -module -avoid-version -shared
 trace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 

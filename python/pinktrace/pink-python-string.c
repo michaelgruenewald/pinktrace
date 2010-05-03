@@ -25,7 +25,7 @@
 #include <Python.h>
 #include <pinktrace/pink.h>
 
-#include "pink-hacks.h"
+#include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
 initstring(void);

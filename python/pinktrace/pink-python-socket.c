@@ -27,7 +27,7 @@
 
 #include <arpa/inet.h> /* inet_ntop() */
 
-#include "pink-hacks.h"
+#include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
 initsocket(void);

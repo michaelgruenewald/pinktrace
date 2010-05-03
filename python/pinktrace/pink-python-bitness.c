@@ -25,48 +25,51 @@
 #include <Python.h>
 #include <pinktrace/pink.h>
 
-#include "pink-hacks.h"
+#include "pink-python-hacks.h"
 
 PyMODINIT_FUNC
-initfork(void);
+initbitness(void);
 
-static char pinkpy_fork_doc[] = ""
-	"fork(2) wrapper that sets up the child for tracing.\n"
+static char pinkpy_bitness_get_doc[] = ""
+	"Returns the bitness of the given Process ID.\n"
 	"\n"
-	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
-	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
-	"@raise OSError: Raised when the underlying fork or ptrace calls fail.\n"
-	"@rtype: long\n"
-	"@return: Return 0 in the child and the child's process ID in the parent.";
+	"@param pid: Process ID of the traced child\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@rtype: int\n"
+	"@return: One of C{pinktrace.bitness.BITNESS_*} constants";
 static PyObject *
-pinkpy_fork(pink_unused PyObject *self, PyObject *args)
+pinkpy_bitness_get(pink_unused PyObject *self, PyObject *args)
 {
 	pid_t pid;
-	int opts;
-	pink_error_t error;
+	pink_bitness_t bit;
 
-	opts = PINK_TRACE_OPTION_SYSGOOD;
-	if (!PyArg_ParseTuple(args, "|i", &opts))
+	if (!PyArg_ParseTuple(args, PARSE_PID, &pid))
 		return NULL;
 
-	pid = pink_fork(opts, &error);
-	if (pid < 0) {
-		/* TODO: use pink_error_tostring() */
+	bit = pink_bitness_get(pid);
+	if (bit == PINK_BITNESS_UNKNOWN)
 		return PyErr_SetFromErrno(PyExc_OSError);
-	}
 
-	return PyLong_FromPid(pid);
+	return Py_BuildValue("I", bit);
 }
 
-static char fork_doc[] = "Pink's fork(2) wrapper";
+static char bitness_doc[] = "Pink's bitness modes";
 static PyMethodDef methods[] = {
-	{"fork", pinkpy_fork, METH_VARARGS, pinkpy_fork_doc},
+	{"get", pinkpy_bitness_get, METH_VARARGS, pinkpy_bitness_get_doc},
 	{NULL, NULL, 0, NULL}
 };
 
 PyMODINIT_FUNC
-initfork(void)
+initbitness(void)
 {
 	PyObject *mod;
-	mod = Py_InitModule3("fork", methods, fork_doc);
+
+	mod = Py_InitModule3("bitness", methods, bitness_doc);
+	if (!mod)
+		return;
+
+	PyModule_AddIntConstant(mod, "BITNESS_32", PINK_BITNESS_32);
+	PyModule_AddIntConstant(mod, "BITNESS_64", PINK_BITNESS_64);
+	PyModule_AddIntConstant(mod, "DEFAULT_BITNESS", PINKTRACE_DEFAULT_BITNESS);
+	PyModule_AddIntConstant(mod, "SUPPORTED_BITNESS", PINKTRACE_SUPPORTED_BITNESS);
 }
