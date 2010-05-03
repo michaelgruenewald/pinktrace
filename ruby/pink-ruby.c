@@ -993,9 +993,11 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 
 /*
  * Document-method: PinkTrace::String.decode
- * call-seq: PinkTrace::String.decode(pid, index, [[max=0], [bitness=PinkTrace::Bitness::DEFAULT]]) => String
+ * call-seq: PinkTrace::String.decode(pid, index, [[maxlen=-1], [bitness=PinkTrace::Bitness::DEFAULT]]) => String
  *
- * This function decodes the string at the argument of the given index.
+ * This function decodes the string at the argument of the given index. If
+ * +maxlen+ is smaller than zero, which is the default, pinktrace tries to
+ * determine the length of the string itself.
  *
  * Note: PinkTrace::EventError is raised if +index+ argument is not smaller
  * than PinkTrace::MAX_INDEX.
@@ -1007,7 +1009,8 @@ static VALUE
 pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 {
 	pid_t pid;
-	unsigned bit, ind, max;
+	unsigned bit, ind;
+	int maxlen;
 	char *str;
 	VALUE ret;
 
@@ -1029,12 +1032,12 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (argc > 2) {
 		if (FIXNUM_P(argv[2]))
-			max = FIX2UINT(argv[2]);
+			maxlen = FIX2INT(argv[2]);
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
 	else
-		max = 0;
+		maxlen = -1;
 
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3])) {
@@ -1061,7 +1064,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	else
 		bit = PINKTRACE_DEFAULT_BITNESS;
 
-	if (!max) {
+	if (maxlen < 0) {
 		/* Use pink_decode_string_persistent() */
 		str = pink_decode_string_persistent(pid, bit, ind);
 		if (!str)
@@ -1073,8 +1076,8 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	}
 
 	/* Use pink_decode_string() */
-	str = ALLOC_N(char, max);
-	if (!pink_decode_string(pid, bit, ind, str, max))
+	str = ALLOC_N(char, maxlen);
+	if (!pink_decode_string(pid, bit, ind, str, maxlen))
 		rb_sys_fail("pink_decode_string()");
 
 	ret = rb_str_new2(str);
