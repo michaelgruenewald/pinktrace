@@ -36,11 +36,11 @@ static char pinkpy_event_decide_doc[] = ""
 	"Return the last event made by child.\n"
 	"\n"
 	"Note: This function expected pinktrace.trace.OPTION_SYSGOOD has been passed\n"
-	"to pinktrace.trace.setup() or pinktrace.fork.fork().\n"
+	"to C{pinktrace.trace.setup()} or C{pinktrace.fork.fork()}.\n"
 	"@param status: The status argument, received from os.waitpid() call.\n"
 	"@raise event.EventError: Raised when the event is unknown.\n"
 	"@rtype: int\n"
-	"@return: One of the pinktrace.event.EVENT_* constants";
+	"@return: One of the C{pinktrace.event.EVENT_*} constants";
 static PyObject *
 pinkpy_event_decide(pink_unused PyObject *self, PyObject *args)
 {

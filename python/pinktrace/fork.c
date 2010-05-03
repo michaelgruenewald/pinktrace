@@ -33,8 +33,8 @@ initfork(void);
 static char pinkpy_fork_doc[] = ""
 	"fork(2) wrapper that sets up the child for tracing.\n"
 	"\n"
-	"@param options: Bitwise OR'ed pinktrace.trace.OPTION_* flags\n"
-	"(Optional, defaults to pinktrace.trace.OPTION_SYSGOOD)\n"
+	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
+	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
 	"@raise OSError: Raised when the underlying fork or ptrace calls fail.\n"
 	"@rtype: long\n"
 	"@return: Return 0 in the child and the child's process ID in the parent.";

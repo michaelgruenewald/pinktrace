@@ -1,7 +1,10 @@
 SUBDIRS= .
+EXTRA_DIST= epydoc.css
 EPYDOC_FLAGS= --verbose \
 	      --name "pinktrace" \
-	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python"
+	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python" \
+	      --no-frames \
+	      --css $(srcdir)/epydoc.css
 
 if ENABLE_PYTHON_DOC
 all-local: epydoc

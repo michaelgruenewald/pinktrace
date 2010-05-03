@@ -32,12 +32,12 @@ inittrace(void);
 
 static char pinkpy_trace_me_doc[] = ""
 	"Indicates that this process is to be traced by its parent.\n"
-	"Any signal (except SIGKILL) delivered to this process will cause it to stop\n"
-	"and its parent to be notified via wait(2). Also, all subsequent calls to\n"
-	"execve(2) by this process will cause a SIGTRAP to be sent to it, giving the\n"
+	"Any signal (except B{SIGKILL}) delivered to this process will cause it to stop\n"
+	"and its parent to be notified via I{wait(2)}. Also, all subsequent calls to\n"
+	"I{execve(2)} by this process will cause a B{SIGTRAP} to be sent to it, giving the\n"
 	"parent a chance to gain control before the new program begins execution.\n"
 	"\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
 pinkpy_trace_me(pink_unused PyObject *self, pink_unused PyObject *args)
 {
@@ -51,11 +51,11 @@ static char pinkpy_trace_cont_doc[] = ""
 	"Restarts the stopped child process.\n"
 	"\n"
 	"@param pid: Process ID of the child to be restarted\n"
-	"@param sig: If this is non-zero and not SIGSTOP, it is interpreted as the\n"
+	"@param sig: If this is non-zero and not B{SIGSTOP}, it is interpreted as the\n"
 	"signal to be delivered to the child; otherwise, no signal is delivered.\n"
 	"Thus, for example, the parent can control whether a signal sent to the child\n"
-	"is delivered or not. (Optional, defaults to 0)\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.";
+	"is delivered or not. (Optional, defaults to C{0})\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
 pinkpy_trace_cont(pink_unused PyObject *self, PyObject *args)
 {
@@ -73,10 +73,10 @@ pinkpy_trace_cont(pink_unused PyObject *self, PyObject *args)
 }
 
 static char pinkpy_trace_kill_doc[] = ""
-	"Kills the traced child process with SIGKILL.\n"
+	"Kills the traced child process with B{SIGKILL}.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
 pinkpy_trace_kill(pink_unused PyObject *self, PyObject *args)
 {
@@ -96,8 +96,8 @@ static char pinkpy_trace_singlestep_doc[] = ""
 	"execution of a single instruction.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@param sig: Treated the same as the signal argument of pinktrace.trace.cont()\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
 pinkpy_trace_singlestep(pink_unused PyObject *self, PyObject *args)
@@ -120,8 +120,8 @@ static char pinkpy_trace_syscall_doc[] = ""
 	"entry or exit of the next system call.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@param sig: Treated the same as the signal argument of pinktrace.trace.cont()\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
 pinkpy_trace_syscall(pink_unused PyObject *self, PyObject *args)
@@ -140,13 +140,13 @@ pinkpy_trace_syscall(pink_unused PyObject *self, PyObject *args)
 }
 
 static char pinkpy_trace_geteventmsg_doc[] = ""
-	"Retrieve a message (as an unsigned long) about the trace event that just\n"
-	"happened, placing it in the location given by the second argument. For EXIT\n"
-	"event this is the child's exit status. For FORK, VFORK, CLONE and VFORK_DONE\n"
+	"Retrieve a message (as an I{unsigned long}) about the trace event that just\n"
+	"happened, placing it in the location given by the second argument. For B{EXIT}\n"
+	"event this is the child's exit status. For B{FORK}, B{VFORK}, B{CLONE} and B{VFORK_DONE}\n"
 	"events this is the process ID of the new process.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@rtype: long\n"
 	"@return: The event message";
 static PyObject *
@@ -168,8 +168,8 @@ static char pinkpy_trace_setup_doc[] = ""
 	"Sets the tracing options.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@param options: Bitwise OR'ed pinktrace.trace.OPTION_* flags\n"
-	"(Optional, defaults to pinktrace.trace.OPTION_SYSGOOD)\n"
+	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
+	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
 	"@raise OSError: Raised when the underlying ptrace call fails.\n";
 static PyObject *
 pinkpy_trace_setup(pink_unused PyObject *self, PyObject *args)
@@ -190,12 +190,12 @@ pinkpy_trace_setup(pink_unused PyObject *self, PyObject *args)
 static char pinkpy_trace_attach_doc[] = ""
 	"Attaches to the process specified in pid, making it a traced \"child\" of the\n"
 	"calling process; the behaviour of the child is as if it had done a\n"
-	"pinktrace.trace.me(). The child is sent a SIGSTOP, but will not necessarily\n"
-	"have stopped by the completion of this call; use wait(2) to wait for the\n"
+	"C{pinktrace.trace.me()}. The child is sent a B{SIGSTOP}, but will not necessarily\n"
+	"have stopped by the completion of this call; use I{wait(2)} to wait for the\n"
 	"child to stop.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n";
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
 pinkpy_trace_attach(pink_unused PyObject *self, PyObject *args)
 {
@@ -211,13 +211,13 @@ pinkpy_trace_attach(pink_unused PyObject *self, PyObject *args)
 }
 
 static char pinkpy_trace_detach_doc[] = ""
-	"Restarts the stopped child as for pinktrace.trace.cont(), but first detaches\n"
+	"Restarts the stopped child as for C{pinktrace.trace.cont()}, but first detaches\n"
 	"from the process, undoing the reparenting effect of\n"
-	"pinktrace.trace.attach().\n"
+	"C{pinktrace.trace.attach()}.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param sig: Treated the same as the signal argument of pinktrace.trace.cont()\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
 pinkpy_trace_detach(pink_unused PyObject *self, PyObject *args)
