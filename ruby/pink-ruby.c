@@ -44,7 +44,7 @@
 
 #ifndef PIDT2NUM
 #define PIDT2NUM(p) LONG2NUM((p))
-#endif /* !PIDT2NUM */
+#endif
 
 void
 Init_PinkTrace(void);
