@@ -11,10 +11,18 @@ epydoc: python
 symlinks:
 	test -e $(top_builddir)/python/pinktrace/about.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/about.so about.so )
+	test -e $(top_builddir)/python/pinktrace/bitness.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/bitness.so bitness.so )
 	test -e $(top_builddir)/python/pinktrace/event.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/event.so event.so )
 	test -e $(top_builddir)/python/pinktrace/fork.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/fork.so fork.so )
+	test -e $(top_builddir)/python/pinktrace/socket.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/socket.so socket.so )
+	test -e $(top_builddir)/python/pinktrace/string.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/string.so string.so )
+	test -e $(top_builddir)/python/pinktrace/syscall.so || \
+		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/syscall.so syscall.so )
 	test -e $(top_builddir)/python/pinktrace/trace.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/trace.so trace.so )
 
