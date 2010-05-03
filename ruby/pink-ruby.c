@@ -925,7 +925,7 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
  *
  * Returns the system call argument at the given index for the traced child.
  *
- * Note: PinKTrace::IndexError is raised if +index+ argument is not smaller
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
@@ -997,8 +997,11 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * This function decodes the string at the argument of the given index.
  *
- * Note: PinKTrace::EventError is raised if +index+ argument is not smaller
+ * Note: PinkTrace::EventError is raised if +index+ argument is not smaller
  * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1085,6 +1088,12 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::String.encode(pid, index, str, [bitness=PinkTrace::Bitness::DEFAULT]) => nil
  *
  * Encode a string into the argument of the given index safely.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1155,6 +1164,12 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::String.encode!(pid, index, str, [bitness=PinkTrace::Bitness::DEFAULT]) => nil
  *
  * Encode a string into the argument of the given index.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1266,6 +1281,9 @@ pinkrb_name_socket_subcall(pink_unused VALUE mod, VALUE subcallv)
  *
  * Note: This function decodes the socketcall(2) system call on some
  * architectures. On others it's equivalent to PinkTrace::SysCall.get_no
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_decode_socket_call(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1321,6 +1339,12 @@ pinkrb_decode_socket_call(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * Note: This function decodes the socketcall(2) system call on some
  * architectures.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1413,6 +1437,12 @@ pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * Decodes the socket address at the given index.
  * If the system call's address argument was NULL, this function returns +nil+.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -1508,6 +1538,12 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
  * Decodes the socket address at the given index and the file descriptor at index 0.
  * If the system call's address argument was NULL this function returns +nil+
  * and the file descriptor.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
  */
 static VALUE
 pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
