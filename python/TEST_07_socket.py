@@ -115,8 +115,7 @@ class TestSocket_02(unittest.TestCase):
 
             self.assert_(isinstance(addr, pinktrace.socket.Address), "%r" % addr)
             self.assertEqual(addr.family, socket.AF_UNIX)
-            self.assertEqual(addr.path, TEST_UNIX_SOCKET)
-            self.assertEqual(addr.ip, None)
+            self.assertEqual(str(addr), TEST_UNIX_SOCKET)
 
             try: pinktrace.trace.kill(pid)
             except OSError: pass
@@ -151,8 +150,7 @@ class TestSocket_02(unittest.TestCase):
 
             self.assert_(isinstance(addr, pinktrace.socket.Address), "%r" % addr)
             self.assertEqual(addr.family, socket.AF_INET)
-            self.assertEqual(addr.ip, "127.0.0.1")
-            self.assertEqual(addr.path, None)
+            self.assertEqual(str(addr), "127.0.0.1")
 
             try: pinktrace.trace.kill(pid)
             except OSError: pass
