@@ -1774,7 +1774,14 @@ pinkrb_inet6_ntop(int argc, VALUE *argv, VALUE self)
 void
 Init_PinkTrace(void)
 {
-	VALUE mod, tmod, emod, bmod, smod, stmod, scmod;
+	VALUE mod;
+	VALUE trace_mod;
+	VALUE event_mod;
+	VALUE bitness_mod;
+	VALUE syscall_mod;
+	VALUE string_mod;
+	VALUE socket_mod;
+
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
@@ -1800,82 +1807,82 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
 	/* trace.h */
-	tmod = rb_define_module_under(mod, "Trace");
-	rb_define_const(tmod, "SYSGOOD", INT2FIX(PINK_TRACE_OPTION_SYSGOOD));
-	rb_define_const(tmod, "FORK", INT2FIX(PINK_TRACE_OPTION_FORK));
-	rb_define_const(tmod, "VFORK", INT2FIX(PINK_TRACE_OPTION_VFORK));
-	rb_define_const(tmod, "CLONE", INT2FIX(PINK_TRACE_OPTION_CLONE));
-	rb_define_const(tmod, "EXEC", INT2FIX(PINK_TRACE_OPTION_EXEC));
-	rb_define_const(tmod, "VFORK_DONE", INT2FIX(PINK_TRACE_OPTION_VFORK_DONE));
-	rb_define_const(tmod, "EXIT", INT2FIX(PINK_TRACE_OPTION_EXIT));
-	rb_define_const(tmod, "ALL", INT2FIX(PINK_TRACE_OPTION_ALL));
-	rb_define_module_function(tmod, "me", pinkrb_trace_me, 0);
-	rb_define_module_function(tmod, "cont", pinkrb_trace_cont, -1);
-	rb_define_module_function(tmod, "kill", pinkrb_trace_kill, 1);
-	rb_define_module_function(tmod, "singlestep", pinkrb_trace_singlestep, -1);
-	rb_define_module_function(tmod, "syscall", pinkrb_trace_syscall, -1);
-	rb_define_module_function(tmod, "geteventmsg", pinkrb_trace_geteventmsg, 1);
-	rb_define_module_function(tmod, "setup", pinkrb_trace_setup, -1);
-	rb_define_module_function(tmod, "attach", pinkrb_trace_attach, 1);
-	rb_define_module_function(tmod, "detach", pinkrb_trace_detach, -1);
+	trace_mod = rb_define_module_under(mod, "Trace");
+	rb_define_const(trace_mod, "SYSGOOD", INT2FIX(PINK_TRACE_OPTION_SYSGOOD));
+	rb_define_const(trace_mod, "FORK", INT2FIX(PINK_TRACE_OPTION_FORK));
+	rb_define_const(trace_mod, "VFORK", INT2FIX(PINK_TRACE_OPTION_VFORK));
+	rb_define_const(trace_mod, "CLONE", INT2FIX(PINK_TRACE_OPTION_CLONE));
+	rb_define_const(trace_mod, "EXEC", INT2FIX(PINK_TRACE_OPTION_EXEC));
+	rb_define_const(trace_mod, "VFORK_DONE", INT2FIX(PINK_TRACE_OPTION_VFORK_DONE));
+	rb_define_const(trace_mod, "EXIT", INT2FIX(PINK_TRACE_OPTION_EXIT));
+	rb_define_const(trace_mod, "ALL", INT2FIX(PINK_TRACE_OPTION_ALL));
+	rb_define_module_function(trace_mod, "me", pinkrb_trace_me, 0);
+	rb_define_module_function(trace_mod, "cont", pinkrb_trace_cont, -1);
+	rb_define_module_function(trace_mod, "kill", pinkrb_trace_kill, 1);
+	rb_define_module_function(trace_mod, "singlestep", pinkrb_trace_singlestep, -1);
+	rb_define_module_function(trace_mod, "syscall", pinkrb_trace_syscall, -1);
+	rb_define_module_function(trace_mod, "geteventmsg", pinkrb_trace_geteventmsg, 1);
+	rb_define_module_function(trace_mod, "setup", pinkrb_trace_setup, -1);
+	rb_define_module_function(trace_mod, "attach", pinkrb_trace_attach, 1);
+	rb_define_module_function(trace_mod, "detach", pinkrb_trace_detach, -1);
 
 	/* fork.h */
 	rb_define_module_function(mod, "fork", pinkrb_fork, -1);
 
 	/* event.h */
-	emod = rb_define_module_under(mod, "Event");
-	rb_define_const(emod, "STOP", INT2FIX(PINK_EVENT_STOP));
-	rb_define_const(emod, "SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
-	rb_define_const(emod, "FORK", INT2FIX(PINK_EVENT_FORK));
-	rb_define_const(emod, "VFORK", INT2FIX(PINK_EVENT_VFORK));
-	rb_define_const(emod, "CLONE", INT2FIX(PINK_EVENT_CLONE));
-	rb_define_const(emod, "VFORK_DONE", INT2FIX(PINK_EVENT_VFORK_DONE));
-	rb_define_const(emod, "EXEC", INT2FIX(PINK_EVENT_EXEC));
-	rb_define_const(emod, "EXIT", INT2FIX(PINK_EVENT_EXIT));
-	rb_define_const(emod, "GENUINE", INT2FIX(PINK_EVENT_GENUINE));
-	rb_define_const(emod, "EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
-	rb_define_const(emod, "EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
-	rb_define_module_function(emod, "decide", pinkrb_event_decide, -1);
+	event_mod = rb_define_module_under(mod, "Event");
+	rb_define_const(event_mod, "STOP", INT2FIX(PINK_EVENT_STOP));
+	rb_define_const(event_mod, "SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
+	rb_define_const(event_mod, "FORK", INT2FIX(PINK_EVENT_FORK));
+	rb_define_const(event_mod, "VFORK", INT2FIX(PINK_EVENT_VFORK));
+	rb_define_const(event_mod, "CLONE", INT2FIX(PINK_EVENT_CLONE));
+	rb_define_const(event_mod, "VFORK_DONE", INT2FIX(PINK_EVENT_VFORK_DONE));
+	rb_define_const(event_mod, "EXEC", INT2FIX(PINK_EVENT_EXEC));
+	rb_define_const(event_mod, "EXIT", INT2FIX(PINK_EVENT_EXIT));
+	rb_define_const(event_mod, "GENUINE", INT2FIX(PINK_EVENT_GENUINE));
+	rb_define_const(event_mod, "EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
+	rb_define_const(event_mod, "EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
+	rb_define_module_function(event_mod, "decide", pinkrb_event_decide, -1);
 
 	/* bitness.h */
-	bmod = rb_define_module_under(mod, "Bitness");
-	rb_define_const(bmod, "SUPPORTED", INT2FIX(PINKTRACE_SUPPORTED_BITNESS));
-	rb_define_const(bmod, "DEFAULT", INT2FIX(PINKTRACE_DEFAULT_BITNESS));
-	rb_define_const(bmod, "BITNESS_32", INT2FIX(PINK_BITNESS_32));
-	rb_define_const(bmod, "BITNESS_64", INT2FIX(PINK_BITNESS_64));
-	rb_define_module_function(bmod, "get", pinkrb_bitness_get, 1);
+	bitness_mod = rb_define_module_under(mod, "Bitness");
+	rb_define_const(bitness_mod, "SUPPORTED", INT2FIX(PINKTRACE_SUPPORTED_BITNESS));
+	rb_define_const(bitness_mod, "DEFAULT", INT2FIX(PINKTRACE_DEFAULT_BITNESS));
+	rb_define_const(bitness_mod, "BITNESS_32", INT2FIX(PINK_BITNESS_32));
+	rb_define_const(bitness_mod, "BITNESS_64", INT2FIX(PINK_BITNESS_64));
+	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
 
 	/* util.h && name.h */
-	smod = rb_define_module_under(mod, "SysCall");
-	rb_define_module_function(smod, "name", pinkrb_name_syscall, -1);
-	rb_define_module_function(smod, "get_no", pinkrb_util_get_syscall, 1);
-	rb_define_module_function(smod, "set_no", pinkrb_util_set_syscall, 2);
-	rb_define_module_function(smod, "get_ret", pinkrb_util_get_return, 1);
-	rb_define_module_function(smod, "set_ret", pinkrb_util_set_return, 2);
-	rb_define_module_function(smod, "get_arg", pinkrb_util_get_arg, -1);
+	syscall_mod = rb_define_module_under(mod, "SysCall");
+	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
+	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, 1);
+	rb_define_module_function(syscall_mod, "set_no", pinkrb_util_set_syscall, 2);
+	rb_define_module_function(syscall_mod, "get_ret", pinkrb_util_get_return, 1);
+	rb_define_module_function(syscall_mod, "set_ret", pinkrb_util_set_return, 2);
+	rb_define_module_function(syscall_mod, "get_arg", pinkrb_util_get_arg, -1);
 
 	/* decode.h && encode.h (only string {en,de}coding) */
-	stmod = rb_define_module_under(mod, "String");
-	rb_define_module_function(stmod, "decode", pinkrb_decode_string, -1);
-	rb_define_module_function(stmod, "encode", pinkrb_encode_string_safe, -1);
-	rb_define_module_function(stmod, "encode!", pinkrb_encode_string, -1);
+	string_mod = rb_define_module_under(mod, "String");
+	rb_define_module_function(string_mod, "decode", pinkrb_decode_string, -1);
+	rb_define_module_function(string_mod, "encode", pinkrb_encode_string_safe, -1);
+	rb_define_module_function(string_mod, "encode!", pinkrb_encode_string, -1);
 
 	/* decode.h && socket.h */
-	scmod = rb_define_module_under(mod, "Socket");
-	rb_define_const(scmod, "INET_ADDRSTRLEN", INT2FIX(INET_ADDRSTRLEN));
+	socket_mod = rb_define_module_under(mod, "Socket");
+	rb_define_const(socket_mod, "INET_ADDRSTRLEN", INT2FIX(INET_ADDRSTRLEN));
 #ifdef PINKTRACE_HAVE_IPV6
-	rb_define_const(scmod, "INET6_ADDRSTRLEN", INT2FIX(INET6_ADDRSTRLEN));
+	rb_define_const(socket_mod, "INET6_ADDRSTRLEN", INT2FIX(INET6_ADDRSTRLEN));
 #endif /* PINKTRACE_HAVE_IPV6 */
-	rb_define_module_function(scmod, "name", pinkrb_name_socket_subcall, 1);
-	rb_define_module_function(scmod, "decode_call", pinkrb_decode_socket_call, -1);
-	rb_define_module_function(scmod, "decode_fd", pinkrb_decode_socket_fd, -1);
+	rb_define_module_function(socket_mod, "name", pinkrb_name_socket_subcall, 1);
+	rb_define_module_function(socket_mod, "decode_call", pinkrb_decode_socket_call, -1);
+	rb_define_module_function(socket_mod, "decode_fd", pinkrb_decode_socket_fd, -1);
 
 	/* Address Objects */
-	pinkrb_cAddress = rb_define_class_under(scmod, "Address", rb_cObject);
-	pinkrb_cUNIXAddress = rb_define_class_under(scmod, "UNIXAddress", pinkrb_cAddress);
-	pinkrb_cINETAddress = rb_define_class_under(scmod, "INETAddress", pinkrb_cAddress);
+	pinkrb_cAddress = rb_define_class_under(socket_mod, "Address", rb_cObject);
+	pinkrb_cUNIXAddress = rb_define_class_under(socket_mod, "UNIXAddress", pinkrb_cAddress);
+	pinkrb_cINETAddress = rb_define_class_under(socket_mod, "INETAddress", pinkrb_cAddress);
 #if PINKTRACE_HAVE_IPV6
-	pinkrb_cINET6Address = rb_define_class_under(scmod, "INET6Address", pinkrb_cAddress);
+	pinkrb_cINET6Address = rb_define_class_under(socket_mod, "INET6Address", pinkrb_cAddress);
 #endif /* PINKTRACE_HAVE_IPV6 */
 
 	/* The address objects are only returned by PinkTrace::Socket.decode_address;
@@ -1897,6 +1904,6 @@ Init_PinkTrace(void)
 	rb_define_alias(pinkrb_cINET6Address, "to_s", "ntop6");
 #endif /* PINKTRACE_HAVE_IPV6 */
 
-	rb_define_module_function(scmod, "decode_address", pinkrb_decode_socket_address, -1);
-	rb_define_module_function(scmod, "decode_address_fd", pinkrb_decode_socket_address_fd, -1);
+	rb_define_module_function(socket_mod, "decode_address", pinkrb_decode_socket_address, -1);
+	rb_define_module_function(socket_mod, "decode_address_fd", pinkrb_decode_socket_address_fd, -1);
 }
