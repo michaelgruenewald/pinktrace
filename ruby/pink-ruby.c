@@ -59,6 +59,33 @@ static VALUE pinkrb_eIndexError;
 
 static VALUE pinkrb_cAddress;
 
+static void
+check_bitness(unsigned bit)
+{
+	switch (bit) {
+	case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+		break;
+	case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
+#endif
+		break;
+	default:
+		rb_raise(pinkrb_eBitnessError, "Undefined bitness");
+		break;
+	}
+}
+
+static void
+check_index(unsigned ind)
+{
+	if (ind >= PINK_MAX_INDEX)
+		rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+}
+
 /*
  * Document-class: PinkTrace
  *
@@ -783,21 +810,7 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc == 2) {
 		if (FIXNUM_P(argv[1])) {
 			bit = FIX2UINT(argv[1]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -940,8 +953,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -949,21 +961,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 2) {
 		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
@@ -1016,8 +1014,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1034,21 +1031,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
@@ -1108,8 +1091,7 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1126,21 +1108,7 @@ pinkrb_encode_string_safe(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
@@ -1184,8 +1152,7 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1202,21 +1169,7 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 3) {
 		if (FIXNUM_P(argv[3])) {
 			bit = FIX2UINT(argv[3]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
@@ -1288,21 +1241,7 @@ pinkrb_decode_socket_call(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 1) {
 		if (FIXNUM_P(argv[1])) {
 			bit = FIX2UINT(argv[1]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1349,8 +1288,7 @@ pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 1) {
 		if (FIXNUM_P(argv[1])) {
 			ind = FIX2UINT(argv[1]);
-			if (ind >= PINK_MAX_INDEX)
-				rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+			check_index(ind);
 		}
 		else
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1361,21 +1299,7 @@ pinkrb_decode_socket_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 2) {
 		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
@@ -1426,8 +1350,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1435,21 +1358,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 2) {
 		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
@@ -1498,8 +1407,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 
 	if (FIXNUM_P(argv[1])) {
 		ind = FIX2UINT(argv[1]);
-		if (ind >= PINK_MAX_INDEX)
-			rb_raise(pinkrb_eIndexError, "index not smaller than MAX_INDEX");
+		check_index(ind);
 	}
 	else
 		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
@@ -1507,21 +1415,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 	if (argc > 2) {
 		if (FIXNUM_P(argv[2])) {
 			bit = FIX2UINT(argv[2]);
-			switch (bit) {
-			case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-				rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
-				break;
-			default:
-				rb_raise(pinkrb_eBitnessError, "Undefined bitness");
-				break;
-			}
+			check_bitness(bit);
 		}
 		else
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
