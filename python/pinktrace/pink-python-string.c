@@ -63,28 +63,8 @@ pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|iI", &pid, &ind, &maxlen, &bit))
 		return NULL;
 
-	switch (bit) {
-	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
-#endif
-		break;
-	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
-		return NULL;
-#endif
-		break;
-	default:
-		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
-		return NULL;
-	}
-
-	if (ind >= PINK_MAX_INDEX) {
-		PyErr_SetString(PyExc_IndexError, "Invalid index");
-		return NULL;
-	}
 
 	if (maxlen < 0) {
 		str = pink_decode_string_persistent(pid, bit, ind);
@@ -140,28 +120,8 @@ pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, PARSE_PID"Is#|I", &pid, &ind, &str, &len, &bit))
 		return NULL;
 
-	switch (bit) {
-	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
-#endif
-		break;
-	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
-		return NULL;
-#endif
-		break;
-	default:
-		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
-		return NULL;
-	}
-
-	if (ind >= PINK_MAX_INDEX) {
-		PyErr_SetString(PyExc_IndexError, "Invalid index");
-		return NULL;
-	}
 
 	if (!pink_encode_simple_safe(pid, bit, ind, str, len))
 		return PyErr_SetFromErrno(PyExc_OSError);
@@ -195,28 +155,8 @@ pinkpy_string_encode_unsafe(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, PARSE_PID"Is#|I", &pid, &ind, &str, &len, &bit))
 		return NULL;
 
-	switch (bit) {
-	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
-#endif
-		break;
-	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
-		return NULL;
-#endif
-		break;
-	default:
-		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
-		return NULL;
-	}
-
-	if (ind >= PINK_MAX_INDEX) {
-		PyErr_SetString(PyExc_IndexError, "Invalid index");
-		return NULL;
-	}
 
 	if (!pink_encode_simple(pid, bit, ind, str, len))
 		return PyErr_SetFromErrno(PyExc_OSError);

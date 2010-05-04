@@ -56,23 +56,8 @@ pinkpy_syscall_name(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "l|i", &scno, &bit))
 		return NULL;
 
-	switch (bit) {
-	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+	if (!check_bitness(bit))
 		return NULL;
-#endif
-		break;
-	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
-		return NULL;
-#endif
-		break;
-	default:
-		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
-		return NULL;
-	}
 
 	scname = pink_name_syscall(scno, bit);
 	/* "s" returns None if scname is NULL */
@@ -190,28 +175,8 @@ pinkpy_syscall_get_arg(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|I", &pid, &ind, &bit))
 		return NULL;
 
-	switch (bit) {
-	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
-#endif
-		break;
-	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
-		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
-		return NULL;
-#endif
-		break;
-	default:
-		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
-		return NULL;
-	}
-
-	if (ind >= PINK_MAX_INDEX) {
-		PyErr_SetString(PyExc_IndexError, "Invalid index");
-		return NULL;
-	}
 
 	if (!pink_util_get_arg(pid, bit, ind, &arg))
 		return PyErr_SetFromErrno(PyExc_OSError);

@@ -29,6 +29,9 @@
 #endif /* HAVE_CONFIG_H */
 
 #include <Python.h>
+#include <pinktrace/pink.h>
+
+#include <stdbool.h>
 
 #if PY_MAJOR_VERSION < 3
 
@@ -66,6 +69,42 @@
 #error "sizeof(pid_t) is neither sizeof(int), sizeof(long) or sizeof(long long)"
 #endif /* SIZEOF_PID_T */
 
-#endif /* PY_MAJOR_VERSION */
+#endif /* PY_MAJOR_VERSION < 3 */
+
+pink_unused
+static bool
+check_bitness(int bit)
+{
+	switch (bit) {
+	case PINK_BITNESS_64:
+#if defined(I386) || defined(POWERPC)
+		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+		return false;
+#endif
+		break;
+	case PINK_BITNESS_32:
+#if defined(IA64) || defined(POWERPC64)
+		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
+		return false;
+#endif
+		break;
+	default:
+		PyErr_SetString(PyExc_ValueError, "Invalid bitness");
+		return false;
+	}
+
+	return true;
+}
+
+pink_unused
+static bool
+check_index(unsigned ind)
+{
+	if (ind >= PINK_MAX_INDEX) {
+		PyErr_SetString(PyExc_IndexError, "Invalid index");
+		return false;
+	}
+	return true;
+}
 
 #endif /* !PINKTRACE_GUARD_PINK_HACKS_H */
