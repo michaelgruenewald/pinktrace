@@ -240,7 +240,7 @@ char *
 pink_util_movestr_persistent(pid_t pid, long addr)
 {
 	int n, m, sum;
-	int started = 0;
+	bool started;
 	union {
 		long val;
 		char x[sizeof(long)];
@@ -254,6 +254,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		}			\
 	} while (0)
 
+	started = false;
 	res = res_ptr = NULL;
 	sum = 0;
 
@@ -275,9 +276,8 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		sum += m;
 		if ((res = realloc(res, sum)) == NULL)
 			return NULL;
-		if (!started)
-			res_ptr = res;
-		started = 1;
+		res_ptr = started ? res + (sum - m) : res;
+		started = true;
 		memcpy(res_ptr, &u.x[n], m);
 		while (n & (sizeof(long) - 1))
 			if (u.x[n++] == '\0')
@@ -298,9 +298,8 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		sum += m;
 		if ((res = realloc(res, sum)) == NULL)
 			return NULL;
-		if (!started)
-			res_ptr = res;
-		started = 1;
+		res_ptr = started ? res + (sum - m) : res;
+		started = true;
 		memcpy(res_ptr, u.x, m);
 		for (unsigned int i = 0; i < sizeof(long); i++)
 			if (u.x[i] == '\0')
