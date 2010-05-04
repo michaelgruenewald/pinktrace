@@ -155,5 +155,79 @@ class TestSocket_02(unittest.TestCase):
             try: pinktrace.trace.kill(pid)
             except OSError: pass
 
+    def test_03_decode_address_fd_unix(self):
+        pid = pinktrace.fork.fork()
+        if pid == 0: # child
+            s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            s.connect(TEST_UNIX_SOCKET)
+        else: # parent
+            # Loop until we get to the connect() system call as there's no
+            # guarantee that other system calls won't be called beforehand.
+            ev = -1
+            fd = -1
+            addr = None
+            while ev != pinktrace.event.EVENT_EXIT_GENUINE:
+                pinktrace.trace.syscall(pid)
+                pid, status = os.waitpid(pid, 0)
+
+                ev = pinktrace.event.decide(status)
+                if ev == pinktrace.event.EVENT_SYSCALL:
+                    scno = pinktrace.syscall.get_no(pid)
+                    name = pinktrace.syscall.name(scno)
+                    if name == 'socketcall':
+                        subno = pintrace.socket.decode_call(pid)
+                        subname = pinktrace.socket.name(subno)
+                        if subname == 'connect':
+                            addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
+                            break
+                    elif name == 'connect':
+                        addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
+                        break
+
+            self.assert_(isinstance(addr, pinktrace.socket.Address), "%r" % addr)
+            self.assert_(fd > 0, "%d" % fd)
+            self.assertEqual(addr.family, socket.AF_UNIX)
+            self.assertEqual(str(addr), TEST_UNIX_SOCKET)
+
+            try: pinktrace.trace.kill(pid)
+            except OSError: pass
+
+    def test_04_decode_address_inet(self):
+        pid = pinktrace.fork.fork()
+        if pid == 0: # child
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(("127.0.0.1", 12345))
+        else: # parent
+            # Loop until we get to the connect() system call as there's no
+            # guarantee that other system calls won't be called beforehand.
+            ev = -1
+            fd = -1
+            addr = None
+            while ev != pinktrace.event.EVENT_EXIT_GENUINE:
+                pinktrace.trace.syscall(pid)
+                pid, status = os.waitpid(pid, 0)
+
+                ev = pinktrace.event.decide(status)
+                if ev == pinktrace.event.EVENT_SYSCALL:
+                    scno = pinktrace.syscall.get_no(pid)
+                    name = pinktrace.syscall.name(scno)
+                    if name == 'socketcall':
+                        subno = pintrace.socket.decode_call(pid)
+                        subname = pinktrace.socket.name(subno)
+                        if subname == 'connect':
+                            addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
+                            break
+                    elif name == 'connect':
+                        addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
+                        break
+
+            self.assert_(isinstance(addr, pinktrace.socket.Address), "%r" % addr)
+            self.assert_(fd > 0, "%d" % fd)
+            self.assertEqual(addr.family, socket.AF_INET)
+            self.assertEqual(str(addr), "127.0.0.1")
+
+            try: pinktrace.trace.kill(pid)
+            except OSError: pass
+
 if __name__ == '__main__':
     unittest.main()

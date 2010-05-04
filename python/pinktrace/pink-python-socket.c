@@ -413,6 +413,51 @@ pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
 	return obj;
 }
 
+static char pinkpy_socket_decode_address_fd_doc[] = ""
+	"Decodes the socket address at the given argument index;\n"
+	"and the file descriptor at index 0.\n"
+	"\n"
+	"@note: This function decodes the I{socketcall(2)} system call on some\n"
+	"architectures.\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param index: The index of the argument\n"
+	"@param bitness: The bitness of the traced child\n"
+	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
+	"@raise IndexError: Raised if the index is not smaller than C{MAX_INDEX}\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
+	"@rtype: tuple\n"
+	"@return: The decoded socket address and the file descriptor";
+static PyObject *
+pinkpy_socket_decode_address_fd(pink_unused PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	unsigned ind;
+	long fd;
+	pink_bitness_t bit;
+	PyObject *obj;
+	Address *addr;
+
+	bit = PINKTRACE_DEFAULT_BITNESS;
+	if (!PyArg_ParseTuple(args, PARSE_PID"I|I", &pid, &ind, &bit))
+		return NULL;
+
+	if (!check_bitness(bit) || !check_index(ind))
+		return NULL;
+
+	obj = PyObject_CallObject((PyObject *)&Address_type, NULL);
+	if (!obj)
+		return NULL;
+
+	addr = (Address *)obj;
+	if (!pink_decode_socket_address(pid, bit, ind, &fd, &addr->addr))
+		/* FIXME: Do we need to free obj here? */
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return PyTuple_Pack(2, obj, PyLong_FromLong(fd));
+}
+
 static void
 socket_init(PyObject *mod)
 {
@@ -426,6 +471,7 @@ static PyMethodDef socket_methods[] = {
 	{"decode_call", pinkpy_socket_decode_call, METH_VARARGS, pinkpy_socket_decode_call_doc},
 	{"decode_fd", pinkpy_socket_decode_fd, METH_VARARGS, pinkpy_socket_decode_fd_doc},
 	{"decode_address", pinkpy_socket_decode_address, METH_VARARGS, pinkpy_socket_decode_address_doc},
+	{"decode_address_fd", pinkpy_socket_decode_address_fd, METH_VARARGS, pinkpy_socket_decode_address_fd_doc},
 	{NULL, NULL, 0, NULL}
 };
 
