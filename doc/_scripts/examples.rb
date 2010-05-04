@@ -2,9 +2,6 @@
 # coding: utf-8
 # vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
 
-require 'rubygems'
-require 'liquid'
-
 ARGV.each do |example|
   unless File.readable? example
     $stderr.puts "File '#{example}' not readable!"
@@ -24,21 +21,12 @@ ARGV.each do |example|
     exit 1
   end
 
-  fp = File.open(example)
-  data = fp.read
-  fp.close
   puts <<EOF
 ---
-layout: nil"
+layout: default
 title: #{File.basename example}
 ---
-<!-- vim: set ro : -->
-<html>
-  <body>
-    {% highlight #{lang} %}
-      #{data}
-    {% endhighlight %}
-  </body>"
-</html>
+## #{File.basename example}
 EOF
+  IO.foreach(example) {|line| puts "\t#{line}"}
 end

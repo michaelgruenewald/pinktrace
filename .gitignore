@@ -36,6 +36,9 @@ gprof*
 /ltmain.sh
 
 doc/_config.yml
+doc/*.mkd
+!doc/index.mkd
+doc/_site
 doc/api/c/c
 doc/api/c/doxygen.conf
 doc/api/c/libpinktrace.tag

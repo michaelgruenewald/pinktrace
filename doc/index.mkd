@@ -16,13 +16,13 @@ applications. It consists of the following parts:
 - An **experimental** API for encoding arguments.
 
 ## Documentation
-An extensive API reference is [available](##HOMEPAGE##/api/c).
+An extensive API reference is [available]({{ site.url }}/api/c).
 
 ## Bindings
 Bindings are available for:
 
-- [Ruby](##HOMEPAGE##/api/ruby)
-- [Python](##HOMEPAGE##/api/python)
+- [Ruby]({{ site.url }}/api/ruby)
+- [Python]({{ site.url }}/api/python)
 
 ## Compiling C Code
 You will need to specify various compiler flags when compiling C code. The
@@ -46,55 +46,55 @@ There are examples how to use the various parts of the library.
     <tr>
         <td>about</td>
         <td>
-            <a href="##HOMEPAGE##/c-pink-about.html">C</a>
-            (<a href="##HOMEPAGE##/examples/c/pink-about.c">raw</a>)
+            <a href="{{ site.url }}/c-pink-about.html">C</a>
+            (<a href="{{ site.url }}/examples/c/pink-about.c">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/py-pink-about.html">Python</a>
-            (<a href="##HOMEPAGE##/examples/python/pink-about.py">raw</a>)
+            <a href="{{ site.url }}/py-pink-about.html">Python</a>
+            (<a href="{{ site.url }}/examples/python/pink-about.py">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/rb-pink-about.html">Ruby</a>
-            (<a href="##HOMEPAGE##/examples/ruby/pink-about.rb">raw</a>)
+            <a href="{{ site.url }}/rb-pink-about.html">Ruby</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-about.rb">raw</a>)
         </td>
         <td>How to use PinkTrace version macros</td>
     </tr>
     <tr>
         <td>fork</td>
         <td>
-            <a href="##HOMEPAGE##/c-pink-fork.html">C</a>
-            (<a href="##HOMEPAGE##/examples/c/pink-fork.c">raw</a>)
+            <a href="{{ site.url }}/c-pink-fork.html">C</a>
+            (<a href="{{ site.url }}/examples/c/pink-fork.c">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/py-pink-fork.html">Python</a>
-            (<a href="##HOMEPAGE##/examples/python/pink-fork.py">raw</a>)
+            <a href="{{ site.url }}/py-pink-fork.html">Python</a>
+            (<a href="{{ site.url }}/examples/python/pink-fork.py">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/rb-pink-fork.html">Ruby</a>
-            (<a href="##HOMEPAGE##/examples/ruby/pink-fork.rb">raw</a>)
+            <a href="{{ site.url }}/rb-pink-fork.html">Ruby</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-fork.rb">raw</a>)
         </td>
         <td>How to use PinkTrace's fork() wrapper</td>
     </tr>
     <tr>
         <td>simple-strace</td>
         <td>
-            <a href="##HOMEPAGE##/c-pink-simple-strace.html">C</a>
-            (<a href="##HOMEPAGE##/examples/c/pink-simple-strace.c">raw</a>)
+            <a href="{{ site.url }}/c-pink-simple-strace.html">C</a>
+            (<a href="{{ site.url }}/examples/c/pink-simple-strace.c">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/py-pink-simple-strace.html">Python</a>
-            (<a href="##HOMEPAGE##/examples/python/pink-simple-strace.py">raw</a>)
+            <a href="{{ site.url }}/py-pink-simple-strace.html">Python</a>
+            (<a href="{{ site.url }}/examples/python/pink-simple-strace.py">raw</a>)
         </td>
         <td>
-            <a href="##HOMEPAGE##/rb-pink-simple-strace.html">Ruby</a>
-            (<a href="##HOMEPAGE##/examples/ruby/pink-simple-strace.rb">raw</a>)
+            <a href="{{ site.url }}/rb-pink-simple-strace.html">Ruby</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-simple-strace.rb">raw</a>)
         </td>
         <td>A simple strace-like program</td>
     </tr>
 </table>
 
 ## Contribute
-Clone [##SCM_URI##](##SCM_URI##).  
+Clone [{{ site.scm }}]({{ site.scm }}).  
 Format patches are preferred. Either send a mail to me or poke me on IRC.  
 My personal e-mail address is [alip@exherbo.org](mailto://alip@exherbo.org)  
 I'm available on IRC as <tt>alip</tt> on [Freenode](http://freenode.net) and

@@ -10,3 +10,5 @@ exclude: [ api, Makefile, Makefile.am, Makefile.in, index.md.in ]
 # Custom variables
 title: "PinkTrace-##VERSION##"
 url: "##HOMEPAGE##"
+scm: "##SCM_URI##"
+

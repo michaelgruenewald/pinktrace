@@ -2,16 +2,15 @@ SUBDIRS= api .
 HOMEPAGE= http://dev.exherbo.org/~alip/pinktrace
 SCM_URI= git://github.com/alip/pinktrace.git
 GENERATED_FILES= _config.yml \
-		 index.mkd \
-		 c-pink-about.html \
-		 c-pink-fork.html \
-		 c-pink-simple-strace.html \
-		 py-pink-about.html \
-		 py-pink-fork.html \
-		 py-pink-simple-strace.html \
-		 rb-pink-about.html \
-		 rb-pink-fork.html \
-		 rb-pink-simple-strace.html
+		 c-pink-about.mkd \
+		 c-pink-fork.mkd \
+		 c-pink-simple-strace.mkd \
+		 py-pink-about.mkd \
+		 py-pink-fork.mkd \
+		 py-pink-simple-strace.mkd \
+		 rb-pink-about.mkd \
+		 rb-pink-fork.mkd \
+		 rb-pink-simple-strace.mkd
 CLEANFILES= $(GENERATED_FILES)
 WWW_FILES= _layouts/default.html \
 	   _includes/footer.html \
@@ -23,14 +22,6 @@ WWW_FILES= _layouts/default.html \
 	   images/favicon.png
 EXTRA_DIST= $(WWW_FILES)
 
-%.mkd: %.mkd.in
-	$(AM_V_GEN)
-	$(AM_V_at)$(SED) \
-		-e "s,##VERSION##,$(VERSION),g" \
-		-e "s,##HOMEPAGE##,$(HOMEPAGE),g" \
-		-e "s,##SCM_URI##,$(SCM_URI),g" \
-		$< > $@
-
 %.yml: %.yml.in
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
@@ -39,15 +30,15 @@ EXTRA_DIST= $(WWW_FILES)
 		-e "s,##SCM_URI##,$(SCM_URI),g" \
 		$< > $@
 
-c-%.html: ../examples/c/%.c
+c-%.mkd: ../examples/c/%.c
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-py-%.html: ../examples/python/%.py
+py-%.mkd: ../examples/python/%.py
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-rb-%.html: ../examples/ruby/%.rb
+rb-%.mkd: ../examples/ruby/%.rb
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
