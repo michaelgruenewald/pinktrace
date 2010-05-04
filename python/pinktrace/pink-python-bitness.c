@@ -68,8 +68,8 @@ bitness_init(PyObject *mod)
 {
 	PyModule_AddIntConstant(mod, "BITNESS_32", PINK_BITNESS_32);
 	PyModule_AddIntConstant(mod, "BITNESS_64", PINK_BITNESS_64);
-	PyModule_AddIntConstant(mod, "DEFAULT_BITNESS", PINKTRACE_DEFAULT_BITNESS);
-	PyModule_AddIntConstant(mod, "SUPPORTED_BITNESS", PINKTRACE_SUPPORTED_BITNESS);
+	PyModule_AddIntConstant(mod, "DEFAULT", PINKTRACE_DEFAULT_BITNESS);
+	PyModule_AddIntConstant(mod, "SUPPORTED", PINKTRACE_SUPPORTED_BITNESS);
 }
 
 #if PY_MAJOR_VERSION > 2
