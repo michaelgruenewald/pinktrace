@@ -191,7 +191,7 @@ dnl }}}
 dnl {{{ Check for IPV6 support
 AC_ARG_ENABLE([ipv6],
 			  [AS_HELP_STRING([--disable-ipv6],
-							  [disable IPV6 support for network sandboxing])],
+							  [disable IPV6 support])],
 			  WANT_IPV6="$enableval",
 			  WANT_IPV6="yes")
 if test x"$WANT_IPV6" = x"yes" ; then
@@ -450,10 +450,6 @@ dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
 		  Makefile
-		  include/pinktrace/about.h
-		  pkg-config/Makefile
-		  src/Makefile
-		  tests/Makefile
 		  doc/Makefile
 		  doc/api/Makefile
 		  doc/api/c/Makefile
@@ -461,8 +457,15 @@ AC_OUTPUT(
 		  doc/api/python/Makefile
 		  doc/api/ruby/Makefile
 		  examples/Makefile
+		  examples/c/Makefile
+		  examples/python/Makefile
+		  examples/ruby/Makefile
+		  include/pinktrace/about.h
 		  python/Makefile
 		  python/pinktrace/Makefile
 		  ruby/Makefile
+		  pkg-config/Makefile
+		  src/Makefile
+		  tests/Makefile
 	)
 dnl }}}

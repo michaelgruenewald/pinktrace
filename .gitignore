@@ -41,9 +41,9 @@ doc/api/c/libpinktrace.tag
 doc/api/python/python
 doc/api/ruby/ruby
 
-examples/pink-about
-examples/pink-fork
-examples/pink-simple-strace
+examples/c/pink-about
+examples/c/pink-fork
+examples/c/pink-simple-strace
 
 include/pinktrace/about.h
 

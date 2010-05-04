@@ -134,14 +134,15 @@ main(int argc, char **argv)
 		_exit(-1);
 	}
 	else {
-		/* Figure out the bitness of the process. */
+		/* Figure out the bitness of the traced child. */
 		bitness = pink_bitness_get(pid);
 		printf("Child %i runs in %s mode\n", pid, pink_bitness_tostring(bitness));
 
 		dead = insyscall = false;
 		sig = exit_code = 0;
 		for (;;) {
-			/* At this point child is stopped and needs to be resumed.
+			/* At this point the traced child is stopped and needs
+			 * to be resumed.
 			 */
 			if (!pink_trace_syscall(pid, sig)) {
 				perror("pink_trace_syscall");
@@ -171,7 +172,6 @@ main(int argc, char **argv)
 					insyscall = false;
 				}
 				else {
-					insyscall = true;
 					/* Get the system call number and call
 					 * the appropriate decoder. */
 					if (!pink_util_get_syscall(pid, &scno))
@@ -180,6 +180,7 @@ main(int argc, char **argv)
 						decode_open(pid, bitness);
 					else
 						decode_simple(bitness, scno);
+					insyscall = true;
 				}
 				break;
 			case PINK_EVENT_EXEC:
@@ -188,8 +189,8 @@ main(int argc, char **argv)
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:
-				/* Send the signal to the child as it was a genuine
-				 * signal.
+				/* Send the signal to the traced child as it
+				 * was a genuine signal.
 				 */
 				sig = WSTOPSIG(status);
 				break;

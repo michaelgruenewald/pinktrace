@@ -24,7 +24,7 @@ main(void)
 	else if (!pid) /* child */
 		pause();
 	else {
-		/* At this point child has been stopped for tracing and stopped
+		/* At this point child has been set up for tracing and stopped
 		 * itself using SIGSTOP. We don't do anything interesting for
 		 * this example. */
 
