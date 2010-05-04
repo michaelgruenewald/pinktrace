@@ -53,7 +53,6 @@
 void
 Init_PinkTrace(void);
 
-static VALUE pinkrb_eAddressError;
 static VALUE pinkrb_eBitnessError;
 static VALUE pinkrb_eEventError;
 static VALUE pinkrb_eIndexError;
@@ -115,22 +114,9 @@ static VALUE pinkrb_cAddress;
  *
  * == Exceptions
  *
- * - PinkTrace::AddressError
  * - PinkTrace::BitnessError
  * - PinkTrace::EventError
  * - PinkTrace::IndexError
- */
-
-/*
- * Document-class: PinkTrace::AddressError
- *
- * Raised when the address family of a system call is unsupported.
- *
- * Currently three families are supported:
- *
- * - AF_UNIX
- * - AF_INET
- * - AF_INET6
  */
 
 /*
@@ -1658,7 +1644,6 @@ Init_PinkTrace(void)
 
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
-	pinkrb_eAddressError = rb_define_class_under(mod, "AddressError", rb_eStandardError);
 	pinkrb_eBitnessError = rb_define_class_under(mod, "BitnessError", rb_eStandardError);
 	pinkrb_eEventError = rb_define_class_under(mod, "EventError", rb_eStandardError);
 	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
