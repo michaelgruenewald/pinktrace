@@ -36,4 +36,9 @@ rdoc:
 upload-doc:
 	$(MAKE) -C doc $@
 
-.PHONY: doxygen epydoc rdoc upload-doc
+upload-example:
+	$(MAKE) -C examples $@
+
+upload: upload-doc upload-examples
+
+.PHONY: doxygen epydoc rdoc upload upload-doc upload-examples

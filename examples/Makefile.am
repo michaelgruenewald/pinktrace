@@ -9,4 +9,4 @@ RSYNC= rsync -avze ssh --delete \
        --filter '- *'
 
 upload-example:
-	$(RSYNC) . bach.exherbo.org:public_html/examples
+	$(RSYNC) . bach.exherbo.org:public_html/pinktrace/examples
