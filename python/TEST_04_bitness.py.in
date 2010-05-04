@@ -19,7 +19,7 @@ class TestBitness_02(unittest.TestCase):
             os._exit(13)
         else: # parent
             bit = bitness.get(pid)
-            self.assertEqual(bit, bitness.DEFAULT_BITNESS)
+            self.assertEqual(bit, bitness.DEFAULT)
 
             try: trace.kill(pid)
             except OSError: pass

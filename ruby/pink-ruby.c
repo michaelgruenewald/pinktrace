@@ -54,7 +54,6 @@ void
 Init_PinkTrace(void);
 
 static VALUE pinkrb_eBitnessError;
-static VALUE pinkrb_eEventError;
 static VALUE pinkrb_eIndexError;
 
 static VALUE pinkrb_cAddress;
@@ -142,7 +141,6 @@ check_index(unsigned ind)
  * == Exceptions
  *
  * - PinkTrace::BitnessError
- * - PinkTrace::EventError
  * - PinkTrace::IndexError
  */
 
@@ -150,12 +148,6 @@ check_index(unsigned ind)
  * Document-class: PinkTrace::BitnessError
  *
  * Raised when the given bitness argument is either unsupported or undefined.
- */
-
-/*
- * Document-class: PinkTrace::EventError
- *
- * Raised when PinkTrace::Event.decide can't decide an event.
  */
 
 /*
@@ -683,8 +675,6 @@ pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
  * call-seq: PinkTrace::Event.decide([status=$?.status]) => fixnum
  *
  * Returns the last event made by child.
- *
- * Note: This function raises PinkTrace::EventError if the event is unknown.
  */
 static VALUE
 pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
@@ -713,9 +703,6 @@ pinkrb_event_decide(int argc, VALUE *argv, pink_unused VALUE mod)
 	}
 
 	event = pink_event_decide(status);
-	if (event == PINK_EVENT_UNKNOWN)
-		rb_raise(pinkrb_eEventError, "Unknown event (status: %#x)", status);
-
 	return UINT2NUM(event);
 }
 
@@ -1008,7 +995,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
  * +maxlen+ is smaller than zero, which is the default, pinktrace tries to
  * determine the length of the string itself.
  *
- * Note: PinkTrace::EventError is raised if +index+ argument is not smaller
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
@@ -1558,7 +1545,6 @@ Init_PinkTrace(void)
 	/* PinkTrace module */
 	mod = rb_define_module("PinkTrace");
 	pinkrb_eBitnessError = rb_define_class_under(mod, "BitnessError", rb_eStandardError);
-	pinkrb_eEventError = rb_define_class_under(mod, "EventError", rb_eStandardError);
 	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
 
 	/* Global Constants */
@@ -1614,6 +1600,7 @@ Init_PinkTrace(void)
 	rb_define_const(event_mod, "EVENT_GENUINE", INT2FIX(PINK_EVENT_GENUINE));
 	rb_define_const(event_mod, "EVENT_EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
 	rb_define_const(event_mod, "EVENT_EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
+	rb_define_const(event_mod, "EVENT_UNKNOWN", INT2FIX(PINK_EVENT_UNKNOWN));
 	rb_define_module_function(event_mod, "decide", pinkrb_event_decide, -1);
 
 	/* bitness.h */

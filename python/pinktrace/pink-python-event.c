@@ -40,7 +40,6 @@ static char pinkpy_event_decide_doc[] = ""
 	"@note: This function expects C{pinktrace.trace.OPTION_SYSGOOD} has been passed\n"
 	"to C{pinktrace.trace.setup()} or C{pinktrace.fork.fork()}.\n"
 	"@param status: The status argument, received from os.waitpid() call.\n"
-	"@raise event.EventError: Raised when the event is unknown.\n"
 	"@rtype: int\n"
 	"@return: One of the C{pinktrace.event.EVENT_*} constants";
 static PyObject *
@@ -53,9 +52,6 @@ pinkpy_event_decide(pink_unused PyObject *self, PyObject *args)
 		return NULL;
 
 	event = pink_event_decide(status);
-	if (event == PINK_EVENT_UNKNOWN)
-		return PyErr_Format(EventError, "Unknown event (%x)", status);
-
 	return Py_BuildValue("I", event);
 }
 
@@ -79,6 +75,7 @@ event_init(PyObject *mod)
 	PyModule_AddIntConstant(mod, "EVENT_GENUINE", PINK_EVENT_GENUINE);
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_GENUINE", PINK_EVENT_EXIT_GENUINE);
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_SIGNAL", PINK_EVENT_EXIT_SIGNAL);
+	PyModule_AddIntConstant(mod, "EVENT_UNKNOWN", PINK_EVENT_UNKNOWN);
 }
 
 #if PY_MAJOR_VERSION > 2

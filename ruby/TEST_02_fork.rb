@@ -1,12 +1,10 @@
 #!/usr/bin/env ruby
 # coding: utf-8
 # vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
-# Copyright 2010 Ali Polatel <alip@exherbo.org>
-# Distributed under the terms of the GNU General Public License v2
 
 require 'test/unit'
 
-$: << File.expand_path('.libs')
+$:.insert(0, '.libs')
 require 'PinkTrace'
 
 class TestPinkFork < Test::Unit::TestCase

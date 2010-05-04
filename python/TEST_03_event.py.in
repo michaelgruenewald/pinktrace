@@ -13,12 +13,13 @@ class TestEvent_01_Invalid(unittest.TestCase):
         self.assertRaises(TypeError, event.decide)
         self.assertRaises(TypeError, event.decide, 'pink')
 
-    def test_02_decide(self):
-        self.assertRaises(event.EventError, event.decide, -1)
-
 class TestEvent_02(unittest.TestCase):
 
-    def test_01_event_stop(self):
+    def test_01_event_unknown(self):
+        ev = event.decide(-1)
+        self.assertEqual(ev, event.EVENT_UNKNOWN)
+
+    def test_02_event_stop(self):
         pid = fork.fork()
         if (pid == 0): # child
             os.kill(os.getpid(), signal.SIGSTOP)
@@ -32,7 +33,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_02_event_syscall(self):
+    def test_03_event_syscall(self):
         pid = fork.fork()
         if (pid == 0): # child
             os.sleep(1)
@@ -46,7 +47,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_03_event_fork(self):
+    def test_04_event_fork(self):
         pid = fork.fork(trace.OPTION_FORK)
         if (pid == 0): # child
             os.fork()
@@ -60,16 +61,16 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_04_event_vfork(self):
+    def test_05_event_vfork(self):
         pass
 
-    def test_05_event_clone(self):
+    def test_06_event_clone(self):
         pass
 
-    def test_06_event_vfork_done(self):
+    def test_07_event_vfork_done(self):
         pass
 
-    def test_07_event_exec(self):
+    def test_08_event_exec(self):
         pid = fork.fork(trace.OPTION_EXEC)
         if (pid == 0): # child
             os.execvp("/bin/true", ("true",))
@@ -83,7 +84,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_08_event_exit(self):
+    def test_09_event_exit(self):
         pid = fork.fork(trace.OPTION_EXIT)
         if (pid == 0): # child
             os._exit(13)
@@ -98,7 +99,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_09_event_genuine(self):
+    def test_10_event_genuine(self):
         pid = fork.fork()
         if (pid == 0): # child
             os.kill(os.getpid(), signal.SIGINT)
@@ -112,7 +113,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_10_event_exit_genuine(self):
+    def test_11_event_exit_genuine(self):
         pid = fork.fork()
         if (pid == 0): # child
             os._exit(0)
@@ -125,7 +126,7 @@ class TestEvent_02(unittest.TestCase):
             try: trace.kill(pid)
             except OSError: pass
 
-    def test_11_event_exit_signal(self):
+    def test_12_event_exit_signal(self):
         pid = fork.fork()
         if (pid == 0): # child
             os.kill(os.getpid(), signal.SIGKILL)

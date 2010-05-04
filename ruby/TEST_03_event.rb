@@ -1,12 +1,10 @@
 #!/usr/bin/env ruby
 # coding: utf-8
 # vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
-# Copyright 2010 Ali Polatel <alip@exherbo.org>
-# Distributed under the terms of the GNU General Public License v2
 
 require 'test/unit'
 
-$: << File.expand_path('.libs')
+$:.insert(0, '.libs')
 require 'PinkTrace'
 
 class TestPinkEvent < Test::Unit::TestCase
@@ -19,10 +17,9 @@ class TestPinkEvent < Test::Unit::TestCase
     end
   end
 
-  def test_event_decide_unknown
-    assert_raise PinkTrace::EventError do
-      PinkTrace::Event.decide -1
-    end
+  def test_event_unknown
+    event = PinkTrace::Event.decide -1
+    assert(event == PinkTrace::Event::EVENT_UNKNOWN, "Wrong event, expected: UNKNOWN got: #{event}")
   end
 
   def test_event_stop
