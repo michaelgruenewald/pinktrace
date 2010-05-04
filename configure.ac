@@ -383,7 +383,7 @@ AC_ARG_ENABLE([python],
 AC_MSG_RESULT([$enable_python])
 
 if test x"$enable_python" = x"yes" ; then
-	AM_PATH_PYTHON([2.3])
+	AM_PATH_PYTHON([2.4])
 	if test x"$PYTHON" = x ; then
 		AC_MSG_ERROR([Python is required for --enable-python])
 	fi
