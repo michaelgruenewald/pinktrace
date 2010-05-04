@@ -1,0 +1,12 @@
+# jekyll config for PinkTrace home page
+
+# Configuration
+markdown: maruku
+permalink: "/:year/:month/:day/:title"
+pygments: true
+lsi: false
+exclude: [ api, Makefile, Makefile.am, Makefile.in, index.md.in ]
+
+# Custom variables
+title: "PinkTrace-##VERSION##"
+url: "##HOMEPAGE##"
