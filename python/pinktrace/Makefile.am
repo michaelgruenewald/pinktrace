@@ -80,7 +80,7 @@ check_DATA= bitness.so event.so \
 
 %.so: .libs/%.so
 	$(AM_V_GEN)
-	$(AM_V_at)$(LN_S) $< $@
+	$(AM_V_at)test -h $@ || $(LN_S) $< $@
 
 # Remove the .la files - *.la is never linked against (pinktrace is a module)
 # and Python doesn't use libltdl. Note that the library gets installed by
