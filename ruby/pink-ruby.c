@@ -768,6 +768,25 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
 }
 
 /*
+ * Document-method: Pinktrace::Bitness.name
+ * call-seq: PinkTrace::Bitness.name(bitness) => String
+ *
+ * Returns the name of the given bitness.
+ */
+static VALUE
+pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
+{
+	pink_bitness_t bit;
+
+	if (FIXNUM_P(bitv))
+		bit = FIX2UINT(bitv);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	return rb_str_new2(pink_bitness_tostring(bit));
+}
+
+/*
  * Document-class: PinkTrace::SysCall
  *
  * This class defines utilities useful when tracing processes.
@@ -1604,6 +1623,7 @@ Init_PinkTrace(void)
 	rb_define_const(bitness_mod, "BITNESS_32", INT2FIX(PINK_BITNESS_32));
 	rb_define_const(bitness_mod, "BITNESS_64", INT2FIX(PINK_BITNESS_64));
 	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
+	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
 
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "SysCall");

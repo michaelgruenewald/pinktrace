@@ -57,9 +57,34 @@ pinkpy_bitness_get(pink_unused PyObject *self, PyObject *args)
 	return Py_BuildValue("I", bit);
 }
 
+static char pinkpy_bitness_name_doc[] = ""
+	"Returns the name of the given bitness.\n"
+	"\n"
+	"@param bitness: The bitness\n"
+	"@rtype: str\n"
+	"@return: The name of the bitness";
+static PyObject *
+pinkpy_bitness_name(pink_unused PyObject *self, PyObject *args)
+{
+	const char *strbit;
+	pink_bitness_t bit;
+
+	if (!PyArg_ParseTuple(args, "i", &bit))
+		return NULL;
+
+	strbit = pink_bitness_tostring(bit);
+
+#if PY_MAJOR_VERSION > 2
+	return PyUnicode_FromString(strbit);
+#else
+	return PyString_FromString(strbit);
+#endif /* PY_MAJOR_VERSION > 2 */
+}
+
 static char bitness_doc[] = "Pink's bitness modes";
 static PyMethodDef bitness_methods[] = {
 	{"get", pinkpy_bitness_get, METH_VARARGS, pinkpy_bitness_get_doc},
+	{"name", pinkpy_bitness_name, METH_VARARGS, pinkpy_bitness_name_doc},
 	{NULL, NULL, 0, NULL}
 };
 
