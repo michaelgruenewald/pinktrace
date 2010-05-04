@@ -5,29 +5,23 @@ EPYDOC_FLAGS= --verbose \
 	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python" \
 	      --no-frames \
 	      --css $(srcdir)/epydoc.css
+REQUIRED_SYMLINKS= $(top_builddir)/python/pinktrace/bitness.so \
+		   $(top_builddir)/python/pinktrace/event.so \
+		   $(top_builddir)/python/pinktrace/fork.so \
+		   $(top_builddir)/python/pinktrace/socket.so \
+		   $(top_builddir)/python/pinktrace/string.so \
+		   $(top_builddir)/python/pinktrace/syscall.so \
+		   $(top_builddir)/python/pinktrace/trace.so
 
 if ENABLE_PYTHON_DOC
 all-local: epydoc
 
 epydoc: python
 
-symlinks:
-	test -e $(top_builddir)/python/pinktrace/bitness.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/bitness.so bitness.so )
-	test -e $(top_builddir)/python/pinktrace/event.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/event.so event.so )
-	test -e $(top_builddir)/python/pinktrace/fork.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/fork.so fork.so )
-	test -e $(top_builddir)/python/pinktrace/socket.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/socket.so socket.so )
-	test -e $(top_builddir)/python/pinktrace/string.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/string.so string.so )
-	test -e $(top_builddir)/python/pinktrace/syscall.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/syscall.so syscall.so )
-	test -e $(top_builddir)/python/pinktrace/trace.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/trace.so trace.so )
+$(top_builddir)/python/pinktrace/%.so: $(top_builddir)/python/pinktrace/.libs/%.so
+	test -h $@ || $(LN_S) $< $@
 
-python: symlinks
+python: $(REQUIRED_SYMLINKS)
 	$(AM_V_GEN)
 	$(AM_V_at)rm -fr python
 	$(AM_V_at)mkdir -p python
