@@ -9,10 +9,33 @@ noinst_HEADERS= pink-python-hacks.h
 pythonlibdir= @PYTHON_INSTALL_DIR@/pinktrace
 pythonlib_LTLIBRARIES=
 
-pythonlib_LTLIBRARIES+= about.la
-about_la_SOURCES= pink-python-about.c
-about_la_LDFLAGS= -module -avoid-version -shared
-about_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
+pythonlib_DATA= __init__.py
+
+if WANT_IPV6
+__init__.py: __init__.py.in
+	$(AM_V_GEN)
+	$(AM_V_at)$(SED) \
+		-e "s,##VERSION##,$(VERSION)," \
+		-e "s,##VERSION_MAJOR##,$(VERSION_MAJOR)," \
+		-e "s,##VERSION_MINOR##,$(VERSION_MINOR)," \
+		-e "s,##VERSION_MICRO##,$(VERSION_MICRO)," \
+		-e "s,##VERSION_SUFFIX##,$(VERSION_SUFFIX)," \
+		-e "s,##GIT_HEAD##,$(GITHEAD)," \
+		-e "s,##HAVE_IPV6##,True," \
+		$< > $@
+else
+__init__.py: __init__.py.in
+	$(AM_V_GEN)
+	$(AM_V_at)$(SED) \
+		-e "s,##VERSION##,$(VERSION)," \
+		-e "s,##VERSION_MAJOR##,$(VERSION_MAJOR)," \
+		-e "s,##VERSION_MINOR##,$(VERSION_MINOR)," \
+		-e "s,##VERSION_MICRO##,$(VERSION_MICRO)," \
+		-e "s,##VERSION_SUFFIX##,$(VERSION_SUFFIX)," \
+		-e "s,##GIT_HEAD##,$(GITHEAD)," \
+		-e "s,##HAVE_IPV6##,False," \
+		$< > $@
+endif
 
 pythonlib_LTLIBRARIES+= bitness.la
 bitness_la_SOURCES= pink-python-bitness.c
@@ -50,10 +73,10 @@ trace_la_LDFLAGS= -module -avoid-version -shared
 trace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 # Hack to make tests work.
-check_DATA= about.so bitness.so \
-	    event.so fork.so \
-	    socket.so string.so \
-	    syscall.so trace.so
+check_DATA= bitness.so event.so \
+	    fork.so socket.so \
+	    string.so syscall.so \
+	    trace.so
 
 %.so: .libs/%.so
 	$(AM_V_GEN)

@@ -12,8 +12,6 @@ all-local: epydoc
 epydoc: python
 
 symlinks:
-	test -e $(top_builddir)/python/pinktrace/about.so || \
-		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/about.so about.so )
 	test -e $(top_builddir)/python/pinktrace/bitness.so || \
 		( cd $(top_builddir)/python/pinktrace && $(LN_S) .libs/bitness.so bitness.so )
 	test -e $(top_builddir)/python/pinktrace/event.so || \

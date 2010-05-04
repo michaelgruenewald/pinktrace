@@ -6,6 +6,11 @@ import os, socket, sys, unittest
 
 sys.path.insert(0, '.')
 import pinktrace
+import pinktrace.event
+import pinktrace.fork
+import pinktrace.socket
+import pinktrace.syscall
+import pinktrace.trace
 
 class TestSocket_01_Invalid(unittest.TestCase):
 
