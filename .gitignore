@@ -66,4 +66,4 @@ src/pink-syscallent.h
 src/pink-syscallent32.h
 src/pink-syscallent64.h
 
-tests/check_libpinktrace
+tests/check_pinktrace
