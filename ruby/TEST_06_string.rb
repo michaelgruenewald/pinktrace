@@ -119,7 +119,7 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-unless PinkTrace::SysCall.name 0
+unless PinkTrace::Syscall.name 0
   exit 0
 end
 
@@ -138,8 +138,8 @@ class TestPinkString
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL then
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
         if name == 'open' then
           s = PinkTrace::String.decode pid, 0
           assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
@@ -166,8 +166,8 @@ class TestPinkString
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL then
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
         if name == 'open' then
           s = PinkTrace::String.decode pid, 0, 10
           assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
@@ -199,8 +199,8 @@ class TestPinkString
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL then
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
         if name == 'open' then
           PinkTrace::String.encode pid, 0, '/dev/NULL'
         end

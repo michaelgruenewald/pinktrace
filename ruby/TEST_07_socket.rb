@@ -74,7 +74,7 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-unless PinkTrace::SysCall.name 0
+unless PinkTrace::Syscall.name 0
   exit 0
 end
 
@@ -102,15 +102,15 @@ class TestPinkSocket
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL then
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
         if name == 'socketcall' or name == 'socket' then
           subcall = PinkTrace::Socket.decode_call pid
           if name == 'socketcall' then
             # The call must have given the decoded socket call.
             subname = PinkTrace::Socket.name subcall
           else
-            subname = PinkTrace::SysCall.name subcall
+            subname = PinkTrace::Syscall.name subcall
           end
           assert(subname == 'socket', "Wrong subcall name, expected: socket got: '#{subname}'")
           break

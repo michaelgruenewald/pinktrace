@@ -83,7 +83,7 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-unless PinkTrace::SysCall.name 0
+unless PinkTrace::Syscall.name 0
   exit 0
 end
 
@@ -103,8 +103,8 @@ class TestPinkSocketAddress
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
 
         if name == 'socketcall'
           subcall = PinkTrace::Socket.decode_call pid
@@ -141,8 +141,8 @@ class TestPinkSocketAddress
 
       event = PinkTrace::Event.decide
       if event == PinkTrace::Event::EVENT_SYSCALL
-        scno = PinkTrace::SysCall.get_no pid
-        name = PinkTrace::SysCall.name scno
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
 
         if name == 'socketcall'
           subcall = PinkTrace::Socket.decode_call pid
