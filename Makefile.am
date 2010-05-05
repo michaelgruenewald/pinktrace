@@ -39,6 +39,9 @@ upload-doc:
 upload-example:
 	$(MAKE) -C examples $@
 
-upload: upload-doc upload-examples
+upload-www:
+	$(MAKE) -C doc $@
 
-.PHONY: doxygen epydoc rdoc upload upload-doc upload-examples
+upload: upload-doc upload-examples upload-www
+
+.PHONY: doxygen epydoc rdoc upload upload-doc upload-examples upload-www
