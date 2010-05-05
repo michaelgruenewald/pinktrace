@@ -102,7 +102,7 @@ START_TEST(t_decode_stat)
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_decode_simple(pid, CHECK_BITNESS, 1, &buf, sizeof(struct stat)),
+		fail_unless(pink_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(S_ISCHR(buf.st_mode), "%#x", buf.st_mode);
 		fail_unless(buf.st_rdev == 259, "259 != %d", buf.st_rdev);
@@ -144,7 +144,7 @@ START_TEST(t_decode_string_first)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10), "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -184,7 +184,7 @@ START_TEST(t_decode_string_second)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10), "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -224,7 +224,7 @@ START_TEST(t_decode_string_third)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10), "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -264,7 +264,7 @@ START_TEST(t_decode_string_fourth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10), "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -304,7 +304,7 @@ START_TEST(t_decode_string_persistent_null)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
 		fail_if(buf != NULL, "NULL != `%s'", buf);
 		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
@@ -346,7 +346,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(buf[0] == 'n', "n != %c", buf[0]);
 		fail_unless(buf[1] == 'i', "i != %c", buf[1]);
@@ -390,7 +390,7 @@ START_TEST(t_decode_string_persistent_first)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -432,7 +432,7 @@ START_TEST(t_decode_string_persistent_second)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 1);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 1);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -474,7 +474,7 @@ START_TEST(t_decode_string_persistent_third)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 2);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 2);
 		fail_if(buf == NULL, "%d(%s)", strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -516,7 +516,7 @@ START_TEST(t_decode_string_persistent_fourth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 3);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 3);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -558,7 +558,7 @@ START_TEST(t_decode_socket_call)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_socket_call(pid, PINKTRACE_DEFAULT_BITNESS, &scall), "%d(%s)", errno, strerror(errno));
 #if defined(SYS_socketcall)
 		fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET, "%d != %ld", PINK_SOCKET_SUBCALL_SOCKET, scall);
 #else
@@ -633,7 +633,7 @@ START_TEST(t_decode_socket_fd)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_fd(pid, CHECK_BITNESS, 0, &fd), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_socket_fd(pid, PINKTRACE_DEFAULT_BITNESS, 0, &fd), "%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 
 		pink_trace_kill(pid);
@@ -700,7 +700,7 @@ START_TEST(t_decode_socket_address_null_second)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
@@ -774,7 +774,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -856,7 +856,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -937,7 +937,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
@@ -1021,7 +1021,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
@@ -1098,7 +1098,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
@@ -1174,7 +1174,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -1256,7 +1256,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -1337,7 +1337,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
@@ -1421,7 +1421,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);

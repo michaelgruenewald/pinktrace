@@ -36,15 +36,6 @@
 /* Check options */
 #define CHECK_OPTIONS PINK_TRACE_OPTION_SYSGOOD
 
-/* Check bitness */
-#if defined(I386) || defined(POWERPC)
-#define CHECK_BITNESS (PINK_BITNESS_32)
-#elif defined(X86_64) || defined(IA64) || defined(POWERPC64)
-#define CHECK_BITNESS (PINK_BITNESS_64)
-#else
-#error unsupported architecture
-#endif
-
 Suite *
 bitness_suite_create(void);
 

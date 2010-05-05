@@ -360,7 +360,7 @@ START_TEST(t_util_get_arg_first)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 0, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -400,7 +400,7 @@ START_TEST(t_util_get_arg_second)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 1, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -440,7 +440,7 @@ START_TEST(t_util_get_arg_third)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 2, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -480,7 +480,7 @@ START_TEST(t_util_get_arg_fourth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 3, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -520,7 +520,7 @@ START_TEST(t_util_get_arg_fifth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 4, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -560,7 +560,7 @@ START_TEST(t_util_get_arg_sixth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 5, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);

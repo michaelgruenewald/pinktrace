@@ -50,9 +50,9 @@ START_TEST(t_bitness)
 		waitpid(pid, &status, 0);
 
 		bitness = pink_bitness_get(pid);
-		fail_unless(bitness == CHECK_BITNESS,
+		fail_unless(bitness == PINKTRACE_DEFAULT_BITNESS,
 				"Wrong bitness, expected: %d got: %d",
-				CHECK_BITNESS, bitness);
+				PINKTRACE_DEFAULT_BITNESS, bitness);
 
 		pink_trace_kill(pid);
 	}
