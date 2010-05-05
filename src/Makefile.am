@@ -1,4 +1,4 @@
-CLEANFILES=
+CLEANFILES= pink-syscallent*.h
 AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= pink-bitness.c \
@@ -55,13 +55,10 @@ pink-syscallent.h:
 	$(AM_V_at)echo "/* ******************************************************** */" >> $@
 	$(AM_V_at)echo >> $@
 	$(AM_V_at)echo '' | $(CC) $(CFLAGS) -E --include asm/unistd.h -dM - |\
-		sort -n -k 3 |\
-		while read line; do \
-			if [ "$${line#\#define __NR_}" != "$$line" ]; then \
-				no="$$(echo \"$$line\" | cut -d' ' -f2)"; \
-				name="$$(echo \"$$no\" | $(SED) -e 's:__NR_::')"; \
-				echo "{$$no, $$name}," >> $@ ;\
-			fi \
+		$(EGREP) '^#define __NR_' | cut -d' ' -f2 | sort |\
+		$(SED) -e 's/^__NR_//' |\
+		while read name; do \
+			echo "{__NR_$$name, \"$$name\"}," >> $@ ; \
 		done
 else
 pink-syscallent.h:
@@ -89,13 +86,10 @@ pink-syscallent32.h:
 	$(AM_V_at)echo "/* ******************************************************** */" >> $@
 	$(AM_V_at)echo >> $@
 	$(AM_V_at)echo '' | $(CC) $(CFLAGS) -E --include asm/unistd_32.h -dM - |\
-		sort -n -k 3 |\
-		while read line; do \
-			if [ "$${line#\#define __NR_}" != "$$line" ]; then \
-				no="$$(echo \"$$line\" | cut -d' ' -f2)"; \
-				name="$$(echo \"$$no\" | $(SED) -e 's:__NR_::')"; \
-				echo "{$$no, $$name}," >> $@ ;\
-			fi \
+		$(EGREP) '^#define __NR_' | cut -d' ' -f2 | sort |\
+		$(SED) -e 's/^__NR_//' |\
+		while read name; do \
+			echo "{__NR_$$name, \"$$name\"}," >> $@ ; \
 		done
 pink-syscallent64.h:
 	$(AM_V_GEN)
@@ -106,13 +100,10 @@ pink-syscallent64.h:
 	$(AM_V_at)echo "/* ******************************************************** */" >> $@
 	$(AM_V_at)echo >> $@
 	$(AM_V_at)echo '' | $(CC) $(CFLAGS) -E --include asm/unistd_64.h -dM - |\
-		sort -n -k 3 |\
-		while read line; do \
-			if [ "$${line#\#define __NR_}" != "$$line" ]; then \
-				no="$$(echo \"$$line\" | cut -d' ' -f2)"; \
-				name="$$(echo \"$$no\" | $(SED) -e 's:__NR_::')"; \
-				echo "{$$no, $$name}," >> $@ ;\
-			fi \
+		$(EGREP) '^#define __NR_' | cut -d' ' -f2 | sort |\
+		$(SED) -e 's/^__NR_//' |\
+		while read name; do \
+			echo "{__NR_$$name, \"$$name\"}," >> $@ ; \
 		done
 else
 pink-syscallent32.h:
