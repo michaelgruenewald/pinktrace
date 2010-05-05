@@ -28,7 +28,7 @@ title: #{File.basename example}
 ---
 <h3>#{File.basename example}</h3>
 
-{% highlight #{lang} %}
+{% highlight #{lang} linenos %}
 EOF
   IO.foreach(example) {|line| puts "\t#{line}"}
   puts

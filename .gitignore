@@ -36,8 +36,7 @@ gprof*
 /ltmain.sh
 
 doc/_config.yml
-doc/*.mkd
-!doc/index.mkd
+doc/*.html
 doc/_site
 doc/api/c/c
 doc/api/c/doxygen.conf
