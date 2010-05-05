@@ -5,22 +5,13 @@ EPYDOC_FLAGS= --verbose \
 	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python" \
 	      --no-frames \
 	      --css $(srcdir)/epydoc.css
-REQUIRED_SYMLINKS= $(top_builddir)/python/pinktrace/bitness.so \
-		   $(top_builddir)/python/pinktrace/event.so \
-		   $(top_builddir)/python/pinktrace/socket.so \
-		   $(top_builddir)/python/pinktrace/string.so \
-		   $(top_builddir)/python/pinktrace/syscall.so \
-		   $(top_builddir)/python/pinktrace/trace.so
 
 if ENABLE_PYTHON_DOC
 all-local: epydoc
 
 epydoc: python
 
-$(top_builddir)/python/pinktrace/%.so: $(top_builddir)/python/pinktrace/.libs/%.so
-	test -h $@ || $(LN_S) $< $@
-
-python: $(REQUIRED_SYMLINKS)
+python:
 	$(AM_V_GEN)
 	$(AM_V_at)rm -fr python
 	$(AM_V_at)mkdir -p python

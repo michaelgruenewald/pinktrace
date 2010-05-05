@@ -67,17 +67,18 @@ trace_la_SOURCES= pink-python-trace.c
 trace_la_LDFLAGS= -module -avoid-version -shared
 trace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-# Hack to make tests work.
-check_DATA= bitness.so \
-	    event.so \
-	    socket.so \
-	    string.so \
-	    syscall.so \
-	    trace.so
-
-%.so: .libs/%.so
+# Hack to make epydoc & tests work.
+%.so: %.la
 	$(AM_V_GEN)
-	$(AM_V_at)test -h $@ || $(LN_S) $< $@
+	$(AM_V_at)test -h $@ || $(LN_S) $(addprefix .libs/, $(addsuffix .so,$(basename $<))) $@
+
+noinst_DATA= \
+	     bitness.so \
+	     event.so \
+	     socket.so \
+	     string.so \
+	     syscall.so \
+	     trace.so
 
 # Remove the .la files - *.la is never linked against (pinktrace is a module)
 # and Python doesn't use libltdl. Note that the library gets installed by
