@@ -26,7 +26,11 @@ ARGV.each do |example|
 layout: default
 title: #{File.basename example}
 ---
-## #{File.basename example}
+<h3>#{File.basename example}</h3>
+
+{% highlight #{lang} %}
 EOF
   IO.foreach(example) {|line| puts "\t#{line}"}
+  puts
+  puts '{% endhighlight %}'
 end
