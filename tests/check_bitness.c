@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -32,16 +33,22 @@
 
 START_TEST(t_bitness)
 {
+	int status;
 	pid_t pid;
 	pink_bitness_t bitness;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		pause();
+	if ((pid = fork()) < 0)
+		fail("fork: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
 		bitness = pink_bitness_get(pid);
 		fail_unless(bitness == CHECK_BITNESS,
 				"Wrong bitness, expected: %d got: %d",

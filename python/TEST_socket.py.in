@@ -2,12 +2,11 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et :
 
-import os, socket, sys, unittest
+import os, signal, socket, sys, unittest
 
 sys.path.insert(0, '.')
 import pinktrace
 import pinktrace.event
-import pinktrace.fork
 import pinktrace.socket
 import pinktrace.syscall
 import pinktrace.trace
@@ -38,11 +37,17 @@ TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 class TestSocket_02(unittest.TestCase):
 
     def test_01_decode_call(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the socket() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -67,11 +72,17 @@ class TestSocket_02(unittest.TestCase):
             except OSError: pass
 
     def test_02_decode_fd(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the socket() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -91,11 +102,17 @@ class TestSocket_02(unittest.TestCase):
             except OSError: pass
 
     def test_03_decode_address_unix(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             s.connect(TEST_UNIX_SOCKET)
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -126,11 +143,17 @@ class TestSocket_02(unittest.TestCase):
             except OSError: pass
 
     def test_04_decode_address_inet(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", 12345))
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -161,11 +184,17 @@ class TestSocket_02(unittest.TestCase):
             except OSError: pass
 
     def test_03_decode_address_fd_unix(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             s.connect(TEST_UNIX_SOCKET)
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -198,11 +227,17 @@ class TestSocket_02(unittest.TestCase):
             except OSError: pass
 
     def test_04_decode_address_inet(self):
-        pid = pinktrace.fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            pinktrace.trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect(("127.0.0.1", 12345))
         else: # parent
+            os.waitpid(pid, 0)
+            pinktrace.trace.setup(pid)
+
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1

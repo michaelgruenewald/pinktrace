@@ -8,15 +8,26 @@ An example demonstrating the tracing fork
 
 from __future__ import print_function
 
+import os, signal
+
+import pinktrace.event
 import pinktrace.fork
 import pinktrace.trace
 
-pid = pinktrace.fork.fork(pinktrace.trace.OPTION_ALL)
-if not pid: # child
+pid = os.fork()
+if not pid:
+    # Prepare for tracing.
+    pinktrace.trace.me()
+    # Stop to give the parent a chance to resume execution after setting options.
+    os.kill(os.getpid(), signal.SIGSTOP)
+
     print("hello world")
 else: # parent
-    # At this point the child has been stopped for tracing and stopped itself
-    # using SIGSTOP. We don't do anything interesting for this example.
+    pid, status = os.waitpid(pid, 0)
+    event = pinktrace.event.decide(status)
+    assert event == pinktrace.event.EVENT_STOP, "event: %d" % event
 
-    # Kill the child, the print function will never be called.
-    pinktrace.trace.kill(pid)
+    # Set tracing options
+    pinktrace.trace.setup(pid)
+    # Let the child continue...
+    pinktrace.trace.cont(pid)

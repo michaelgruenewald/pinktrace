@@ -8,12 +8,24 @@ An example demonstrating the tracing fork
 
 require 'PinkTrace'
 
-pid = PinkTrace::Fork.fork(PinkTrace::Trace::OPTION_ALL) do
+pid = fork do
+  # Prepare for tracing.
+  PinkTrace::Trace.me
+  # Stop to give the parent a chance to resume execution after setting options.
+  Process.kill 'STOP', Process.pid
+
   puts "hello world"
 end
 
-# At this point the child has been stopped for tracing and stopped itself
-# using SIGSTOP. We don't do anything interesting for this example.
+Process.wait # sets $?
+event = PinkTrace::Event.decide # uses $?.status by default
+unless event == PinkTrace::Event::EVENT_STOP
+  puts "wtf?"
+  PinkTrace::Trace.kill pid
+  exit 1
+end
 
-# Kill the child, the puts function will never be called.
-PinkTrace::Trace.kill pid
+# Set tracing options
+PinkTrace::Trace.setup pid
+# Let the child continue...
+PinkTrace::Trace.cont pid

@@ -11,7 +11,6 @@ title: Home
 applications. It consists of the following parts:
 
 - Wrappers around different *ptrace()* calls.
-- A wrapper around *fork()* call which does the tracing setup.
 - An API for decoding arguments (strings, socket addresses, ...)
 - An **experimental** API for encoding arguments.
 

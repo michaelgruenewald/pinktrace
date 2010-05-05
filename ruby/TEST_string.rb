@@ -125,9 +125,14 @@ end
 
 class TestPinkString
   def test_string_decode
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       File.open '/dev/null'
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -153,9 +158,14 @@ class TestPinkString
   end
 
   def test_string_decode_max
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       File.open '/dev/null'
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -181,7 +191,10 @@ class TestPinkString
   end
 
   def test_string_encode
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       begin
         File.open '/dev/null'
       rescue Errno::ENOENT
@@ -189,6 +202,8 @@ class TestPinkString
       end
       exit 1
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.

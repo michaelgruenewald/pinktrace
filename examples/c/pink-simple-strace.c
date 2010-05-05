@@ -1,9 +1,11 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
+#include <assert.h>
 #include <errno.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -111,7 +113,6 @@ main(int argc, char **argv)
 	long scno;
 	pid_t pid;
 	pink_bitness_t bitness;
-	pink_error_t error;
 	pink_event_t event;
 
 	/* Parse arguments */
@@ -121,19 +122,36 @@ main(int argc, char **argv)
 	}
 
 	/* Fork */
-	if ((pid = pink_fork(PINK_TRACE_OPTION_EXEC, &error)) < 0) {
-		fprintf(stderr, "pink_fork: %s, %s\n",
-				pink_error_tostring(error),
-				strerror(errno));
+	if ((pid = fork()) < 0) {
+		perror("fork");
 		return EXIT_FAILURE;
 	}
 	else if (!pid) { /* child */
+		/* Set up for tracing */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		/* Stop and let the parent continue the execution. */
+		kill(getpid(), SIGSTOP);
+
 		++argv;
 		execvp(argv[0], argv);
-		fprintf(stderr, "execvp: %s\n", strerror(errno));
+		perror("execvp");
 		_exit(-1);
 	}
 	else {
+		waitpid(pid, &status, 0);
+		event = pink_event_decide(status);
+		assert(event == PINK_EVENT_STOP);
+
+		/* Set up the tracing options. */
+		if (!pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC)) {
+			perror("pink_trace_setup");
+			pink_trace_kill(pid);
+			return EXIT_FAILURE;
+		}
+
 		/* Figure out the bitness of the traced child. */
 		bitness = pink_bitness_get(pid);
 		printf("Child %i runs in %s mode\n", pid, pink_bitness_tostring(bitness));

@@ -7,7 +7,6 @@ EPYDOC_FLAGS= --verbose \
 	      --css $(srcdir)/epydoc.css
 REQUIRED_SYMLINKS= $(top_builddir)/python/pinktrace/bitness.so \
 		   $(top_builddir)/python/pinktrace/event.so \
-		   $(top_builddir)/python/pinktrace/fork.so \
 		   $(top_builddir)/python/pinktrace/socket.so \
 		   $(top_builddir)/python/pinktrace/string.so \
 		   $(top_builddir)/python/pinktrace/syscall.so \

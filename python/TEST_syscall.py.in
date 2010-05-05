@@ -2,10 +2,10 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et tw=80 :
 
-import errno, os, sys, unittest
+import errno, os, signal, sys, unittest
 
 sys.path.insert(0, '.')
-from pinktrace import bitness, event, fork, syscall, trace
+from pinktrace import bitness, event, syscall, trace
 
 class TestSyscall_01_Invalid(unittest.TestCase):
 
@@ -40,11 +40,17 @@ class TestSyscall_01_Invalid(unittest.TestCase):
 class TestSyscall_02(unittest.TestCase):
 
     def test_01_get_no(self):
-        pid = fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.kill(os.getpid(), 0)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -67,11 +73,17 @@ class TestSyscall_02(unittest.TestCase):
             except OSError: pass
 
     def test_02_set_no(self):
-        pid = fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.kill(os.getpid(), 0)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -93,11 +105,17 @@ class TestSyscall_02(unittest.TestCase):
             except OSError: pass
 
     def test_03_get_ret_success(self):
-        pid = fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.kill(os.getpid(), 0)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -120,14 +138,20 @@ class TestSyscall_02(unittest.TestCase):
                     insyscall = False
 
     def test_04_get_ret_fail(self):
-        pid = fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             try:
                 open('')
             except IOError:
                 pass
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             # Loop until we get to the open() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1
@@ -154,8 +178,11 @@ class TestSyscall_02(unittest.TestCase):
         pass
 
     def test_06_set_ret_fail(self):
-        pid = fork.fork()
-        if pid == 0: # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             try:
                 os.kill(os.getpid(), 0)
             except OSError:
@@ -163,6 +190,9 @@ class TestSyscall_02(unittest.TestCase):
             else:
                 os._exit(1)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
             ev = -1

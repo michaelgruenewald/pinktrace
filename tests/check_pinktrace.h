@@ -55,9 +55,6 @@ Suite *
 encode_suite_create(void);
 
 Suite *
-fork_suite_create(void);
-
-Suite *
 event_suite_create(void);
 
 Suite *

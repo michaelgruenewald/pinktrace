@@ -91,9 +91,14 @@ class TestPinkSocketAddress
   TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 
   def test_address_decode
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       UNIXSocket.new TEST_UNIX_SOCKET
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the connect() system call.
     event = -1
@@ -129,9 +134,14 @@ class TestPinkSocketAddress
   end
 
   def test_decode_address_fd
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       UNIXSocket.new TEST_UNIX_SOCKET
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the connect() system call.
     event = -1

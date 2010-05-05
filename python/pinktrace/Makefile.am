@@ -47,11 +47,6 @@ event_la_SOURCES= pink-python-event.c
 event_la_LDFLAGS= -module -avoid-version -shared
 event_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-pythonlib_LTLIBRARIES+= fork.la
-fork_la_SOURCES= pink-python-fork.c
-fork_la_LDFLAGS= -module -avoid-version -shared
-fork_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
-
 pythonlib_LTLIBRARIES+= socket.la
 socket_la_SOURCES= pink-python-socket.c
 socket_la_LDFLAGS= -module -avoid-version -shared
@@ -73,9 +68,11 @@ trace_la_LDFLAGS= -module -avoid-version -shared
 trace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 # Hack to make tests work.
-check_DATA= bitness.so event.so \
-	    fork.so socket.so \
-	    string.so syscall.so \
+check_DATA= bitness.so \
+	    event.so \
+	    socket.so \
+	    string.so \
+	    syscall.so \
 	    trace.so
 
 %.so: .libs/%.so

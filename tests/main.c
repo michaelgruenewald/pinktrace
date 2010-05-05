@@ -31,7 +31,6 @@ main(void)
 
 	/* Add suites */
 	sr = srunner_create(trace_suite_create());
-	srunner_add_suite(sr, fork_suite_create());
 	srunner_add_suite(sr, event_suite_create());
 	srunner_add_suite(sr, bitness_suite_create());
 	srunner_add_suite(sr, util_suite_create());

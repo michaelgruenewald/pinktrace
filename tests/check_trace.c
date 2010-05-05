@@ -39,7 +39,7 @@ START_TEST(t_trace_me_basic)
 	pid_t pid;
 
 	if ((pid = fork()) < 0)
-		fail("fork failed: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
@@ -50,8 +50,7 @@ START_TEST(t_trace_me_basic)
 	}
 	else { /* parent */
 		waitpid(pid, &status, 0);
-
-		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "pink_trace_me() failed");
+		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", status);
 	}
 }
 END_TEST
@@ -62,20 +61,18 @@ START_TEST(t_trace_me_signal)
 	pid_t pid;
 
 	if ((pid = fork()) < 0)
-		fail("fork failed: %s", strerror(errno));
+		fail("fork %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 		kill(getpid(), SIGTTIN);
-		abort();
+		_exit(EXIT_FAILURE);
 	}
 	else { /* parent */
 		waitpid(pid, &status, 0);
-
-		fail_unless(WIFSTOPPED(status), "Child hasn't been stopped after genuine signal");
-
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 		kill(pid, SIGKILL);
 	}
 }
@@ -88,23 +85,19 @@ START_TEST(t_trace_me_execve)
 	char *const myargv[] = { "/bin/true", NULL };
 
 	if ((pid = fork()) < 0)
-		fail("fork failed: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
-
 		execvp("/bin/true", myargv);
 		_exit(EXIT_FAILURE);
 	}
 	else { /* parent */
 		waitpid(pid, &status, 0);
-
-		fail_unless(WIFSTOPPED(status), "Child hasn't been stopped after execve()");
-		fail_unless(WSTOPSIG(status) == SIGTRAP, "Wrong signal, got: %d expected: %d",
-				WSTOPSIG(status), SIGTRAP);
-
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 		kill(pid, SIGKILL);
 	}
 }
@@ -116,7 +109,7 @@ START_TEST(t_trace_cont_basic)
 	pid_t pid;
 
 	if ((pid = fork()) < 0)
-		fail("fork failed: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
@@ -128,16 +121,14 @@ START_TEST(t_trace_cont_basic)
 	else {
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong stop signal, got: %d expected: %d",
-				WSTOPSIG(status), SIGSTOP);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, 0), "pink_trace_cont() failed: %s", strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFEXITED(status), "Child hasn't exited");
-		fail_unless(WEXITSTATUS(status) == 13, "Wrong exit code, got: %d expected: %d",
-				WEXITSTATUS(status), 13);
+		fail_unless(WIFEXITED(status), "%#x", status);
+		fail_unless(WEXITSTATUS(status) == 13, "%#x", status);
 	}
 }
 END_TEST
@@ -148,7 +139,7 @@ START_TEST(t_trace_cont_signal)
 	pid_t pid;
 
 	if ((pid = fork()) < 0)
-		fail("fork failed: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
@@ -160,16 +151,14 @@ START_TEST(t_trace_cont_signal)
 	else { /* parent */
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong stop signal, got: %d expected: %d",
-				WSTOPSIG(status), SIGSTOP);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, SIGTERM), "pink_trace_cont() failed: %s", strerror(errno));
+		fail_unless(pink_trace_cont(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFSIGNALED(status), "Child hasn't been signaled");
-		fail_unless(WTERMSIG(status) == SIGTERM, "Wrong signal, got: %d expected: %d",
-				WTERMSIG(status), SIGTERM);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
 	}
 }
 END_TEST
@@ -192,16 +181,14 @@ START_TEST(t_trace_kill)
 	else { /* parent */
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong stop signal, got: %d expected: %d",
-				WSTOPSIG(status), SIGSTOP);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_kill(pid), "pink_trace_kill() failed: %s", strerror(errno));
+		fail_unless(pink_trace_kill(pid), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 
-		fail_unless(WIFSIGNALED(status), "Child hasn't been signaled");
-		fail_unless(WTERMSIG(status) == SIGKILL, "Wrong signal, got: %d expected: %d",
-				WTERMSIG(status), SIGKILL);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGKILL, "%#x", status);
 	}
 }
 END_TEST

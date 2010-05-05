@@ -38,6 +38,16 @@
 
 #include <pinktrace/pink.h>
 
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif /* !INET_ADDRSTRLEN */
+
+#if PINKTRACE_HAVE_IPV6
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif /* !INET6_ADDRSTRLEN */
+#endif
+
 /* Some architectures only have SYS_socketcall.
  * For those architectures we need to define SYS_socket so that compiling
  * doesn't fail. */
@@ -64,34 +74,38 @@ START_TEST(t_decode_stat)
 	struct stat buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		_exit((0 > stat("/dev/null", &buf)) ? EXIT_FAILURE : EXIT_SUCCESS);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		stat("/dev/null", &buf);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall failed: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
 			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL,
-					"Wrong event, expected: %d got: %d",
-					PINK_EVENT_SYSCALL, event);
+			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
 		fail_unless(pink_decode_simple(pid, CHECK_BITNESS, 1, &buf, sizeof(struct stat)),
-				"pink_decode_simple: %s",
-				strerror(errno));
-		fail_unless(S_ISCHR(buf.st_mode), "Not a character device: %#x", buf.st_mode);
-		fail_unless(buf.st_rdev == 259, "Wrong device ID, expected: %d got: %d",
-				259, buf.st_rdev);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(S_ISCHR(buf.st_mode), "%#x", buf.st_mode);
+		fail_unless(buf.st_rdev == 259, "259 != %d", buf.st_rdev);
 
 		pink_trace_kill(pid);
 	}
@@ -104,32 +118,34 @@ START_TEST(t_decode_string_first)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		open("/dev/null", O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10),
-				"pink_decode_string: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 0, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
 	}
@@ -142,32 +158,34 @@ START_TEST(t_decode_string_second)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		openat(-1, "/dev/null", O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10),
-				"pink_decode_string: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 1, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
 	}
@@ -180,32 +198,34 @@ START_TEST(t_decode_string_third)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%s", strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10),
-				"pink_decode_string: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 2, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
 	}
@@ -218,32 +238,34 @@ START_TEST(t_decode_string_fourth)
 	char buf[10];
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10),
-				"pink_decode_string: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_unless(pink_decode_string(pid, CHECK_BITNESS, 3, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
 	}
@@ -256,31 +278,35 @@ START_TEST(t_decode_string_persistent_null)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		open(NULL, O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf != NULL, "Wrong string, expected: NULL got: %s", buf);
-		fail_unless(errno == EIO || errno == EFAULT,
-				"Wrong errno, expected: EIO/EFAULT got: %d (%s)",
-				errno, strerror(errno));
+		fail_if(buf != NULL, "NULL != `%s'", buf);
+		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
 		pink_trace_kill(pid);
 	}
@@ -294,39 +320,37 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 	char notrailingzero[3] = {'n', 'i', 'l'};
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		open(notrailingzero, O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent failed: %s",
-				strerror(errno));
-		fail_unless(buf[0] == 'n',
-				"Wrong first char, expected: %c got: %c",
-				'n', buf[0]);
-		fail_unless(buf[1] == 'i',
-				"Wrong second char, expected: %c got: %c",
-				'i', buf[1]);
-		fail_unless(buf[2] == 'l',
-				"Wrong third char, expected: %c got: %c",
-				'l', buf[2]);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(buf[0] == 'n', "n != %c", buf[0]);
+		fail_unless(buf[1] == 'i', "i != %c", buf[1]);
+		fail_unless(buf[2] == 'l', "l != %c", buf[2]);
 
 		free(buf);
 		pink_trace_kill(pid);
@@ -340,33 +364,35 @@ START_TEST(t_decode_string_persistent_first)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		open("/dev/null", O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 0);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		free(buf);
 		pink_trace_kill(pid);
@@ -380,33 +406,35 @@ START_TEST(t_decode_string_persistent_second)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		openat(-1, "/dev/null", O_RDONLY);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 1);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		free(buf);
 		pink_trace_kill(pid);
@@ -420,33 +448,35 @@ START_TEST(t_decode_string_persistent_third)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 2);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_if(buf == NULL, "%d(%s)", strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		free(buf);
 		pink_trace_kill(pid);
@@ -460,33 +490,35 @@ START_TEST(t_decode_string_persistent_fourth)
 	char *buf;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
 		buf = pink_decode_string_persistent(pid, CHECK_BITNESS, 3);
-		fail_if(buf == NULL,
-				"pink_decode_string_persistent: %s",
-				strerror(errno));
-		fail_unless(0 == strncmp(buf, "/dev/null", 10),
-				"Wrong string: expected /dev/null got `%s'",
-				buf);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		free(buf);
 		pink_trace_kill(pid);
@@ -500,35 +532,37 @@ START_TEST(t_decode_socket_call)
 	long scall;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		socket(AF_UNIX, SOCK_STREAM, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall),
-				"pink_decode_socket_call: %s", strerror(errno));
+		fail_unless(pink_decode_socket_call(pid, CHECK_BITNESS, &scall), "%d(%s)", errno, strerror(errno));
 #if defined(SYS_socketcall)
-		fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET,
-			"Wrong decoded subcall, expected: %d got: %ld",
-			PINK_SOCKET_SUBCALL_SOCKET, scall);
+		fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET, "%d != %ld", PINK_SOCKET_SUBCALL_SOCKET, scall);
 #else
-		fail_unless(scall == SYS_socket, "Wrong decoded subcall, expected: %d got: %ld",
-				SYS_socket, scall);
+		fail_unless(scall == SYS_socket, "%d != %ld", SYS_socket, scall);
 #endif /* defined(SYS_socketcall) */
 
 		pink_trace_kill(pid);
@@ -545,12 +579,10 @@ START_TEST(t_decode_socket_fd)
 	pid_t pid;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_un addr;
 
@@ -569,7 +601,7 @@ START_TEST(t_decode_socket_fd)
 		strcpy(addr.sun_path, "/dev/null");
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -586,29 +618,23 @@ START_TEST(t_decode_socket_fd)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%d != %d", SIGSTOP, WSTOPSIG(status));
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_fd(pid, CHECK_BITNESS, 0, &fd),
-				"pink_decode_socket_fd: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
+		fail_unless(pink_decode_socket_fd(pid, CHECK_BITNESS, 0, &fd), "%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 
 		pink_trace_kill(pid);
 	}
@@ -625,17 +651,15 @@ START_TEST(t_decode_socket_address_null_second)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		close(pfd[0]);
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -644,7 +668,7 @@ START_TEST(t_decode_socket_address_null_second)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -661,31 +685,25 @@ START_TEST(t_decode_socket_address_null_second)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
-				res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == -1, "-1 != %d", res.family);
 
 		pink_trace_kill(pid);
 	}
@@ -702,12 +720,10 @@ START_TEST(t_decode_socket_address_unix_second)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_un addr;
 
@@ -717,7 +733,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		strcpy(addr.sun_path, "/dev/null");
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -726,7 +742,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -743,38 +759,29 @@ START_TEST(t_decode_socket_address_unix_second)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
 
-		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
-				"Wrong family, expected: %d got: %d",
-				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
 		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
-				"Wrong path, expected: /dev/null got: `%s'",
-				res.u.sa_un.sun_path);
+			"/dev/null != `%s'", res.u.sa_un.sun_path);
 
 		pink_trace_kill(pid);
 	}
@@ -791,12 +798,10 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		size_t len;
 		struct sockaddr_un addr;
@@ -810,7 +815,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		addr.sun_path[0] = '\0';
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -819,7 +824,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -836,41 +841,30 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
 
-		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
-				"Wrong family, expected: %d got: %d",
-				AF_UNIX, res.u.sa_un.sun_family);
-		fail_unless(res.u.sa_un.sun_path[0] == '\0',
-				"Wrong initial char, expected: 0 got: `%c'",
-				res.u.sa_un.sun_path[0]);
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_path[0] == '\0', "0 != `%c'", res.u.sa_un.sun_path[0]);
 		fail_unless(strncmp(res.u.sa_un.sun_path + 1, "/dev/null", 10) == 0,
-				"Wrong path, expected: /dev/null got: `%s'",
-				res.u.sa_un.sun_path + 1);
+			"/dev/null != `%s'", res.u.sa_un.sun_path + 1);
 
 		pink_trace_kill(pid);
 	}
@@ -887,12 +881,10 @@ START_TEST(t_decode_socket_address_inet_second)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_in addr;
 
@@ -903,7 +895,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		addr.sin_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -912,7 +904,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -921,7 +913,7 @@ START_TEST(t_decode_socket_address_inet_second)
 	}
 	else { /* parent */
 		int realfd;
-		char ip[100] = { 0 };
+		char ip[INET_ADDRSTRLEN];
 
 		close(pfd[1]);
 
@@ -930,42 +922,32 @@ START_TEST(t_decode_socket_address_inet_second)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_INET, "Wrong family, expected: %d got: %d",
-				AF_INET, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
 
-		fail_unless(res.u.sa_in.sin_family == AF_INET,
-				"Wrong family, expected: %d got: %d",
-				AF_INET, res.u.sa_in.sin_family);
+		fail_unless(res.u.sa_in.sin_family == AF_INET, "%d != %d", AF_INET, res.u.sa_in.sin_family);
 		if (!IN_LOOPBACK(res.u.sa_in.sin_addr.s_addr)) {
 			inet_ntop(AF_INET, &res.u.sa_in.sin_addr, ip, sizeof(ip));
-			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
+			fail("INADDR_LOOPBACK != `%s'", ip);
 		}
-		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456,
-				"Wrong port, expected: 23456 got: %d",
-				ntohs(res.u.sa_in.sin_port));
+		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456, "23456 != %d", ntohs(res.u.sa_in.sin_port));
 
 		pink_trace_kill(pid);
 	}
@@ -983,12 +965,10 @@ START_TEST(t_decode_socket_address_inet6_second)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_in6 addr;
 
@@ -1017,7 +997,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 	}
 	else { /* parent */
 		int realfd;
-		char ip[100] = { 0 };
+		char ip[INET6_ADDRSTRLEN];
 
 		close(pfd[1]);
 
@@ -1026,42 +1006,32 @@ START_TEST(t_decode_socket_address_inet6_second)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 1, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_INET6, "Wrong family, expected: %d got: %d",
-				AF_INET6, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
 
-		fail_unless(res.u.sa6.sin6_family == AF_INET6,
-				"Wrong family, expected: %d got: %d",
-				AF_INET6, res.u.sa6.sin6_family);
+		fail_unless(res.u.sa6.sin6_family == AF_INET6, "%d != %d", AF_INET6, res.u.sa6.sin6_family);
 		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
 			inet_ntop(AF_INET6, &res.u.sa6.sin6_addr, ip, sizeof(ip));
-			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
+			fail("in6addr_loopback != `%s'", ip);
 		}
-		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456,
-				"Wrong port, expected: 23456 got: %d",
-				ntohs(res.u.sa6.sin6_port));
+		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456, "23456 != %d", ntohs(res.u.sa6.sin6_port));
 
 		pink_trace_kill(pid);
 	}
@@ -1079,17 +1049,15 @@ START_TEST(t_decode_socket_address_null_fifth)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		close(pfd[0]);
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1098,7 +1066,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1115,31 +1083,25 @@ START_TEST(t_decode_socket_address_null_fifth)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
-		/* Resume the child, until the connect() call */
+		/* Resume the child, until the sendto() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == -1, "Wrong family, expected: -1 got: %d",
-				res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == -1, "-1 != %d", res.family);
 
 		pink_trace_kill(pid);
 	}
@@ -1156,12 +1118,12 @@ START_TEST(t_decode_socket_address_unix_fifth)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
 	/* We don't use pink_fork() for this test because the child needs to
 	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_un addr;
 
@@ -1171,7 +1133,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		strcpy(addr.sun_path, "/dev/null");
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1180,7 +1142,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1197,38 +1159,29 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
-		/* Resume the child, until the connect() call */
+		/* Resume the child, until the sendto() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
 
-		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
-				"Wrong family, expected: %d got: %d",
-				AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
 		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
-				"Wrong path, expected: /dev/null got: `%s'",
-				res.u.sa_un.sun_path);
+			"/dev/null != `%s'", res.u.sa_un.sun_path);
 
 		pink_trace_kill(pid);
 	}
@@ -1245,12 +1198,10 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		size_t len;
 		struct sockaddr_un addr;
@@ -1264,7 +1215,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		addr.sun_path[0] = '\0';
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1273,7 +1224,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1290,41 +1241,30 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
-		/* Resume the child, until the connect() call */
+		/* Resume the child, until the sendto() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_UNIX, "Wrong family, expected: %d got: %d",
-				AF_UNIX, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
 
-		fail_unless(res.u.sa_un.sun_family == AF_UNIX,
-				"Wrong family, expected: %d got: %d",
-				AF_UNIX, res.u.sa_un.sun_family);
-		fail_unless(res.u.sa_un.sun_path[0] == '\0',
-				"Wrong initial char, expected: 0 got: `%c'",
-				res.u.sa_un.sun_path[0]);
+		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
+		fail_unless(res.u.sa_un.sun_path[0] == '\0', "0 != `%c'", res.u.sa_un.sun_path[0]);
 		fail_unless(strncmp(res.u.sa_un.sun_path + 1, "/dev/null", 10) == 0,
-				"Wrong path, expected: /dev/null got: `%s'",
-				res.u.sa_un.sun_path + 1);
+			"/dev/null != `%s'", res.u.sa_un.sun_path + 1);
 
 		pink_trace_kill(pid);
 	}
@@ -1341,12 +1281,10 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_in addr;
 
@@ -1357,7 +1295,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		addr.sin_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1366,7 +1304,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1375,7 +1313,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	}
 	else { /* parent */
 		int realfd;
-		char ip[100] = { 0 };
+		char ip[INET_ADDRSTRLEN];
 
 		close(pfd[1]);
 
@@ -1384,42 +1322,32 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
-		/* Resume the child, until the connect() call */
+		/* Resume the child, until the sendto() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_INET, "Wrong family, expected: %d got: %d",
-				AF_INET, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
 
-		fail_unless(res.u.sa_in.sin_family == AF_INET,
-				"Wrong family, expected: %d got: %d",
-				AF_INET, res.u.sa_in.sin_family);
+		fail_unless(res.u.sa_in.sin_family == AF_INET, "%d != %d", AF_INET, res.u.sa_in.sin_family);
 		if (!IN_LOOPBACK(res.u.sa_in.sin_addr.s_addr)) {
 			inet_ntop(AF_INET, &res.u.sa_in.sin_addr, ip, sizeof(ip));
-			fail("Wrong address, expected: INADDR_LOOPBACK got: `%s'", ip);
+			fail("INADDR_LOOPBACK != `%s'", ip);
 		}
-		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456,
-				"Wrong port, expected: 23456 got: %d",
-				ntohs(res.u.sa_in.sin_port));
+		fail_unless(ntohs(res.u.sa_in.sin_port) == 23456, "23456 != %d", ntohs(res.u.sa_in.sin_port));
 
 		pink_trace_kill(pid);
 	}
@@ -1437,12 +1365,10 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	pink_socket_address_t res;
 
 	if (pipe(pfd) < 0)
-		fail("pipe: %s", strerror(errno));
+		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
-		fail("fork: %s", strerror(errno));
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
 		struct sockaddr_in6 addr;
 
@@ -1453,7 +1379,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		addr.sin6_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			fprintf(stderr, "socket: %s\n", strerror(errno));
+			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1462,7 +1388,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		close(pfd[1]);
 
 		if (!pink_trace_me()) {
-			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			perror("pink_trace_me");
 			_exit(EXIT_FAILURE);
 		}
 
@@ -1471,7 +1397,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	}
 	else { /* parent */
 		int realfd;
-		char ip[100] = { 0 };
+		char ip[INET6_ADDRSTRLEN];
 
 		close(pfd[1]);
 
@@ -1480,42 +1406,32 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		close(pfd[0]);
 
 		waitpid(pid, &status, 0);
-		fail_if(WIFEXITED(status), "Child exited with code %d", WEXITSTATUS(status));
-		fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
-		fail_unless(WSTOPSIG(status) == SIGSTOP, "Wrong signal, expected: %d got: %d",
-				SIGSTOP, WSTOPSIG(status));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
-				"pink_trace_setup: %s", strerror(errno));
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
-		/* Resume the child, until the connect() call */
+		/* Resume the child, until the sendto() call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			waitpid(pid, &status, 0);
-			fail_unless(WIFSTOPPED(status), "Child hasn't stopped");
+			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, CHECK_BITNESS, 4, &fd, &res),
-				"pink_decode_socket_address: %s", strerror(errno));
-		fail_unless(fd == realfd, "Wrong file descriptor, expected: %d got: %d",
-				realfd, fd);
-		fail_unless(res.family == AF_INET6, "Wrong family, expected: %d got: %d",
-				AF_INET6, res.family);
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
 
-		fail_unless(res.u.sa6.sin6_family == AF_INET6,
-				"Wrong family, expected: %d got: %d",
-				AF_INET6, res.u.sa6.sin6_family);
+		fail_unless(res.u.sa6.sin6_family == AF_INET6, "%d != %d", AF_INET6, res.u.sa6.sin6_family);
 		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
 			inet_ntop(AF_INET6, &res.u.sa6.sin6_addr, ip, sizeof(ip));
-			fail("Wrong address, expected: in6addr_loopback got: `%s'", ip);
+			fail("in6addr_loopback != `%s'", ip);
 		}
-		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456,
-				"Wrong port, expected: 23456 got: %d",
-				ntohs(res.u.sa6.sin6_port));
+		fail_unless(ntohs(res.u.sa6.sin6_port) == 23456, "23456 != %d", ntohs(res.u.sa6.sin6_port));
 
 		pink_trace_kill(pid);
 	}

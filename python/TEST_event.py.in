@@ -5,7 +5,7 @@
 import os, signal, sys, unittest
 
 sys.path.insert(0, '.')
-from pinktrace import event, fork, trace
+from pinktrace import event, trace
 
 class TestEvent_01_Invalid(unittest.TestCase):
 
@@ -20,12 +20,13 @@ class TestEvent_02(unittest.TestCase):
         self.assertEqual(ev, event.EVENT_UNKNOWN)
 
     def test_02_event_stop(self):
-        pid = fork.fork()
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
             os.kill(os.getpid(), signal.SIGSTOP)
+
             os._exit(0)
         else: # parent
-            trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
             self.assertEqual(ev, event.EVENT_STOP)
@@ -34,11 +35,17 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_03_event_syscall(self):
-        pid = fork.fork()
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.sleep(1)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             trace.syscall(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -48,11 +55,17 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_04_event_fork(self):
-        pid = fork.fork(trace.OPTION_FORK)
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.fork()
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid, trace.OPTION_SYSGOOD | trace.OPTION_FORK)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -71,11 +84,17 @@ class TestEvent_02(unittest.TestCase):
         pass
 
     def test_08_event_exec(self):
-        pid = fork.fork(trace.OPTION_EXEC)
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.execvp("/bin/true", ("true",))
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid, trace.OPTION_SYSGOOD | trace.OPTION_EXEC)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -85,10 +104,16 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_09_event_exit(self):
-        pid = fork.fork(trace.OPTION_EXIT)
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os._exit(13)
-        else:
+        else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid, trace.OPTION_SYSGOOD | trace.OPTION_EXIT)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -100,11 +125,17 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_10_event_genuine(self):
-        pid = fork.fork()
-        if (pid == 0): # child
-            os.kill(os.getpid(), signal.SIGINT)
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
+            os.kill(os.getpid(), signal.SIGTSTP)
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -114,10 +145,16 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_11_event_exit_genuine(self):
-        pid = fork.fork()
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os._exit(0)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)
@@ -127,10 +164,16 @@ class TestEvent_02(unittest.TestCase):
             except OSError: pass
 
     def test_12_event_exit_signal(self):
-        pid = fork.fork()
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
+
             os.kill(os.getpid(), signal.SIGKILL)
         else: # parent
+            os.waitpid(pid, 0)
+            trace.setup(pid)
+
             trace.cont(pid)
             pid, status = os.waitpid(pid, 0)
             ev = event.decide(status)

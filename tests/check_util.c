@@ -42,12 +42,15 @@ START_TEST(t_util_get_syscall)
 	long scno;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
 		 * caches PIDs, ...
@@ -59,24 +62,22 @@ START_TEST(t_util_get_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_syscall(pid, &scno),
-				"pink_util_get_syscall failed: %s",
-				strerror(errno));
-		fail_unless(scno == SYS_getpid,
-				"Wrong syscall, expected: %ld got: %ld",
-				SYS_getpid, scno);
+		fail_unless(pink_util_get_syscall(pid, &scno), "%d(%s)", errno, strerror(errno));
+		fail_unless(scno == SYS_getpid, "%ld != %ld", SYS_getpid, scno);
 
 		pink_trace_kill(pid);
 	}
@@ -89,12 +90,15 @@ START_TEST(t_util_set_syscall)
 	long scno;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
 		 * caches PIDs, ...
@@ -106,27 +110,23 @@ START_TEST(t_util_set_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_set_syscall(pid, 0xbadca11),
-				"pink_util_set_syscall failed: %s",
-				strerror(errno));
-		fail_unless(pink_util_get_syscall(pid, &scno),
-				"pink_util_get_syscall failed: %s",
-				strerror(errno));
-		fail_unless(scno == 0xbadca11,
-				"Wrong syscall, expected: %ld got: %ld",
-				0xbadca11, scno);
+		fail_unless(pink_util_set_syscall(pid, 0xbadca11), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_syscall(pid, &scno), "%d(%s)", errno, strerror(errno));
+		fail_unless(scno == 0xbadca11, "%ld != %ld", 0xbadca11, scno);
 
 		pink_trace_kill(pid);
 	}
@@ -139,12 +139,15 @@ START_TEST(t_util_get_return_success)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		/* From getpid(2):
 		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
 		 * caches PIDs, ...
@@ -156,26 +159,24 @@ START_TEST(t_util_get_return_success)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall failed: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
 			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL,
-					"Wrong event, expected: %d got: %d",
-					PINK_EVENT_SYSCALL, event);
+			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_get_return(pid, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == pid,
-				"Wrong return, expected: %i got: %d",
-				pid, ret);
+		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == pid, "%i != %d", pid, ret);
 
 		pink_trace_kill(pid);
 	}
@@ -188,34 +189,36 @@ START_TEST(t_util_get_return_fail)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		open(NULL, 0); /* Should fail with -EFAULT */
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall failed: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
 			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL,
-					"Wrong event, expected: %d got: %d",
-					PINK_EVENT_SYSCALL, event);
+			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_get_return(pid, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == -EFAULT,
-				"Wrong return, expected: %ld got: %ld",
-				-EFAULT, ret);
+		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == -EFAULT, "%ld != %ld", -EFAULT, ret);
 
 		pink_trace_kill(pid);
 	}
@@ -227,20 +230,15 @@ START_TEST(t_util_set_return_success)
 	int ret, status;
 	pid_t pid, mypid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		/* From getpid(2):
-		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
-		 * caches PIDs, ...
-		 */
-		/* Since the child has just called getpid() to send herself a SIGSTOP,
-		 * calling it again won't call the system call hence we need to use
-		 * syscall(2) here.
-		 */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		mypid = getpid();
 		ret = syscall(SYS_getpid);
 		if (ret != (mypid + 1)) {
@@ -251,31 +249,28 @@ START_TEST(t_util_set_return_success)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall failed: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
 			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL,
-					"Wrong event, expected: %d got: %d",
-					PINK_EVENT_SYSCALL, event);
+			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_set_return(pid, pid + 1),
-				"pink_util_set_return failed: %s",
-				strerror(errno));
+		fail_unless(pink_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
-		fail_unless(pink_trace_cont(pid, 0),
-				"pink_trace_cont failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
-		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS,
-				"Child returned non-zero");
+		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", status);
 	}
 }
 END_TEST
@@ -285,58 +280,50 @@ START_TEST(t_util_set_return_fail)
 	int ret, status;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		/* From getpid(2):
-		 * Since glibc version 2.3.4, the glibc wrapper function for getpid()
-		 * caches PIDs, ...
-		 */
-		/* Since the child has just called getpid() to send herself a SIGSTOP,
-		 * calling it again won't call the system call hence we need to use
-		 * syscall(2) here.
-		 */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		ret = syscall(SYS_getpid);
 		if (ret > 0) {
 			fprintf(stderr, "ret: %i\n", ret);
 			_exit(EXIT_FAILURE);
 		}
 		else if (errno != ENAMETOOLONG) {
-			fprintf(stderr, "errno: %d (%s)\n",
+			fprintf(stderr, "errno: %d(%s)\n",
 					errno, strerror(errno));
 			_exit(EXIT_FAILURE);
 		}
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the end of next system call */
 		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0),
-					"pink_trace_syscall failed: %s",
-					strerror(errno));
+			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
 			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL,
-					"Wrong event, expected: %d got: %d",
-					PINK_EVENT_SYSCALL, event);
+			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_set_return(pid, -ENAMETOOLONG),
-				"pink_util_set_return failed: %s",
-				strerror(errno));
+		fail_unless(pink_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
-		fail_unless(pink_trace_cont(pid, 0),
-				"pink_trace_cont failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
-		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS,
-				"Child returned non-zero");
+		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", errno, strerror(errno));
 	}
 }
 END_TEST
@@ -347,32 +334,34 @@ START_TEST(t_util_get_arg_first)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
 		mmap((void *)13, 0, 0, 0, 0, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 0, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 0, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}
@@ -385,32 +374,34 @@ START_TEST(t_util_get_arg_second)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		mmap((void *)0, 13, 0, 0, 0, 0);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 13, 0, 0, 0, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 1, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 1, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}
@@ -423,32 +414,34 @@ START_TEST(t_util_get_arg_third)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		mmap((void *)0, 0, 13, 0, 0, 0);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 13, 0, 0, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 2, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 2, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}
@@ -461,32 +454,34 @@ START_TEST(t_util_get_arg_fourth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		mmap((void *)0, 0, 0, 13, 0, 0);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 13, 0, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 3, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 3, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}
@@ -499,32 +494,34 @@ START_TEST(t_util_get_arg_fifth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		mmap((void *)0, 0, 0, 0, 13, 0);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 13, 0);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 4, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 4, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}
@@ -537,32 +534,34 @@ START_TEST(t_util_get_arg_sixth)
 	long ret;
 	pid_t pid;
 	pink_event_t event;
-	pink_error_t error;
 
-	if ((pid = pink_fork(CHECK_OPTIONS, &error)) < 0)
-		fail("pink_fork: %s (%s)", pink_error_tostring(error),
-			strerror(errno));
-	else if (!pid) /* child */
-		mmap((void *)0, 0, 0, 0, 0, 13);
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 13);
+	}
 	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
 		/* Resume the child and it will stop at the next system call */
-		fail_unless(pink_trace_syscall(pid, 0),
-				"pink_trace_syscall failed: %s",
-				strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
 		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL,
-				"Wrong event, expected: %d got: %d",
-				PINK_EVENT_SYSCALL, event);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 5, &ret),
-				"pink_util_get_return failed: %s",
-				strerror(errno));
-		fail_unless(ret == 13,
-				"Wrong return, expected: %ld got: %ld",
-				13, ret);
+		fail_unless(pink_util_get_arg(pid, CHECK_BITNESS, 5, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
 	}

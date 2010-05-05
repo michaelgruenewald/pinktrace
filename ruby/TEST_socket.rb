@@ -89,9 +89,15 @@ class TestPinkSocket
   end
 
   def test_decode_socket_call
-    pid = PinkTrace::Fork.fork do
-      s = UNIXServer.new './TEST_unix_socket'
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      UNIXServer.new TEST_SOCKET
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
+
 
     # Loop until we get to the socket() system call as there's no guarantee
     # that other system calls won't be called beforehand.

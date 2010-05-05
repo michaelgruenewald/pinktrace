@@ -2,10 +2,10 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et :
 
-import os, sys, unittest
+import os, signal, sys, unittest
 
 sys.path.insert(0, '.')
-from pinktrace import bitness, fork, trace
+from pinktrace import bitness, trace
 
 class TestBitness_01_Invalid(unittest.TestCase):
     def test_01_get(self):
@@ -14,10 +14,14 @@ class TestBitness_01_Invalid(unittest.TestCase):
 
 class TestBitness_02(unittest.TestCase):
     def test_02_get(self):
-        pid = fork.fork()
-        if (pid == 0): # child
+        pid = os.fork()
+        if not pid: # child
+            trace.me()
+            os.kill(os.getpid(), signal.SIGSTOP)
             os._exit(13)
         else: # parent
+            os.waitpid(pid, 0)
+
             bit = bitness.get(pid)
             self.assertEqual(bit, bitness.DEFAULT)
 

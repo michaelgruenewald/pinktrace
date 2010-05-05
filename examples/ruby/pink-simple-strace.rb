@@ -26,7 +26,15 @@ unless ARGV.size > 0
   exit 1
 end
 
-pid = PinkTrace::Fork.fork(PinkTrace::Trace::OPTION_EXEC) { exec(*ARGV) }
+pid = fork do
+  PinkTrace::Trace.me
+  Process.kill 'STOP', Process.pid
+
+  exec(*ARGV)
+end
+
+Process.waitpid pid
+PinkTrace::Trace.setup pid, (PinkTrace::Trace::OPTION_SYSGOOD | PinkTrace::Trace::OPTION_EXEC)
 
 # Figure out the bitness of the child.
 bitness = PinkTrace::Bitness.get pid

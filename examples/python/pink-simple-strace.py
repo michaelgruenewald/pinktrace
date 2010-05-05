@@ -8,10 +8,9 @@ A simple strace like program using pinktrace
 
 from __future__ import print_function
 
-import errno, os, sys
+import errno, os, signal, sys
 import pinktrace.bitness
 import pinktrace.event
-import pinktrace.fork
 import pinktrace.string
 import pinktrace.syscall
 import pinktrace.trace
@@ -42,12 +41,19 @@ if len(sys.argv) < 2:
     print("Usage: %s program [argument...]", file=sys.stderr)
     sys.exit(1)
 
-pid = pinktrace.fork.fork(pinktrace.trace.OPTION_EXEC)
+pid = os.fork()
 if not pid: # child
+    pinktrace.trace.me()
+    os.kill(os.getpid(), signal.SIGSTOP)
+
     try:
         os.execvp(sys.argv[1], sys.argv[1:])
     except OSError:
         os._exit(-1)
+
+os.waitpid(pid, 0)
+pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD | pinktrace.trace.OPTION_EXEC)
+
 # parent
 # Figure out the bitness of the child.
 bitness = pinktrace.bitness.get(pid)
@@ -95,7 +101,7 @@ while True:
         print("Child %d exited normally with return code %d" % (pid, exit_code))
         dead = True
     elif event == pinktrace.event.EVENT_EXIT_SIGNAL:
-        exit_code = 128 + os.TERMSIG(status)
+        exit_code = 128 + os.WTERMSIG(status)
         print("Child %d exited with signal %d" % (pid, os.TERMSIG(status)))
         dead = True
 

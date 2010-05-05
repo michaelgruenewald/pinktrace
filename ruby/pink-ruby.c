@@ -102,7 +102,6 @@ check_index(unsigned ind)
  * - PinkTrace::Trace
  * - PinkTrace::Event
  * - PinkTrace::Bitness
- * - PinkTrace::Fork
  * - PinkTrace::Syscall
  * - PinkTrace::String
  * - PinkTrace::Socket
@@ -549,76 +548,6 @@ pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
 		rb_sys_fail("pink_trace_detach()");
 
 	return Qnil;
-}
-
-/*
- * Document-class: PinkTrace::Fork
- *
- * This class includes a fork(2) wrapper that handles the tracing setup.
- */
-
-/*
- * Document-method: PinkTrace::Fork.fork
- * call-seq: PinkTrace::Fork.fork([opts=PinkTrace::Trace::OPTION_SYSGOOD]) [{ block }] => fixnum or nil
- *
- * fork(2) wrapper that sets up the child for tracing.
- *
- * Creates a subprocess. If a block is specified, that block is run in the
- * subprocess, and the subprocess terminates with a status of zero. Otherwise
- * the +fork+ call returns twice, once in the parent, returning the process ID
- * of the child, and once in the child, returning _nil_. The child stops itself
- * with a SIGSTOP and needs to be resumed with either Ptrace::Trace.cont or
- * Ptrace::Trace.singlestep or Ptrace::Trace.syscall.
- *
- * On failure, the child is either never created or killed.
- */
-static VALUE
-pinkrb_fork(int argc, VALUE *argv, pink_unused VALUE mod)
-{
-	int opts, status;
-	pid_t pid;
-	pink_error_t error;
-
-	if (argc > 1)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-	else if (argc == 1) {
-		if (FIXNUM_P(argv[0]))
-			opts = FIX2INT(argv[0]);
-		else
-			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-	}
-	else
-		opts = PINK_TRACE_OPTION_SYSGOOD;
-
-	rb_secure(2);
-
-	if ((pid = pink_fork(opts, &error)) < 0) {
-		switch (error) {
-		case PINK_ERROR_FORK:
-			rb_sys_fail("fork(2)");
-		case PINK_ERROR_WAIT:
-			rb_sys_fail("wait(2)");
-		case PINK_ERROR_STOP:
-			rb_sys_fail("kill(2)");
-		case PINK_ERROR_TRACE:
-			rb_sys_fail("pink_trace_me()");
-		case PINK_ERROR_TRACE_SETUP:
-			rb_sys_fail("pink_trace_setup()");
-		case PINK_ERROR_UNKNOWN:
-		default:
-			rb_sys_fail("unknown");
-		}
-	}
-	else if (!pid) { /* child */
-		rb_thread_atfork();
-		if (rb_block_given_p()) {
-			rb_protect(rb_yield, Qundef, &status);
-			ruby_stop(status);
-		}
-		return Qnil;
-	}
-	else
-		return PIDT2NUM(pid);
 }
 
 /*
@@ -1536,7 +1465,6 @@ Init_PinkTrace(void)
 	VALUE mod;
 	VALUE bitness_mod;
 	VALUE event_mod;
-	VALUE fork_mod;
 	VALUE string_mod;
 	VALUE socket_mod;
 	VALUE syscall_mod;
@@ -1582,10 +1510,6 @@ Init_PinkTrace(void)
 	rb_define_module_function(trace_mod, "setup", pinkrb_trace_setup, -1);
 	rb_define_module_function(trace_mod, "attach", pinkrb_trace_attach, 1);
 	rb_define_module_function(trace_mod, "detach", pinkrb_trace_detach, -1);
-
-	/* fork.h */
-	fork_mod = rb_define_module_under(mod, "Fork");
-	rb_define_module_function(fork_mod, "fork", pinkrb_fork, -1);
 
 	/* event.h */
 	event_mod = rb_define_module_under(mod, "Event");

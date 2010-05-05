@@ -27,7 +27,11 @@ class TestPinkBitness < Test::Unit::TestCase
   end
 
   def test_bitness_get
-    pid = PinkTrace::Fork.fork {}
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+    end
+    Process.waitpid pid
     bitness = PinkTrace::Bitness.get pid
     assert(bitness == PinkTrace::Bitness::DEFAULT, "Wrong bitness, expected: #{PinkTrace::Bitness::DEFAULT} got: #{bitness}")
 

@@ -149,9 +149,14 @@ end
 
 class TestPinkSyscall
   def test_syscall_get_no
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       Process.kill 0, Process.pid
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -179,9 +184,14 @@ class TestPinkSyscall
   end
 
   def test_syscall_set_no
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       Process.kill 0, Process.pid
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -208,9 +218,14 @@ class TestPinkSyscall
   end
 
   def test_syscall_get_ret_success
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       Process.kill 0, Process.pid
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -238,10 +253,15 @@ class TestPinkSyscall
   end
 
   def test_syscall_get_ret_fail
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       begin File.open ''
       rescue Errno::ENOENT ;end
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
 
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -269,11 +289,17 @@ class TestPinkSyscall
   end
 
   def test_syscall_set_ret_success
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       ret = Process.kill 0, Process.pid
       exit 0 if ret == 1
       exit 1
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
+
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
     event = -1
@@ -301,7 +327,10 @@ class TestPinkSyscall
   end
 
   def test_syscall_set_ret_fail
-    pid = PinkTrace::Fork.fork do
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
       begin
         Process.kill 0, Process.pid
       rescue Errno::EPERM
@@ -309,6 +338,9 @@ class TestPinkSyscall
       end
       exit 1
     end
+    Process.waitpid pid
+    PinkTrace::Trace.setup pid
+
     # Loop until we get to the kill() system call as there's no guarantee that
     # other system calls won't be called beforehand.
     event = -1
