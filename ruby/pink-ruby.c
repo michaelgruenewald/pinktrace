@@ -103,7 +103,7 @@ check_index(unsigned ind)
  * - PinkTrace::Event
  * - PinkTrace::Bitness
  * - PinkTrace::Fork
- * - PinkTrace::SysCall
+ * - PinkTrace::Syscall
  * - PinkTrace::String
  * - PinkTrace::Socket
  *
@@ -774,14 +774,14 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
 }
 
 /*
- * Document-class: PinkTrace::SysCall
+ * Document-class: PinkTrace::Syscall
  *
  * This class defines utilities useful when tracing processes.
  */
 
 /*
- * Document-method: PinkTrace::SysCall.name
- * call-seq: PinkTrace::SysCall.name(scno, [bitness=PinkTrace::Bitness::DEFAULT]) => String or nil
+ * Document-method: PinkTrace::Syscall.name
+ * call-seq: PinkTrace::Syscall.name(scno, [bitness=PinkTrace::Bitness::DEFAULT]) => String or nil
  *
  * Return the name of the given system call.
  *
@@ -792,7 +792,7 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
  *
  * You can check whether they are generated with:
  *
- *   unless PinkTrace::SysCall.name 0
+ *   unless PinkTrace::Syscall.name 0
  *     # Names weren't generated
  *   else
  *     # Names were generated
@@ -829,8 +829,8 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
- * Document-method: PinkTrace::SysCall.get_no
- * call-seq: PinkTrace::SysCall.get_no(pid) => fixnum
+ * Document-method: PinkTrace::Syscall.get_no
+ * call-seq: PinkTrace::Syscall.get_no(pid) => fixnum
  *
  * Returns the last system call number called by the traced child.
  */
@@ -852,8 +852,8 @@ pinkrb_util_get_syscall(pink_unused VALUE mod, VALUE pidv)
 }
 
 /*
- * Document-method: PinkTrace::SysCall.set_no
- * call-seq: PinkTrace::SysCall.set_no(pid, scno) => nil
+ * Document-method: PinkTrace::Syscall.set_no
+ * call-seq: PinkTrace::Syscall.set_no(pid, scno) => nil
  *
  * Sets the system call number for the traced child.
  */
@@ -880,8 +880,8 @@ pinkrb_util_set_syscall(pink_unused VALUE mod, VALUE pidv, VALUE scnov)
 }
 
 /*
- * Document-method: PinkTrace::SysCall.get_ret
- * call-seq: PinkTrace::SysCall.get_ret(pid) => fixnum
+ * Document-method: PinkTrace::Syscall.get_ret
+ * call-seq: PinkTrace::Syscall.get_ret(pid) => fixnum
  *
  * Returns the return value of the last system call called by the traced child.
  */
@@ -903,8 +903,8 @@ pinkrb_util_get_return(pink_unused VALUE mod, VALUE pidv)
 }
 
 /*
- * Document-method: PinkTrace::SysCall.set_ret
- * call-seq: PinkTrace::SysCall.set_ret(pid, ret) => nil
+ * Document-method: PinkTrace::Syscall.set_ret
+ * call-seq: PinkTrace::Syscall.set_ret(pid, ret) => nil
  *
  * Set the return value of the system call for the traced child.
  */
@@ -931,8 +931,8 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
 }
 
 /*
- * Document-method: PinkTrace::SysCall.get_arg
- * call-seq: PinkTrace::SysCall.get_arg(pid, index, [bitness=PinkTrace::Bitness::Default]) => fixnum
+ * Document-method: PinkTrace::Syscall.get_arg
+ * call-seq: PinkTrace::Syscall.get_arg(pid, index, [bitness=PinkTrace::Bitness::Default]) => fixnum
  *
  * Returns the system call argument at the given index for the traced child.
  *
@@ -1224,7 +1224,7 @@ pinkrb_name_socket_subcall(pink_unused VALUE mod, VALUE subcallv)
  * Returns the decoded socket call.
  *
  * Note: This function decodes the socketcall(2) system call on some
- * architectures. On others it's equivalent to PinkTrace::SysCall.get_no
+ * architectures. On others it's equivalent to PinkTrace::Syscall.get_no
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1613,7 +1613,7 @@ Init_PinkTrace(void)
 	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
 
 	/* util.h && name.h */
-	syscall_mod = rb_define_module_under(mod, "SysCall");
+	syscall_mod = rb_define_module_under(mod, "Syscall");
 	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
 	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, 1);
 	rb_define_module_function(syscall_mod, "set_no", pinkrb_util_set_syscall, 2);

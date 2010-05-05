@@ -5,7 +5,7 @@
 require 'PinkTrace'
 
 def print_ret pid
-  ret = PinkTrace::SysCall.get_ret pid
+  ret = PinkTrace::Syscall.get_ret pid
 
   if ret >= 0
     print "= #{ret}"
@@ -16,7 +16,7 @@ end
 
 def decode_open pid, bitness
   path = PinkTrace::String.decode pid, 0, -1, bitness
-  flags = PinkTrace::SysCall.get_arg pid, 1, bitness
+  flags = PinkTrace::Syscall.get_arg pid, 1, bitness
 
   print "open(\"#{path}\", #{flags})"
 end
@@ -57,8 +57,8 @@ loop do
       puts
     else
       # Get the system call number and call the appropriate decoder.
-      scno = PinkTrace::SysCall.get_no pid
-      scname = PinkTrace::SysCall.name scno
+      scno = PinkTrace::Syscall.get_no pid
+      scname = PinkTrace::Syscall.name scno
       if not scname
         print "#{scno}()"
       elsif scname == 'open'
