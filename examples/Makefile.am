@@ -10,3 +10,5 @@ RSYNC= rsync -avze ssh --delete \
 
 upload-example:
 	$(RSYNC) . bach.exherbo.org:public_html/pinktrace/examples
+
+.PHONY: upload-example
