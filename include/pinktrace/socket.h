@@ -26,6 +26,10 @@
  * Pink's socket related data structures and functions
  **/
 
+#if defined(PINKTRACE_FREEBSD) || defined(DOXYGEN)
+#include <sys/socket.h>
+#endif
+
 #include <netinet/in.h>
 #include <sys/un.h>
 
