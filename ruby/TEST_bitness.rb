@@ -20,12 +20,6 @@ class TestPinkBitness < Test::Unit::TestCase
     end
   end
 
-  def test_bitness_get_esrch
-    assert_raise Errno::ESRCH do
-      PinkTrace::Bitness.get 0
-    end
-  end
-
   def test_bitness_get
     pid = fork do
       PinkTrace::Trace.me

@@ -13,13 +13,21 @@ PinkTrace_la_SOURCES= $(IF_RUBY_SOURCES)
 PinkTrace_la_LDFLAGS= -module -avoid-version -shared
 PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-TESTS= TEST_trace.rb \
-       TEST_event.rb \
+TESTS= \
+       TEST_trace.rb \
        TEST_bitness.rb \
-       TEST_syscall.rb \
        TEST_string.rb \
        TEST_socket.rb \
        TEST_socket_address.rb
+if FREEBSD
+TESTS+= \
+	TEST_syscall_freebsd.rb
+endif
+if LINUX
+TESTS+= \
+	TEST_event.rb \
+	TEST_syscall_linux.rb
+endif
 
 # Remove the .la file - PinkTrace.la is never linked against (it's a module)
 # and Ruby doesn't use libltdl. Note that the library gets installed by
