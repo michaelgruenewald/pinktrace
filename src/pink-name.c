@@ -28,7 +28,13 @@ static const struct {
     int no;
     const char *name;
 } sysnames[] = {
-#include "pink-syscallent.h"
+#if defined(PINKTRACE_FREEBSD)
+#include "pink-freebsd-syscallent.h"
+#elif defined(PINKTRACE_LINUX)
+#include "pink-linux-syscallent.h"
+#else
+#error unsupported architecture
+#endif
     {-1,    NULL}
 };
 

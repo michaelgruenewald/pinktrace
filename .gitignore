@@ -62,8 +62,9 @@ python/pinktrace/*.so
 
 ruby/PinkTrace.so
 
-src/pink-syscallent.h
-src/pink-syscallent32.h
-src/pink-syscallent64.h
+src/pink-freebsd-syscallent.h
+src/pink-linux-syscallent.h
+src/pink-linux-syscallent32.h
+src/pink-linux-syscallent64.h
 
 tests/check_pinktrace

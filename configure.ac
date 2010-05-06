@@ -73,6 +73,12 @@ dnl }}}
 dnl {{{ Check for supported operating system
 AC_MSG_CHECKING([for supported operating system])
 case "$host_os" in
+freebsd*)
+	opsys="freebsd"
+	AC_MSG_RESULT([$host_os])
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_FREEBSD"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_FREEBSD"
+	;;
 linux*)
 	opsys="linux"
 	AC_MSG_RESULT([$host_os])
@@ -98,17 +104,13 @@ linux*)
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_LINUX"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_LINUX"
 	;;
-freebsd*)
-	opssys="freebsd"
-	AC_MSG_RESULT([$host_os])
-	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_FREEBSD"
-	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_FREEBSD"
-	;;
 *)
 	AC_MSG_RESULT([NO!])
 	AC_MSG_ERROR([Operating system $host_os is not supported by pinktrace!])
 	;;
 esac
+AM_CONDITIONAL([FREEBSD], test x"$opsys" = x"freebsd")
+AM_CONDITIONAL([LINUX], test x"$opsys" = x"linux")
 dnl }}}
 
 dnl {{{ Check for supported architecture
