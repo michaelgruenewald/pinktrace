@@ -107,7 +107,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
- * Get the socket address and place it in dest.
+ * Get the socket address and place it in addr_r.
  *
  * \note This function decodes the socketcall(2) system call on some
  * architectures.

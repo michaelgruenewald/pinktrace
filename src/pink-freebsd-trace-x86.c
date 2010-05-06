@@ -200,3 +200,26 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	return pink_util_movestr_persistent(pid, addr);
 }
+
+bool
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
+	long *fd_r, pink_socket_address_t *addr_r)
+{
+	long addr;
+	long addrlen;
+
+	/* FIXME: This function does useless ptrace() requests, calling
+	 * pink_util_get_arg() many times!
+	 * Maybe we need pink_util_getregs()? */
+
+	if (fd_r) {
+		if (!pink_util_get_arg(pid, bitness, 0, fd_r))
+			return false;
+	}
+
+	if (!pink_util_get_arg(pid, bitness, ind, &addr)
+		|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen))
+		return false;
+
+	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
+}
