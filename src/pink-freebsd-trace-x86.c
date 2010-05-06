@@ -42,7 +42,7 @@ pink_util_get_syscall(pid_t pid, long *res)
 	unsigned parm_offset;
 	struct reg r;
 
-	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_get_regs(pid, &r))
 		return false;
 
 	/*
@@ -73,12 +73,12 @@ pink_util_set_syscall(pid_t pid, long scno)
 {
 	struct reg r;
 
-	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_get_regs(pid, &r))
 		return false;
 
 	r.r_eax = scno;
 
-	if (0 > ptrace(PT_SETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_set_regs(pid, &r))
 		return false;
 
 	return true;
@@ -90,7 +90,7 @@ pink_util_get_return(pid_t pid, long *res)
 	bool errorp;
 	struct reg r;
 
-	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_get_regs(pid, &r))
 		return false;
 
 	if (res) {
@@ -106,7 +106,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	struct reg r;
 
-	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_get_regs(pid, &r))
 		return false;
 
 	if (ret < 0) {
@@ -116,7 +116,7 @@ pink_util_set_return(pid_t pid, long ret)
 	else
 		r.r_eax = ret;
 
-	if (0 > ptrace(PT_SETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_set_regs(pid, &r))
 		return false;
 
 	return true;
@@ -131,7 +131,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+	if (!pink_util_get_regs(pid, &r))
 		return false;
 
 	/*
@@ -207,10 +207,6 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 {
 	long addr;
 	long addrlen;
-
-	/* FIXME: This function does useless ptrace() requests, calling
-	 * pink_util_get_arg() many times!
-	 * Maybe we need pink_util_getregs()? */
 
 	if (fd_r) {
 		if (!pink_util_get_arg(pid, bitness, 0, fd_r))

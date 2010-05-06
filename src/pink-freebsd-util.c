@@ -26,6 +26,18 @@
 #include <pinktrace/pink.h>
 
 bool
+pink_util_get_regs(pid_t pid, void *regs)
+{
+	return !(ptrace(PT_GETREGS, pid, (caddr_t)regs, 0) < 0);
+}
+
+bool
+pink_util_set_regs(pid_t pid, const void *regs)
+{
+	return !(ptrace(PT_SETREGS, pid, (caddr_t)regs, 0) < 0);
+}
+
+bool
 pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 {
 	struct ptrace_io_desc ioreq;

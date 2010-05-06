@@ -108,6 +108,30 @@ pink_util_pokedata(pid_t pid, long off, long val);
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
+ * Copy the child's general purpose registers to the given location.
+ *
+ * \param pid Process ID of the child.
+ * \param regs Pointer to the structure of registers. On FreeBSD this is
+ * "struct reg" defined in <machine/reg.h>, on Linux this is "struct
+ * user_regs_struct" defined in <sys/user.h>.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_get_regs(pid_t pid, void *regs);
+
+/*
+ * Set the child's general purpose registers.
+ *
+ * \param pid Process ID of the child.
+ * \param regs Same as pink_util_get_regs()
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ */
+bool
+pink_util_set_regs(pid_t pid, const void *regs);
+
+/**
  * Move len bytes of data of process pid, at address addr, to our address space
  * dest.
  *
