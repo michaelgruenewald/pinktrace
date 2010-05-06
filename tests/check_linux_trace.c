@@ -124,7 +124,7 @@ START_TEST(t_trace_cont_basic)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 
 		fail_unless(WIFEXITED(status), "%#x", status);
@@ -154,7 +154,7 @@ START_TEST(t_trace_cont_signal)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_cont(pid, SIGTERM, NULL), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 
 		fail_unless(WIFSIGNALED(status), "%#x", status);

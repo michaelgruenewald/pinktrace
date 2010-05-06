@@ -20,6 +20,14 @@
 
 #include <stdio.h> /* NULL */
 
+#if defined(PINKTRACE_FREEBSD)
+#include <sys/syscall.h>
+#elif defined(PINKTRACE_LINUX)
+#include <asm/unistd.h>
+#else
+#error unsupported operating system
+#endif
+
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
@@ -28,10 +36,8 @@ static const struct {
     const char *name;
 } sysnames[] = {
 #if defined(PINKTRACE_FREEBSD)
-#include <sys/syscall.h>
 #include "pink-freebsd-syscallent.h"
 #elif defined(PINKTRACE_LINUX)
-#include <asm/unistd.h>
 #include "pink-linux-syscallent.h"
 #else
 #error unsupported operating system

@@ -18,7 +18,11 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#if defined(PINKTRACE_LINUX)
 #include <asm/unistd_64.h>
+#else
+#error unsupported operating system
+#endif
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
@@ -27,7 +31,11 @@ static const struct {
     int no;
     const char *name;
 } sysnames[] = {
-#include "pink-syscallent64.h"
+#if defined(PINKTRACE_LINUX)
+#include "pink-linux-syscallent64.h"
+#else
+#error unsupported operating system
+#endif
     {-1,    NULL}
 };
 
