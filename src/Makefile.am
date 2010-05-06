@@ -1,7 +1,8 @@
 CLEANFILES=
 AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= pink-bitness.c \
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= \
+					     pink-bitness.c \
 					     pink-name-wrap.c
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS= -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
 
@@ -9,6 +10,8 @@ lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 # Operating system specific sources
 if FREEBSD
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-freebsd-trace.c
 
 # Platform specific sources
 if I386
@@ -17,9 +20,10 @@ endif # I386
 endif # FREEBSD
 
 if LINUX
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-event.c \
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-event.c \
 					      pink-socket.c \
-					      pink-trace.c \
+					      pink-linux-trace.c \
 					      pink-trace-internal.c \
 					      pink-util.c
 

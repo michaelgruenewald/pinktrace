@@ -26,37 +26,37 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
-inline bool
+bool
 pink_trace_me(void)
 {
 	return !(0 > ptrace(PTRACE_TRACEME, 0, NULL, NULL));
 }
 
-inline bool
-pink_trace_cont(pid_t pid, int sig)
+bool
+pink_trace_cont(pid_t pid, int sig, pink_unused char *addr)
 {
 	return !(0 > ptrace(PTRACE_CONT, pid, NULL, sig));
 }
 
-inline bool
+bool
 pink_trace_kill(pid_t pid)
 {
 	return !(0 > ptrace(PTRACE_KILL, pid, NULL, NULL));
 }
 
-inline bool
+bool
 pink_trace_singlestep(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_SINGLESTEP, pid, NULL, sig));
 }
 
-inline bool
+bool
 pink_trace_syscall(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_SYSCALL, pid, NULL, sig));
 }
 
-inline bool
+bool
 pink_trace_geteventmsg(pid_t pid, unsigned long *data)
 {
 	return !(0 > ptrace(PTRACE_GETEVENTMSG, pid, NULL, data));
@@ -86,13 +86,13 @@ pink_trace_setup(pid_t pid, int options)
 	return !(0 > ptrace(PTRACE_SETOPTIONS, pid, NULL, ptrace_options));
 }
 
-inline bool
+bool
 pink_trace_attach(pid_t pid)
 {
 	return !(0 > ptrace(PTRACE_ATTACH, pid, NULL, NULL));
 }
 
-inline bool
+bool
 pink_trace_detach(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_DETACH, pid, NULL, sig));
