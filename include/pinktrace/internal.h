@@ -38,6 +38,10 @@
 #include <sys/reg.h>
 #endif /*  HAVE_SYS_REG_H */
 
+#ifdef HAVE_MACHINE_PSL_H
+#include <machine/psl.h>
+#endif /* HAVE_MACHINE_PSL_H */
+
 #ifdef HAVE_MACHINE_REG_H
 #include <machine/reg.h>
 #endif /* HAVE_MACHINE_REG_H */

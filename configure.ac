@@ -203,7 +203,7 @@ for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
 done
-AC_CHECK_HEADERS([machine/reg.h sys/reg.h], [], [])
+AC_CHECK_HEADERS([machine/reg.h machine/psl.h sys/reg.h], [], [])
 dnl }}}
 
 dnl {{{ Check types
