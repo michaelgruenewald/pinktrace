@@ -18,7 +18,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <asm/unistd.h>
 #include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
@@ -29,11 +28,13 @@ static const struct {
     const char *name;
 } sysnames[] = {
 #if defined(PINKTRACE_FREEBSD)
+#include <sys/syscall.h>
 #include "pink-freebsd-syscallent.h"
 #elif defined(PINKTRACE_LINUX)
+#include <asm/unistd.h>
 #include "pink-linux-syscallent.h"
 #else
-#error unsupported architecture
+#error unsupported operating system
 #endif
     {-1,    NULL}
 };

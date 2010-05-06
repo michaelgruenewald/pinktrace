@@ -2,15 +2,26 @@ CLEANFILES=
 AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= pink-bitness.c \
-					     pink-event.c \
-					     pink-name-wrap.c \
-					     pink-socket.c \
-					     pink-trace.c \
-					     pink-trace-internal.c \
-					     pink-util.c
-libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS = -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
+					     pink-name-wrap.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS= -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
 
 lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
+
+# Operating system specific sources
+if FREEBSD
+
+# Platform specific sources
+if I386
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-name.c
+endif # I386
+endif # FREEBSD
+
+if LINUX
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-event.c \
+					      pink-socket.c \
+					      pink-trace.c \
+					      pink-trace-internal.c \
+					      pink-util.c
 
 # Platform specific sources
 if I386
@@ -35,13 +46,14 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-powerpc.c \
 					      pink-name.c
 endif
 
+endif # LINUX
+
 # Generated sources
 # FIXME: The shell script we use to generate syscallent.h doesn't work on FreeBSD.
 # {line#\#define __NR} is probably a bash goodie.
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES=
 BUILT_SOURCES=
 
-# Operating system specific sources
 if FREEBSD
 if BITNESS_ONE
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-freebsd-syscallent.h
