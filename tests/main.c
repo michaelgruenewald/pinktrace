@@ -34,9 +34,9 @@ main(void)
 	srunner_add_suite(sr, util_suite_create());
 	srunner_add_suite(sr, decode_suite_create());
 	srunner_add_suite(sr, encode_suite_create());
+	srunner_add_suite(sr, bitness_suite_create());
 #if defined(PINKTRACE_LINUX)
 	srunner_add_suite(sr, event_suite_create());
-	srunner_add_suite(sr, bitness_suite_create());
 #endif /* defined(PINKTRACE_LINUX) */
 
 	/* Run and grab the results */
