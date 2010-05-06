@@ -70,35 +70,44 @@ AC_PROG_SED
 AC_PROG_LN_S
 dnl }}}
 
-dnl {{{ Check for supported OS
-AC_MSG_CHECKING([for supported OS])
+dnl {{{ Check for supported operating system
+AC_MSG_CHECKING([for supported operating system])
 case "$host_os" in
-	linux*)
-		AC_MSG_RESULT([$host_os])
-		AC_MSG_CHECKING([for supported kernel])
-		kernel_version=`uname -r | cut -d'-' -f1`
-		case "$kernel_version" in
-			2.6*)
-				AC_MSG_RESULT([$kernel_version])
-				;;
-			2.5*)
-				kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
-				if test "$kernel_minor_version" -lt 46; then
-					AC_MSG_RESULT([NO!])
-					AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
-				fi
-				AC_MSG_RESULT([$kernel_version])
-				;;
-			*)
-				AC_MSG_RESULT([NO!])
-				AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
-				;;
-		esac
+linux*)
+	opsys="linux"
+	AC_MSG_RESULT([$host_os])
+	AC_MSG_CHECKING([for supported kernel])
+	kernel_version=`uname -r | cut -d'-' -f1`
+	case "$kernel_version" in
+	2.6*)
+		AC_MSG_RESULT([$kernel_version])
+		;;
+	2.5*)
+		kernel_minor_version=`echo $kernel_version | cut -d'.' -f3`
+		if test "$kernel_minor_version" -lt 46; then
+			AC_MSG_RESULT([NO!])
+			AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
+		fi
+		AC_MSG_RESULT([$kernel_version])
 		;;
 	*)
 		AC_MSG_RESULT([NO!])
-		AC_MSG_ERROR([Operating system $host_os is not supported by pinktrace!])
+		AC_MSG_ERROR([Linux kernel version $kernel_version is not supported by pinktrace!])
 		;;
+	esac
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_LINUX"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_LINUX"
+	;;
+freebsd*)
+	opssys="freebsd"
+	AC_MSG_RESULT([$host_os])
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_FREEBSD"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_FREEBSD"
+	;;
+*)
+	AC_MSG_RESULT([NO!])
+	AC_MSG_ERROR([Operating system $host_os is not supported by pinktrace!])
+	;;
 esac
 dnl }}}
 
@@ -111,23 +120,39 @@ i[[3456]]86|pentium)
 	;;
 x86?64*)
 	arch=x86_64
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
+	fi
 	AC_DEFINE([X86_64], 1, [Define for the AMD x86-64 architecture.])
 	;;
 ia64)
 	arch=ia64
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
+	fi
 	AC_DEFINE([IA64], 1, [Define for the IA64 architecture.])
 	;;
 powerpc64*)
 	arch=powerpc64
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
+	fi
 	AC_DEFINE([POWERPC64], 1, [Define for the POWERPC64 architecture.])
 	;;
 powerpc*)
 	arch=powerpc
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
+	fi
 	AC_DEFINE([POWERPC], 1, [Define for the POWERPC architecture.])
 	;;
 *)
 	AC_MSG_RESULT([NO!])
-	AC_MSG_ERROR([Architecture $host_cpu is not supported by sydbox])
+	AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
 	;;
 esac
 AC_MSG_RESULT([$arch])
@@ -139,7 +164,7 @@ AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 
 AM_CONDITIONAL(BITNESS_ONE,
-			   test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
+	       test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
 AM_CONDITIONAL(BITNESS_TWO, test x"$arch" = x"x86_64")
 
 dnl Export some useful information via pinktrace/about.h
