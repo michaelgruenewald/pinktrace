@@ -27,8 +27,10 @@ Bindings are available for:
 You will need to specify various compiler flags when compiling C code. The
 usual way to do this is via **pkg-config**:
 
-    $ gcc -c `pkg-config --cflags pinktrace` -o example.o example.c
-    $ gcc `pkg-config --libs pinktrace` -o example example.o
+{% highlight sh %}
+    $ gcc -c $(pkg-config --cflags pinktrace) -o example.o example.c
+    $ gcc $(pkg-config --libs pinktrace) -o example example.o
+{% endhighlight %}
 
 If you are using autotools, consider using **PKG\_CHECK\_MODULES** rather than
 calling **pkg-config** by hand.
@@ -101,7 +103,8 @@ I'm available on IRC as <tt>alip</tt> on [Freenode](http://freenode.net) and
 
 ## Supported Operating Systems
 Linux is the only supported operating system at the moment.  
-However, there are plans to port **PinkTrace** to FreeBSD.
+However, there are plans to port **PinkTrace** to FreeBSD, see
+[issue:1](http://github.com/alip/pinktrace/issues#issue/1)
 
 ## Supported Architectures
 Supported architectures are:
