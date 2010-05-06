@@ -11,7 +11,8 @@ lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
 # Operating system specific sources
 if FREEBSD
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
-					      pink-freebsd-trace.c
+					      pink-freebsd-trace.c \
+					      pink-freebsd-util.c
 
 # Platform specific sources
 if I386

@@ -47,6 +47,8 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
 /**
  * Get the string argument and place it in dest.
  *
+ * \note On FreeBSD this function is equivalent to pink_decode_simple().
+ *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
  * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
@@ -67,9 +69,11 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 char *
 pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Decode the socket call and place it in call.
  *
+ * \note Availability: Linux
  * \note This function decodes the socketcall(2) system call on some
  * architectures. On others it's equivalent to pink_util_get_syscall().
  *
@@ -87,6 +91,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
 /**
  * Get the socket file descriptor in argument arg and place it in fd.
  *
+ * \note Availability: Linux
  * \note This function decodes the socketcall(2) system call on some
  * architectures.
  *
@@ -99,6 +104,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
  **/
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
+#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Get the socket address and place it in dest.

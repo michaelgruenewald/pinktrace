@@ -144,7 +144,8 @@ START_TEST(t_decode_string_first)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -184,7 +185,8 @@ START_TEST(t_decode_string_second)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -224,7 +226,8 @@ START_TEST(t_decode_string_third)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -264,7 +267,8 @@ START_TEST(t_decode_string_fourth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
 		pink_trace_kill(pid);
@@ -633,7 +637,8 @@ START_TEST(t_decode_socket_fd)
 		}
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_fd(pid, PINKTRACE_DEFAULT_BITNESS, 0, &fd), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_socket_fd(pid, PINKTRACE_DEFAULT_BITNESS, 0, &fd),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 
 		pink_trace_kill(pid);

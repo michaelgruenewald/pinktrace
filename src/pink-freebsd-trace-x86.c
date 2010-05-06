@@ -30,6 +30,12 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+pink_bitness_t
+pink_bitness_get(pink_unused pid_t pid)
+{
+	return PINK_BITNESS_32;
+}
+
 bool
 pink_util_get_syscall(pid_t pid, long *res)
 {
@@ -154,4 +160,43 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 
 	*res = arg;
 	return true;
+}
+
+bool
+pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len)
+{
+	long addr;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+		return false;
+
+	return pink_util_moven(pid, addr, dest, len);
+}
+
+bool
+pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len)
+{
+	long addr;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+		return false;
+
+	return pink_util_movestr(pid, addr, dest, len);
+}
+
+char *
+pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
+{
+	long addr;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+		return false;
+
+	return pink_util_movestr_persistent(pid, addr);
 }

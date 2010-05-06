@@ -5,15 +5,16 @@ check_pinktrace_SOURCES= main.c
 if FREEBSD
 check_pinktrace_SOURCES+= \
 			  check_freebsd_trace.c \
-			  check_freebsd_util.c
+			  check_freebsd_util.c \
+			  check_freebsd_decode.c
 endif # FREEBSD
 
 if LINUX
 check_pinktrace_SOURCES+= \
 			  check_linux_trace.c \
 			  check_linux_util.c \
+			  check_linux_decode.c \
 			  check_bitness.c \
-			  check_decode.c \
 			  check_encode.c \
 			  check_event.c
 endif # LINUX
