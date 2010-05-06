@@ -18,64 +18,38 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <errno.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
 bool
-pink_trace_me(void)
+pink_util_get_syscall(pid_t pid, long *res)
 {
-	return !(0 > ptrace(PT_TRACE_ME, 0, NULL, 0));
+	struct reg r;
+
+	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+		return false;
+
+	if (res)
+		*res = r.r_eax;
+
+	return true;
 }
 
 bool
-pink_trace_cont(pid_t pid, int sig, char *addr)
+pink_util_set_syscall(pid_t pid, long scno)
 {
-	return !(0 > ptrace(PT_CONTINUE, pid, addr, sig));
-}
+	struct reg r;
 
-bool
-pink_trace_kill(pid_t pid)
-{
-	return !(0 > ptrace(PT_KILL, pid, NULL, 0));
-}
+	if (0 > ptrace(PT_GETREGS, pid, (caddr_t)&r, 0))
+		return false;
 
-bool
-pink_trace_singlestep(pid_t pid, int sig)
-{
-	return !(0 > ptrace(PT_STEP, pid, (caddr_t)1, sig));
-}
+	r.r_eax = scno;
 
-bool
-pink_trace_syscall(pid_t pid, int sig)
-{
-	return !(0 > ptrace(PT_SYSCALL, pid, (caddr_t)1, sig));
-}
+	if (0 > ptrace(PT_SETREGS, pid, (caddr_t)&r, 0))
+		return false;
 
-bool
-pink_trace_syscall_entry(pid_t pid, int sig)
-{
-	return !(0 > ptrace(PT_TO_SCE, pid, (caddr_t)1, sig));
-}
-
-bool
-pink_trace_syscall_exit(pid_t pid, int sig)
-{
-	return !(0 > ptrace(PT_TO_SCX, pid, (caddr_t)1, sig));
-}
-
-bool
-pink_trace_attach(pid_t pid)
-{
-	return !(0 > ptrace(PT_ATTACH, pid, NULL, 0));
-}
-
-bool
-pink_trace_detach(pid_t pid, int sig)
-{
-	return !(0 > ptrace(PT_DETACH, pid, (caddr_t)1, sig));
+	return true;
 }

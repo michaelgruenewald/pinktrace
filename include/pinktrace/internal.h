@@ -38,6 +38,10 @@
 #include <sys/reg.h>
 #endif /*  HAVE_SYS_REG_H */
 
+#ifdef HAVE_MACHINE_REG_H
+#include <machine/reg.h>
+#endif /* HAVE_MACHINE_REG_H */
+
 /* We need additional hackery on IA64 to include linux/ptrace.h. */
 #if defined(PINKTRACE_LINUX)
 #if defined(IA64)

@@ -189,6 +189,34 @@ pink_trace_singlestep(pid_t pid, int sig);
 bool
 pink_trace_syscall(pid_t pid, int sig);
 
+#if defined(PINKTRACE_FREEBSD) || defined(DOXYGEN)
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry of the next system call.
+ *
+ * \note Availability: FreeBSD
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_syscall_entry(pid_t pid, int sig);
+
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry of the next system call.
+ *
+ * \note Availability: FreeBSD
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_syscall_exit(pid_t pid, int sig);
+#endif /* defined(PINKTRACE_FREEBSD)... */
+
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Retrieve a message (as an unsigned long) about the trace event that just

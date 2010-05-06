@@ -43,10 +43,12 @@
  **/
 #define PINK_MAX_INDEX 6
 
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Reads a word at the given offset in the child's USER area,
  * and places it in res.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
@@ -62,6 +64,7 @@ pink_util_peek(pid_t pid, long off, long *res);
  * Reads a word at the given offset in the child's memory,
  * and places it in res.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
@@ -76,6 +79,7 @@ pink_util_peekdata(pid_t pid, long off, long *res);
 /**
  * Copies the word val to the given offset in the child's USER area.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
@@ -90,6 +94,7 @@ pink_util_poke(pid_t pid, long off, long val);
 /**
  * Copies the word data to location addr in the child's memory.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
@@ -105,6 +110,7 @@ pink_util_pokedata(pid_t pid, long off, long val);
  * Move len bytes of data of process pid, at address addr, to our address space
  * dest.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
@@ -120,6 +126,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
 /**
  * Convenience macro to read an object
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_moven
@@ -131,6 +138,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
  * Like pink_util_moven() but make the additional effort of looking for a
  * terminating zero-byte.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  **/
 bool
@@ -139,6 +147,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 /**
  * Like pink_util_movestr() but allocates the string itself.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \return The string on success and NULL on failure and sets errno
@@ -151,6 +160,7 @@ pink_util_movestr_persistent(pid_t pid, long addr);
  * Copy len bytes of data to process pid, at address addr, from our address space
  * src.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
@@ -167,6 +177,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
  * Like pink_util_putn() but make the additional effort not to overwrite
  * unreadable addresses. Use this e.g. to write strings safely.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
@@ -182,6 +193,7 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 /**
  * Convenience macro to write an object
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_putn
@@ -192,12 +204,15 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 /**
  * Convenience macro to write an object safely
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_putn_safe
  **/
 #define pink_util_put_safe(pid, addr, objp) \
 	pink_util_putn_safe((pid), (addr), (const char *)(objp), sizeof *(objp))
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Gets the last system call called by child with the given process ID.

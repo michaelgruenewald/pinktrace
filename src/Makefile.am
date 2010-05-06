@@ -15,7 +15,9 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 
 # Platform specific sources
 if I386
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-name.c \
+					      pink-freebsd-trace-x86.c
 endif # I386
 endif # FREEBSD
 
@@ -24,37 +26,39 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-event.c \
 					      pink-socket.c \
 					      pink-linux-trace.c \
-					      pink-trace-internal.c \
-					      pink-util.c
+					      pink-linux-util.c \
+					      pink-trace-internal.c
 
 # Platform specific sources
 if I386
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-x86.c \
-					      pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-name.c \
+					      pink-linux-trace-x86.c
 endif
 if X86_64
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-x86_64.c \
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-name32.c \
-					      pink-name64.c
+					      pink-name64.c \
+					      pink-linux-trace-x86_64.c
 endif
 if IA64
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-ia64.c \
-					      pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-name.c \
+					      pink-linux-trace-ia64.c
 endif
 if POWERPC
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-powerpc.c \
-					      pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-name.c \
+					      pink-linux-trace-powerpc.c
 endif
 if POWERPC64
-libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-trace-powerpc.c \
-					      pink-name.c
+libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-name.c \
+					      pink-linux-trace-powerpc.c
 endif
-
 endif # LINUX
 
 # Generated sources
-# FIXME: The shell script we use to generate syscallent.h doesn't work on FreeBSD.
-# {line#\#define __NR} is probably a bash goodie.
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES=
 BUILT_SOURCES=
 
