@@ -61,12 +61,19 @@ typedef struct {
 static char pinkpy_socket_name_doc[] = ""
 	"Returns the name of the socket subcall.\n"
 	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
 	"@param subcall: The socket subcall\n"
 	"@rtype: str\n"
 	"@return: The name of the socket subcall or C{None}";
 static PyObject *
-pinkpy_socket_name(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_name(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	long subno;
 	const char *subname;
 
@@ -76,11 +83,16 @@ pinkpy_socket_name(pink_unused PyObject *self, PyObject *args)
 	subname = pink_name_socket_subcall(subno);
 	/* "s" returns None if subname is NULL */
 	return Py_BuildValue("s", subname);
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char pinkpy_socket_decode_call_doc[] = ""
 	"Returns the decoded socket call.\n"
 	"\n"
+	"@note: Availability: Linux\n"
 	"@note: This function decodes the I{socketcall(2)} system call on some\n"
 	"architectures. On others it's equivalent to pinktrace.syscall.get_no()\n"
 	"\n"
@@ -92,8 +104,13 @@ static char pinkpy_socket_decode_call_doc[] = ""
 	"@rtype: long\n"
 	"@return: The decoded socket call";
 static PyObject *
-pinkpy_socket_decode_call(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_call(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	long subcall;
 	pid_t pid;
 	pink_bitness_t bit;
@@ -108,11 +125,16 @@ pinkpy_socket_decode_call(pink_unused PyObject *self, PyObject *args)
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("l", subcall);
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char pinkpy_socket_decode_fd_doc[] = ""
 	"Returns the socket file descriptor.\n"
 	"\n"
+	"@note: Availability: Linux\n"
 	"@note: This function decodes the I{socketcall(2)} system call on some\n"
 	"architectures.\n"
 	"\n"
@@ -125,8 +147,13 @@ static char pinkpy_socket_decode_fd_doc[] = ""
 	"@rtype: long\n"
 	"@return: The socket file descriptor";
 static PyObject *
-pinkpy_socket_decode_fd(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_fd(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	unsigned ind;
 	pink_bitness_t bit;
@@ -144,6 +171,10 @@ pinkpy_socket_decode_fd(pink_unused PyObject *self, PyObject *args)
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("l", fd);
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static PyObject *

@@ -35,7 +35,7 @@ __init__.py: __init__.py.in
 		-e "s,##GIT_HEAD##,$(GITHEAD)," \
 		-e "s,##HAVE_IPV6##,False," \
 		$< > $@
-endif
+endif # WANT_IPV6
 
 pythonlib_LTLIBRARIES+= bitness.la
 bitness_la_SOURCES= pink-python-bitness.c

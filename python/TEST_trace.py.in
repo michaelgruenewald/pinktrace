@@ -2,10 +2,12 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et :
 
-import sys, unittest
+import os, sys, unittest
 
 sys.path.insert(0, '.')
 from pinktrace import trace
+
+UNAME = os.uname()
 
 class TestTrace_01_Invalid(unittest.TestCase):
 
@@ -14,7 +16,7 @@ class TestTrace_01_Invalid(unittest.TestCase):
 
     def test_02_cont(self):
         self.assertRaises(TypeError, trace.cont)
-        self.assertRaises(TypeError, trace.cont, 1, 2, 3)
+        self.assertRaises(TypeError, trace.cont, 1, 2, 3, 4)
         self.assertRaises(TypeError, trace.cont, 'pink')
         self.assertRaises(TypeError, trace.cont, 0, 'pink')
         self.assertRaises(OSError, trace.cont, 0)
@@ -36,12 +38,32 @@ class TestTrace_01_Invalid(unittest.TestCase):
         self.assertRaises(TypeError, trace.syscall, 0, 'pink')
         self.assertRaises(OSError, trace.syscall, 0)
 
+    def test_05_syscall_entry(self):
+        if UNAME[0] != 'FreeBSD': return
+
+        self.assertRaises(TypeError, trace.syscall_entry)
+        self.assertRaises(TypeError, trace.syscall_entry, 'pink')
+        self.assertRaises(TypeError, trace.syscall_entry, 0, 'pink')
+        self.assertRaises(OSError, trace.syscall_entry, 0)
+
+    def test_06_syscall_exit(self):
+        if UNAME[0] != 'FreeBSD': return
+
+        self.assertRaises(TypeError, trace.syscall_exit)
+        self.assertRaises(TypeError, trace.syscall_exit, 'pink')
+        self.assertRaises(TypeError, trace.syscall_exit, 0, 'pink')
+        self.assertRaises(OSError, trace.syscall_exit, 0)
+
     def test_05_geteventmsg(self):
+        if UNAME[0] != 'Linux': return
+
         self.assertRaises(TypeError, trace.geteventmsg)
         self.assertRaises(TypeError, trace.geteventmsg, 'pink')
         self.assertRaises(OSError, trace.geteventmsg, 0)
 
     def test_06_setup(self):
+        if UNAME[0] != 'Linux': return
+
         self.assertRaises(TypeError, trace.setup)
         self.assertRaises(TypeError, trace.setup, 'pink')
         self.assertRaises(TypeError, trace.setup, 0, 'pink')

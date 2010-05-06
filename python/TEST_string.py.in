@@ -5,7 +5,9 @@
 import os, signal, sys, unittest
 
 sys.path.insert(0, '.')
-from pinktrace import bitness, event, syscall, string, trace
+from pinktrace import string, syscall
+
+UNAME = os.uname()
 
 class TestString_01_Invalid(unittest.TestCase):
 
@@ -22,109 +24,14 @@ class TestString_01_Invalid(unittest.TestCase):
         self.assertRaises(IndexError, string.encode, 0, syscall.MAX_INDEX, 'pink')
         self.assertRaises(ValueError, string.encode, 0, 1, 'pink', 13)
 
-    def test_03_encode_unsafe(self):
-        self.assertRaises(TypeError, string.encode_unsafe)
-        self.assertRaises(TypeError, string.encode_unsafe, 0)
-        self.assertRaises(TypeError, string.encode_unsafe, 0, 1)
-        self.assertRaises(IndexError, string.encode_unsafe, 0, syscall.MAX_INDEX, 'pink')
-        self.assertRaises(ValueError, string.encode_unsafe, 0, 1, 'pink', 13)
+    def test_03_encode_safe(self):
+        if UNAME[0] != 'Linux': return
 
-class TestString_02(unittest.TestCase):
-
-    def test_01_decode(self):
-        pid = os.fork()
-        if not pid: # child
-            trace.me()
-            os.kill(os.getpid(), signal.SIGSTOP)
-
-            open('/dev/null', 'r')
-            os._exit(0)
-        else: # parent
-            os.waitpid(pid, 0)
-            trace.setup(pid)
-
-            # Loop until we get to the open() system call as there's no
-            # guarantee that other system calls won't be called beforehand.
-            ev = -1
-            while ev != event.EVENT_EXIT_GENUINE:
-                trace.syscall(pid)
-                pid, status = os.waitpid(pid, 0)
-
-                ev = event.decide(status)
-                if ev == event.EVENT_SYSCALL:
-                    scno = syscall.get_no(pid)
-                    name = syscall.name(scno)
-                    if name == 'open':
-                        path = string.decode(pid, 0)
-                        self.assertEqual(path, '/dev/null')
-                        break
-
-            try: trace.kill(pid)
-            except OSError: pass
-
-    def test_02_decode_max(self):
-        pid = os.fork()
-        if not pid: # child
-            trace.me()
-            os.kill(os.getpid(), signal.SIGSTOP)
-
-            open('/dev/null', 'r')
-            os._exit(0)
-        else: # parent
-            os.waitpid(pid, 0)
-            trace.setup(pid)
-
-            # Loop until we get to the open() system call as there's no
-            # guarantee that other system calls won't be called beforehand.
-            ev = -1
-            while ev != event.EVENT_EXIT_GENUINE:
-                trace.syscall(pid)
-                pid, status = os.waitpid(pid, 0)
-
-                ev = event.decide(status)
-                if ev == event.EVENT_SYSCALL:
-                    scno = syscall.get_no(pid)
-                    name = syscall.name(scno)
-                    if name == 'open':
-                        path = string.decode(pid, 0, 9)
-                        self.assertEqual(path, '/dev/null')
-                        break
-
-            try: trace.kill(pid)
-            except OSError: pass
-
-    def test_03_encode(self):
-        pid = os.fork()
-        if not pid: # child
-            trace.me()
-            os.kill(os.getpid(), signal.SIGSTOP)
-
-            try:
-                open('/dev/null', 'r')
-            except IOError:
-                os._exit(0)
-            else:
-                os._exit(1)
-        else: # parent
-            os.waitpid(pid, 0)
-            trace.setup(pid)
-
-            # Loop until we get to the open() system call as there's no
-            # guarantee that other system calls won't be called beforehand.
-            ev = -1
-            while ev != event.EVENT_EXIT_GENUINE:
-                trace.syscall(pid)
-                pid, status = os.waitpid(pid, 0)
-
-                ev = event.decide(status)
-                if ev == event.EVENT_SYSCALL:
-                    scno = syscall.get_no(pid)
-                    name = syscall.name(scno)
-                    if name == 'open':
-                        string.encode(pid, 0, '/dev/NULL')
-
-            self.assert_(os.WIFEXITED(status))
-            self.assertEqual(os.WEXITSTATUS(status), 0)
+        self.assertRaises(TypeError, string.encode_safe)
+        self.assertRaises(TypeError, string.encode_safe, 0)
+        self.assertRaises(TypeError, string.encode_safe, 0, 1)
+        self.assertRaises(IndexError, string.encode_safe, 0, syscall.MAX_INDEX, 'pink')
+        self.assertRaises(ValueError, string.encode_safe, 0, 1, 'pink', 13)
 
 if __name__ == '__main__':
     unittest.main()
