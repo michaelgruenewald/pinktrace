@@ -20,10 +20,55 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <errno.h>
 #include <stdlib.h>
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
+
+bool
+pink_util_peek(pid_t pid, long off, long *res)
+{
+	long val;
+
+	errno = 0;
+	val = ptrace(PT_READ_I, pid, (caddr_t)off, 0);
+	if (val == -1 && errno != 0)
+		return false;
+
+	if (res)
+		*res = val;
+
+	return true;
+}
+
+bool
+pink_util_peekdata(pid_t pid, long off, long *res)
+{
+	long val;
+
+	errno = 0;
+	val = ptrace(PT_READ_D, pid, (caddr_t)off, 0);
+	if (val == -1 && errno != 0)
+		return false;
+
+	if (res)
+		*res = val;
+
+	return true;
+}
+
+bool
+pink_util_poke(pid_t pid, long off, long val)
+{
+	return (0 == ptrace(PT_WRITE_I, pid, (caddr_t)off, val));
+}
+
+bool
+pink_util_pokedata(pid_t pid, long off, long val)
+{
+	return (0 == ptrace(PT_WRITE_D, pid, (caddr_t)off, val));
+}
 
 bool
 pink_util_get_regs(pid_t pid, void *regs)

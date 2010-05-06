@@ -43,12 +43,13 @@
  **/
 #define PINK_MAX_INDEX 6
 
-#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
- * Reads a word at the given offset in the child's USER area,
- * and places it in res.
+ * On FreeBSD this reads a single int of data at the given offset in the traced
+ * process's instruction space and places it in res, aka PT_READ_I.
  *
- * \note Availability: Linux
+ * On Linux this reads a word at the given offset in the child's USER area, and
+ * places it in res, aka PTRACE_PEEKUSER.
+ *
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
@@ -61,10 +62,12 @@ bool
 pink_util_peek(pid_t pid, long off, long *res);
 
 /**
- * Reads a word at the given offset in the child's memory,
- * and places it in res.
+ * On FreeBSD this reads a single int of data at the given offset in the traced
+ * process's data space and places it in res, aka PT_READ_D.
  *
- * \note Availability: Linux
+ * On Linux this reads a word at the given offset in the child's memory, and
+ * places it in res, aka PTRACE_PEEKDATA.
+ *
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
@@ -77,9 +80,12 @@ bool
 pink_util_peekdata(pid_t pid, long off, long *res);
 
 /**
- * Copies the word val to the given offset in the child's USER area.
+ * On FreeBSD this copies the given single int val to the given offset in the
+ * traced process's instruction space, aka PT_WRITE_I.
  *
- * \note Availability: Linux
+ * On Linux this copies the word val to the given offset in the child's USER
+ * area, aka PTRACE_POKEUSER.
+ *
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
@@ -92,9 +98,12 @@ bool
 pink_util_poke(pid_t pid, long off, long val);
 
 /**
- * Copies the word data to location addr in the child's memory.
+ * On FreeBSD this copies the given single int val to the given offset in the
+ * traced process's data space, aka PT_WRITE_D.
  *
- * \note Availability: Linux
+ * On Linux this copies the word val to location addr in the child's memory,
+ * aka PTRACE_PEEKDATA.
+ *
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
@@ -105,7 +114,6 @@ pink_util_poke(pid_t pid, long off, long val);
  **/
 bool
 pink_util_pokedata(pid_t pid, long off, long val);
-#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Copy the child's general purpose registers to the given location.

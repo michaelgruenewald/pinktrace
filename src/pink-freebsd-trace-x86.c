@@ -21,7 +21,6 @@
  */
 
 #include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <sys/syscall.h>
@@ -50,17 +49,12 @@ pink_util_get_syscall(pid_t pid, long *res)
 	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
 	 * routine, basicly; the latter is for quad-aligned arguments.
 	 */
-	parm_offset = r.r_esp + sizeof(int);
 	*res = r.r_eax;
 	switch (*res) {
 	case SYS_syscall:
-		*res = ptrace(PT_READ_D, pid, (caddr_t)parm_offset, 0);
-		if (*res < 0)
-			return false;
-		return true;
 	case SYS___syscall:
-		*res = ptrace(PT_READ_D, pid, (caddr_t)parm_offset, 0);
-		if (*res < 0)
+		parm_offset = r.r_esp + sizeof(int);
+		if (!pink_util_peekdata(pid, parm_offset, res))
 			return false;
 		return true;
 	default:
@@ -153,9 +147,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	}
 
 	parm_offset += ind * sizeof(int);
-	errno = 0;
-	arg = ptrace(PT_READ_D, pid, (caddr_t)parm_offset, 0);
-	if (arg < 0 && errno != 0)
+	if (!pink_util_peekdata(pid, parm_offset, &arg))
 		return false;
 
 	*res = arg;
