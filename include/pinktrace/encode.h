@@ -45,8 +45,11 @@
 bool
 pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Write the given data argument src to the address of the argument arg safely.
+ *
+ * \note Availability: Linux
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
@@ -58,5 +61,6 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
  **/
 bool
 pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
+#endif /* defined(PINKTRACE_LINUX)... */
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */

@@ -195,6 +195,7 @@ pink_trace_syscall(pid_t pid, int sig);
  * the entry of the next system call.
  *
  * \note Availability: FreeBSD
+ *
  * \param pid Process ID of the child to be restarted.
  * \param sig Treated the same was as the signal argument of pink_trace_cont().
  *
@@ -208,6 +209,7 @@ pink_trace_syscall_entry(pid_t pid, int sig);
  * the entry of the next system call.
  *
  * \note Availability: FreeBSD
+ *
  * \param pid Process ID of the child to be restarted.
  * \param sig Treated the same was as the signal argument of pink_trace_cont().
  *
