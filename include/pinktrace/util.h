@@ -154,12 +154,10 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 char *
 pink_util_movestr_persistent(pid_t pid, long addr);
 
-#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Copy len bytes of data to process pid, at address addr, from our address space
  * src.
  *
- * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
@@ -172,6 +170,17 @@ pink_util_movestr_persistent(pid_t pid, long addr);
 bool
 pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 
+/**
+ * Convenience macro to write an object
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \see pink_util_putn
+ **/
+#define pink_util_put(pid, addr, objp) \
+	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
+
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Like pink_util_putn() but make the additional effort not to overwrite
  * unreadable addresses. Use this e.g. to write strings safely.
@@ -188,17 +197,6 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
  **/
 bool
 pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
-
-/**
- * Convenience macro to write an object
- *
- * \note Availability: Linux
- * \note Mostly for internal use, use higher level functions where possible.
- *
- * \see pink_util_putn
- **/
-#define pink_util_put(pid, addr, objp) \
-	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
 
 /**
  * Convenience macro to write an object safely

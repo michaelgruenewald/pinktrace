@@ -82,3 +82,16 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		}
 	}
 }
+
+bool
+pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
+{
+	struct ptrace_io_desc ioreq;
+
+	ioreq.piod_op = PIOD_WRITE_D;
+	ioreq.piod_offs = (char *)addr;
+	ioreq.piod_addr = src;
+	ioreq.piod_len = len;
+
+	return !(ptrace(PT_IO, pid, (caddr_t)&ioreq, 0) < 0);
+}

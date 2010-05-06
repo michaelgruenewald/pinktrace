@@ -223,3 +223,16 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 
 	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
 }
+
+bool
+pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len)
+{
+	long addr;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+		return false;
+
+	return pink_util_putn(pid, addr, src, len);
+}
