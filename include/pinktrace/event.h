@@ -28,8 +28,12 @@
 
 #include <stdbool.h>
 
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
+
 /**
  * Event constants
+ *
+ * \note Availability: Linux
  **/
 typedef enum {
 	/** Child has been stopped **/
@@ -61,6 +65,8 @@ typedef enum {
 /**
  * Return the last event made by child.
  *
+ * \note Availability: Linux
+ *
  * \note This function expects #PINK_TRACE_OPTION_SYSGOOD has been passed to
  * pink_trace_setup() or pink_fork().
  *
@@ -74,11 +80,15 @@ pink_event_decide(int status);
 /**
  * Return a string representation of the event.
  *
+ * \note Availability: Linux
+ *
  * \param event The event to be stringified.
  *
  * \return The string representation of the event.
  **/
 const char *
 pink_event_tostring(pink_event_t event);
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */

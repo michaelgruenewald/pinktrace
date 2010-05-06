@@ -34,7 +34,45 @@
 #include <sys/un.h>
 
 /**
+ * This struct defines a decoded socket address.
+ **/
+typedef struct {
+	/** Family of the socket address **/
+	int family;
+
+	/**
+	 * This union contains type-safe pointers to the real socket address.
+	 * Check the family before attempting to obtain the real object.
+	 **/
+	union {
+		/** Padding, for internal use only **/
+		char _pad[128];
+
+		/** Socket address, for internal use only **/
+		struct sockaddr _sa;
+
+		/** Unix socket address, only valid if family is AF_UNIX. **/
+		struct sockaddr_un sa_un;
+
+		/** Inet socket address, only valid if family is AF_INET. **/
+		struct sockaddr_in sa_in;
+
+#if PINKTRACE_HAVE_IPV6 || defined(DOXYGEN)
+		/**
+		 * Inet6 socket address, only valid if family is AF_INET6.
+		 * This member is only available if IPV6 support was enabled at
+		 * compile time. Check with PINKTRACE_HAVE_IPV6.
+		 **/
+		struct sockaddr_in6 sa6;
+#endif /* PINKTRACE_HAVE_IPV6... */
+	} u;
+} pink_socket_address_t;
+
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
+/**
  * Decoded socket subcalls
+ *
+ * \note Availability: Linux
  **/
 typedef enum {
 	/** socket() subcall **/
@@ -75,38 +113,6 @@ typedef enum {
 	PINK_SOCKET_SUBCALL_ACCEPT4,
 } pink_socket_subcall_t;
 
-typedef struct {
-	/** Family of the socket address **/
-	int family;
-
-	/**
-	 * This union contains type-safe pointers to the real socket address.
-	 * Check the family before attempting to obtain the real object.
-	 **/
-	union {
-		/** Padding, for internal use only **/
-		char _pad[128];
-
-		/** Socket address, for internal use only **/
-		struct sockaddr _sa;
-
-		/** Unix socket address, only valid if family is AF_UNIX. **/
-		struct sockaddr_un sa_un;
-
-		/** Inet socket address, only valid if family is AF_INET. **/
-		struct sockaddr_in sa_in;
-
-#if PINKTRACE_HAVE_IPV6 || defined(DOXYGEN)
-		/**
-		 * Inet6 socket address, only valid if family is AF_INET6.
-		 * This member is only available if IPV6 support was enabled at
-		 * compile time. Check with PINKTRACE_HAVE_IPV6.
-		 **/
-		struct sockaddr_in6 sa6;
-#endif /* PINKTRACE_HAVE_IPV6... */
-	} u;
-} pink_socket_address_t;
-
 /**
  * Name the given socket subcall
  *
@@ -116,5 +122,7 @@ typedef struct {
  **/
 const char *
 pink_name_socket_subcall(pink_socket_subcall_t subcall);
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */

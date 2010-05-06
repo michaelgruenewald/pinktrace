@@ -25,8 +25,8 @@ endif # FREEBSD
 
 if LINUX
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
-					      pink-event.c \
-					      pink-socket.c \
+					      pink-linux-event.c \
+					      pink-linux-socket.c \
 					      pink-linux-trace.c \
 					      pink-linux-util.c
 
