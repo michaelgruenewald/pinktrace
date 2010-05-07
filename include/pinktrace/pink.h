@@ -40,13 +40,23 @@
  **/
 
 /**
- * \example pink-fork.c
- * This is an example demonstrating how to fork and start tracing a process.
+ * \example pink-fork-freebsd.c
+ * This is an example demonstrating how to fork and start tracing a process on FreeBSD.
  **/
 
 /**
- * \example pink-simple-strace.c
- * This is a simple strace like program example written with pinktrace.
+ * \example pink-fork-linux.c
+ * This is an example demonstrating how to fork and start tracing a process on Linux.
+ **/
+
+/**
+ * \example pink-simple-strace-freebsd.c
+ * This is a simple strace like program example written with pinktrace for FreeBSD.
+ **/
+
+/**
+ * \example pink-simple-strace-linux.c
+ * This is a simple strace like program example written with pinktrace for Linux.
  **/
 
 /**

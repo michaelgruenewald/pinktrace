@@ -16,7 +16,6 @@ main(void)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
 
 	/* Fork and start tracing. */
 	if ((pid = fork()) < 0) {
@@ -39,19 +38,12 @@ main(void)
 	}
 	else {
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		assert(event == PINK_EVENT_STOP);
-
-		/* Set up the child for tracing */
-		if (!pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD)) {
-			perror("pink_trace_setup");
-			pink_trace_kill(pid);
-			return EXIT_FAILURE;
-		}
+		assert(WIFSTOPPED(status));
+		assert(WSTOPSIG(status) == SIGSTOP);
 
 		/* The child is ready for tracing, nothing interesting in this
 		 * example, let the child continue its execution. */
-		pink_trace_cont(pid, 0);
+		pink_trace_cont(pid, 0, (char *)1);
 		return EXIT_SUCCESS;
 	}
 }
