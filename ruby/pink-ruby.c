@@ -677,6 +677,8 @@ pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
  *
  * == Constants
  *
+ * Note: The constants below are only available on Linux.
+ *
  * - PinkTrace::Event::EVENT_STOP
  *
  *   The traced child has received a SIGSTOP.
@@ -1503,7 +1505,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
- * Document-method: PinkTrace::Socket.decode_address2
+ * Document-method: PinkTrace::Socket.decode_address_fd
  * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr|nil, fd
  *
  * Decodes the socket address at the given index and the file descriptor at index 0.

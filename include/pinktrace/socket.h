@@ -116,6 +116,8 @@ typedef enum {
 /**
  * Name the given socket subcall
  *
+ * \note Availability: Linux
+ *
  * \param subcall The socket subcall
  *
  * \return The name of the subcall

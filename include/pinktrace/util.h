@@ -128,14 +128,14 @@ pink_util_pokedata(pid_t pid, long off, long val);
 bool
 pink_util_get_regs(pid_t pid, void *regs);
 
-/*
+/**
  * Set the child's general purpose registers.
  *
  * \param pid Process ID of the child.
  * \param regs Same as pink_util_get_regs()
  *
  * \return true on success, false on failure and sets errno accordingly.
- */
+ **/
 bool
 pink_util_set_regs(pid_t pid, const void *regs);
 

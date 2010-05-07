@@ -68,7 +68,7 @@ typedef enum {
  * \note Availability: Linux
  *
  * \note This function expects #PINK_TRACE_OPTION_SYSGOOD has been passed to
- * pink_trace_setup() or pink_fork().
+ * pink_trace_setup().
  *
  * \param status The status argument, received from wait(2) system call.
  *
