@@ -77,7 +77,7 @@ event_init(
 #if !defined(PINKTRACE_LINUX)
 	pink_unused
 #endif
-	PyObject *args)
+	PyObject *mod)
 {
 #if defined(PINKTRACE_LINUX)
 	PyModule_AddIntConstant(mod, "EVENT_STOP", PINK_EVENT_STOP);

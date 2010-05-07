@@ -119,7 +119,7 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-if PinKTrace::Syscall.name 0
+if PinkTrace::Syscall.name 0
   class TestPinkString
     def test_string_decode
       pid = fork do
