@@ -80,6 +80,18 @@ pink_util_pokedata(pid_t pid, long off, long val)
 }
 
 bool
+pink_util_get_regs(pid_t pid, void *regs)
+{
+	return !(ptrace(PTRACE_GETREGS, pid, NULL, regs) < 0);
+}
+
+bool
+pink_util_set_regs(pid_t pid, const void *regs)
+{
+	return !(ptrace(PTRACE_SETREGS, pid, NULL, regs) < 0);
+}
+
+bool
 pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 {
 	int n, m;
