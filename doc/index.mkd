@@ -10,7 +10,7 @@ title: Home
 **PinkTrace** is a lightweight C library that eases the writing of tracing
 applications. It consists of the following parts:
 
-- Wrappers around different *ptrace()* calls.
+- Wrappers around different *ptrace()* requests.
 - An API for decoding arguments (strings, socket addresses, ...)
 - An **experimental** API for encoding arguments.
 
