@@ -21,7 +21,7 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
-#if defined(I386) || defined(IA64) || defined(POWERPC) || defined(POWERPC64)
+#if defined(PINKTRACE_FREEBSD) || defined(I386) || defined(IA64) || defined(POWERPC) || defined(POWERPC64)
 const char *
 pink_name_syscall(long scno, pink_unused pink_bitness_t bitness)
 {

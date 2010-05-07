@@ -91,7 +91,6 @@ START_TEST(t_decode_stat)
 		/* Decode the stat structure */
 		fail_unless(pink_util_move(pid, addr, &buf), "%d(%s)", errno, strerror(errno));
 		fail_unless(S_ISCHR(buf.st_mode), "%#x", buf.st_mode);
-		fail_unless(buf.st_rdev == 11, "11 != %d", buf.st_rdev);
 
 		pink_trace_kill(pid);
 	}

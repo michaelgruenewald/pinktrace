@@ -121,12 +121,8 @@ i[[3456]]86|pentium)
 	arch=i386
 	AC_DEFINE([I386], 1, [Define for the i386 architecture.])
 	;;
-x86?64*)
+x86?64*|amd64)
 	arch=x86_64
-	if test x"$opsys" = x"freebsd" ; then
-		AC_MSG_RESULT([NO!])
-		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
-	fi
 	AC_DEFINE([X86_64], 1, [Define for the AMD x86-64 architecture.])
 	;;
 ia64)
@@ -166,17 +162,18 @@ AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
 AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 
-AM_CONDITIONAL(BITNESS_ONE,
-	       test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64")
-AM_CONDITIONAL(BITNESS_TWO, test x"$arch" = x"x86_64")
-
-dnl Export some useful information via pinktrace/about.h
-if test x"$arch" = x"i386" -o x"$arch" = x"ia64" -o x"$arch" = x"powerpc" -o x"$arch" = x"powerpc64" ; then
+if test x"$opsys" = x"freebsd" ; then
 	PINKTRACE_SUPPORTED_BITNESS=1
 else
-	PINKTRACE_SUPPORTED_BITNESS=2
+	if test x"$arch" = x"x86_64" ; then
+		PINKTRACE_SUPPORTED_BITNESS=2
+	else
+		PINKTRACE_SUPPORTED_BITNESS=1
+	fi
 fi
 AC_SUBST([PINKTRACE_SUPPORTED_BITNESS])
+AM_CONDITIONAL(BITNESS_ONE, test x"$PINKTRACE_SUPPORTED_BITNESS" = x"1")
+AM_CONDITIONAL(BITNESS_TWO, test x"$PINKTRACE_SUPPORTED_BITNESS" = x"2")
 
 if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" ; then
 	PINKTRACE_DEFAULT_BITNESS="PINK_BITNESS_32"

@@ -40,6 +40,6 @@ upload-example:
 upload-www:
 	$(MAKE) -C doc $@
 
-upload: upload-doc upload-examples upload-www
+upload: upload-doc upload-example upload-www
 
-.PHONY: doxygen epydoc rdoc upload upload-doc upload-examples upload-www
+.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www

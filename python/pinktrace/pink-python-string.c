@@ -123,7 +123,7 @@ pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
 
-	if (!pink_encode_simple(pid, bit, ind, str, len))
+	if (!pink_encode_simple(pid, bit, ind, str, ++len))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
@@ -164,7 +164,7 @@ pinkpy_string_encode_safe(pink_unused PyObject *self,
 	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
 
-	if (!pink_encode_simple_safe(pid, bit, ind, str, len))
+	if (!pink_encode_simple_safe(pid, bit, ind, str, ++len))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");

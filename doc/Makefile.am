@@ -3,14 +3,20 @@ HOMEPAGE= http://dev.exherbo.org/~alip/pinktrace
 SCM_URI= git://github.com/alip/pinktrace.git
 GENERATED_FILES= _config.yml \
 		 c-pink-about.html \
-		 c-pink-fork.html \
-		 c-pink-simple-strace.html \
+		 c-pink-fork-freebsd.html \
+		 c-pink-fork-linux.html \
+		 c-pink-simple-strace-freebsd.html \
+		 c-pink-simple-strace-linux.html \
 		 py-pink-about.html \
-		 py-pink-fork.html \
-		 py-pink-simple-strace.html \
+		 py-pink-fork-freebsd.html \
+		 py-pink-fork-linux.html \
+		 py-pink-simple-strace-freebsd.html \
+		 py-pink-simple-strace-linux.html \
 		 rb-pink-about.html \
-		 rb-pink-fork.html \
-		 rb-pink-simple-strace.html
+		 rb-pink-fork-freebsd.html \
+		 rb-pink-fork-linux.html \
+		 rb-pink-simple-strace-freebsd.html \
+		 rb-pink-simple-strace-linux.html
 CLEANFILES= $(GENERATED_FILES)
 WWW_FILES= _layouts/default.html \
 	   _includes/footer.html \

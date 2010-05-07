@@ -63,32 +63,62 @@ There are examples how to use the various parts of the library.
     <tr>
         <td>fork</td>
         <td>
-            <a href="{{ site.url }}/c-pink-fork.html">C</a>
-            (<a href="{{ site.url }}/examples/c/pink-fork.c">raw</a>)
+            C:
+            <br />
+            <a href="{{ site.url }}/c-pink-fork-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/c/pink-fork-freebsd.c">raw</a>)
+            <br />
+            <a href="{{ site.url }}/c-pink-fork-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/c/pink-fork-linux.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.url }}/py-pink-fork.html">Python</a>
-            (<a href="{{ site.url }}/examples/python/pink-fork.py">raw</a>)
+            Python:
+            <br />
+            <a href="{{ site.url }}/py-pink-fork-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/python/pink-fork-freebsd.py">raw</a>)
+            <br />
+            <a href="{{ site.url }}/py-pink-fork-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/python/pink-fork-linux.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.url }}/rb-pink-fork.html">Ruby</a>
-            (<a href="{{ site.url }}/examples/ruby/pink-fork.rb">raw</a>)
+            Ruby:
+            <br />
+            <a href="{{ site.url }}/rb-pink-fork-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-fork-freebsd.rb">raw</a>)
+            <br />
+            <a href="{{ site.url }}/rb-pink-fork-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-fork-linux.rb">raw</a>)
         </td>
-        <td>How to use PinkTrace's fork() wrapper</td>
+        <td>How to do tracing fork</td>
     </tr>
     <tr>
-        <td>simple-strace</td>
+        <td>strace</td>
         <td>
-            <a href="{{ site.url }}/c-pink-simple-strace.html">C</a>
-            (<a href="{{ site.url }}/examples/c/pink-simple-strace.c">raw</a>)
+            C:
+            <br />
+            <a href="{{ site.url }}/c-pink-simple-strace-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/c/pink-simple-strace-freebsd.c">raw</a>)
+            <br />
+            <a href="{{ site.url }}/c-pink-simple-strace-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/c/pink-simple-strace-linux.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.url }}/py-pink-simple-strace.html">Python</a>
-            (<a href="{{ site.url }}/examples/python/pink-simple-strace.py">raw</a>)
+            Python:
+            <br />
+            <a href="{{ site.url }}/py-pink-simple-strace-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/python/pink-simple-strace-freebsd.py">raw</a>)
+            <br />
+            <a href="{{ site.url }}/py-pink-simple-strace-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/python/pink-simple-strace-linux.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.url }}/rb-pink-simple-strace.html">Ruby</a>
-            (<a href="{{ site.url }}/examples/ruby/pink-simple-strace.rb">raw</a>)
+            Ruby:
+            <br />
+            <a href="{{ site.url }}/rb-pink-simple-strace-freebsd.html">FreeBSD</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-simple-strace-freebsd.rb">raw</a>)
+            <br />
+            <a href="{{ site.url }}/rb-pink-simple-strace-linux.html">Linux</a>
+            (<a href="{{ site.url }}/examples/ruby/pink-simple-strace-linux.rb">raw</a>)
         </td>
         <td>A simple strace-like program</td>
     </tr>
