@@ -2,8 +2,8 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et :
 
-"""\
-An example demonstrating the tracing fork
+"""
+An example demonstrating the tracing fork on Linux.
 """
 
 from __future__ import print_function
@@ -11,7 +11,6 @@ from __future__ import print_function
 import os, signal
 
 import pinktrace.event
-import pinktrace.fork
 import pinktrace.trace
 
 pid = os.fork()
@@ -25,7 +24,7 @@ if not pid:
 else: # parent
     pid, status = os.waitpid(pid, 0)
     event = pinktrace.event.decide(status)
-    assert event == pinktrace.event.EVENT_STOP, "event: %d" % event
+    assert event == pinktrace.event.EVENT_STOP, "%#x" % status
 
     # Set tracing options
     pinktrace.trace.setup(pid)
