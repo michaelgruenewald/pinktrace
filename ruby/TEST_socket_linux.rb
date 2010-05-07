@@ -74,60 +74,58 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-unless PinkTrace::Syscall.name 0
-  exit 0
-end
+if PinkTrace::Syscall.name 0
+  class TestPinkSocket
+    TEST_SOCKET = './TEST_unix_socket'
 
-class TestPinkSocket
-  TEST_SOCKET = './TEST_unix_socket'
-
-  def teardown
-    begin
-      File.unlink TEST_SOCKET
-    rescue Errno::ENOENT
-    end
-  end
-
-  def test_decode_socket_call
-    pid = fork do
-      PinkTrace::Trace.me
-      Process.kill 'STOP', Process.pid
-
-      UNIXServer.new TEST_SOCKET
-    end
-    Process.waitpid pid
-    PinkTrace::Trace.setup pid
-
-
-    # Loop until we get to the socket() system call as there's no guarantee
-    # that other system calls won't be called beforehand.
-    event = -1
-    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-      PinkTrace::Trace.syscall pid
-      Process.waitpid pid
-
-      event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::EVENT_SYSCALL then
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'socketcall' or name == 'socket' then
-          subcall = PinkTrace::Socket.decode_call pid
-          if name == 'socketcall' then
-            # The call must have given the decoded socket call.
-            subname = PinkTrace::Socket.name subcall
-          else
-            subname = PinkTrace::Syscall.name subcall
-          end
-          assert(subname == 'socket', "Wrong subcall name, expected: socket got: '#{subname}'")
-          break
-        end
+    def teardown
+      begin
+        File.unlink TEST_SOCKET
+      rescue Errno::ENOENT
       end
     end
 
-    begin PinkTrace::Trace.kill pid
-    rescue Errno::ESRCH ;end
-  end
+    def test_decode_socket_call
+      pid = fork do
+        PinkTrace::Trace.me
+        Process.kill 'STOP', Process.pid
 
-  def test_decode_socket_fd
+        UNIXServer.new TEST_SOCKET
+      end
+      Process.waitpid pid
+      PinkTrace::Trace.setup pid
+
+
+      # Loop until we get to the socket() system call as there's no guarantee
+      # that other system calls won't be called beforehand.
+      event = -1
+      while event != PinkTrace::Event::EVENT_EXIT_GENUINE
+        PinkTrace::Trace.syscall pid
+        Process.waitpid pid
+
+        event = PinkTrace::Event.decide
+        if event == PinkTrace::Event::EVENT_SYSCALL then
+          scno = PinkTrace::Syscall.get_no pid
+          name = PinkTrace::Syscall.name scno
+          if name == 'socketcall' or name == 'socket' then
+            subcall = PinkTrace::Socket.decode_call pid
+            if name == 'socketcall' then
+              # The call must have given the decoded socket call.
+              subname = PinkTrace::Socket.name subcall
+            else
+              subname = PinkTrace::Syscall.name subcall
+            end
+            assert(subname == 'socket', "Wrong subcall name, expected: socket got: '#{subname}'")
+            break
+          end
+        end
+      end
+
+      begin PinkTrace::Trace.kill pid
+      rescue Errno::ESRCH ;end
+    end
+
+    def test_decode_socket_fd
+    end
   end
 end

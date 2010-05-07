@@ -18,8 +18,15 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <asm/unistd.h>
 #include <stdio.h> /* NULL */
+
+#if defined(PINKTRACE_FREEBSD)
+#include <sys/syscall.h>
+#elif defined(PINKTRACE_LINUX)
+#include <asm/unistd.h>
+#else
+#error unsupported operating system
+#endif
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
@@ -28,7 +35,13 @@ static const struct {
     int no;
     const char *name;
 } sysnames[] = {
-#include "pink-syscallent.h"
+#if defined(PINKTRACE_FREEBSD)
+#include "pink-freebsd-syscallent.h"
+#elif defined(PINKTRACE_LINUX)
+#include "pink-linux-syscallent.h"
+#else
+#error unsupported operating system
+#endif
     {-1,    NULL}
 };
 

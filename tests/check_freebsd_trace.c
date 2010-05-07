@@ -95,14 +95,18 @@ START_TEST(t_trace_me_execve)
 		_exit(EXIT_FAILURE);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
+		if (!pink_trace_attach(pid))
+			fail("pink_attach: %d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
-		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		kill(pid, SIGKILL);
 	}
 }
 END_TEST
 
+#if 0
 START_TEST(t_trace_cont_basic)
 {
 	int status;
@@ -242,6 +246,7 @@ START_TEST(t_trace_setup_exit)
 {
 }
 END_TEST
+#endif
 
 Suite *
 trace_suite_create(void)
@@ -260,43 +265,43 @@ trace_suite_create(void)
 	/* pink_trace_cont() */
 	TCase *tc_pink_trace_cont = tcase_create("pink_trace_cont");
 
-	tcase_add_test(tc_pink_trace_cont, t_trace_cont_basic);
-	tcase_add_test(tc_pink_trace_cont, t_trace_cont_signal);
+	//tcase_add_test(tc_pink_trace_cont, t_trace_cont_basic);
+	//tcase_add_test(tc_pink_trace_cont, t_trace_cont_signal);
 
 	suite_add_tcase(s, tc_pink_trace_cont);
 
 	/* pink_trace_kill() */
 	TCase *tc_pink_trace_kill = tcase_create("pink_trace_kill");
 
-	tcase_add_test(tc_pink_trace_kill, t_trace_kill);
+	//tcase_add_test(tc_pink_trace_kill, t_trace_kill);
 
 	suite_add_tcase(s, tc_pink_trace_kill);
 
 	/* pink_trace_singlestep() */
 	TCase *tc_pink_trace_singlestep = tcase_create("pink_trace_singlestep");
 
-	tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_basic);
-	tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_signal);
+	//tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_basic);
+	//tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_signal);
 
 	suite_add_tcase(s, tc_pink_trace_singlestep);
 
 	/* pink_trace_syscall() */
 	TCase *tc_pink_trace_syscall = tcase_create("pink_trace_syscall");
 
-	tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_basic);
-	tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_signal);
+	//tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_basic);
+	//tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_signal);
 
 	suite_add_tcase(s, tc_pink_trace_syscall);
 
 	/* pink_trace_setup() and pink_trace_geteventmsg() */
 	TCase *tc_pink_trace_setup = tcase_create("pink_trace_setup");
 
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_sysgood);
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_fork);
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_vfork);
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_clone);
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_vforkdone);
-	tcase_add_test(tc_pink_trace_setup, t_trace_setup_exit);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_sysgood);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_fork);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_vfork);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_clone);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_vforkdone);
+	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_exit);
 
 	suite_add_tcase(s, tc_pink_trace_setup);
 

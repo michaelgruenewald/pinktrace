@@ -123,16 +123,17 @@ pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
 
-	if (!pink_encode_simple_safe(pid, bit, ind, str, len))
+	if (!pink_encode_simple(pid, bit, ind, str, len))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
 }
 
-static char pinkpy_string_encode_unsafe_doc[] = ""
-	"Encode a string into the argument of the given index without additional\n"
+static char pinkpy_string_encode_safe_doc[] = ""
+	"Encode a string into the argument of the given index with additional\n"
 	"checking for writable areas.\n"
 	"@bug: Care must be taken when using this function as unexpected things may happen.\n"
+	"@note: Availability: Linux\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param index: The index of the argument\n"
@@ -143,8 +144,13 @@ static char pinkpy_string_encode_unsafe_doc[] = ""
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_string_encode_unsafe(pink_unused PyObject *self, PyObject *args)
+pinkpy_string_encode_safe(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	unsigned ind;
 	pink_bitness_t bit;
@@ -158,17 +164,21 @@ pinkpy_string_encode_unsafe(pink_unused PyObject *self, PyObject *args)
 	if (!check_bitness(bit) || !check_index(ind))
 		return NULL;
 
-	if (!pink_encode_simple(pid, bit, ind, str, len))
+	if (!pink_encode_simple_safe(pid, bit, ind, str, len))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char string_doc[] = "Pink's string decoding and encoding functions";
 static PyMethodDef string_methods[] = {
 	{"decode", pinkpy_string_decode, METH_VARARGS, pinkpy_string_decode_doc},
 	{"encode", pinkpy_string_encode, METH_VARARGS, pinkpy_string_encode_doc},
-	{"encode_unsafe", pinkpy_string_encode_unsafe, METH_VARARGS, pinkpy_string_encode_unsafe_doc},
+	{"encode_safe", pinkpy_string_encode_safe, METH_VARARGS, pinkpy_string_encode_safe_doc},
 	{NULL, NULL, 0, NULL}
 };
 

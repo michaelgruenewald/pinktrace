@@ -268,7 +268,7 @@ START_TEST(t_util_set_return_success)
 		fail_unless(pink_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
-		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", status);
 	}
@@ -321,7 +321,7 @@ START_TEST(t_util_set_return_fail)
 		fail_unless(pink_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
-		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		waitpid(pid, &status, 0);
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", errno, strerror(errno));
 	}

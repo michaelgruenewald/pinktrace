@@ -59,18 +59,25 @@ static char pinkpy_trace_cont_doc[] = ""
 	"signal to be delivered to the child; otherwise, no signal is delivered.\n"
 	"Thus, for example, the parent can control whether a signal sent to the child\n"
 	"is delivered or not. (Optional, defaults to C{0})\n"
+	"@param addr: On FreeBSD this argument is an address specifying the place\n"
+	"where execution is to be resumed (a new value for program counter), or C{1}\n"
+	"to indicate that execution is to pick up where it left off.\n"
+	"On Linux, this argument is not used.\n"
+	"(Optional, defaults to C{1})\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
 pinkpy_trace_cont(pink_unused PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
+	long addr;
 
 	sig = 0;
-	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &sig))
+	addr = 1;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|il", &pid, &sig, &addr))
 		return NULL;
 
-	if (!pink_trace_cont(pid, sig))
+	if (!pink_trace_cont(pid, sig, (char *)addr))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
@@ -143,19 +150,96 @@ pinkpy_trace_syscall(pink_unused PyObject *self, PyObject *args)
 	return Py_BuildValue("");
 }
 
+static char pinkpy_trace_syscall_entry_doc[] = ""
+	"Restarts the stopped child process and arranges it to be stopped after the\n"
+	"entry of the next system call.\n"
+	"\n"
+	"@note: Availability: FreeBSD\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
+	"@see: pinktrace.trace.cont";
+static PyObject *
+pinkpy_trace_syscall_entry(pink_unused PyObject *self,
+#if !defined(PINKTRACE_FREEBSD)
+	pink_unused
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_FREEBSD)
+	pid_t pid;
+	int sig;
+
+	sig = 0;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &sig))
+		return NULL;
+
+	if (!pink_trace_syscall_entry(pid, sig))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_FREEBSD) */
+}
+
+static char pinkpy_trace_syscall_exit_doc[] = ""
+	"Restarts the stopped child process and arranges it to be stopped after the\n"
+	"exit of the next system call.\n"
+	"\n"
+	"@note: Availability: FreeBSD\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
+	"@see: pinktrace.trace.cont";
+static PyObject *
+pinkpy_trace_syscall_exit(pink_unused PyObject *self,
+#if !defined(PINKTRACE_FREEBSD)
+	pink_unused
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_FREEBSD)
+	pid_t pid;
+	int sig;
+
+	sig = 0;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &sig))
+		return NULL;
+
+	if (!pink_trace_syscall_exit(pid, sig))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_FREEBSD) */
+}
+
 static char pinkpy_trace_geteventmsg_doc[] = ""
 	"Retrieve a message (as an I{unsigned long}) about the trace event that just\n"
 	"happened, placing it in the location given by the second argument. For B{EXIT}\n"
 	"event this is the child's exit status. For B{FORK}, B{VFORK}, B{CLONE} and B{VFORK_DONE}\n"
 	"events this is the process ID of the new process.\n"
 	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@rtype: long\n"
 	"@return: The event message";
 static PyObject *
-pinkpy_trace_geteventmsg(pink_unused PyObject *self, PyObject *args)
+pinkpy_trace_geteventmsg(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	unsigned long data;
 
@@ -166,18 +250,29 @@ pinkpy_trace_geteventmsg(pink_unused PyObject *self, PyObject *args)
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return PyLong_FromUnsignedLong(data);
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char pinkpy_trace_setup_doc[] = ""
 	"Sets the tracing options.\n"
+	"\n"
+	"@note: Availability: Linux\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
 	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_trace_setup(pink_unused PyObject *self, PyObject *args)
+pinkpy_trace_setup(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	int opts;
 
@@ -189,6 +284,10 @@ pinkpy_trace_setup(pink_unused PyObject *self, PyObject *args)
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char pinkpy_trace_attach_doc[] = ""
@@ -240,8 +339,13 @@ pinkpy_trace_detach(pink_unused PyObject *self, PyObject *args)
 }
 
 static void
-trace_init(PyObject *mod)
+trace_init(
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *mod)
 {
+#if defined(PINKTRACE_LINUX)
 	PyModule_AddIntConstant(mod, "OPTION_SYSGOOD", PINK_TRACE_OPTION_SYSGOOD);
 	PyModule_AddIntConstant(mod, "OPTION_FORK", PINK_TRACE_OPTION_FORK);
 	PyModule_AddIntConstant(mod, "OPTION_VFORK", PINK_TRACE_OPTION_VFORK);
@@ -250,6 +354,7 @@ trace_init(PyObject *mod)
 	PyModule_AddIntConstant(mod, "OPTION_VFORK_DONE", PINK_TRACE_OPTION_VFORK_DONE);
 	PyModule_AddIntConstant(mod, "OPTION_EXIT", PINK_TRACE_OPTION_EXIT);
 	PyModule_AddIntConstant(mod, "OPTION_ALL", PINK_TRACE_OPTION_ALL);
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char trace_doc[] = "Pink's low level wrappers around I{ptrace(2)} internals";
@@ -259,6 +364,8 @@ static PyMethodDef trace_methods[] = {
 	{"kill", pinkpy_trace_kill, METH_VARARGS, pinkpy_trace_kill_doc},
 	{"singlestep", pinkpy_trace_singlestep, METH_VARARGS, pinkpy_trace_singlestep_doc},
 	{"syscall", pinkpy_trace_syscall, METH_VARARGS, pinkpy_trace_syscall_doc},
+	{"syscall_entry", pinkpy_trace_syscall_entry, METH_VARARGS, pinkpy_trace_syscall_entry_doc},
+	{"syscall_exit", pinkpy_trace_syscall_exit, METH_VARARGS, pinkpy_trace_syscall_exit_doc},
 	{"geteventmsg", pinkpy_trace_geteventmsg, METH_VARARGS, pinkpy_trace_geteventmsg_doc},
 	{"setup", pinkpy_trace_setup, METH_VARARGS, pinkpy_trace_setup_doc},
 	{"attach", pinkpy_trace_attach, METH_VARARGS, pinkpy_trace_attach_doc},

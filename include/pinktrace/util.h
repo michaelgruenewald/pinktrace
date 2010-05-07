@@ -44,8 +44,11 @@
 #define PINK_MAX_INDEX 6
 
 /**
- * Reads a word at the given offset in the child's USER area,
- * and places it in res.
+ * On FreeBSD this reads a single int of data at the given offset in the traced
+ * process's instruction space and places it in res, aka PT_READ_I.
+ *
+ * On Linux this reads a word at the given offset in the child's USER area, and
+ * places it in res, aka PTRACE_PEEKUSER.
  *
  * \note Mostly for internal use, use higher level functions where possible.
  *
@@ -59,8 +62,11 @@ bool
 pink_util_peek(pid_t pid, long off, long *res);
 
 /**
- * Reads a word at the given offset in the child's memory,
- * and places it in res.
+ * On FreeBSD this reads a single int of data at the given offset in the traced
+ * process's data space and places it in res, aka PT_READ_D.
+ *
+ * On Linux this reads a word at the given offset in the child's memory, and
+ * places it in res, aka PTRACE_PEEKDATA.
  *
  * \note Mostly for internal use, use higher level functions where possible.
  *
@@ -74,7 +80,11 @@ bool
 pink_util_peekdata(pid_t pid, long off, long *res);
 
 /**
- * Copies the word val to the given offset in the child's USER area.
+ * On FreeBSD this copies the given single int val to the given offset in the
+ * traced process's instruction space, aka PT_WRITE_I.
+ *
+ * On Linux this copies the word val to the given offset in the child's USER
+ * area, aka PTRACE_POKEUSER.
  *
  * \note Mostly for internal use, use higher level functions where possible.
  *
@@ -88,7 +98,11 @@ bool
 pink_util_poke(pid_t pid, long off, long val);
 
 /**
- * Copies the word data to location addr in the child's memory.
+ * On FreeBSD this copies the given single int val to the given offset in the
+ * traced process's data space, aka PT_WRITE_D.
+ *
+ * On Linux this copies the word val to location addr in the child's memory,
+ * aka PTRACE_PEEKDATA.
  *
  * \note Mostly for internal use, use higher level functions where possible.
  *
@@ -100,6 +114,30 @@ pink_util_poke(pid_t pid, long off, long val);
  **/
 bool
 pink_util_pokedata(pid_t pid, long off, long val);
+
+/**
+ * Copy the child's general purpose registers to the given location.
+ *
+ * \param pid Process ID of the child.
+ * \param regs Pointer to the structure of registers. On FreeBSD this is
+ * "struct reg" defined in <machine/reg.h>, on Linux this is "struct
+ * user_regs_struct" defined in <sys/user.h>.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_get_regs(pid_t pid, void *regs);
+
+/**
+ * Set the child's general purpose registers.
+ *
+ * \param pid Process ID of the child.
+ * \param regs Same as pink_util_get_regs()
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_util_set_regs(pid_t pid, const void *regs);
 
 /**
  * Move len bytes of data of process pid, at address addr, to our address space
@@ -131,6 +169,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
  * Like pink_util_moven() but make the additional effort of looking for a
  * terminating zero-byte.
  *
+ * \note On FreeBSD this function is equivalent to pink_util_moven().
  * \note Mostly for internal use, use higher level functions where possible.
  **/
 bool
@@ -164,9 +203,21 @@ bool
 pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 
 /**
+ * Convenience macro to write an object
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \see pink_util_putn
+ **/
+#define pink_util_put(pid, addr, objp) \
+	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
+
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
+/**
  * Like pink_util_putn() but make the additional effort not to overwrite
  * unreadable addresses. Use this e.g. to write strings safely.
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
@@ -180,24 +231,17 @@ bool
 pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 
 /**
- * Convenience macro to write an object
- *
- * \note Mostly for internal use, use higher level functions where possible.
- *
- * \see pink_util_putn
- **/
-#define pink_util_put(pid, addr, objp) \
-	pink_util_putn((pid), (addr), (const char *)(objp), sizeof *(objp))
-
-/**
  * Convenience macro to write an object safely
  *
+ * \note Availability: Linux
  * \note Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_putn_safe
  **/
 #define pink_util_put_safe(pid, addr, objp) \
 	pink_util_putn_safe((pid), (addr), (const char *)(objp), sizeof *(objp))
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Gets the last system call called by child with the given process ID.

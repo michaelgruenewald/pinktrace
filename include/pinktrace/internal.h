@@ -38,7 +38,16 @@
 #include <sys/reg.h>
 #endif /*  HAVE_SYS_REG_H */
 
+#ifdef HAVE_MACHINE_PSL_H
+#include <machine/psl.h>
+#endif /* HAVE_MACHINE_PSL_H */
+
+#ifdef HAVE_MACHINE_REG_H
+#include <machine/reg.h>
+#endif /* HAVE_MACHINE_REG_H */
+
 /* We need additional hackery on IA64 to include linux/ptrace.h. */
+#if defined(PINKTRACE_LINUX)
 #if defined(IA64)
 #ifdef HAVE_STRUCT_IA64_FPREG
 #define ia64_fpreg XXX_ia64_fpreg
@@ -52,6 +61,7 @@
 #undef ia64_fpreg
 #undef pt_all_user_regs
 #endif /* defined(IA64) */
+#endif /* defined(PINKTRACE_LINUX) */
 
 #define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 

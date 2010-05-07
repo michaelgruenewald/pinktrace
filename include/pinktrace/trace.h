@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * This define represents the trace option SYSGOOD.
  * If this flag is set in the options argument of pink_trace_setup(), when
@@ -36,6 +37,8 @@
  * (SIGTRAP | 0x80) This makes it easy for the tracer to tell the difference
  * between normal traps and those caused by a syscall. This option may not work
  * on all architectures.
+ *
+ * \note Availablity: Linux
  **/
 #define PINK_TRACE_OPTION_SYSGOOD   (1 << 0)
 /**
@@ -45,6 +48,8 @@
  * automatically start tracing the newly forked process, which will start with
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_FORK      (1 << 1)
 /**
@@ -54,6 +59,8 @@
  * automatically start tracing the newly vforked process, which will start with
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_VFORK     (1 << 2)
 /**
@@ -63,12 +70,16 @@
  * automatically start tracing the newly cloned process, which will start with
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_CLONE     (1 << 3)
 /**
  * This define represents the trace option EXEC.
  * If this flag is set in the options argument of pink_trace_setup(), stop the
  * child at the next execve(2) call with (SIGTRAP | PTRACE_EVENT_EXEC << 8)
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_EXEC      (1 << 4)
 /**
@@ -76,6 +87,8 @@
  * If this flag is set in the options argument of pink_trace_setup(), stop the
  * child at the completion of the next vfork(2) call with
  * (SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8)
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_VFORK_DONE (1 << 5)
 /**
@@ -88,11 +101,15 @@
  * notification is done after the process is finished exiting. Even though
  * context is available, the tracer cannot prevent the exit from happening at
  * this point.
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_EXIT      (1 << 6)
 
 /**
  * All trace options OR'ed together.
+ *
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_ALL \
 	(PINK_TRACE_OPTION_SYSGOOD |\
@@ -102,6 +119,8 @@
 	 PINK_TRACE_OPTION_EXEC |\
 	 PINK_TRACE_OPTION_VFORK_DONE |\
 	 PINK_TRACE_OPTION_EXIT)
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Indicates that this process is to be traced by its parent. Any signal
@@ -126,11 +145,15 @@ pink_trace_me(void);
  * signal to be delivered to the child; otherwise, no signal is delivered.
  * Thus, for example, the parent can control whether a signal sent to the child
  * is delivered or not.
+ * \param addr On FreeBSD this argument is an address specifying the place
+ * where execution is to be resumed (a new value for the program counter), or
+ * (char *)1 to indicate that execution is to pick up where it left off.
+ * On Linux, this argument is not used.
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_trace_cont(pid_t pid, int sig);
+pink_trace_cont(pid_t pid, int sig, char *addr);
 
 /**
  * Kills the traced child process with SIGKILL.
@@ -166,11 +189,44 @@ pink_trace_singlestep(pid_t pid, int sig);
 bool
 pink_trace_syscall(pid_t pid, int sig);
 
+#if defined(PINKTRACE_FREEBSD) || defined(DOXYGEN)
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry of the next system call.
+ *
+ * \note Availability: FreeBSD
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_syscall_entry(pid_t pid, int sig);
+
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry of the next system call.
+ *
+ * \note Availability: FreeBSD
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated the same was as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_syscall_exit(pid_t pid, int sig);
+#endif /* defined(PINKTRACE_FREEBSD)... */
+
+#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Retrieve a message (as an unsigned long) about the trace event that just
  * happened, placing it in the location given by the second argument. For
  * EXIT event this is the child's exit status. For FORK, VFORK, CLONE and
  * VFORK_DONE events this is the process ID of the new process.
+ *
+ * \note Availability: Linux
  *
  * \param pid Process ID of the child whose event is to be reported.
  * \param data Pointer to an unsigned long into which the message will be
@@ -184,6 +240,8 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
 /**
  * Sets the tracing options.
  *
+ * \note Availability: Linux
+ *
  * \param pid Process ID of the child to be setup.
  * \param options Bitwise OR'ed PINK_TRACE_OPTION_* flags
  *
@@ -191,6 +249,8 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
  **/
 bool
 pink_trace_setup(pid_t pid, int options);
+
+#endif /* defined(PINKTRACE_LINUX)... */
 
 /**
  * Attaches to the process specified in pid, making it a traced "child" of the

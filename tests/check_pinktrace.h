@@ -33,9 +33,6 @@
 
 #include <pinktrace/pink.h>
 
-/* Check options */
-#define CHECK_OPTIONS PINK_TRACE_OPTION_SYSGOOD
-
 Suite *
 bitness_suite_create(void);
 

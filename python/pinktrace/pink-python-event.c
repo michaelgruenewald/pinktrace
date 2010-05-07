@@ -37,14 +37,21 @@ static PyObject *EventError;
 static char pinkpy_event_decide_doc[] = ""
 	"Return the last event made by child.\n"
 	"\n"
+	"@note: Availability: Linux\n"
 	"@note: This function expects C{pinktrace.trace.OPTION_SYSGOOD} has been passed\n"
 	"to C{pinktrace.trace.setup()} or C{pinktrace.fork.fork()}.\n"
+	"\n"
 	"@param status: The status argument, received from os.waitpid() call.\n"
 	"@rtype: int\n"
 	"@return: One of the C{pinktrace.event.EVENT_*} constants";
 static PyObject *
-pinkpy_event_decide(pink_unused PyObject *self, PyObject *args)
+pinkpy_event_decide(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
 {
+#if defined(PINKTRACE_LINUX)
 	int status;
 	pink_event_t event;
 
@@ -53,6 +60,10 @@ pinkpy_event_decide(pink_unused PyObject *self, PyObject *args)
 
 	event = pink_event_decide(status);
 	return Py_BuildValue("I", event);
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 static char event_doc[] = "Pink's event handling";
@@ -62,8 +73,13 @@ static PyMethodDef event_methods[] = {
 };
 
 static void
-event_init(PyObject *mod)
+event_init(
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *mod)
 {
+#if defined(PINKTRACE_LINUX)
 	PyModule_AddIntConstant(mod, "EVENT_STOP", PINK_EVENT_STOP);
 	PyModule_AddIntConstant(mod, "EVENT_SYSCALL", PINK_EVENT_SYSCALL);
 	PyModule_AddIntConstant(mod, "EVENT_FORK", PINK_EVENT_FORK);
@@ -76,6 +92,7 @@ event_init(PyObject *mod)
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_GENUINE", PINK_EVENT_EXIT_GENUINE);
 	PyModule_AddIntConstant(mod, "EVENT_EXIT_SIGNAL", PINK_EVENT_EXIT_SIGNAL);
 	PyModule_AddIntConstant(mod, "EVENT_UNKNOWN", PINK_EVENT_UNKNOWN);
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 #if PY_MAJOR_VERSION > 2

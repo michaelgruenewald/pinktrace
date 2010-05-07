@@ -40,8 +40,8 @@ class TestPinkSocketAddress < Test::Unit::TestCase
     end
   end
 
-  def test_address_decode_esrch
-    assert_raise Errno::ESRCH do
+  def test_address_decode_eperm
+    assert_raise Errno::EPERM do
       PinkTrace::Socket.decode_address 0, 1
     end
   end
@@ -73,51 +73,40 @@ class TestPinkSocketAddress < Test::Unit::TestCase
     end
   end
 
-  def test_address_decode_esrch
-    assert_raise Errno::ESRCH do
+  def test_address_decode_eperm
+    assert_raise Errno::EPERM do
       PinkTrace::Socket.decode_address_fd 0, 1
     end
   end
-
 end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-unless PinkTrace::Syscall.name 0
-  exit 0
-end
+if PinkTrace::Syscall.name 0
+  class TestPinkSocketAddress
+    TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 
-class TestPinkSocketAddress
-  TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
+    def test_address_decode
+      pid = fork do
+        PinkTrace::Trace.me
+        Process.kill 'STOP', Process.pid
 
-  def test_address_decode
-    pid = fork do
-      PinkTrace::Trace.me
-      Process.kill 'STOP', Process.pid
-
-      UNIXSocket.new TEST_UNIX_SOCKET
-    end
-    Process.waitpid pid
-    PinkTrace::Trace.setup pid
-
-    # Loop until we get to the connect() system call.
-    event = -1
-    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-      PinkTrace::Trace.syscall pid
+        UNIXSocket.new TEST_UNIX_SOCKET
+      end
       Process.waitpid pid
+      assert $?.stopped?, "#{$?}"
+      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
 
-      event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::EVENT_SYSCALL
+      # Loop until we get to the connect() system call.
+      loop do
+        PinkTrace::Trace.syscall_entry pid
+        Process.waitpid pid
+        assert $?.stopped?, "#{$?}"
+        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
+
         scno = PinkTrace::Syscall.get_no pid
         name = PinkTrace::Syscall.name scno
-
-        if name == 'socketcall'
-          subcall = PinkTrace::Socket.decode_call pid
-          subname = PinkTrace::Socket.name subcall
-          next unless subname == 'connect'
-        else
-          next unless name == 'connect'
-        end
+        next unless name == 'connect'
 
         # We are at the beginning of the connect() call!
         addr = PinkTrace::Socket.decode_address pid, 1
@@ -127,40 +116,32 @@ class TestPinkSocketAddress
         assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
       end
+
+      begin PinkTrace::Trace.kill pid
+      rescue Errno::ESRCH ;end
     end
 
-    begin PinkTrace::Trace.kill pid
-    rescue Errno::ESRCH ;end
-  end
+    def test_decode_address_fd
+      pid = fork do
+        PinkTrace::Trace.me
+        Process.kill 'STOP', Process.pid
 
-  def test_decode_address_fd
-    pid = fork do
-      PinkTrace::Trace.me
-      Process.kill 'STOP', Process.pid
-
-      UNIXSocket.new TEST_UNIX_SOCKET
-    end
-    Process.waitpid pid
-    PinkTrace::Trace.setup pid
-
-    # Loop until we get to the connect() system call.
-    event = -1
-    while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-      PinkTrace::Trace.syscall pid
+        UNIXSocket.new TEST_UNIX_SOCKET
+      end
       Process.waitpid pid
+      assert $?.stopped?, "#{$?}"
+      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
 
-      event = PinkTrace::Event.decide
-      if event == PinkTrace::Event::EVENT_SYSCALL
+      # Loop until we get to the connect() system call.
+      loop do
+        PinkTrace::Trace.syscall_entry pid
+        Process.waitpid pid
+        assert $?.stopped?, "#{$?}"
+        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
+
         scno = PinkTrace::Syscall.get_no pid
         name = PinkTrace::Syscall.name scno
-
-        if name == 'socketcall'
-          subcall = PinkTrace::Socket.decode_call pid
-          subname = PinkTrace::Socket.name subcall
-          next unless subname == 'connect'
-        else
-          next unless name == 'connect'
-        end
+        next unless name == 'connect'
 
         # We are at the beginning of the connect() call!
         addr, fd = PinkTrace::Socket.decode_address_fd pid, 1
@@ -171,9 +152,9 @@ class TestPinkSocketAddress
         assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
         break
       end
-    end
 
-    begin PinkTrace::Trace.kill pid
-    rescue Errno::ESRCH ;end
+      begin PinkTrace::Trace.kill pid
+      rescue Errno::ESRCH ;end
+    end
   end
 end
