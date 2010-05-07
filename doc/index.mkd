@@ -136,7 +136,7 @@ FreeBSD and Linux operating systems are supported.
 The supported architectures are:
 
 - [x86](http://en.wikipedia.org/wiki/X86)
-- [x86\_64](http://en.wikipedia.org/wiki/X86_64) (Linux only)
+- [x86\_64](http://en.wikipedia.org/wiki/X86_64)
 - [ia64](http://en.wikipedia.org/wiki/Ia64) (Linux only)
 - [ppc](http://en.wikipedia.org/wiki/PowerPC) (Linux only)
 - [ppc64](http://en.wikipedia.org/wiki/Ppc64) (Linux only)
