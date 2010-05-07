@@ -29,3 +29,4 @@ end
 PinkTrace::Trace.setup pid
 # Let the child continue...
 PinkTrace::Trace.cont pid
+Process.wait
