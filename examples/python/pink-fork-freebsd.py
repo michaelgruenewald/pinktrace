@@ -28,3 +28,4 @@ else: # parent
 
     # Let the child continue...
     pinktrace.trace.cont(pid)
+    os.waitpid(pid, 0)
