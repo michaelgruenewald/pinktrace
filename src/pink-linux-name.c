@@ -18,31 +18,26 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdio.h> /* NULL */
+
+#include <asm/unistd.h>
+
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
-#if defined(I386) || defined(IA64) || defined(POWERPC) || defined(POWERPC64)
+static const struct {
+    int no;
+    const char *name;
+} sysnames[] = {
+#include "pink-linux-syscallent.h"
+    {-1,    NULL}
+};
+
 const char *
-pink_name_syscall(long scno, pink_unused pink_bitness_t bitness)
+pink_name_syscall_nobitness(long scno)
 {
-#if defined(PINKTRACE_FREEBSD)
-#if defined(I386)
-	return pink_name_syscall_i386(scno);
-#endif
-#elif defined(PINKTRACE_LINUX)
-	return pink_name_syscall_nobitness(scno);
-#else
-#error unsupported operating system
-#endif
+	for (unsigned int i = 0; sysnames[i].name != NULL; i++)
+		if (scno == sysnames[i].no)
+			return sysnames[i].name;
+	return NULL;
 }
-#elif defined(X86_64)
-const char *
-pink_name_syscall(long scno, pink_bitness_t bitness)
-{
-	return (bitness == PINK_BITNESS_32)
-		? pink_name_syscall32(scno)
-		: pink_name_syscall64(scno);
-}
-#else
-#error unsupported architecture
-#endif

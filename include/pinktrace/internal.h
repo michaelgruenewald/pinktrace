@@ -67,6 +67,10 @@
 
 #include <pinktrace/socket.h>
 
+#if defined(PINKTRACE_FREEBSD)
+const char *
+pink_name_syscall_i386(long scno);
+#elif defined(PINKTRACE_LINUX)
 const char *
 pink_name_syscall_nobitness(long scno);
 
@@ -75,6 +79,7 @@ pink_name_syscall32(long scno);
 
 const char *
 pink_name_syscall64(long scno);
+#endif
 
 bool
 pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,

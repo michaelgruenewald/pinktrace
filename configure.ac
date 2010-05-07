@@ -72,6 +72,8 @@ AC_PROG_LN_S
 dnl }}}
 
 dnl {{{ Check for supported operating system
+KERNSRC_DEFAULT=/usr/src/sys/kern
+AC_ARG_VAR([KERNSRC], [Path to the kernel sources for FreeBSD (default: $KERNSRC_DEFAULT)])
 AC_MSG_CHECKING([for supported operating system])
 case "$host_os" in
 freebsd*)
@@ -79,6 +81,21 @@ freebsd*)
 	AC_MSG_RESULT([$host_os])
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_FREEBSD"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_FREEBSD"
+	dnl Check for kernel sources, required to generate syscall names.
+	AC_MSG_CHECKING([for kernel sources])
+	if test x"$KERNSRC" = x ; then
+		if test -d "$KERNSRC_DEFAULT" ; then
+			KERNSRC="$KERNSRC_DEFAULT"
+		else
+			AC_MSG_RESULT([NO!])
+			AC_MSG_ERROR([Kernel sources not found under $KERNSRC_DEFAULT])
+		fi
+	elif ! test -d "$KERNSRC" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Not a directory: $KERNSRC])
+	fi
+	AC_MSG_RESULT([$KERNSRC])
+	AC_SUBST([KERNSRC])
 	;;
 linux*)
 	opsys="linux"

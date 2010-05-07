@@ -20,36 +20,17 @@
 
 #include <stdio.h> /* NULL */
 
-#if defined(PINKTRACE_FREEBSD)
-#include <sys/syscall.h>
-#elif defined(PINKTRACE_LINUX)
-#include <asm/unistd.h>
-#else
-#error unsupported operating system
-#endif
-
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
-static const struct {
-    int no;
-    const char *name;
-} sysnames[] = {
-#if defined(PINKTRACE_FREEBSD)
 #include "pink-freebsd-syscallent.h"
-#elif defined(PINKTRACE_LINUX)
-#include "pink-linux-syscallent.h"
-#else
-#error unsupported operating system
-#endif
-    {-1,    NULL}
-};
+
+static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 
 const char *
-pink_name_syscall_nobitness(long scno)
+pink_name_syscall_i386(long scno)
 {
-	for (unsigned int i = 0; sysnames[i].name != NULL; i++)
-		if (scno == sysnames[i].no)
-			return sysnames[i].name;
-	return NULL;
+	if (scno < 0 || scno > nsys)
+		return NULL;
+	return sysnames[scno];
 }
