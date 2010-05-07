@@ -38,45 +38,9 @@ class TestPinkString < Test::Unit::TestCase
     end
   end
 
-  def test_string_decode_esrch
-    assert_raise Errno::ESRCH do
+  def test_string_decode_eperm
+    assert_raise Errno::EPERM do
       PinkTrace::String.decode 0, 1
-    end
-  end
-
-  def test_string_encode_invalid
-    assert_raise ArgumentError do
-      PinkTrace::String.encode
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode 0, 1
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode 0, 1, 2, 3, 4
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode 'pink', 1, 'floyd'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode 0, 'pink', 'floyd'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode 0, 1, Object
-    end
-    assert_raise PinkTrace::BitnessError do
-      PinkTrace::String.encode 0, 1, 'pink', 13
-    end
-    assert_raise PinkTrace::IndexError do
-      PinkTrace::String.encode 0, PinkTrace::MAX_INDEX, 'pink'
-    end
-  end
-
-  def test_string_encode_esrch
-    assert_raise Errno::ESRCH do
-      PinkTrace::String.encode 0, 1, 'pink'
     end
   end
 
@@ -110,8 +74,8 @@ class TestPinkString < Test::Unit::TestCase
     end
   end
 
-  def test_string_encode_unsafe_esrch
-    assert_raise Errno::ESRCH do
+  def test_string_encode_unsafe_eperm
+    assert_raise Errno::EPERM do
       PinkTrace::String.encode! 0, 1, 'pink'
     end
   end
@@ -119,7 +83,7 @@ end
 
 # These test cases depend on generated system call names.
 # Don't run them if they weren't generated.
-if PinKTrace::Syscall.name 0
+if PinkTrace::Syscall.name 0
   class TestPinkString
     def test_string_decode
       pid = fork do
@@ -129,24 +93,23 @@ if PinKTrace::Syscall.name 0
         File.open '/dev/null'
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      assert $?.stopped?, "#{$?}"
+      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
 
       # Loop until we get to the open() system call as there's no guarantee that
       # other system calls won't be called beforehand.
-      event = -1
-      while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-        PinkTrace::Trace.syscall pid
+      loop do
+        PinkTrace::Trace.syscall_entry pid
         Process.waitpid pid
+        assert $?.stopped?, "#{$?}"
+        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-        event = PinkTrace::Event.decide
-        if event == PinkTrace::Event::EVENT_SYSCALL then
-          scno = PinkTrace::Syscall.get_no pid
-          name = PinkTrace::Syscall.name scno
-          if name == 'open' then
-            s = PinkTrace::String.decode pid, 0
-            assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
-            break
-          end
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
+        if name == 'open'
+          path = PinkTrace::String.decode pid, 0
+          assert(path == '/dev/null', "#{path}")
+          break
         end
       end
 
@@ -162,24 +125,23 @@ if PinKTrace::Syscall.name 0
         File.open '/dev/null'
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      assert $?.stopped?, "#{$?}"
+      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
 
       # Loop until we get to the open() system call as there's no guarantee that
       # other system calls won't be called beforehand.
-      event = -1
-      while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-        PinkTrace::Trace.syscall pid
+      loop do
+        PinkTrace::Trace.syscall_entry pid
         Process.waitpid pid
+        assert $?.stopped?, "#{$?}"
+        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-        event = PinkTrace::Event.decide
-        if event == PinkTrace::Event::EVENT_SYSCALL then
-          scno = PinkTrace::Syscall.get_no pid
-          name = PinkTrace::Syscall.name scno
-          if name == 'open' then
-            s = PinkTrace::String.decode pid, 0, 10
-            assert(s == '/dev/null', "Wrong string, expected: /dev/null got: '#{s}'")
-            break
-          end
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
+        if name == 'open'
+          path = PinkTrace::String.decode pid, 0, 10
+          assert(path == '/dev/null', "#{path}")
+          break
         end
       end
 
@@ -187,40 +149,34 @@ if PinKTrace::Syscall.name 0
       rescue Errno::ESRCH ;end
     end
 
-    def test_string_encode
+    def test_string_encode_unsafe
       pid = fork do
         PinkTrace::Trace.me
         Process.kill 'STOP', Process.pid
 
-        begin
-          File.open '/dev/null'
-        rescue Errno::ENOENT
-          exit 0
-        end
-        exit 1
+        File.open '/dev/null'
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      assert $?.stopped?, "#{$?}"
+      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
 
       # Loop until we get to the open() system call as there's no guarantee that
       # other system calls won't be called beforehand.
-      event = -1
-      while event != PinkTrace::Event::EVENT_EXIT_GENUINE
-        PinkTrace::Trace.syscall pid
+      loop do
+        PinkTrace::Trace.syscall_entry pid
         Process.waitpid pid
+        assert $?.stopped?, "#{$?}"
+        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-        event = PinkTrace::Event.decide
-        if event == PinkTrace::Event::EVENT_SYSCALL then
-          scno = PinkTrace::Syscall.get_no pid
-          name = PinkTrace::Syscall.name scno
-          if name == 'open' then
-            PinkTrace::String.encode pid, 0, '/dev/NULL'
-          end
+        scno = PinkTrace::Syscall.get_no pid
+        name = PinkTrace::Syscall.name scno
+        if name == 'open'
+          PinkTrace::String.encode! pid, 0, '/dev/NULL'
+          path = PinkTrace::String.decode pid, 0
+          assert(path == '/dev/NULL', "#{path}")
+          break
         end
       end
-
-      assert $?.exited?, "Child hasn't exited!"
-      assert($?.exitstatus == 0, "Wrong exit status, expected: 0 got: #{$?.exitstatus}")
 
       begin PinkTrace::Trace.kill pid
       rescue Errno::ESRCH ;end

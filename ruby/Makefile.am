@@ -15,18 +15,20 @@ PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
 TESTS= \
        TEST_trace.rb \
-       TEST_bitness.rb \
-       TEST_string.rb \
-       TEST_socket.rb \
-       TEST_socket_address.rb
+       TEST_bitness.rb
 if FREEBSD
 TESTS+= \
-	TEST_syscall_freebsd.rb
+	TEST_syscall_freebsd.rb \
+	TEST_string_freebsd.rb \
+	TEST_socket_address_freebsd.rb
 endif
 if LINUX
 TESTS+= \
 	TEST_event.rb \
-	TEST_syscall_linux.rb
+	TEST_syscall_linux.rb \
+	TEST_string_linux.rb \
+	TEST_socket_linux.rb \
+	TEST_socket_address_linux.rb
 endif
 
 # Remove the .la file - PinkTrace.la is never linked against (it's a module)
