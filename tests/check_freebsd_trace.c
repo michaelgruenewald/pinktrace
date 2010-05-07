@@ -106,7 +106,6 @@ START_TEST(t_trace_me_execve)
 }
 END_TEST
 
-#if 0
 START_TEST(t_trace_cont_basic)
 {
 	int status;
@@ -128,14 +127,15 @@ START_TEST(t_trace_cont_basic)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, 0), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
+		fail_unless(pink_trace_cont(pid, 0, (char *)1), "%d(%s)", errno, strerror(errno));
 
+		waitpid(pid, &status, 0);
 		fail_unless(WIFEXITED(status), "%#x", status);
 		fail_unless(WEXITSTATUS(status) == 13, "%#x", status);
 	}
 }
 END_TEST
+
 
 START_TEST(t_trace_cont_signal)
 {
@@ -158,9 +158,9 @@ START_TEST(t_trace_cont_signal)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
+		fail_unless(pink_trace_cont(pid, SIGTERM, (char *)1), "%d(%s)", errno, strerror(errno));
 
+		waitpid(pid, &status, 0);
 		fail_unless(WIFSIGNALED(status), "%#x", status);
 		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
 	}
@@ -189,8 +189,8 @@ START_TEST(t_trace_kill)
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
 		fail_unless(pink_trace_kill(pid), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
 
+		waitpid(pid, &status, 0);
 		fail_unless(WIFSIGNALED(status), "%#x", status);
 		fail_unless(WTERMSIG(status) == SIGKILL, "%#x", status);
 	}
@@ -199,111 +199,285 @@ END_TEST
 
 START_TEST(t_trace_singlestep_basic)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_singlestep(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		pink_trace_kill(pid);
+	}
 }
 END_TEST
 
 START_TEST(t_trace_singlestep_signal)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_singlestep(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
+	}
 }
 END_TEST
 
 START_TEST(t_trace_syscall_basic)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		pink_trace_kill(pid);
+	}
 }
 END_TEST
 
 START_TEST(t_trace_syscall_signal)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
+	}
 }
 END_TEST
 
-START_TEST(t_trace_setup_sysgood)
+START_TEST(t_trace_syscall_entry_basic)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall_entry(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		pink_trace_kill(pid);
+	}
 }
 END_TEST
 
-START_TEST(t_trace_setup_fork)
+START_TEST(t_trace_syscall_entry_signal)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall_entry(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
+	}
 }
 END_TEST
 
-START_TEST(t_trace_setup_vfork)
+START_TEST(t_trace_syscall_exit_basic)
 {
+	int status;
+	pid_t pid;
+
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		kill(getpid(), 0);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
+
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall_exit(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		pink_trace_kill(pid);
+	}
 }
 END_TEST
 
-START_TEST(t_trace_setup_clone)
+START_TEST(t_trace_syscall_exit_signal)
 {
-}
-END_TEST
+	int status;
+	pid_t pid;
 
-START_TEST(t_trace_setup_vforkdone)
-{
-}
-END_TEST
+	if ((pid = fork()) < 0)
+		fail("fork failed: %s", strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+		kill(getpid(), SIGSTOP);
+		_exit(13);
+	}
+	else { /* parent */
+		waitpid(pid, &status, 0);
 
-START_TEST(t_trace_setup_exit)
-{
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_syscall_exit(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
+
+		waitpid(pid, &status, 0);
+		fail_unless(WIFSIGNALED(status), "%#x", status);
+		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
+	}
 }
 END_TEST
-#endif
 
 Suite *
 trace_suite_create(void)
 {
 	Suite *s = suite_create("trace");
 
+	TCase *tc_pink_trace = tcase_create("pink_trace");
+
 	/* pink_trace_me() */
-	TCase *tc_pink_trace_me = tcase_create("pink_trace_me");
-
-	tcase_add_test(tc_pink_trace_me, t_trace_me_basic);
-	tcase_add_test(tc_pink_trace_me, t_trace_me_signal);
-	tcase_add_test(tc_pink_trace_me, t_trace_me_execve);
-
-	suite_add_tcase(s, tc_pink_trace_me);
+	tcase_add_test(tc_pink_trace, t_trace_me_basic);
+	tcase_add_test(tc_pink_trace, t_trace_me_signal);
+	tcase_add_test(tc_pink_trace, t_trace_me_execve);
 
 	/* pink_trace_cont() */
-	TCase *tc_pink_trace_cont = tcase_create("pink_trace_cont");
-
-	//tcase_add_test(tc_pink_trace_cont, t_trace_cont_basic);
-	//tcase_add_test(tc_pink_trace_cont, t_trace_cont_signal);
-
-	suite_add_tcase(s, tc_pink_trace_cont);
+	tcase_add_test(tc_pink_trace, t_trace_cont_basic);
+	tcase_add_test(tc_pink_trace, t_trace_cont_signal);
 
 	/* pink_trace_kill() */
-	TCase *tc_pink_trace_kill = tcase_create("pink_trace_kill");
-
-	//tcase_add_test(tc_pink_trace_kill, t_trace_kill);
-
-	suite_add_tcase(s, tc_pink_trace_kill);
+	tcase_add_test(tc_pink_trace, t_trace_kill);
 
 	/* pink_trace_singlestep() */
-	TCase *tc_pink_trace_singlestep = tcase_create("pink_trace_singlestep");
+	tcase_add_test(tc_pink_trace, t_trace_singlestep_basic);
+	tcase_add_test(tc_pink_trace, t_trace_singlestep_signal);
 
-	//tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_basic);
-	//tcase_add_test(tc_pink_trace_singlestep, t_trace_singlestep_signal);
+	/* pink_trace_syscall*() */
+	tcase_add_test(tc_pink_trace, t_trace_syscall_basic);
+	tcase_add_test(tc_pink_trace, t_trace_syscall_signal);
+	tcase_add_test(tc_pink_trace, t_trace_syscall_entry_basic);
+	tcase_add_test(tc_pink_trace, t_trace_syscall_entry_signal);
+	tcase_add_test(tc_pink_trace, t_trace_syscall_exit_basic);
+	tcase_add_test(tc_pink_trace, t_trace_syscall_exit_signal);
 
-	suite_add_tcase(s, tc_pink_trace_singlestep);
-
-	/* pink_trace_syscall() */
-	TCase *tc_pink_trace_syscall = tcase_create("pink_trace_syscall");
-
-	//tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_basic);
-	//tcase_add_test(tc_pink_trace_syscall, t_trace_syscall_signal);
-
-	suite_add_tcase(s, tc_pink_trace_syscall);
-
-	/* pink_trace_setup() and pink_trace_geteventmsg() */
-	TCase *tc_pink_trace_setup = tcase_create("pink_trace_setup");
-
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_sysgood);
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_fork);
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_vfork);
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_clone);
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_vforkdone);
-	//tcase_add_test(tc_pink_trace_setup, t_trace_setup_exit);
-
-	suite_add_tcase(s, tc_pink_trace_setup);
+	suite_add_tcase(s, tc_pink_trace);
 
 	return s;
 }
