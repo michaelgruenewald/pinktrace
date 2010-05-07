@@ -19,7 +19,7 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 if I386
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-name.c \
-					      pink-freebsd-trace-x86.c
+					      pink-freebsd-trace-i386.c
 endif # I386
 if X86_64
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
