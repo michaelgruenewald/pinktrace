@@ -1,6 +1,5 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
-#define SYSCALL_OFFSET 0
 	"restart_syscall", /* 0 */
 	"exit", /* 1 */
 	"fork", /* 2 */
@@ -312,3 +311,15 @@
 	"SYS_308", /* 308 */
 	"fallocate", /* 309 */
 	"subpage_prot", /* 310 */
+	"timerfd_settime", /* 311 */
+	"timerfd_gettime", /* 312 */
+	"signalfd4", /* 313 */
+	"eventfd2", /* 314 */
+	"epoll_create1", /* 315 */
+	"dup3", /* 316 */
+	"pipe2", /* 317 */
+	"inotify_init1", /* 318 */
+	"perf_event_open" /* 319 */
+	"preadv", /* 320 */
+	"pwritev", /* 321 */
+	"rt_tgsigqueueinfo", /* 322 */
