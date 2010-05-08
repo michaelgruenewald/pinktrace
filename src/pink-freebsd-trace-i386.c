@@ -63,7 +63,7 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 }
 
 bool
-pink_util_set_syscall(pid_t pid, long scno)
+pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
