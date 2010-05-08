@@ -18,8 +18,6 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <assert.h>
-#include <stdlib.h>
 #include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
@@ -37,8 +35,6 @@ pink_name_syscall_amd64(long scno, pink_bitness_t bitness)
 	int num;
 	const char **names;
 
-	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		num = nsys32;
@@ -49,7 +45,7 @@ pink_name_syscall_amd64(long scno, pink_bitness_t bitness)
 		names = sysnames;
 		break;
 	default:
-		abort();
+		return NULL;
 	}
 
 	if (scno < 0 || scno >= num)

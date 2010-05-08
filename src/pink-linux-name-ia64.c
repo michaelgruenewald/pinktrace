@@ -18,21 +18,20 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+const char *sysnames[] = {
+#include "pink-linux-syscallent-ia64.h"
+};
+
+static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
+
 const char *
-pink_name_syscall(long scno, pink_bitness_t bitness)
+pink_name_syscall_ia64(long scno, pink_bitness_t bitness)
 {
-#if defined(I386)
-	return pink_name_syscall_i386(scno, bitness);
-#elif defined(X86_64)
-	return pink_name_syscall_amd64(scno, bitness);
-#elif defined(IA64)
-	return pink_name_syscall_ia64(scno, bitness);
-#elif defined(POWERPC) || defined(POWERPC64)
-	return pink_name_syscall_powerpc(scno, bitness);
-#else
-#error unsupported architecture
-#endif
+	if (bitness != PINK_BITNESS_64)
+		return NULL;
+	if (scno < 0 || scno >= nsys)
+		return NULL;
+	return sysnames[scno];
 }

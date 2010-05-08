@@ -68,22 +68,17 @@
 #include <pinktrace/bitness.h>
 #include <pinktrace/socket.h>
 
-#if defined(PINKTRACE_FREEBSD)
 const char *
-pink_name_syscall_i386(long scno);
+pink_name_syscall_i386(long scno, pink_bitness_t bitness);
 
 const char *
 pink_name_syscall_amd64(long scno, pink_bitness_t bitness);
-#elif defined(PINKTRACE_LINUX)
-const char *
-pink_name_syscall_nobitness(long scno);
 
 const char *
-pink_name_syscall32(long scno);
+pink_name_syscall_ia64(long scno, pink_bitness_t bitness);
 
 const char *
-pink_name_syscall64(long scno);
-#endif
+pink_name_syscall_powerpc(long scno, pink_bitness_t bitness);
 
 bool
 pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,

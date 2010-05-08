@@ -20,7 +20,6 @@
 
 #include <stdio.h> /* NULL */
 
-#include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
 #include "pink-freebsd-syscallent.h"
@@ -28,8 +27,10 @@
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 
 const char *
-pink_name_syscall_i386(long scno)
+pink_name_syscall_i386(long scno, pink_bitness_t bitness)
 {
+	if (bitness != PINK_BITNESS_32)
+		return NULL;
 	if (scno < 0 || scno >= nsys)
 		return NULL;
 	return sysnames[scno];

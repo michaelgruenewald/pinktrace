@@ -21,18 +21,27 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+const char *sysnames[] = {
+#include "pink-linux-syscallent-powerpc.h"
+};
+
+static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
+
 const char *
-pink_name_syscall(long scno, pink_bitness_t bitness)
+pink_name_syscall_powerpc(long scno, pink_bitness_t bitness)
 {
-#if defined(I386)
-	return pink_name_syscall_i386(scno, bitness);
-#elif defined(X86_64)
-	return pink_name_syscall_amd64(scno, bitness);
-#elif defined(IA64)
-	return pink_name_syscall_ia64(scno, bitness);
-#elif defined(POWERPC) || defined(POWERPC64)
-	return pink_name_syscall_powerpc(scno, bitness);
+#if defined(POWERPC)
+	if (bitness != PINK_BITNESS_32)
+		return NULL;
+#elif defined(POWERPC64)
+	if (bitness != PINK_BITNESS_64)
+		return NULL;
 #else
 #error unsupported architecture
 #endif
+	if (bitness != PINK_BITNESS_32)
+		return NULL;
+	if (scno < 0 || scno >= nsys)
+		return NULL;
+	return sysnames[scno];
 }
