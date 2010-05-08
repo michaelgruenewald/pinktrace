@@ -22,7 +22,7 @@
 
 #include <pinktrace/pink.h>
 
-#include "pink-freebsd-syscallent.h"
+#include "freebsd/pink-syscallent.h"
 
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 

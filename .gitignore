@@ -59,11 +59,9 @@ python/TEST_*.py
 python/pinktrace/__init__.py
 python/pinktrace/*.so
 
-ruby/PinkTrace.so
-
-src/fbsd32-syscalls.master
-src/syscalls.master
-src/pink-freebsd-syscallent.h
-src/pink-freebsd-syscallent32.h
+src/freebsd/amd64/fbsd32-syscalls.master
+src/freebsd/amd64/pink-syscallent32.h
+src/freebsd/syscalls.master
+src/freebsd/pink-syscallent.h
 
 tests/check_pinktrace

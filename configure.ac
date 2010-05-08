@@ -508,6 +508,13 @@ AC_OUTPUT(
 		  ruby/Makefile
 		  pkg-config/Makefile
 		  src/Makefile
+		  src/freebsd/Makefile
+		  src/freebsd/amd64/Makefile
+		  src/linux/Makefile
+		  src/linux/x86/Makefile
+		  src/linux/x86_64/Makefile
+		  src/linux/ia64/Makefile
+		  src/linux/powerpc/Makefile
 		  tests/Makefile
 	)
 dnl }}}
