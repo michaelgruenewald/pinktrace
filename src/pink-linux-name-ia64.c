@@ -31,6 +31,11 @@ pink_name_syscall_ia64(long scno, pink_bitness_t bitness)
 {
 	if (bitness != PINK_BITNESS_64)
 		return NULL;
+
+#ifdef SYSCALL_OFFSET_IA64
+	scno -= SYSCALL_OFFSET_IA64;
+#endif
+
 	if (scno < 0 || scno >= nsys)
 		return NULL;
 	return sysnames[scno];
