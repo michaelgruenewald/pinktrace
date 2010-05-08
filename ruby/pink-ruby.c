@@ -851,18 +851,8 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
  *
  * Return the name of the given system call.
  *
- * Note: This call depends on the generated system call names.
- *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
- *
- * You can check whether they are generated with:
- *
- *   unless PinkTrace::Syscall.name 0
- *     # Names weren't generated
- *   else
- *     # Names were generated
- *   end
  */
 static VALUE
 pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
