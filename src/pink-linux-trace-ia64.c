@@ -53,13 +53,13 @@ pink_bitness_get(pink_unused pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, long *res)
+pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
 	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, long scno)
+pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
 	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
@@ -163,14 +163,14 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 }
 
 bool
-pink_decode_socket_call(pid_t pid, pink_unused pink_bitness_t bitness, long *subcall_r)
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 {
 	long addr;
 
 	assert(subcall_r != NULL);
 
 	/* No decoding needed */
-	if (!pink_util_get_syscall(pid, subcall_r))
+	if (!pink_util_get_syscall(pid, bitness, subcall_r))
 		return false;
 
 	return true;

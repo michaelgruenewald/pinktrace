@@ -1,6 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 #include <assert.h>
+#include <err.h>
 #include <errno.h>
 #include <sys/syscall.h>
 #include <sys/wait.h>
@@ -14,6 +15,13 @@
 #include <pinktrace/pink.h>
 
 #define MAX_STRING_LEN 128
+
+struct child {
+	pid_t pid;
+	pink_bitness_t bitness;
+	bool insyscall;
+	bool dead;
+};
 
 /* Utility functions */
 static void
@@ -67,21 +75,6 @@ print_open_flags(long flags)
 		printf("%#x", (unsigned)flags);
 }
 
-/* A generic decoder for system calls. */
-static void
-decode_simple(pink_bitness_t bitness, long scno)
-{
-	const char *scname;
-
-	/* Figure out the name of the system call. */
-	scname = pink_name_syscall(scno, bitness);
-	if (scname == NULL)
-		printf("%ld", scno);
-	else
-		printf("%s", scname);
-	printf("()");
-}
-
 /* A very basic decoder for open(2) system call. */
 static void
 decode_open(pid_t pid, pink_bitness_t bitness)
@@ -105,15 +98,47 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 	fputc(')', stdout);
 }
 
+static void
+handle_syscall(struct child *son)
+{
+	long scno;
+	const char *scname;
+
+	/* We get this event twice, one at entering a
+	 * system call and one at exiting a system
+	 * call. */
+	if (son->insyscall) {
+		/* Exiting the system call, print the
+		 * return value. */
+		son->insyscall = false;
+		fputc(' ', stdout);
+		print_ret(son->pid);
+		fputc('\n', stdout);
+	}
+	else {
+		/* Get the system call number and call
+		 * the appropriate decoder. */
+		son->insyscall = true;
+		if (!pink_util_get_syscall(son->pid, son->bitness, &scno)) {
+			perror("pink_util_get_syscall");
+			return;
+		}
+		scname = pink_name_syscall(scno, son->bitness);
+		if (!scname)
+			printf("%ld()", scno);
+		else if (!strcmp(scname, "open"))
+			decode_open(son->pid, son->bitness);
+		else
+			printf("%s()", scname);
+	}
+}
+
 int
 main(int argc, char **argv)
 {
-	bool dead, insyscall;
 	int sig, status, exit_code;
-	long scno;
-	pid_t pid;
-	pink_bitness_t bitness;
 	pink_event_t event;
+	struct child son;
 
 	/* Parse arguments */
 	if (argc < 2) {
@@ -122,11 +147,11 @@ main(int argc, char **argv)
 	}
 
 	/* Fork */
-	if ((pid = fork()) < 0) {
+	if ((son.pid = fork()) < 0) {
 		perror("fork");
 		return EXIT_FAILURE;
 	}
-	else if (!pid) { /* child */
+	else if (!son.pid) { /* child */
 		/* Set up for tracing */
 		if (!pink_trace_me()) {
 			perror("pink_trace_me");
@@ -141,35 +166,37 @@ main(int argc, char **argv)
 		_exit(-1);
 	}
 	else {
-		waitpid(pid, &status, 0);
+		waitpid(son.pid, &status, 0);
 		event = pink_event_decide(status);
 		assert(event == PINK_EVENT_STOP);
 
 		/* Set up the tracing options. */
-		if (!pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC)) {
+		if (!pink_trace_setup(son.pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC)) {
 			perror("pink_trace_setup");
-			pink_trace_kill(pid);
+			pink_trace_kill(son.pid);
 			return EXIT_FAILURE;
 		}
 
 		/* Figure out the bitness of the traced child. */
-		bitness = pink_bitness_get(pid);
-		printf("Child %i runs in %s mode\n", pid, pink_bitness_tostring(bitness));
+		son.bitness = pink_bitness_get(son.pid);
+		if (son.bitness == PINK_BITNESS_UNKNOWN)
+			err(EXIT_FAILURE, "pink_bitness_get");
+		printf("Child %i runs in %s mode\n", son.pid, pink_bitness_tostring(son.bitness));
 
-		dead = insyscall = false;
+		son.dead = son.insyscall = false;
 		sig = exit_code = 0;
 		for (;;) {
 			/* At this point the traced child is stopped and needs
 			 * to be resumed.
 			 */
-			if (!pink_trace_syscall(pid, sig)) {
+			if (!pink_trace_syscall(son.pid, sig)) {
 				perror("pink_trace_syscall");
 				return (errno == ESRCH) ? 0 : 1;
 			}
 			sig = 0;
 
 			/* Wait for the child */
-			if ((pid = waitpid(pid, &status, 0)) < 0) {
+			if ((son.pid = waitpid(son.pid, &status, 0)) < 0) {
 				perror("waitpid");
 				return (errno == ECHILD) ? 0 : 1;
 			}
@@ -178,32 +205,17 @@ main(int argc, char **argv)
 			event = pink_event_decide(status);
 			switch (event) {
 			case PINK_EVENT_SYSCALL:
-				/* We get this event twice, one at entering a
-				 * system call and one at exiting a system
-				 * call. */
-				if (insyscall) {
-					/* Exiting the system call, print the
-					 * return value. */
-					fputc(' ', stdout);
-					print_ret(pid);
-					fputc('\n', stdout);
-					insyscall = false;
-				}
-				else {
-					/* Get the system call number and call
-					 * the appropriate decoder. */
-					if (!pink_util_get_syscall(pid, &scno))
-						perror("pink_util_get_syscall");
-					else if (scno == SYS_open)
-						decode_open(pid, bitness);
-					else
-						decode_simple(bitness, scno);
-					insyscall = true;
-				}
+				handle_syscall(&son);
+				break;
 				break;
 			case PINK_EVENT_EXEC:
 				/* Update bitness */
-				bitness = pink_bitness_get(pid);
+				son.bitness = pink_bitness_get(son.pid);
+				if (son.bitness == PINK_BITNESS_UNKNOWN)
+					err(EXIT_FAILURE, "pink_bitness_get");
+				else
+					printf(" (Updating the bitness of child %i to %s mode)\n",
+						son.pid, pink_bitness_tostring(son.bitness));
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:
@@ -215,20 +227,20 @@ main(int argc, char **argv)
 			case PINK_EVENT_EXIT_GENUINE:
 				exit_code = WEXITSTATUS(status);
 				printf("Child %i exited normally with return code %d\n",
-						pid, exit_code);
-				dead = true;
+						son.pid, exit_code);
+				son.dead = true;
 				break;
 			case PINK_EVENT_EXIT_SIGNAL:
 				exit_code = 128 + WTERMSIG(status);
 				printf("Child %i exited with signal %d\n",
-						pid, WTERMSIG(status));
-				dead = true;
+						son.pid, WTERMSIG(status));
+				son.dead = true;
 				break;
 			default:
 				/* Nothing */
 				;
 			}
-			if (dead)
+			if (son.dead)
 				break;
 		}
 

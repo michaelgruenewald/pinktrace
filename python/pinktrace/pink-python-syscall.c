@@ -65,6 +65,7 @@ static char pinkpy_syscall_get_no_doc[] = ""
 	"Returns the last system call number called by the traced child.\n"
 	"\n"
 	"@param pid: Process ID of the traced child\n"
+	"@param bitness: Bitness of the traced child\n"
 	"@raise OSError: Raised when the underlying ptrace call fails.\n"
 	"@rtype: long\n"
 	"@return: The number of the system call";
@@ -72,12 +73,17 @@ static PyObject *
 pinkpy_syscall_get_no(pink_unused PyObject *self, PyObject *args)
 {
 	pid_t pid;
+	pink_bitness_t bit;
 	long scno;
 
-	if (!PyArg_ParseTuple(args, PARSE_PID, &pid))
+	bit = PINKTRACE_DEFAULT_BITNESS;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|I", &pid, &bit))
 		return NULL;
 
-	if (!pink_util_get_syscall(pid, &scno))
+	if (!check_bitness(bit))
+		return NULL;
+
+	if (!pink_util_get_syscall(pid, bit, &scno))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("l", scno);
@@ -88,17 +94,23 @@ static char pinkpy_syscall_set_no_doc[] = ""
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param scno: The number of the system call\n"
+	"@param bitness: Bitness of the traced child\n"
 	"@raise OSError: Raised when the underlying ptrace call fails.\n";
 static PyObject *
 pinkpy_syscall_set_no(pink_unused PyObject *self, PyObject *args)
 {
 	pid_t pid;
+	pink_bitness_t bit;
 	long scno;
 
-	if (!PyArg_ParseTuple(args, PARSE_PID"l", &pid, &scno))
+	bit = PINKTRACE_DEFAULT_BITNESS;
+	if (!PyArg_ParseTuple(args, PARSE_PID"l|I", &pid, &scno, &bit))
 		return NULL;
 
-	if (!pink_util_set_syscall(pid, scno))
+	if (!check_bitness(bit))
+		return NULL;
+
+	if (!pink_util_set_syscall(pid, bit, scno))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");

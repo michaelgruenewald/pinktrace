@@ -49,13 +49,13 @@ pink_bitness_get(pink_unused pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, long *res)
+pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
 	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, long scno)
+pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
 	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }

@@ -23,22 +23,54 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <sys/syscall.h>
+#include <string.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
+#include <sys/sysctl.h>
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+struct bitness_types {
+	const char *type;
+	pink_bitness_t bitness;
+} bitness_types[] = {
+	{"FreeBSD ELF64", PINK_BITNESS_64},
+	{"FreeBSD ELF32", PINK_BITNESS_32},
+	{NULL, -1}
+};
+
 pink_bitness_t
-pink_bitness_get(pink_unused pid_t pid)
+pink_bitness_get(pid_t pid)
 {
-	return PINK_BITNESS_64;
+	char progt[32];
+	size_t len = sizeof(progt);
+	int mib[4];
+	struct bitness_types *walk;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_SV_NAME;
+	mib[3] = pid;
+
+	if (sysctl(mib, 4, progt, &len, NULL, 0) < 0)
+		return PINK_BITNESS_UNKNOWN;
+
+	for (walk = bitness_types; walk->type; walk++) {
+		if (!strcmp(walk->type, progt))
+			return walk->bitness;
+	}
+
+	return PINK_BITNESS_UNKNOWN;
 }
 
 bool
-pink_util_get_syscall(pid_t pid, long *res)
+pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res)
 {
+	long parm_offset;
 	struct reg r;
+
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 
 	if (!pink_util_get_regs(pid, &r))
 		return false;
@@ -52,7 +84,13 @@ pink_util_get_syscall(pid_t pid, long *res)
 	switch (*res) {
 	case SYS_syscall:
 	case SYS___syscall:
-		*res = r.r_rdi;
+		if (bitness == PINK_BITNESS_32) {
+			parm_offset = r.r_rsp + sizeof(int);
+			if (!pink_util_peekdata(pid, parm_offset, res))
+				return false;
+		}
+		else
+			*res = r.r_rdi;
 		return true;
 	default:
 		return true;
@@ -60,7 +98,7 @@ pink_util_get_syscall(pid_t pid, long *res)
 }
 
 bool
-pink_util_set_syscall(pid_t pid, long scno)
+pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
@@ -114,11 +152,12 @@ pink_util_set_return(pid_t pid, long ret)
 }
 
 bool
-pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
+pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 {
 	unsigned parm_offset;
 	struct reg r;
 
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
 	if (!pink_util_get_regs(pid, &r))
@@ -129,13 +168,29 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
 	 * routine, basicly; the latter is for quad-aligned arguments.
 	 */
+	parm_offset = r.r_rsp + (bitness == PINK_BITNESS_32 ? sizeof(int) : sizeof(register_t));
 	switch (r.r_rax) {
 	case SYS_syscall:
+		if (bitness == PINK_BITNESS_64)
+			++ind;
+		else
+			parm_offset += sizeof(int);
+		break;
 	case SYS___syscall:
-		++ind;
+		if (bitness == PINK_BITNESS_64)
+			++ind;
+		else
+			parm_offset += sizeof(quad_t);
 		break;
 	default:
 		break;
+	}
+
+	if (bitness == PINK_BITNESS_32) {
+		parm_offset += ind * sizeof(int);
+		if (!pink_util_peekdata(pid, parm_offset, res))
+			return false;
+		return true;
 	}
 
 	switch (ind) {
@@ -159,7 +214,6 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 		break;
 	case 6:
 		/* system call redirection */
-		parm_offset = r.r_rsp + sizeof(register_t);
 		if (!pink_util_peekdata(pid, parm_offset, res))
 			return false;
 		break;

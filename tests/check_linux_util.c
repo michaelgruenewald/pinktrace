@@ -76,7 +76,8 @@ START_TEST(t_util_get_syscall)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_syscall(pid, &scno), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == SYS_getpid, "%ld != %ld", SYS_getpid, scno);
 
 		pink_trace_kill(pid);
@@ -124,8 +125,10 @@ START_TEST(t_util_set_syscall)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_set_syscall(pid, 0xbadca11), "%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_syscall(pid, &scno), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == 0xbadca11, "%ld != %ld", 0xbadca11, scno);
 
 		pink_trace_kill(pid);

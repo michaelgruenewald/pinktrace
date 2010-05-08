@@ -36,7 +36,7 @@ pink_bitness_get(pink_unused pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, long *res)
+pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
 	unsigned parm_offset;
 	struct reg r;
