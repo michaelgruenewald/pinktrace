@@ -65,11 +65,15 @@
 
 #define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 
+#include <pinktrace/bitness.h>
 #include <pinktrace/socket.h>
 
 #if defined(PINKTRACE_FREEBSD)
 const char *
 pink_name_syscall_i386(long scno);
+
+const char *
+pink_name_syscall_amd64(long scno, pink_bitness_t bitness);
 #elif defined(PINKTRACE_LINUX)
 const char *
 pink_name_syscall_nobitness(long scno);

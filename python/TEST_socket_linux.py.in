@@ -11,7 +11,6 @@ import pinktrace.socket
 import pinktrace.syscall
 import pinktrace.trace
 
-## FIXME: The test cases below must be skipped if system call names weren't generated.
 TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 class TestSocketLinux_01(unittest.TestCase):
 

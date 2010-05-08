@@ -61,8 +61,10 @@ python/pinktrace/*.so
 
 ruby/PinkTrace.so
 
+src/fbsd32-syscalls.master
 src/syscalls.master
 src/pink-freebsd-syscallent.h
+src/pink-freebsd-syscallent32.h
 src/pink-linux-syscallent.h
 src/pink-linux-syscallent32.h
 src/pink-linux-syscallent64.h

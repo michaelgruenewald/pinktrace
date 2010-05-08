@@ -81,105 +81,101 @@ class TestPinkString < Test::Unit::TestCase
   end
 end
 
-# These test cases depend on generated system call names.
-# Don't run them if they weren't generated.
-if PinkTrace::Syscall.name 0
-  class TestPinkString
-    def test_string_decode
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+class TestPinkString
+  def test_string_decode
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
 
-        File.open '/dev/null'
-      end
+      File.open '/dev/null'
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the open() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the open() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'open'
-          path = PinkTrace::String.decode pid, 0
-          assert(path == '/dev/null', "#{path}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'open'
+        path = PinkTrace::String.decode pid, 0
+        assert(path == '/dev/null', "#{path}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_string_decode_max
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        File.open '/dev/null'
-      end
+  def test_string_decode_max
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      File.open '/dev/null'
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the open() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the open() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'open'
-          path = PinkTrace::String.decode pid, 0, 10
-          assert(path == '/dev/null', "#{path}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'open'
+        path = PinkTrace::String.decode pid, 0, 10
+        assert(path == '/dev/null', "#{path}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_string_encode_unsafe
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        File.open '/dev/null'
-      end
+  def test_string_encode_unsafe
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      File.open '/dev/null'
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the open() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the open() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'open'
-          PinkTrace::String.encode! pid, 0, '/dev/NULL'
-          path = PinkTrace::String.decode pid, 0
-          assert(path == '/dev/NULL', "#{path}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'open'
+        PinkTrace::String.encode! pid, 0, '/dev/NULL'
+        path = PinkTrace::String.decode pid, 0
+        assert(path == '/dev/NULL', "#{path}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
+
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
   end
 end

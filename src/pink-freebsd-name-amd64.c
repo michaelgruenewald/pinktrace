@@ -18,19 +18,41 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <assert.h>
+#include <stdlib.h>
 #include <stdio.h> /* NULL */
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
 #include "pink-freebsd-syscallent.h"
+#include "pink-freebsd-syscallent32.h"
 
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
+static int nsys32 = sizeof(sysnames32) / sizeof(sysnames32[0]);
 
 const char *
-pink_name_syscall_i386(long scno)
+pink_name_syscall_amd64(long scno, pink_bitness_t bitness)
 {
-	if (scno < 0 || scno >= nsys)
+	int num;
+	const char **names;
+
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
+
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		num = nsys32;
+		names = sysnames32;
+		break;
+	case PINK_BITNESS_64:
+		num = nsys;
+		names = sysnames;
+		break;
+	default:
+		abort();
+	}
+
+	if (scno < 0 || scno >= num)
 		return NULL;
-	return sysnames[scno];
+	return names[scno];
 }

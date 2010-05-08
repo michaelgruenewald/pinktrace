@@ -141,241 +141,237 @@ class TestPinkSyscall < Test::Unit::TestCase
   end
 end
 
-# These test cases depend on generated system call names.
-# Don't run them if they weren't generated.
-if PinkTrace::Syscall.name 0
-  class TestPinkSyscall
-    def test_syscall_get_no
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+class TestPinkSyscall
+  def test_syscall_get_no
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
 
-        Process.kill 0, Process.pid
-      end
+      Process.kill 0, Process.pid
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the kill() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    found = false
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the kill() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      found = false
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'kill' then
-          found = true
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'kill' then
+        found = true
+        break
       end
-
-      assert found
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_syscall_set_no
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    assert found
 
-        Process.kill 0, Process.pid
-      end
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
+
+  def test_syscall_set_no
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      Process.kill 0, Process.pid
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the kill() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the kill() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'kill' then
+        PinkTrace::Syscall.set_no pid, 0xbadca11
         scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'kill' then
-          PinkTrace::Syscall.set_no pid, 0xbadca11
-          scno = PinkTrace::Syscall.get_no pid
-          assert(scno == 0xbadca11, "#{scno}")
-          break
-        end
+        assert(scno == 0xbadca11, "#{scno}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_syscall_get_ret_success
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        Process.kill 0, Process.pid
-      end
+  def test_syscall_get_ret_success
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      Process.kill 0, Process.pid
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the kill() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    stop_at_exit = false
+    loop do
+      if stop_at_exit then PinkTrace::Trace.syscall_exit pid
+      else PinkTrace::Trace.syscall_entry pid end
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the kill() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      stop_at_exit = false
-      loop do
-        if stop_at_exit then PinkTrace::Trace.syscall_exit pid
-        else PinkTrace::Trace.syscall_entry pid end
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'kill'
-          stop_at_exit = true
-          next
-        elsif stop_at_exit
-          ret = PinkTrace::Syscall.get_ret pid
-          assert(ret == 0, "#{ret}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'kill'
+        stop_at_exit = true
+        next
+      elsif stop_at_exit
+        ret = PinkTrace::Syscall.get_ret pid
+        assert(ret == 0, "#{ret}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_syscall_get_ret_fail
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        begin File.open ''
-        rescue Errno::ENOENT ;end
-      end
+  def test_syscall_get_ret_fail
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      begin File.open ''
+      rescue Errno::ENOENT ;end
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the open() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    stop_at_exit = false
+    loop do
+      if stop_at_exit then PinkTrace::Trace.syscall_exit pid
+      else PinkTrace::Trace.syscall_entry pid end
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the open() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      stop_at_exit = false
-      loop do
-        if stop_at_exit then PinkTrace::Trace.syscall_exit pid
-        else PinkTrace::Trace.syscall_entry pid end
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'open'
-          stop_at_exit = true
-          next
-        elsif stop_at_exit
-          ret = PinkTrace::Syscall.get_ret pid
-          assert(ret == -Errno::ENOENT::Errno, "#{ret}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'open'
+        stop_at_exit = true
+        next
+      elsif stop_at_exit
+        ret = PinkTrace::Syscall.get_ret pid
+        assert(ret == -Errno::ENOENT::Errno, "#{ret}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_syscall_set_ret_success
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        Process.kill 0, Process.pid
-      end
+  def test_syscall_set_ret_success
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      Process.kill 0, Process.pid
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the kill() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    stop_at_exit = false
+    loop do
+      if stop_at_exit then PinkTrace::Trace.syscall_exit pid
+      else PinkTrace::Trace.syscall_entry pid end
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the kill() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      stop_at_exit = false
-      loop do
-        if stop_at_exit then PinkTrace::Trace.syscall_exit pid
-        else PinkTrace::Trace.syscall_entry pid end
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'kill'
-          stop_at_exit = true
-          next
-        elsif stop_at_exit
-          PinkTrace::Syscall.set_ret pid, 13
-          ret = PinkTrace::Syscall.get_ret pid
-          assert(ret == 13, "#{ret}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'kill'
+        stop_at_exit = true
+        next
+      elsif stop_at_exit
+        PinkTrace::Syscall.set_ret pid, 13
+        ret = PinkTrace::Syscall.get_ret pid
+        assert(ret == 13, "#{ret}")
+        break
       end
     end
+  end
 
-    def test_syscall_set_ret_fail
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+  def test_syscall_set_ret_fail
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
 
-        Process.kill 0, Process.pid
-      end
+      Process.kill 0, Process.pid
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the kill() system call as there's no guarantee that
+    # other system calls won't be called beforehand.
+    stop_at_exit = false
+    loop do
+      if stop_at_exit then PinkTrace::Trace.syscall_exit pid
+      else PinkTrace::Trace.syscall_entry pid end
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the kill() system call as there's no guarantee that
-      # other system calls won't be called beforehand.
-      stop_at_exit = false
-      loop do
-        if stop_at_exit then PinkTrace::Trace.syscall_exit pid
-        else PinkTrace::Trace.syscall_entry pid end
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
-
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        if name == 'kill'
-          stop_at_exit = true
-          next
-        elsif stop_at_exit
-          PinkTrace::Syscall.set_ret pid, -Errno::ENAMETOOLONG::Errno
-          ret = PinkTrace::Syscall.get_ret pid
-          assert(ret == -Errno::ENAMETOOLONG::Errno, "#{ret}")
-          break
-        end
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      if name == 'kill'
+        stop_at_exit = true
+        next
+      elsif stop_at_exit
+        PinkTrace::Syscall.set_ret pid, -Errno::ENAMETOOLONG::Errno
+        ret = PinkTrace::Syscall.get_ret pid
+        assert(ret == -Errno::ENAMETOOLONG::Errno, "#{ret}")
+        break
       end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
     end
 
-    def test_syscall_get_arg_first
-    end
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-    def test_syscall_get_arg_second
-    end
+  def test_syscall_get_arg_first
+  end
 
-    def test_syscall_get_arg_third
-    end
+  def test_syscall_get_arg_second
+  end
 
-    def test_syscall_get_arg_fourth
-    end
+  def test_syscall_get_arg_third
+  end
 
-    def test_syscall_get_arg_fifth
-    end
+  def test_syscall_get_arg_fourth
+  end
 
-    def test_syscall_get_arg_sixth
-    end
+  def test_syscall_get_arg_fifth
+  end
+
+  def test_syscall_get_arg_sixth
   end
 end

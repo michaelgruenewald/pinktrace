@@ -80,81 +80,77 @@ class TestPinkSocketAddress < Test::Unit::TestCase
   end
 end
 
-# These test cases depend on generated system call names.
-# Don't run them if they weren't generated.
-if PinkTrace::Syscall.name 0
-  class TestPinkSocketAddress
-    TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
+class TestPinkSocketAddress
+  TEST_UNIX_SOCKET = './TEST_UNIX_SOCKET'
 
-    def test_address_decode
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+  def test_address_decode
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
 
-        UNIXSocket.new TEST_UNIX_SOCKET
-      end
+      UNIXSocket.new TEST_UNIX_SOCKET
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the connect() system call.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the connect() system call.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      next unless name == 'connect'
 
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        next unless name == 'connect'
-
-        # We are at the beginning of the connect() call!
-        addr = PinkTrace::Socket.decode_address pid, 1
-        assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
-        assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
-        assert !addr.abstract?, "Expected non-abstract socket, got abstract"
-        assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
-        break
-      end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
+      # We are at the beginning of the connect() call!
+      addr = PinkTrace::Socket.decode_address pid, 1
+      assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
+      assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
+      assert !addr.abstract?, "Expected non-abstract socket, got abstract"
+      assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
+      break
     end
 
-    def test_decode_address_fd
-      pid = fork do
-        PinkTrace::Trace.me
-        Process.kill 'STOP', Process.pid
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
+  end
 
-        UNIXSocket.new TEST_UNIX_SOCKET
-      end
+  def test_decode_address_fd
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+
+      UNIXSocket.new TEST_UNIX_SOCKET
+    end
+    Process.waitpid pid
+    assert $?.stopped?, "#{$?}"
+    assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+
+    # Loop until we get to the connect() system call.
+    loop do
+      PinkTrace::Trace.syscall_entry pid
       Process.waitpid pid
       assert $?.stopped?, "#{$?}"
-      assert($?.stopsig == Signal.list['STOP'], "#{$?}")
+      assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
 
-      # Loop until we get to the connect() system call.
-      loop do
-        PinkTrace::Trace.syscall_entry pid
-        Process.waitpid pid
-        assert $?.stopped?, "#{$?}"
-        assert($?.stopsig == Signal.list['TRAP'], "#{$?}")
+      scno = PinkTrace::Syscall.get_no pid
+      name = PinkTrace::Syscall.name scno
+      next unless name == 'connect'
 
-        scno = PinkTrace::Syscall.get_no pid
-        name = PinkTrace::Syscall.name scno
-        next unless name == 'connect'
-
-        # We are at the beginning of the connect() call!
-        addr, fd = PinkTrace::Socket.decode_address_fd pid, 1
-        assert(fd.class == Fixnum, "#{fd.class}")
-        assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
-        assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
-        assert(!addr.abstract?, "Expected non-abstract socket, got abstract")
-        assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
-        break
-      end
-
-      begin PinkTrace::Trace.kill pid
-      rescue Errno::ESRCH ;end
+      # We are at the beginning of the connect() call!
+      addr, fd = PinkTrace::Socket.decode_address_fd pid, 1
+      assert(fd.class == Fixnum, "#{fd.class}")
+      assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
+      assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
+      assert(!addr.abstract?, "Expected non-abstract socket, got abstract")
+      assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
+      break
     end
+
+    begin PinkTrace::Trace.kill pid
+    rescue Errno::ESRCH ;end
   end
 end

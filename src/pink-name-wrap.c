@@ -28,20 +28,28 @@ pink_name_syscall(long scno, pink_unused pink_bitness_t bitness)
 #if defined(PINKTRACE_FREEBSD)
 #if defined(I386)
 	return pink_name_syscall_i386(scno);
-#endif
+#else
+#error unsupported architecture
+#endif /* I386 */
 #elif defined(PINKTRACE_LINUX)
 	return pink_name_syscall_nobitness(scno);
 #else
 #error unsupported operating system
-#endif
+#endif /* PINKTRACE_FREEBSD */
 }
 #elif defined(X86_64)
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness)
 {
+#if defined(PINKTRACE_FREEBSD)
+	return pink_name_syscall_amd64(scno, bitness);
+#elif defined(PINKTRACE_LINUX)
 	return (bitness == PINK_BITNESS_32)
 		? pink_name_syscall32(scno)
 		: pink_name_syscall64(scno);
+#else
+#error unsupported operating system
+#endif /* PINKTRACE_FREEBSD */
 }
 #else
 #error unsupported architecture

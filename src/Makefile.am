@@ -69,19 +69,29 @@ nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES=
 BUILT_SOURCES=
 
 if FREEBSD
-if I386
 nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-freebsd-syscallent.h
 BUILT_SOURCES+= pink-freebsd-syscallent.h
 CLEANFILES+= syscalls.master pink-freebsd-syscallent.h
 
-syscalls.master: $(KERNSRC)/syscalls.master
+syscalls.master: $(SYSSRC)/kern/syscalls.master
 	$(AM_V_GEN)
 	$(AM_V_at)cat $< > $@
 pink-freebsd-syscallent.h: syscalls.master
 	$(AM_V_GEN)
-	$(AM_V_at)/bin/sh $(KERNSRC)/makesyscalls.sh $< pink-freebsd-i386.conf
+	$(AM_V_at)/bin/sh $(SYSSRC)/kern/makesyscalls.sh $< pink-freebsd-i386.conf
 
-endif # I386
+if X86_64
+nodist_libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= pink-freebsd-syscallent32.h
+BUILT_SOURCES+= pink-freebsd-syscallent32.h
+CLEANFILES+= fbsd32-syscalls.master pink-freebsd-syscallent32.h
+
+fbsd32-syscalls.master: $(SYSSRC)/compat/freebsd32/syscalls.master
+	$(AM_V_GEN)
+	$(AM_V_at)cat $< > $@
+pink-freebsd-syscallent32.h: fbsd32-syscalls.master
+	$(AM_V_GEN)
+	$(AM_V_at)/bin/sh $(SYSSRC)/kern/makesyscalls.sh $< pink-freebsd-fbsd32.conf
+endif # X86_64
 endif # FREEBSD
 
 if LINUX
