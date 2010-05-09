@@ -549,5 +549,7 @@ AC_OUTPUT(
 		  src/linux/ia64/Makefile
 		  src/linux/powerpc/Makefile
 		  tests/Makefile
+		  tests/proc/Makefile
+		  tests/ptrace/Makefile
 	)
 dnl }}}

@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 #include <stdlib.h>
 #include <check.h>
@@ -30,14 +30,18 @@ main(void)
 	SRunner *sr;
 
 	/* Add suites */
-	sr = srunner_create(trace_suite_create());
+	sr = srunner_create(bitness_suite_create());
+	srunner_add_suite(sr, trace_suite_create());
 	srunner_add_suite(sr, util_suite_create());
 	srunner_add_suite(sr, decode_suite_create());
 	srunner_add_suite(sr, encode_suite_create());
+
+#if 0
 	srunner_add_suite(sr, bitness_suite_create());
 #if defined(PINKTRACE_LINUX)
 	srunner_add_suite(sr, event_suite_create());
 #endif /* defined(PINKTRACE_LINUX) */
+#endif
 
 	/* Run and grab the results */
 	srunner_run_all(sr, CK_VERBOSE);

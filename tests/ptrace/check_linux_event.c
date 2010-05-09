@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 #include <errno.h>
 #include <sys/syscall.h>
@@ -37,7 +37,7 @@ START_TEST(t_event_stop)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -50,8 +50,8 @@ START_TEST(t_event_stop)
 	}
 	else { /* parent */
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s", strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_STOP, "%d != %d", PINK_EVENT_STOP, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_STOP, "%d != %d", PINK_TRACE_EVENT_STOP, event);
 
 		pink_trace_kill(pid);
 	}
@@ -62,7 +62,7 @@ START_TEST(t_event_syscall)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -88,8 +88,8 @@ START_TEST(t_event_syscall)
 		 * system call. */
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
 		pink_trace_kill(pid);
 	}
@@ -101,7 +101,7 @@ START_TEST(t_event_fork)
 {
 	int status;
 	pid_t pid, cpid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -128,8 +128,8 @@ START_TEST(t_event_fork)
 		/* Resume the child, it will stop at the next fork(2) call. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_FORK, "%d != %d", PINK_EVENT_FORK, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_FORK, "%d != %d", PINK_TRACE_EVENT_FORK, event);
 
 		pink_trace_kill(pid);
 	}
@@ -140,7 +140,7 @@ START_TEST(t_event_vfork)
 {
 	int status;
 	pid_t pid, cpid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -167,8 +167,8 @@ START_TEST(t_event_vfork)
 		/* Resume the child, it will stop at the next vfork(2) call. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_VFORK, "%d != %d", PINK_EVENT_VFORK, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_VFORK, "%d != %d", PINK_TRACE_EVENT_VFORK, event);
 
 		pink_trace_kill(pid);
 	}
@@ -189,7 +189,7 @@ START_TEST(t_event_exec)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 	char *myargv[] = { "/bin/true", NULL };
 	char *myenviron[] = { NULL };
 
@@ -216,8 +216,8 @@ START_TEST(t_event_exec)
 		/* Resume the child, it will stop at the next execve(2) call. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_EXEC, "%d != %d", PINK_EVENT_EXEC, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_EXEC, "%d != %d", PINK_TRACE_EVENT_EXEC, event);
 
 		pink_trace_kill(pid);
 	}
@@ -228,7 +228,7 @@ START_TEST(t_event_exit)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -251,8 +251,8 @@ START_TEST(t_event_exit)
 		/* Resume the child, it will stop before exit. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_EXIT, "%d != %d", PINK_EVENT_EXIT, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_EXIT, "%d != %d", PINK_TRACE_EVENT_EXIT, event);
 
 		pink_trace_kill(pid);
 	}
@@ -263,7 +263,7 @@ START_TEST(t_event_genuine)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -286,8 +286,8 @@ START_TEST(t_event_genuine)
 		/* Resume the child, it will send itself a signal. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_GENUINE, "%d != %d", PINK_EVENT_GENUINE, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_GENUINE, "%d != %d", PINK_TRACE_EVENT_GENUINE, event);
 
 		pink_trace_kill(pid);
 	}
@@ -298,7 +298,7 @@ START_TEST(t_event_exit_genuine)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
@@ -323,8 +323,8 @@ START_TEST(t_event_exit_genuine)
 		/* Resume the child, it will exit. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_EXIT_GENUINE, "%d != %d", PINK_EVENT_EXIT_GENUINE, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_EXIT_GENUINE, "%d != %d", PINK_TRACE_EVENT_EXIT_GENUINE, event);
 
 		pink_trace_kill(pid);
 	}
@@ -335,7 +335,7 @@ START_TEST(t_event_exit_signal)
 {
 	int status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	/* Do NOT set EXIT option, we want the exit(2) to be genuine.
 	 */
@@ -362,8 +362,8 @@ START_TEST(t_event_exit_signal)
 		/* Resume the child, it will exit with a signal. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_EXIT_SIGNAL, "%d != %d", PINK_EVENT_EXIT_SIGNAL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_EXIT_SIGNAL, "%d != %d", PINK_TRACE_EVENT_EXIT_SIGNAL, event);
 
 		pink_trace_kill(pid);
 	}

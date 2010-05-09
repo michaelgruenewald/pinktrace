@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 #include <errno.h>
 #include <sys/mman.h>
@@ -41,7 +41,7 @@ START_TEST(t_util_get_syscall)
 	int status;
 	long scno;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -73,10 +73,10 @@ START_TEST(t_util_get_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_trace_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == SYS_getpid, "%ld != %ld", SYS_getpid, scno);
 
@@ -90,7 +90,7 @@ START_TEST(t_util_set_syscall)
 	int status;
 	long scno;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -122,12 +122,12 @@ START_TEST(t_util_set_syscall)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
+		fail_unless(pink_trace_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_trace_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == 0xbadca11, "%ld != %ld", 0xbadca11, scno);
 
@@ -141,7 +141,7 @@ START_TEST(t_util_get_return_success)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -174,11 +174,11 @@ START_TEST(t_util_get_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+			event = pink_trace_event_decide(status);
+			fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == pid, "%i != %d", pid, ret);
 
 		pink_trace_kill(pid);
@@ -191,7 +191,7 @@ START_TEST(t_util_get_return_fail)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -216,11 +216,11 @@ START_TEST(t_util_get_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+			event = pink_trace_event_decide(status);
+			fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == -EFAULT, "%ld != %ld", -EFAULT, ret);
 
 		pink_trace_kill(pid);
@@ -232,7 +232,7 @@ START_TEST(t_util_set_return_success)
 {
 	int ret, status;
 	pid_t pid, mypid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -264,11 +264,11 @@ START_TEST(t_util_set_return_success)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+			event = pink_trace_event_decide(status);
+			fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
@@ -282,7 +282,7 @@ START_TEST(t_util_set_return_fail)
 {
 	int ret, status;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -317,11 +317,11 @@ START_TEST(t_util_set_return_fail)
 
 			/* Make sure we got the right event */
 			waitpid(pid, &status, 0);
-			event = pink_event_decide(status);
-			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+			event = pink_trace_event_decide(status);
+			fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 		}
 
-		fail_unless(pink_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
 
 		/* Let the child exit and check her exit status */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
@@ -336,7 +336,7 @@ START_TEST(t_util_get_arg_first)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -360,10 +360,11 @@ START_TEST(t_util_get_arg_first)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -376,7 +377,7 @@ START_TEST(t_util_get_arg_second)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -400,10 +401,11 @@ START_TEST(t_util_get_arg_second)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -416,7 +418,7 @@ START_TEST(t_util_get_arg_third)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -440,10 +442,11 @@ START_TEST(t_util_get_arg_third)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -456,7 +459,7 @@ START_TEST(t_util_get_arg_fourth)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -480,10 +483,11 @@ START_TEST(t_util_get_arg_fourth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -496,7 +500,7 @@ START_TEST(t_util_get_arg_fifth)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -520,10 +524,11 @@ START_TEST(t_util_get_arg_fifth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -536,7 +541,7 @@ START_TEST(t_util_get_arg_sixth)
 	int status;
 	long ret;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -560,10 +565,11 @@ START_TEST(t_util_get_arg_sixth)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &ret),
+			"%d(%s)", errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -576,23 +582,23 @@ util_suite_create(void)
 {
 	Suite *s = suite_create("util");
 
-	/* pink_util_*() */
-	TCase *tc_pink_util = tcase_create("pink_util");
+	/* pink_trace_util_*() */
+	TCase *tc_pink_trace_util = tcase_create("pink_trace_util");
 
-	tcase_add_test(tc_pink_util, t_util_get_syscall);
-	tcase_add_test(tc_pink_util, t_util_set_syscall);
-	tcase_add_test(tc_pink_util, t_util_get_return_success);
-	tcase_add_test(tc_pink_util, t_util_get_return_fail);
-	tcase_add_test(tc_pink_util, t_util_set_return_success);
-	tcase_add_test(tc_pink_util, t_util_set_return_fail);
-	tcase_add_test(tc_pink_util, t_util_get_arg_first);
-	tcase_add_test(tc_pink_util, t_util_get_arg_second);
-	tcase_add_test(tc_pink_util, t_util_get_arg_third);
-	tcase_add_test(tc_pink_util, t_util_get_arg_fourth);
-	tcase_add_test(tc_pink_util, t_util_get_arg_fifth);
-	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_syscall);
+	tcase_add_test(tc_pink_trace_util, t_util_set_syscall);
+	tcase_add_test(tc_pink_trace_util, t_util_get_return_success);
+	tcase_add_test(tc_pink_trace_util, t_util_get_return_fail);
+	tcase_add_test(tc_pink_trace_util, t_util_set_return_success);
+	tcase_add_test(tc_pink_trace_util, t_util_set_return_fail);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_first);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_second);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_third);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_fourth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_fifth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_sixth);
 
-	suite_add_tcase(s, tc_pink_util);
+	suite_add_tcase(s, tc_pink_trace_util);
 
 	return s;
 }

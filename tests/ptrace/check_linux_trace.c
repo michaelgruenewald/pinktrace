@@ -29,9 +29,9 @@
 
 #include <check.h>
 
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 START_TEST(t_trace_me_basic)
 {

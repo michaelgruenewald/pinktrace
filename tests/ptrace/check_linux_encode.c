@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 #include <errno.h>
 #include <sys/stat.h>
@@ -40,7 +40,7 @@ START_TEST(t_encode_string_first_lensame)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -64,12 +64,12 @@ START_TEST(t_encode_string_first_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -83,7 +83,7 @@ START_TEST(t_encode_string_first_lenshort)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -107,12 +107,12 @@ START_TEST(t_encode_string_first_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -126,7 +126,7 @@ START_TEST(t_encode_string_first_lenlong)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -150,12 +150,12 @@ START_TEST(t_encode_string_first_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -169,7 +169,7 @@ START_TEST(t_encode_string_second_lensame)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -193,12 +193,12 @@ START_TEST(t_encode_string_second_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -212,7 +212,7 @@ START_TEST(t_encode_string_second_lenshort)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -236,12 +236,12 @@ START_TEST(t_encode_string_second_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -255,7 +255,7 @@ START_TEST(t_encode_string_second_lenlong)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -279,12 +279,12 @@ START_TEST(t_encode_string_second_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -298,7 +298,7 @@ START_TEST(t_encode_string_third_lensame)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -322,12 +322,12 @@ START_TEST(t_encode_string_third_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -341,7 +341,7 @@ START_TEST(t_encode_string_third_lenshort)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -365,12 +365,12 @@ START_TEST(t_encode_string_third_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -384,7 +384,7 @@ START_TEST(t_encode_string_third_lenlong)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -408,12 +408,12 @@ START_TEST(t_encode_string_third_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -427,7 +427,7 @@ START_TEST(t_encode_string_fourth_lensame)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -451,12 +451,12 @@ START_TEST(t_encode_string_fourth_lensame)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -470,7 +470,7 @@ START_TEST(t_encode_string_fourth_lenshort)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -494,12 +494,12 @@ START_TEST(t_encode_string_fourth_lenshort)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -513,7 +513,7 @@ START_TEST(t_encode_string_fourth_lenlong)
 	int status;
 	char buf[10];
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -537,12 +537,12 @@ START_TEST(t_encode_string_fourth_lenlong)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -628,7 +628,7 @@ START_TEST(t_encode_stat)
 	int status;
 	struct stat buf, newbuf;
 	pid_t pid;
-	pink_event_t event;
+	pink_trace_event_t event;
 
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
@@ -652,17 +652,17 @@ START_TEST(t_encode_stat)
 
 		/* Make sure we got the right event */
 		waitpid(pid, &status, 0);
-		event = pink_event_decide(status);
-		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+		event = pink_trace_event_decide(status);
+		fail_unless(event == PINK_TRACE_EVENT_SYSCALL, "%d != %d", PINK_TRACE_EVENT_SYSCALL, event);
 
 		/* Fill in the stat structure */
 		memset(&buf, 0, sizeof(struct stat));
 		buf.st_mode = S_IFCHR;
 		buf.st_rdev = 259; /* /dev/null */
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &newbuf, sizeof(struct stat)),
+		fail_unless(pink_trace_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &newbuf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(S_ISCHR(newbuf.st_mode), "%d", newbuf.st_mode);
 		fail_unless(newbuf.st_rdev == 259, "%d != %d", 259, newbuf.st_rdev);
@@ -677,44 +677,44 @@ encode_suite_create(void)
 {
 	Suite *s = suite_create("encode");
 
-	/* pink_encode_*() */
-	TCase *tc_pink_encode = tcase_create("pink_encode");
+	/* pink_trace_encode_*() */
+	TCase *tc_pink_trace_encode = tcase_create("pink_trace_encode");
 
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_first_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_first_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_first_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_first_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_second_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_second_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_second_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_second_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_third_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_third_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_third_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_third_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_safe_fourth_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_fourth_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_fourth_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_safe_fourth_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_stat);
+	tcase_add_test(tc_pink_trace_encode, t_encode_stat);
 
-	suite_add_tcase(s, tc_pink_encode);
+	suite_add_tcase(s, tc_pink_trace_encode);
 
 	return s;
 }

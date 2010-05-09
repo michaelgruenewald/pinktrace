@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_CHECK_PINKTRACE_H
-#define PINKTRACE_GUARD_CHECK_PINKTRACE_H 1
+#ifndef PINKTRACE_GUARD_CHECK_PINKTRACE_PTRACE_H
+#define PINKTRACE_GUARD_CHECK_PINKTRACE_PTRACE_H 1
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -51,4 +51,4 @@ trace_suite_create(void);
 Suite *
 util_suite_create(void);
 
-#endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_H */
+#endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_PTRACE_H */

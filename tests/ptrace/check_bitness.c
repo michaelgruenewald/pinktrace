@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace.h"
+#include "check_pinktrace_ptrace.h"
 
 #include <errno.h>
 #include <sys/types.h>
@@ -50,7 +50,7 @@ START_TEST(t_bitness)
 	else { /* parent */
 		waitpid(pid, &status, 0);
 
-		bitness = pink_bitness_get(pid);
+		bitness = pink_trace_util_get_bitness(pid);
 		fail_unless(bitness == PINKTRACE_DEFAULT_BITNESS,
 				"Wrong bitness, expected: %d got: %d",
 				PINKTRACE_DEFAULT_BITNESS, bitness);
@@ -65,8 +65,8 @@ bitness_suite_create(void)
 {
 	Suite *s = suite_create("bitness");
 
-	/* pink_bitness_get() */
-	TCase *tc_pink_bitness = tcase_create("pink_bitness");
+	/* pink_util_get_bitness() */
+	TCase *tc_pink_bitness = tcase_create("pink_trace_bitness");
 
 	tcase_add_test(tc_pink_bitness, t_bitness);
 
