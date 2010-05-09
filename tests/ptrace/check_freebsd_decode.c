@@ -1089,33 +1089,33 @@ decode_suite_create(void)
 	Suite *s = suite_create("decode");
 
 	/* pink_trace_decode_*() */
-	TCase *tc_pink_decode = tcase_create("pink_trace_decode");
+	TCase *tc_pink_trace_decode = tcase_create("pink_trace_decode");
 
-	tcase_add_test(tc_pink_decode, t_decode_stat);
+	tcase_add_test(tc_pink_trace_decode, t_decode_stat);
 
-	tcase_add_test(tc_pink_decode, t_decode_string_first);
-	tcase_add_test(tc_pink_decode, t_decode_string_second);
-	tcase_add_test(tc_pink_decode, t_decode_string_third);
-	tcase_add_test(tc_pink_decode, t_decode_string_fourth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_first);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_third);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_fourth);
 
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_null);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_notrailingzero);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_first);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_second);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_third);
-	tcase_add_test(tc_pink_decode, t_decode_string_persistent_fourth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_null);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_notrailingzero);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_first);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_third);
+	tcase_add_test(tc_pink_trace_decode, t_decode_string_persistent_fourth);
 
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_second);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_second);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_second);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_null_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_unix_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_inet_second);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_inet6_second);
 
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_fifth);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_fifth);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet_fifth);
-	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_fifth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_null_fifth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_unix_fifth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_inet_fifth);
+	tcase_add_test(tc_pink_trace_decode, t_decode_socket_address_inet6_fifth);
 
-	suite_add_tcase(s, tc_pink_decode);
+	suite_add_tcase(s, tc_pink_trace_decode);
 
 	return s;
 }

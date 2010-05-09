@@ -59,7 +59,7 @@ START_TEST(t_util_get_syscall)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_trace_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == SYS_getpid, "%ld != %ld", SYS_getpid, scno);
 
@@ -96,9 +96,9 @@ START_TEST(t_util_set_syscall)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
+		fail_unless(pink_trace_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_trace_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == 0xbadca11, "%ld != %ld", 0xbadca11, scno);
 
@@ -135,7 +135,7 @@ START_TEST(t_util_get_return_success)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == pid, "%ld != %ld", pid, ret);
 
 		pink_trace_kill(pid);
@@ -171,7 +171,7 @@ START_TEST(t_util_get_return_fail)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == -EFAULT, "%ld != %ld", -EFAULT, ret);
 
 		pink_trace_kill(pid);
@@ -207,8 +207,8 @@ START_TEST(t_util_set_return_success)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_set_return(pid, pid + 1), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == pid + 1, "%ld != %ld", pid + 1, ret);
 
 		pink_trace_kill(pid);
@@ -244,8 +244,8 @@ START_TEST(t_util_set_return_fail)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_set_return(pid, -ENAMETOOLONG), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_util_get_return(pid, &ret), "%d(%s)", errno, strerror(errno));
 		fail_unless(ret == -ENAMETOOLONG, "%ld != %ld", -ENAMETOOLONG, ret);
 
 		pink_trace_kill(pid);
@@ -281,7 +281,7 @@ START_TEST(t_util_get_arg_first)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -318,7 +318,7 @@ START_TEST(t_util_get_arg_second)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -355,7 +355,7 @@ START_TEST(t_util_get_arg_third)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -392,7 +392,7 @@ START_TEST(t_util_get_arg_fourth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -429,7 +429,7 @@ START_TEST(t_util_get_arg_fifth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -466,7 +466,7 @@ START_TEST(t_util_get_arg_sixth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &arg),
+		fail_unless(pink_trace_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -480,23 +480,23 @@ util_suite_create(void)
 {
 	Suite *s = suite_create("util");
 
-	/* pink_util_* */
-	TCase *tc_pink_util = tcase_create("pink_util");
+	/* pink_trace_util_* */
+	TCase *tc_pink_trace_util = tcase_create("pink_trace_util");
 
-	tcase_add_test(tc_pink_util, t_util_get_syscall);
-	tcase_add_test(tc_pink_util, t_util_set_syscall);
-	tcase_add_test(tc_pink_util, t_util_get_return_success);
-	tcase_add_test(tc_pink_util, t_util_get_return_fail);
-	tcase_add_test(tc_pink_util, t_util_set_return_success);
-	tcase_add_test(tc_pink_util, t_util_set_return_fail);
-	tcase_add_test(tc_pink_util, t_util_get_arg_first);
-	tcase_add_test(tc_pink_util, t_util_get_arg_second);
-	tcase_add_test(tc_pink_util, t_util_get_arg_third);
-	tcase_add_test(tc_pink_util, t_util_get_arg_fourth);
-	tcase_add_test(tc_pink_util, t_util_get_arg_fifth);
-	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_syscall);
+	tcase_add_test(tc_pink_trace_util, t_util_set_syscall);
+	tcase_add_test(tc_pink_trace_util, t_util_get_return_success);
+	tcase_add_test(tc_pink_trace_util, t_util_get_return_fail);
+	tcase_add_test(tc_pink_trace_util, t_util_set_return_success);
+	tcase_add_test(tc_pink_trace_util, t_util_set_return_fail);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_first);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_second);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_third);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_fourth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_fifth);
+	tcase_add_test(tc_pink_trace_util, t_util_get_arg_sixth);
 
-	suite_add_tcase(s, tc_pink_util);
+	suite_add_tcase(s, tc_pink_trace_util);
 
 	return s;
 }

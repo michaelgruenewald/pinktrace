@@ -62,9 +62,9 @@ START_TEST(t_encode_string_first_lensame)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -100,9 +100,9 @@ START_TEST(t_encode_string_first_lenshort)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -138,9 +138,9 @@ START_TEST(t_encode_string_first_lenlong)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -176,9 +176,9 @@ START_TEST(t_encode_string_second_lensame)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -214,9 +214,9 @@ START_TEST(t_encode_string_second_lenshort)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -252,9 +252,9 @@ START_TEST(t_encode_string_second_lenlong)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -290,9 +290,9 @@ START_TEST(t_encode_string_third_lensame)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -328,9 +328,9 @@ START_TEST(t_encode_string_third_lenshort)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -366,9 +366,9 @@ START_TEST(t_encode_string_third_lenlong)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -404,9 +404,9 @@ START_TEST(t_encode_string_fourth_lensame)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -442,9 +442,9 @@ START_TEST(t_encode_string_fourth_lenshort)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -480,9 +480,9 @@ START_TEST(t_encode_string_fourth_lenlong)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_trace_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -523,9 +523,9 @@ START_TEST(t_encode_stat)
 		buf.st_mode = S_IFCHR;
 		buf.st_rdev = 11; /* /dev/null */
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
+		fail_unless(pink_trace_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &newbuf, sizeof(struct stat)),
+		fail_unless(pink_trace_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &newbuf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(S_ISCHR(newbuf.st_mode), "%d", newbuf.st_mode);
 		fail_unless(newbuf.st_rdev == 11, "%d != %d", 11, newbuf.st_rdev);
@@ -540,28 +540,28 @@ encode_suite_create(void)
 {
 	Suite *s = suite_create("encode");
 
-	/* pink_encode_*() */
-	TCase *tc_pink_encode = tcase_create("pink_encode");
+	/* pink_trace_encode_*() */
+	TCase *tc_pink_trace_encode = tcase_create("pink_trace_encode");
 
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_first_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_first_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_second_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_second_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_third_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_third_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lensame);
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenshort);
-	tcase_add_test(tc_pink_encode, t_encode_string_fourth_lenlong);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lensame);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lenshort);
+	tcase_add_test(tc_pink_trace_encode, t_encode_string_fourth_lenlong);
 
-	tcase_add_test(tc_pink_encode, t_encode_stat);
+	tcase_add_test(tc_pink_trace_encode, t_encode_stat);
 
-	suite_add_tcase(s, tc_pink_encode);
+	suite_add_tcase(s, tc_pink_trace_encode);
 
 	return s;
 }

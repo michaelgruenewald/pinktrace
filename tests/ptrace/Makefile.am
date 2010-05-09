@@ -5,14 +5,14 @@ noinst_HEADERS= check_pinktrace_ptrace.h
 check_pinktrace_ptrace_SOURCES= \
 				check_bitness.c \
 				main.c
-#if FREEBSD
-#check_pinktrace_ptrace_SOURCES+= \
-#				 check_freebsd_trace.c \
-#				 check_freebsd_util.c \
-#				 check_freebsd_decode.c \
-#				 check_freebsd_encode.c
-#endif # FREEBSD
-#
+if FREEBSD
+check_pinktrace_ptrace_SOURCES+= \
+				 check_freebsd_trace.c \
+				 check_freebsd_util.c \
+				 check_freebsd_decode.c \
+				 check_freebsd_encode.c
+endif # FREEBSD
+
 if LINUX
 check_pinktrace_ptrace_SOURCES+= \
 				 check_linux_trace.c \

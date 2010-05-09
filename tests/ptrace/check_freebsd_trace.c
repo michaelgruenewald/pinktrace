@@ -29,7 +29,7 @@
 
 #include <check.h>
 
-#include <pinktrace/trace.h>
+#include <pinktrace/pink.h>
 
 #include "check_pinktrace_ptrace.h"
 
