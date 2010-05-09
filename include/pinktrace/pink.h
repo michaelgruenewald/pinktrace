@@ -70,6 +70,10 @@
 #include <pinktrace/name.h>
 #include <pinktrace/socket.h>
 
+#if PINKTRACE_BACKEND_PROC
+#include <pinktrace/proc/fs.h>
+#endif /* PINKTRACE_BACKEND_PROC */
+
 #if PINKTRACE_BACKEND_PTRACE
 #include <pinktrace/ptrace/decode.h>
 #include <pinktrace/ptrace/encode.h>

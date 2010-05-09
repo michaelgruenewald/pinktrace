@@ -15,6 +15,12 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/socket.h \
 			  include/pinktrace/pink.h
 
+if BACKEND_PROC
+pinktrace_proc_includedir= $(pinktrace_includedir)/proc/
+pinktrace_proc_include_HEADERS= \
+				include/proc/fs.h
+endif # BACKEND_PROC
+
 if BACKEND_PTRACE
 pinktrace_ptrace_includedir= $(pinktrace_includedir)/ptrace/
 pinktrace_ptrace_include_HEADERS= \
