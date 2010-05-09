@@ -87,7 +87,7 @@ pink_trace_event_decide(int status);
  * \return The string representation of the event.
  **/
 const char *
-pink_event_tostring(pink_event_t event);
+pink_event_tostring(pink_trace_event_t event);
 
 #endif /* defined(PINKTRACE_LINUX)... */
 

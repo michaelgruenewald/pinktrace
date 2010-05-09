@@ -32,7 +32,7 @@ static const long syscall_args[2][PINK_TRACE_MAX_INDEX] = {
 };
 
 pink_bitness_t
-pink_bitness_get(pid_t pid)
+pink_trace_util_get_bitness(pid_t pid)
 {
 	long cs;
 
