@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_UTIL_H
-#define PINKTRACE_GUARD_UTIL_H 1
+#ifndef PINKTRACE_GUARD_PTRACE_UTIL_H
+#define PINKTRACE_GUARD_PTRACE_UTIL_H 1
 
 /**
  * \file
@@ -318,4 +318,4 @@ pink_trace_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *r
 pink_bitness_t
 pink_trace_util_get_bitness(pid_t pid);
 
-#endif /* !PINKTRACE_GUARD_UTIL_H */
+#endif /* !PINKTRACE_GUARD_PTRACE_UTIL_H */

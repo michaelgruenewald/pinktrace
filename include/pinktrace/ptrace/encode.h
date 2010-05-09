@@ -18,8 +18,8 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef PINKTRACE_GUARD_ENCODE_H
-#define PINKTRACE_GUARD_ENCODE_H 1
+#ifndef PINKTRACE_GUARD_PTRACE_ENCODE_H
+#define PINKTRACE_GUARD_PTRACE_ENCODE_H 1
 
 /**
  * \file
@@ -63,4 +63,4 @@ bool
 pink_trace_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 #endif /* defined(PINKTRACE_LINUX)... */
 
-#endif /* !PINKTRACE_GUARD_ENCODE_H */
+#endif /* !PINKTRACE_GUARD_PTRACE_ENCODE_H */
