@@ -41,16 +41,6 @@ typedef enum {
 } pink_bitness_t;
 
 /**
- * Return the bitness of the given process ID.
- *
- * \param pid Process ID of the process whose bitness is to be returned.
- *
- * \return One of PINK_BITNESS_* constants.
- **/
-pink_bitness_t
-pink_bitness_get(pid_t pid);
-
-/**
  * Return the string representation of the given bitness.
  *
  * \param bitness The bitness to be stringified.

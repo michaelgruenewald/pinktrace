@@ -27,7 +27,7 @@
 #include <pinktrace/pink.h>
 
 bool
-pink_util_peek(pid_t pid, long off, long *res)
+pink_trace_util_peek(pid_t pid, long off, long *res)
 {
 	long val;
 
@@ -43,7 +43,7 @@ pink_util_peek(pid_t pid, long off, long *res)
 }
 
 bool
-pink_util_peekdata(pid_t pid, long off, long *res)
+pink_trace_util_peekdata(pid_t pid, long off, long *res)
 {
 	long val;
 
@@ -59,31 +59,31 @@ pink_util_peekdata(pid_t pid, long off, long *res)
 }
 
 bool
-pink_util_poke(pid_t pid, long off, long val)
+pink_trace_util_poke(pid_t pid, long off, long val)
 {
 	return (0 == ptrace(PT_WRITE_I, pid, (caddr_t)off, val));
 }
 
 bool
-pink_util_pokedata(pid_t pid, long off, long val)
+pink_trace_util_pokedata(pid_t pid, long off, long val)
 {
 	return (0 == ptrace(PT_WRITE_D, pid, (caddr_t)off, val));
 }
 
 bool
-pink_util_get_regs(pid_t pid, void *regs)
+pink_trace_util_get_regs(pid_t pid, void *regs)
 {
 	return !(ptrace(PT_GETREGS, pid, (caddr_t)regs, 0) < 0);
 }
 
 bool
-pink_util_set_regs(pid_t pid, const void *regs)
+pink_trace_util_set_regs(pid_t pid, const void *regs)
 {
 	return !(ptrace(PT_SETREGS, pid, (caddr_t)regs, 0) < 0);
 }
 
 bool
-pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
+pink_trace_util_moven(pid_t pid, long addr, char *dest, size_t len)
 {
 	struct ptrace_io_desc ioreq;
 
@@ -96,16 +96,16 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 }
 
 bool
-pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
+pink_trace_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 {
-	return pink_util_moven(pid, addr, dest, len);
+	return pink_trace_util_moven(pid, addr, dest, len);
 }
 
 #define MAXSIZE 4096
 #define BLOCKSIZE 1024
 
 char *
-pink_util_movestr_persistent(pid_t pid, long addr)
+pink_trace_util_movestr_persistent(pid_t pid, long addr)
 {
 	int diff;
 	size_t totalsize, size;
@@ -118,7 +118,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		return NULL;
 	for (;;) {
 		diff = totalsize - size;
-		if (!pink_util_moven(pid, addr + diff, buf + diff, size)) {
+		if (!pink_trace_util_moven(pid, addr + diff, buf + diff, size)) {
 			free(buf);
 			return NULL;
 		}
@@ -141,7 +141,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 }
 
 bool
-pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
+pink_trace_util_putn(pid_t pid, long addr, const char *src, size_t len)
 {
 	struct ptrace_io_desc ioreq;
 

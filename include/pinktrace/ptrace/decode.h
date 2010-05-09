@@ -42,7 +42,7 @@
  * \param len Length of the data
  **/
 bool
-pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
+pink_trace_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
 
 /**
  * Get the string argument and place it in dest.
@@ -58,7 +58,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
+pink_trace_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
 
 /**
  * Like pink_decode_string() but allocates the string itself.
@@ -67,7 +67,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
  * accordingly.
  **/
 char *
-pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
+pink_trace_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
@@ -86,7 +86,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
+pink_trace_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
 
 /**
  * Get the socket file descriptor in argument arg and place it in fd.
@@ -103,7 +103,8 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
+pink_trace_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
+
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
@@ -128,7 +129,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
+pink_trace_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 	long *fd_r, pink_socket_address_t *addr_r);
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

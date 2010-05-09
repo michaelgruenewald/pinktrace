@@ -10,15 +10,20 @@ pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
 			  include/pinktrace/about.h \
 			  include/pinktrace/bitness.h \
-			  include/pinktrace/decode.h \
-			  include/pinktrace/encode.h \
-			  include/pinktrace/event.h \
 			  include/pinktrace/gcc.h \
 			  include/pinktrace/name.h \
 			  include/pinktrace/socket.h \
-			  include/pinktrace/trace.h \
-			  include/pinktrace/util.h \
 			  include/pinktrace/pink.h
+
+if BACKEND_PTRACE
+pinktrace_ptrace_includedir= $(pinktrace_includedir)/ptrace/
+pinktrace_ptrace_include_HEADERS= \
+				  include/pinktrace/ptrace/decode.h \
+				  include/pinktrace/ptrace/encode.h \
+				  include/pinktrace/ptrace/event.h \
+				  include/pinktrace/ptrace/trace.h \
+				  include/pinktrace/ptrace/util.h
+endif # BACKEND_PTRACE
 
 noinst_HEADERS= include/pinktrace/internal.h
 

@@ -37,30 +37,30 @@
  **/
 typedef enum {
 	/** Child has been stopped **/
-	PINK_EVENT_STOP,
+	PINK_TRACE_EVENT_STOP,
 	/** Child has entered/exited a system call **/
-	PINK_EVENT_SYSCALL,
+	PINK_TRACE_EVENT_SYSCALL,
 	/** Child has called fork() **/
-	PINK_EVENT_FORK,
+	PINK_TRACE_EVENT_FORK,
 	/** Child has called vfork() **/
-	PINK_EVENT_VFORK,
+	PINK_TRACE_EVENT_VFORK,
 	/** Child has called clone() **/
-	PINK_EVENT_CLONE,
+	PINK_TRACE_EVENT_CLONE,
 	/** Child has exited a vfork() call **/
-	PINK_EVENT_VFORK_DONE,
+	PINK_TRACE_EVENT_VFORK_DONE,
 	/** Child has called execve() **/
-	PINK_EVENT_EXEC,
+	PINK_TRACE_EVENT_EXEC,
 	/** Child is exiting (ptrace way, stopped before exit) **/
-	PINK_EVENT_EXIT,
+	PINK_TRACE_EVENT_EXIT,
 	/** Child has received a genuine signal **/
-	PINK_EVENT_GENUINE,
+	PINK_TRACE_EVENT_GENUINE,
 	/** Child has exited normally **/
-	PINK_EVENT_EXIT_GENUINE,
+	PINK_TRACE_EVENT_EXIT_GENUINE,
 	/** Child has been terminated with a signal **/
-	PINK_EVENT_EXIT_SIGNAL,
+	PINK_TRACE_EVENT_EXIT_SIGNAL,
 	/** Unknown event, shouldn't happen **/
-	PINK_EVENT_UNKNOWN,
-} pink_event_t;
+	PINK_TRACE_EVENT_UNKNOWN,
+} pink_trace_event_t;
 
 /**
  * Return the last event made by child.
@@ -74,8 +74,8 @@ typedef enum {
  *
  * \return One of PINK_EVENT_* constants
  **/
-pink_event_t
-pink_event_decide(int status);
+pink_trace_event_t
+pink_trace_event_decide(int status);
 
 /**
  * Return a string representation of the event.

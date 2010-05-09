@@ -67,12 +67,15 @@
 #include <pinktrace/gcc.h>
 #include <pinktrace/about.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/decode.h>
-#include <pinktrace/encode.h>
-#include <pinktrace/event.h>
 #include <pinktrace/name.h>
 #include <pinktrace/socket.h>
-#include <pinktrace/trace.h>
-#include <pinktrace/util.h>
+
+#if PINKTRACE_BACKEND_PTRACE
+#include <pinktrace/ptrace/decode.h>
+#include <pinktrace/ptrace/encode.h>
+#include <pinktrace/ptrace/event.h>
+#include <pinktrace/ptrace/trace.h>
+#include <pinktrace/ptrace/util.h>
+#endif /* PINKTRACE_BACKEND_PTRACE */
 
 #endif /* !PINKTRACE_GUARD_PINK_H */

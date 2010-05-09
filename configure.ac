@@ -200,6 +200,28 @@ fi
 AC_SUBST([PINKTRACE_DEFAULT_BITNESS])
 dnl }}}
 
+dnl {{{ Tracing backends
+PINKTRACE_BACKEND_PROC=0
+PINKTRACE_BACKEND_PTRACE=0
+
+dnl Backend libraries
+if test x"$opsys" = x"freebsd" ; then
+	# PINKTRACE_BACKEND_PROC="yes"
+	# PINKTRACE_PC_LIBS="${PINKTRACE_PC_LIBS} -lpinktrace_proc_${PINKTRACE_PC_SLOT}"
+
+	PINKTRACE_BACKEND_PTRACE=1
+	PINKTRACE_PC_LIBS="${PINKTRACE_PC_LIBS} -lpinktrace_ptrace_${PINKTRACE_PC_SLOT}"
+fi
+if test x"$opsys" = x"linux" ; then
+	PINKTRACE_BACKEND_PTRACE="yes"
+	PINKTRACE_PC_LIBS="${PINKTRACE_PC_LIBS} -lpinktrace_ptrace_${PINKTRACE_PC_SLOT}"
+fi
+AC_SUBST([PINKTRACE_BACKEND_PROC])
+AC_SUBST([PINKTRACE_BACKEND_PTRACE])
+AM_CONDITIONAL([BACKEND_PROC], test x"$PINKTRACE_BACKEND_PROC" = x"1")
+AM_CONDITIONAL([BACKEND_PTRACE], test x"$PINKTRACE_BACKEND_PTRACE" = x"1")
+dnl }}}
+
 dnl {{{ Check for types
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
@@ -514,6 +536,9 @@ AC_OUTPUT(
 		  ruby/Makefile
 		  pkg-config/Makefile
 		  src/Makefile
+		  src/backend/Makefile
+		  src/backend/proc/Makefile
+		  src/backend/ptrace/Makefile
 		  src/freebsd/Makefile
 		  src/freebsd/amd64/Makefile
 		  src/linux/Makefile

@@ -26,7 +26,7 @@
 
 #define ORIG_ACCUM	(8 * ORIG_RAX)
 #define ACCUM		(8 * RAX)
-static const long syscall_args[2][PINK_MAX_INDEX] = {
+static const long syscall_args[2][PINK_TRACE_MAX_INDEX] = {
 	{8 * RBX, 8 * RCX, 8 * RDX, 8 * RSI, 8 * RDI, 8 * RBP},
 	{8 * RDI, 8 * RSI, 8 * RDX, 8 * R10, 8 * R8, 8 * R9}
 };
@@ -43,7 +43,7 @@ pink_bitness_get(pid_t pid)
 	 * 0x23    for compatibility mode (32 bit)
 	 */
 
-	if (!pink_util_peek(pid, 8 * CS, &cs))
+	if (!pink_trace_util_peek(pid, 8 * CS, &cs))
 		return PINK_BITNESS_UNKNOWN;
 
 	switch (cs) {
@@ -57,110 +57,110 @@ pink_bitness_get(pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
+pink_trace_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
-	return pink_util_peek(pid, ORIG_ACCUM, res);
+	return pink_trace_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
+pink_trace_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
-	return pink_util_poke(pid, ORIG_ACCUM, scno);
+	return pink_trace_util_poke(pid, ORIG_ACCUM, scno);
 }
 
 bool
-pink_util_get_return(pid_t pid, long *res)
+pink_trace_util_get_return(pid_t pid, long *res)
 {
-	return pink_util_peek(pid, ACCUM, res);
+	return pink_trace_util_peek(pid, ACCUM, res);
 }
 
 bool
-pink_util_set_return(pid_t pid, long ret)
+pink_trace_util_set_return(pid_t pid, long ret)
 {
-	return pink_util_poke(pid, ACCUM, ret);
+	return pink_trace_util_poke(pid, ACCUM, ret);
 }
 
 bool
-pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
+pink_trace_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 {
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	return pink_util_peek(pid, syscall_args[bitness][ind], res);
+	return pink_trace_util_peek(pid, syscall_args[bitness][ind], res);
 }
 
 bool
-pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len)
+pink_trace_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len)
 {
 	long addr;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr))
 		return false;
 
-	return pink_util_moven(pid, addr, dest, len);
+	return pink_trace_util_moven(pid, addr, dest, len);
 }
 
 bool
-pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len)
+pink_trace_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len)
 {
 	long addr;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr))
 		return false;
 
-	return pink_util_movestr(pid, addr, dest, len);
+	return pink_trace_util_movestr(pid, addr, dest, len);
 }
 
 char *
-pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
+pink_trace_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 {
 	long addr;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr))
 		return false;
 
-	return pink_util_movestr_persistent(pid, addr);
+	return pink_trace_util_movestr_persistent(pid, addr);
 }
 
 bool
-pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len)
+pink_trace_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len)
 {
 	long addr;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr))
 		return false;
 
-	return pink_util_putn(pid, addr, src, len);
+	return pink_trace_util_putn(pid, addr, src, len);
 }
 
 bool
-pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len)
+pink_trace_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len)
 {
 	long addr;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr))
 		return false;
 
-	return pink_util_putn_safe(pid, addr, src, len);
+	return pink_trace_util_putn_safe(pid, addr, src, len);
 }
 
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
+pink_trace_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 {
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(subcall_r != NULL);
@@ -168,11 +168,11 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (!pink_util_get_arg(pid, PINK_BITNESS_32, 0, subcall_r))
+		if (!pink_trace_util_get_arg(pid, PINK_BITNESS_32, 0, subcall_r))
 			return false;
 		return true;
 	case PINK_BITNESS_64:
-		if (!pink_util_get_syscall(pid, PINK_BITNESS_64, subcall_r))
+		if (!pink_trace_util_get_syscall(pid, PINK_BITNESS_64, subcall_r))
 			return false;
 		return true;
 	case PINK_BITNESS_UNKNOWN:
@@ -182,23 +182,23 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 }
 
 bool
-pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
+pink_trace_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 {
 	long args;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 	assert(fd != NULL);
 
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args))
+		if (!pink_trace_util_get_arg(pid, PINK_BITNESS_32, 1, &args))
 			return false;
 		args += ind * sizeof(unsigned int);
-		return pink_util_move(pid, args, fd);
+		return pink_trace_util_move(pid, args, fd);
 	case PINK_BITNESS_64:
-		return pink_util_get_arg(pid, PINK_BITNESS_64, ind, fd);
+		return pink_trace_util_get_arg(pid, PINK_BITNESS_64, ind, fd);
 	case PINK_BITNESS_UNKNOWN:
 	default:
 		abort();
@@ -206,37 +206,37 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 }
 
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
+pink_trace_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 	long *fd_r, pink_socket_address_t *addr_r)
 {
 	unsigned int iaddr, iaddrlen;
 	long addr, addrlen, args;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
-	assert(ind < PINK_MAX_INDEX);
+	assert(ind < PINK_TRACE_MAX_INDEX);
 
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args))
+		if (!pink_trace_util_get_arg(pid, PINK_BITNESS_32, 1, &args))
 			return false;
-		if (fd_r && !pink_util_move(pid, args, fd_r))
+		if (fd_r && !pink_trace_util_move(pid, args, fd_r))
 			return false;
 		args += ind * sizeof(unsigned int);
-		if (!pink_util_move(pid, args, &iaddr))
+		if (!pink_trace_util_move(pid, args, &iaddr))
 			return false;
 		args += sizeof(unsigned int);
-		if (!pink_util_move(pid, args, &iaddrlen))
+		if (!pink_trace_util_move(pid, args, &iaddrlen))
 			return false;
 		addr = iaddr;
 		addrlen = iaddrlen;
 		break;
 	case PINK_BITNESS_64:
-		if (fd_r && !pink_util_get_arg(pid, PINK_BITNESS_64, 0, fd_r))
+		if (fd_r && !pink_trace_util_get_arg(pid, PINK_BITNESS_64, 0, fd_r))
 			return false;
-		if (!pink_util_get_arg(pid, PINK_BITNESS_64, ind, &addr))
+		if (!pink_trace_util_get_arg(pid, PINK_BITNESS_64, ind, &addr))
 			return false;
-		if (!pink_util_get_arg(pid, PINK_BITNESS_64, ind + 1, &addrlen))
+		if (!pink_trace_util_get_arg(pid, PINK_BITNESS_64, ind + 1, &addrlen))
 			return false;
 		break;
 	case PINK_BITNESS_UNKNOWN:
@@ -244,5 +244,5 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 		abort();
 	}
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
+	return pink_trace_internal_decode_socket_address(pid, addr, addrlen, addr_r);
 }

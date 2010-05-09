@@ -24,72 +24,72 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
-pink_event_t
-pink_event_decide(int status)
+pink_trace_event_t
+pink_trace_event_decide(int status)
 {
 	unsigned int event;
 
 	if (WIFSTOPPED(status)) {
 		switch (WSTOPSIG(status)) {
 		case SIGSTOP:
-			return PINK_EVENT_STOP;
+			return PINK_TRACE_EVENT_STOP;
 		case SIGTRAP | 0x80:
-			return PINK_EVENT_SYSCALL;
+			return PINK_TRACE_EVENT_SYSCALL;
 		default:
 			event = (status >> 16) & 0xffff;
 			switch (event) {
 			case PTRACE_EVENT_FORK:
-				return PINK_EVENT_FORK;
+				return PINK_TRACE_EVENT_FORK;
 			case PTRACE_EVENT_VFORK:
-				return PINK_EVENT_VFORK;
+				return PINK_TRACE_EVENT_VFORK;
 			case PTRACE_EVENT_CLONE:
-				return PINK_EVENT_CLONE;
+				return PINK_TRACE_EVENT_CLONE;
 			case PTRACE_EVENT_VFORK_DONE:
-				return PINK_EVENT_VFORK_DONE;
+				return PINK_TRACE_EVENT_VFORK_DONE;
 			case PTRACE_EVENT_EXEC:
-				return PINK_EVENT_EXEC;
+				return PINK_TRACE_EVENT_EXEC;
 			case PTRACE_EVENT_EXIT:
-				return PINK_EVENT_EXIT;
+				return PINK_TRACE_EVENT_EXIT;
 			default:
-				return PINK_EVENT_GENUINE;
+				return PINK_TRACE_EVENT_GENUINE;
 			}
 		}
 	}
 	else if (WIFEXITED(status))
-		return PINK_EVENT_EXIT_GENUINE;
+		return PINK_TRACE_EVENT_EXIT_GENUINE;
 	else if (WIFSIGNALED(status))
-		return PINK_EVENT_EXIT_SIGNAL;
+		return PINK_TRACE_EVENT_EXIT_SIGNAL;
 
-	return PINK_EVENT_UNKNOWN;
+	return PINK_TRACE_EVENT_UNKNOWN;
 }
 
 const char *
-pink_event_tostring(pink_event_t event)
+pink_event_tostring(pink_trace_event_t event)
 {
 	switch (event) {
-	case PINK_EVENT_STOP:
+	case PINK_TRACE_EVENT_STOP:
 		return "stop";
-	case PINK_EVENT_SYSCALL:
+	case PINK_TRACE_EVENT_SYSCALL:
 		return "syscall";
-	case PINK_EVENT_FORK:
+	case PINK_TRACE_EVENT_FORK:
 		return "fork";
-	case PINK_EVENT_VFORK:
+	case PINK_TRACE_EVENT_VFORK:
 		return "vfork";
-	case PINK_EVENT_CLONE:
+	case PINK_TRACE_EVENT_CLONE:
 		return "clone";
-	case PINK_EVENT_VFORK_DONE:
+	case PINK_TRACE_EVENT_VFORK_DONE:
 		return "vfork_done";
-	case PINK_EVENT_EXEC:
+	case PINK_TRACE_EVENT_EXEC:
 		return "exec";
-	case PINK_EVENT_EXIT:
+	case PINK_TRACE_EVENT_EXIT:
 		return "exit";
-	case PINK_EVENT_GENUINE:
+	case PINK_TRACE_EVENT_GENUINE:
 		return "genuine";
-	case PINK_EVENT_EXIT_GENUINE:
+	case PINK_TRACE_EVENT_EXIT_GENUINE:
 		return "exit_genuine";
-	case PINK_EVENT_EXIT_SIGNAL:
+	case PINK_TRACE_EVENT_EXIT_SIGNAL:
 		return "exit_signal";
-	case PINK_EVENT_UNKNOWN:
+	case PINK_TRACE_EVENT_UNKNOWN:
 	default:
 		return "unknown";
 	}

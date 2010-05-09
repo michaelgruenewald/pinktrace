@@ -36,7 +36,7 @@
 #include <pinktrace/pink.h>
 
 bool
-pink_util_peek(pid_t pid, long off, long *res)
+pink_trace_util_peek(pid_t pid, long off, long *res)
 {
 	long val;
 
@@ -52,7 +52,7 @@ pink_util_peek(pid_t pid, long off, long *res)
 }
 
 bool
-pink_util_peekdata(pid_t pid, long off, long *res)
+pink_trace_util_peekdata(pid_t pid, long off, long *res)
 {
 	long val;
 
@@ -68,31 +68,31 @@ pink_util_peekdata(pid_t pid, long off, long *res)
 }
 
 bool
-pink_util_poke(pid_t pid, long off, long val)
+pink_trace_util_poke(pid_t pid, long off, long val)
 {
 	return (0 == ptrace(PTRACE_POKEUSER, pid, off, val));
 }
 
 bool
-pink_util_pokedata(pid_t pid, long off, long val)
+pink_trace_util_pokedata(pid_t pid, long off, long val)
 {
 	return (0 == ptrace(PTRACE_POKEDATA, pid, off, val));
 }
 
 bool
-pink_util_get_regs(pid_t pid, void *regs)
+pink_trace_util_get_regs(pid_t pid, void *regs)
 {
 	return !(ptrace(PTRACE_GETREGS, pid, NULL, regs) < 0);
 }
 
 bool
-pink_util_set_regs(pid_t pid, const void *regs)
+pink_trace_util_set_regs(pid_t pid, const void *regs)
 {
 	return !(ptrace(PTRACE_SETREGS, pid, NULL, regs) < 0);
 }
 
 bool
-pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
+pink_trace_util_putn(pid_t pid, long addr, const char *src, size_t len)
 {
 	int n, m;
 	union {
@@ -105,7 +105,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 
 	while (n < m) {
 		memcpy(u.x, src, sizeof(long));
-		if (!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
+		if (!pink_trace_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
 			return false;
 		++n;
 		src += sizeof(long);
@@ -114,7 +114,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 	m = len % sizeof(long);
 	if (m) {
 		memcpy(u.x, src, m);
-		if (!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
+		if (!pink_trace_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
 			return false;
 	}
 
@@ -122,7 +122,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 }
 
 bool
-pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
+pink_trace_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 {
 	int n, m;
 	union {
@@ -135,9 +135,9 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 
 	while (n < m) {
 		memcpy(u.x, src, sizeof(long));
-		if (!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL))
+		if (!pink_trace_util_peekdata(pid, addr + n * ADDR_MUL, NULL))
 			return false;
-		if (!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
+		if (!pink_trace_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
 			return false;
 		++n;
 		src += sizeof(long);
@@ -146,9 +146,9 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 	m = len % sizeof(long);
 	if (m) {
 		memcpy(u.x, src, m);
-		if (!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL))
+		if (!pink_trace_util_peekdata(pid, addr + n * ADDR_MUL, NULL))
 			return false;
-		if (!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
+		if (!pink_trace_util_pokedata(pid, addr + n * ADDR_MUL, u.val))
 			return false;
 	}
 
@@ -157,7 +157,7 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 
 #define MIN(a,b)	(((a) < (b)) ? (a) : (b))
 bool
-pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
+pink_trace_util_moven(pid_t pid, long addr, char *dest, size_t len)
 {
 	int n, m;
 	int started = 0;
@@ -171,7 +171,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return true;
@@ -184,7 +184,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 		addr += sizeof(long), dest += m, len -= m;
 	}
 	while (len > 0) {
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return true;
@@ -200,7 +200,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 }
 
 bool
-pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
+pink_trace_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 {
 	int n, m;
 	int started = 0;
@@ -214,7 +214,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return true;
@@ -230,7 +230,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		addr += sizeof(long), dest += m, len -= m;
 	}
 	while (len > 0) {
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return true;
@@ -249,7 +249,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 }
 
 char *
-pink_util_movestr_persistent(pid_t pid, long addr)
+pink_trace_util_movestr_persistent(pid_t pid, long addr)
 {
 	int n, m, sum;
 	bool started;
@@ -275,7 +275,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return res;
@@ -297,7 +297,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		addr += sizeof(long), res_ptr += m;
 	}
 	for (;;) {
-		if (!pink_util_peekdata(pid, addr, &u.val)) {
+		if (!pink_trace_util_peekdata(pid, addr, &u.val)) {
 			if (started && (errno == EPERM || errno == EIO)) {
 				/* Ran into end of memory */
 				return res;

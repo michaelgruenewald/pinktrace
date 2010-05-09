@@ -81,4 +81,14 @@
  **/
 #define PINKTRACE_DEFAULT_BITNESS @PINKTRACE_DEFAULT_BITNESS@
 
+/**
+ * This is 1 if /proc backend is supported, 0 otherwise
+ **/
+#define PINKTRACE_BACKEND_PROC @PINKTRACE_BACKEND_PTRACE@
+
+/**
+ * This is 1 if ptrace backend is supported, 0 otherwise
+ **/
+#define PINKTRACE_BACKEND_PTRACE @PINKTRACE_BACKEND_PTRACE@
+
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

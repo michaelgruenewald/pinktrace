@@ -81,7 +81,6 @@ const char *
 pink_name_syscall_powerpc(long scno, pink_bitness_t bitness);
 
 bool
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
-	pink_socket_address_t *addr_r);
+pink_trace_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *addr_r);
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

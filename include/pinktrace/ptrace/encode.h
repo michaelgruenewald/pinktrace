@@ -43,7 +43,7 @@
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
+pink_trace_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
@@ -60,7 +60,7 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
+pink_trace_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 #endif /* defined(PINKTRACE_LINUX)... */
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */
