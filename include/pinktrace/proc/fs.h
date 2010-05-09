@@ -161,5 +161,4 @@ bool
 pink_proc_status(int fd, struct procfs_status *status);
 
 #endif /* defined(PINKTRACE_FREEBSD)... */
-
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

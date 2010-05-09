@@ -65,4 +65,5 @@ src/freebsd/syscalls.master
 src/freebsd/pink-syscallent.h
 
 tests/check_pinktrace
+tests/proc/check_pinktrace_proc
 tests/ptrace/check_pinktrace_ptrace
