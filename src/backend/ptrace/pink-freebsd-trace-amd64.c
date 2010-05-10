@@ -107,6 +107,7 @@ pink_trace_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long 
 
 	r.r_rax = scno;
 
+	/* FIXME: Do we want to handle redirection here as well? */
 	if (!pink_trace_util_set_regs(pid, &r))
 		return false;
 
