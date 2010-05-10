@@ -39,4 +39,7 @@ fs_suite_create(void);
 Suite *
 util_suite_create(void);
 
+Suite *
+decode_suite_create(void);
+
 #endif /* !PINKTRACE_GUARD_CHECK_PINKTRACE_PROC_H */

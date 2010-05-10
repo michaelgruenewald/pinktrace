@@ -58,54 +58,11 @@ pink_proc_util_open(pid_t pid, int *fd)
 bool
 pink_proc_util_get_regs(int rfd, struct reg *regs)
 {
-	int ret;
-	unsigned len;
-	struct reg *r;
-
-	if (lseek(rfd, 0L, SEEK_SET) < 0)
-		return false;
-
-	len = 0;
-	r = regs;
-	do {
-		ret = read(rfd, r, sizeof(struct reg) - len);
-		if (!ret)
-			return false;
-		else if (ret < 0) {
-			if (errno == EINTR)
-				continue;
-			return false;
-		}
-		r += ret;
-		len += ret;
-	} while (len < sizeof(struct reg));
-
-	return true;
+	return pink_proc_read(rfd, 0L, regs, sizeof(struct reg));
 }
 
 bool
 pink_proc_util_set_regs(int rfd, const struct reg *regs)
 {
-	int len, ret;
-	const struct reg *r;
-
-	if (lseek(rfd, 0L, SEEK_SET) < 0)
-		return false;
-
-	len = sizeof(struct reg);
-	r = regs;
-	do {
-		ret = write(rfd, r, len);
-		if (!ret)
-			return false;
-		else if (ret < 0) {
-			if (errno == EINTR)
-				continue;
-			return false;
-		}
-		r += ret;
-		len -= ret;
-	} while (len > 0);
-
-	return true;
+	return pink_proc_write(rfd, 0L, regs, sizeof(struct reg));
 }

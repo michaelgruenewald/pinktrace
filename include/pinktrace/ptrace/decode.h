@@ -23,7 +23,7 @@
 
 /**
  * \file
- * Pink's system call decoders
+ * Pink's ptrace system call decoders
  **/
 
 #include <stdbool.h>
@@ -47,7 +47,7 @@ pink_trace_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *
 /**
  * Get the string argument and place it in dest.
  *
- * \note On FreeBSD this function is equivalent to pink_decode_simple().
+ * \note On FreeBSD this function is equivalent to pink_trace_decode_simple().
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
@@ -61,7 +61,7 @@ bool
 pink_trace_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
 
 /**
- * Like pink_decode_string() but allocates the string itself.
+ * Like pink_trace_decode_string() but allocates the string itself.
  *
  * \return The path on success, NULL on failure and sets errno
  * accordingly.

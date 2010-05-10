@@ -20,9 +20,11 @@
 
 #include <pinktrace/internal.h>
 
+#include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -92,4 +94,16 @@ bool
 pink_proc_status(int fd, struct procfs_status *status)
 {
 	return !(ioctl(fd, PIOCSTATUS, status) < 0);
+}
+
+bool
+pink_proc_read(int fd, off_t off, void *dest, size_t len)
+{
+	return pread(fd, dest, len, off) == (ssize_t)len;
+}
+
+bool
+pink_proc_write(int fd, off_t off, const void *src, size_t len)
+{
+	return pwrite(fd, src, len, off) == (ssize_t)len;
 }

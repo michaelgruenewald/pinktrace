@@ -160,5 +160,35 @@ pink_proc_wait(int fd, struct procfs_status *status);
 bool
 pink_proc_status(int fd, struct procfs_status *status);
 
+/**
+ * Read data from the given file descriptor.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param fd File descriptor
+ * \param off Offset to start reading from
+ * \param dest Address to store the data
+ * \param len Lenght of dest
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_proc_read(int fd, off_t off, void *dest, size_t len);
+
+/**
+ * Write data to the given file descriptor.
+ *
+ * \note Mostly for internal use, use higher level functions where possible.
+ *
+ * \param fd File descriptor
+ * \param off Offset to start reading from
+ * \param src Data to write
+ * \param len Lenght of src
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_proc_write(int fd, off_t off, const void *src, size_t len);
+
 #endif /* defined(PINKTRACE_FREEBSD)... */
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

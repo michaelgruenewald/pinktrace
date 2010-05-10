@@ -72,6 +72,7 @@
 
 #if PINKTRACE_BACKEND_PROC
 #include <pinktrace/proc/fs.h>
+#include <pinktrace/proc/decode.h>
 #include <pinktrace/proc/util.h>
 #endif /* PINKTRACE_BACKEND_PROC */
 

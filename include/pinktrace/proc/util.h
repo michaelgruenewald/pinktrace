@@ -132,7 +132,8 @@ pink_proc_util_set_return(int rfd, long ret);
 /**
  * Get the given argument and place it in res.
  *
- * \param pid Process ID of the child whose argument is to be received.
+ * \param fd Main /proc file descriptor (returned by pink_proc_open())
+ * \param rfd /proc file descriptor (returned by pink_proc_util_open())
  * \param bitness Bitness of the child
  * \param ind The index of the argument (0-5, see #pink_proc_MAX_INDEX)
  * \param res Pointer to store the argument
@@ -140,7 +141,7 @@ pink_proc_util_set_return(int rfd, long ret);
  * \return true on success, false on failure and sets errno accordingly.
  **/
 bool
-pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, long *res);
+pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, unsigned long *res);
 
 #endif /* defined(FREEBSD)... */
 #endif /* !PINKTRACE_GUARD_PROC_UTIL_H */
