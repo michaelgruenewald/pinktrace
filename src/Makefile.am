@@ -16,7 +16,7 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= \
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS= -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LIBADD=
 if FREEBSD
-# libpinktrace_@PINKTRACE_PC_SLOT@_la_LIBADD+= backend/proc/libpinktrace_proc_@PINKTRACE_PC_SLOT@.la
+libpinktrace_@PINKTRACE_PC_SLOT@_la_LIBADD+= backend/proc/libpinktrace_proc_@PINKTRACE_PC_SLOT@.la
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LIBADD+= backend/ptrace/libpinktrace_ptrace_@PINKTRACE_PC_SLOT@.la
 endif # FREEBSD
 if LINUX
