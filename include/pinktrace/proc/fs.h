@@ -78,7 +78,7 @@
  *
  * \param pid Process ID of the child, if this argument is smaller than zero,
  * /proc/curproc/mem is opened instead of /proc/$pid/mem.
- * \param fs Address to save the /proc file descriptor
+ * \param fd Address to save the /proc file descriptor
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
@@ -131,7 +131,7 @@ pink_proc_clear_event_flags(int fd);
 /**
  * Let the child continue its execution.
  *
- * \param fs The proc structure
+ * \param fd /proc file descriptor
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
@@ -141,7 +141,7 @@ pink_proc_cont(int fd);
 /**
  * Wait for events
  *
- * \param fs /proc file descriptor
+ * \param fd /proc file descriptor
  * \param status Address the save the procfs_status structure
  *
  * \return true on success, false on failure and sets errno accordingly.

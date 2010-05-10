@@ -18,7 +18,8 @@ pinktrace_include_HEADERS= \
 if BACKEND_PROC
 pinktrace_proc_includedir= $(pinktrace_includedir)/proc/
 pinktrace_proc_include_HEADERS= \
-				include/pinktrace/proc/fs.h
+				include/pinktrace/proc/fs.h \
+				include/pinktrace/proc/util.h
 endif # BACKEND_PROC
 
 if BACKEND_PTRACE

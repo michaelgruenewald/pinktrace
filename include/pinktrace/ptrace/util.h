@@ -246,6 +246,16 @@ pink_trace_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
+ * Return the bitness of the given process ID.
+ *
+ * \param pid Process ID of the process whose bitness is to be returned.
+ *
+ * \return One of PINK_BITNESS_* constants.
+ **/
+pink_bitness_t
+pink_trace_util_get_bitness(pid_t pid);
+
+/**
  * Gets the last system call called by child with the given process ID.
  *
  * \param pid Process ID of the child whose system call is to be returned.
@@ -295,7 +305,7 @@ pink_trace_util_get_return(pid_t pid, long *res);
 bool
 pink_trace_util_set_return(pid_t pid, long ret);
 
-/**
+/*
  * Get the given argument and place it in res.
  *
  * \param pid Process ID of the child whose argument is to be received.
@@ -307,15 +317,5 @@ pink_trace_util_set_return(pid_t pid, long ret);
  **/
 bool
 pink_trace_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
-
-/**
- * Return the bitness of the given process ID.
- *
- * \param pid Process ID of the process whose bitness is to be returned.
- *
- * \return One of PINK_BITNESS_* constants.
- **/
-pink_bitness_t
-pink_trace_util_get_bitness(pid_t pid);
 
 #endif /* !PINKTRACE_GUARD_PTRACE_UTIL_H */

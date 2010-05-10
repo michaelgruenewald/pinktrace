@@ -27,7 +27,6 @@
 #include <string.h>
 #include <unistd.h>
 
-
 #include <check.h>
 #include <pinktrace/pink.h>
 
@@ -52,7 +51,7 @@ START_TEST(t_proc_open)
 	else if (!pid) /* child */
 		pause();
 	else { /* parent */
-		fail_unless(pink_proc_open(-1, &fd), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_proc_open(pid, &fd), "%d(%s)", errno, strerror(errno));
 		fail_if(fd < 0, "%d", fd);
 
 		close(fd);

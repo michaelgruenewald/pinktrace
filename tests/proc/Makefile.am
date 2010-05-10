@@ -6,6 +6,7 @@ noinst_HEADERS= check_pinktrace_proc.h
 
 check_pinktrace_proc_SOURCES= \
 			      check_fs.c \
+			      check_util.c \
 			      main.c
 check_pinktrace_proc_CFLAGS= \
 			     -I$(top_srcdir)/include \

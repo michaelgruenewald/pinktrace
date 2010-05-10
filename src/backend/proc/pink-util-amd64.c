@@ -18,36 +18,41 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "check_pinktrace_proc.h"
+#include <pinktrace/internal.h>
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
+#include <sys/sysctl.h>
 
-#include <check.h>
+#include <pinktrace/pink.h>
 
-int
-main(void)
+struct bitness_types {
+	const char *type;
+	pink_bitness_t bitness;
+} bitness_types[] = {
+	{"FreeBSD ELF64", PINK_BITNESS_64},
+	{"FreeBSD ELF32", PINK_BITNESS_32},
+	{NULL, -1}
+};
+
+bool
+pink_proc_util_bitness_get(pink_unused pid_t pid)
 {
-	int number_failed;
-	SRunner *sr;
+	char progt[32];
+	size_t len = sizeof(progt);
+	int mib[4];
+	struct bitness_types *walk;
 
-	/* Check if /proc is mounted */
-	if (access("/proc/curproc", R_OK) < 0) {
-		perror("access(\"/proc/curproc\", R_OK)");
-		fprintf(stderr, "Is /proc mounted?\n");
-		return EXIT_FAILURE;
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_SV_NAME;
+	mib[3] = pid;
+
+	if (sysctl(mib, 4, progt, &len, NULL, 0) < 0)
+		return PINK_BITNESS_UNKNOWN;
+
+	for (walk = bitness_types; walk->type; walk++) {
+		if (!strcmp(walk->type, progt))
+			return walk->bitness;
 	}
 
-	/* Add suites */
-	sr = srunner_create(fs_suite_create());
-	srunner_add_suite(sr, util_suite_create());
-
-	/* Run and grab the results */
-	srunner_run_all(sr, CK_VERBOSE);
-	number_failed = srunner_ntests_failed(sr);
-
-	/* Cleanup and exit */
-	srunner_free(sr);
-	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+	return PINK_BITNESS_UNKNOWN;
 }
