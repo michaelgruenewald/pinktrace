@@ -67,21 +67,22 @@
 #include <pinktrace/gcc.h>
 #include <pinktrace/about.h>
 #include <pinktrace/bitness.h>
-#include <pinktrace/name.h>
-#include <pinktrace/socket.h>
+
+#include <pinktrace/backend/name.h>
+#include <pinktrace/backend/socket.h>
 
 #if PINKTRACE_BACKEND_PROC
-#include <pinktrace/proc/fs.h>
-#include <pinktrace/proc/decode.h>
-#include <pinktrace/proc/util.h>
+#include <pinktrace/backend/proc/fs.h>
+#include <pinktrace/backend/proc/decode.h>
+#include <pinktrace/backend/proc/util.h>
 #endif /* PINKTRACE_BACKEND_PROC */
 
 #if PINKTRACE_BACKEND_PTRACE
-#include <pinktrace/ptrace/decode.h>
-#include <pinktrace/ptrace/encode.h>
-#include <pinktrace/ptrace/event.h>
-#include <pinktrace/ptrace/trace.h>
-#include <pinktrace/ptrace/util.h>
+#include <pinktrace/backend/ptrace/decode.h>
+#include <pinktrace/backend/ptrace/encode.h>
+#include <pinktrace/backend/ptrace/event.h>
+#include <pinktrace/backend/ptrace/trace.h>
+#include <pinktrace/backend/ptrace/util.h>
 #endif /* PINKTRACE_BACKEND_PTRACE */
 
 #endif /* !PINKTRACE_GUARD_PINK_H */

@@ -30,7 +30,7 @@
 #include <sys/types.h>
 
 #include <pinktrace/bitness.h>
-#include <pinktrace/socket.h>
+#include <pinktrace/backend/socket.h>
 
 /**
  * Get the data in argument arg and place it in dest.

@@ -66,7 +66,7 @@
 #define ADDR_MUL	((64 == __WORDSIZE) ? 8 : 4)
 
 #include <pinktrace/bitness.h>
-#include <pinktrace/socket.h>
+#include <pinktrace/backend/socket.h>
 
 const char *
 pink_name_syscall_i386(long scno, pink_bitness_t bitness);

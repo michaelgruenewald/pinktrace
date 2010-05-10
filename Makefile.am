@@ -11,26 +11,29 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/about.h \
 			  include/pinktrace/bitness.h \
 			  include/pinktrace/gcc.h \
-			  include/pinktrace/name.h \
-			  include/pinktrace/socket.h \
 			  include/pinktrace/pink.h
 
+pinktrace_backend_includedir= $(pinktrace_backend_includedir)/backend
+pinktrace_backend_include_HEADERS= \
+				   include/pinktrace/backend/name.h \
+				   include/pinktrace/backend/socket.h
+
 if BACKEND_PROC
-pinktrace_proc_includedir= $(pinktrace_includedir)/proc/
+pinktrace_proc_includedir= $(pinktrace_backend_includedir)/proc/
 pinktrace_proc_include_HEADERS= \
-				include/pinktrace/proc/fs.h \
-				include/pinktrace/proc/util.h \
-				include/pinktrace/proc/decode.h
+				include/pinktrace/backend/proc/fs.h \
+				include/pinktrace/backend/proc/util.h \
+				include/pinktrace/backend/proc/decode.h
 endif # BACKEND_PROC
 
 if BACKEND_PTRACE
 pinktrace_ptrace_includedir= $(pinktrace_includedir)/ptrace/
 pinktrace_ptrace_include_HEADERS= \
-				  include/pinktrace/ptrace/decode.h \
-				  include/pinktrace/ptrace/encode.h \
-				  include/pinktrace/ptrace/event.h \
-				  include/pinktrace/ptrace/trace.h \
-				  include/pinktrace/ptrace/util.h
+				  include/pinktrace/backend/ptrace/decode.h \
+				  include/pinktrace/backend/ptrace/encode.h \
+				  include/pinktrace/backend/ptrace/event.h \
+				  include/pinktrace/backend/ptrace/trace.h \
+				  include/pinktrace/backend/ptrace/util.h
 endif # BACKEND_PTRACE
 
 noinst_HEADERS= include/pinktrace/internal.h
