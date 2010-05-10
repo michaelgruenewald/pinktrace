@@ -277,7 +277,7 @@ pink_trace_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind
 	}
 
 	if (!pink_trace_util_get_arg(pid, bitness, ind, &addr)
-		|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen))
+		|| !pink_trace_util_get_arg(pid, bitness, ind + 1, &addrlen))
 		return false;
 
 	return pink_trace_internal_decode_socket_address(pid, addr, addrlen, addr_r);

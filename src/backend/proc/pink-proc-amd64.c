@@ -158,7 +158,7 @@ pink_proc_util_set_return(int rfd, long ret)
 }
 
 bool
-pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, long *res)
+pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, unsigned long *res)
 {
 	off_t parm_offset;
 	struct reg r;
@@ -193,7 +193,7 @@ pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, lo
 
 	if (bitness == PINK_BITNESS_32) {
 		parm_offset += ind * sizeof(int);
-		return pink_proc_read(fd, parm_offset, res, sizeof(int));
+		return pink_proc_read(fd, parm_offset, res, sizeof(unsigned long));
 	}
 
 	switch (ind) {
@@ -217,7 +217,7 @@ pink_proc_util_get_arg(int fd, int rfd, pink_bitness_t bitness, unsigned ind, lo
 		break;
 	case 6:
 		/* system call redirection */
-		return pink_proc_read(fd, parm_offset, res, sizeof(int));
+		return pink_proc_read(fd, parm_offset, res, sizeof(unsigned long));
 	default:
 		abort();
 	}
