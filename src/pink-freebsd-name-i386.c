@@ -18,7 +18,10 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <stdio.h> /* NULL */
+#include <pinktrace/internal.h>
+
+#include <stdio.h>
+#include <string.h>
 
 #include <pinktrace/pink.h>
 
@@ -27,11 +30,29 @@
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 
 const char *
-pink_name_syscall_i386(long scno, pink_bitness_t bitness)
+pink_name_syscall(long scno, pink_bitness_t bitness)
 {
 	if (bitness != PINK_BITNESS_32)
 		return NULL;
 	if (scno < 0 || scno >= nsys)
 		return NULL;
 	return sysnames[scno];
+}
+
+long
+pink_name_lookup(const char *name, pink_bitness_t bitness)
+{
+	long scno;
+
+	if (bitness != PINK_BITNESS_32)
+		return -1;
+	if (name == NULL || name[0] == '\0')
+		return -1;
+
+	for (scno = 0; scno < nsys; scno++) {
+		if (!strcmp(sysnames[scno], name))
+			return scno;
+	}
+
+	return -1;
 }

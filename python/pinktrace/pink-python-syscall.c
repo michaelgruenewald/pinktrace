@@ -61,6 +61,32 @@ pinkpy_syscall_name(pink_unused PyObject *self, PyObject *args)
 	return Py_BuildValue("s", scname);
 }
 
+static char pinkpy_syscall_lookup_doc[] = ""
+	"Look up the number of the given system call name.\n"
+	"\n"
+	"@param name: System call name\n"
+	"@param bitness: The bitness of the traced child\n"
+	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
+	"@return: The number of the system call or -1.";
+static PyObject *
+pinkpy_syscall_lookup(pink_unused PyObject *self, PyObject *args)
+{
+	long scno;
+	pink_bitness_t bit;
+	const char *name;
+
+	bit = PINKTRACE_DEFAULT_BITNESS;
+	if (!PyArg_ParseTuple(args, "s|i", &name, &bit))
+		return NULL;
+
+	if (!check_bitness(bit))
+		return NULL;
+
+	scno = pink_name_lookup(name, bit);
+	return Py_BuildValue("l", scno);
+}
+
 static char pinkpy_syscall_get_no_doc[] = ""
 	"Returns the last system call number called by the traced child.\n"
 	"\n"
@@ -202,6 +228,7 @@ syscall_init(PyObject *mod)
 static char syscall_doc[] = "Pink's system call utility functions";
 static PyMethodDef syscall_methods[] = {
 	{"name", pinkpy_syscall_name, METH_VARARGS, pinkpy_syscall_name_doc},
+	{"lookup", pinkpy_syscall_lookup, METH_VARARGS, pinkpy_syscall_lookup_doc},
 	{"get_no", pinkpy_syscall_get_no, METH_VARARGS, pinkpy_syscall_get_no_doc},
 	{"set_no", pinkpy_syscall_set_no, METH_VARARGS, pinkpy_syscall_set_no_doc},
 	{"get_ret", pinkpy_syscall_get_ret, METH_VARARGS, pinkpy_syscall_get_ret_doc},

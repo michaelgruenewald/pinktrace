@@ -18,16 +18,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <pinktrace/internal.h>
+
+#include <stdio.h>
+#include <string.h>
+
 #include <pinktrace/pink.h>
 
-const char *sysnames[] = {
+static const char *sysnames[] = {
 #include "linux/ia64/pink-syscallent.h"
 };
 
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 
 const char *
-pink_name_syscall_ia64(long scno, pink_bitness_t bitness)
+pink_name_syscall(long scno, pink_bitness_t bitness)
 {
 	if (bitness != PINK_BITNESS_64)
 		return NULL;
@@ -39,4 +44,27 @@ pink_name_syscall_ia64(long scno, pink_bitness_t bitness)
 	if (scno < 0 || scno >= nsys)
 		return NULL;
 	return sysnames[scno];
+}
+
+long
+pink_name_lookup(const char *name, pink_bitness_t bitness)
+{
+	long scno;
+
+	if (bitness != PINK_BITNESS_64)
+		return -1;
+	if (name == NULL || name[0] == '\0')
+		return -1;
+
+	for (scno = 0; scno < nsys; scno++) {
+		if (!strcmp(sysnames[scno], name)) {
+#ifdef SYSCALL_OFFSET_IA64
+			return scno + SYSCALL_OFFSET_IA64;
+#else
+			return scno;
+#endif
+		}
+	}
+
+	return -1;
 }

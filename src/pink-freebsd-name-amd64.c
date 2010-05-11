@@ -30,7 +30,7 @@ static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 static int nsys32 = sizeof(sysnames32) / sizeof(sysnames32[0]);
 
 const char *
-pink_name_syscall_amd64(long scno, pink_bitness_t bitness)
+pink_name_syscall(long scno, pink_bitness_t bitness)
 {
 	int num;
 	const char **names;
@@ -51,4 +51,35 @@ pink_name_syscall_amd64(long scno, pink_bitness_t bitness)
 	if (scno < 0 || scno >= num)
 		return NULL;
 	return names[scno];
+}
+
+long
+pink_name_lookup(const char *name, pink_bitness_t bitness)
+{
+	int n;
+	long scno;
+	const char **names;
+
+	if (name == NULL || name[0] == '\0')
+		return -1;
+
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		n = nsys32;
+		names = sysnames32;
+		break;
+	case PINK_BITNESS_64:
+		n = nsys;
+		names = sysnames;
+		break;
+	default:
+		return -1;
+	}
+
+	for (scno = 0; scno < n; scno++) {
+		if (!strcmp(names[scno], name))
+			return scno;
+	}
+
+	return -1;
 }

@@ -39,4 +39,15 @@
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness);
 
+/**
+ * Look up the number of the given system call name.
+ *
+ * \param name Name of the system call
+ * \param bitness Bitness of the child
+ *
+ * \return The system call number on success, -1 on failure.
+ **/
+long
+pink_name_lookup(const char *name, pink_bitness_t bitness);
+
 #endif /* !PINKTRACE_GUARD_NAME_H */

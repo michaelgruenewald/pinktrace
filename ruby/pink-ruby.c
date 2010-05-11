@@ -885,6 +885,46 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
+ * Document-method: PinkTrace::Syscall.lookup
+ * call-seq: PinkTrace::Syscall.lookup(name, [bitness=PinkTrace::Bitness::DEFAULT]) => fixnum
+ *
+ * Look up the given system call name.
+ * Returns -1 if the lookup fails.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ */
+static VALUE
+pinkrb_name_lookup(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	unsigned bit;
+	const char *name;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+#if !defined(RSTRING_PTR)
+#define RSTRING_PTR(v) (RSTRING((v))->ptr)
+#endif /* !defined(RSTRING_PTR) */
+
+	SafeStringValue(argv[0]);
+	name = RSTRING_PTR(argv[0]);
+
+	if (argc == 2) {
+		if (FIXNUM_P(argv[1])) {
+			bit = FIX2UINT(argv[1]);
+			check_bitness(bit);
+		}
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_DEFAULT_BITNESS;
+
+	return LONG2NUM(pink_name_lookup(name, bit));
+}
+
+/*
  * Document-method: PinkTrace::Syscall.get_no
  * call-seq: PinkTrace::Syscall.get_no(pid, [bitness=PinkTrace::Bitness::DEFAULT]) => fixnum
  *
@@ -1760,6 +1800,7 @@ Init_PinkTrace(void)
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");
 	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
+	rb_define_module_function(syscall_mod, "lookup", pinkrb_name_lookup, -1);
 	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, -1);
 	rb_define_module_function(syscall_mod, "set_no", pinkrb_util_set_syscall, -1);
 	rb_define_module_function(syscall_mod, "get_ret", pinkrb_util_get_return, 1);

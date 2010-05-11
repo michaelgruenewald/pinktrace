@@ -12,7 +12,6 @@ AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
 
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES= \
 					     pink-bitness.c \
-					     pink-name-wrap.c \
 					     pink-trace-internal.c
 libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS= -version-info @VERSION_LIB_CURRENT@:@VERSION_LIB_REVISION@:0
 
