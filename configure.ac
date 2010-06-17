@@ -27,11 +27,11 @@ AM_INIT_AUTOMAKE(pinktrace, [$VERSION_FULL])
 dnl {{{ Git revision
 if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
 	GITHEAD=`git describe 2>/dev/null`
-	if test -z ${GITHEAD} ; then
+	if test -z "${GITHEAD}" ; then
 		GITHEAD=`git rev-parse HEAD`
 	fi
 	if test -n "`git diff-index -m --name-only HEAD`" ; then
-		GITHEAD=${GITHEAD}-dirty
+		GITHEAD="${GITHEAD}-dirty"
 	fi
 else
 	GITVERSION=

@@ -7,7 +7,7 @@ die() {
 }
 
 echo ">>> libtoolize --copy --force --automake"
-libtoolize --copy --force --automake
+libtoolize --copy --force --automake || die "libtoolize failed"
 echo ">>> rm -f config.cache"
 rm -f config.cache
 echo ">>> aclocal -I m4"
