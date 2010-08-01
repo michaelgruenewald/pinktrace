@@ -142,7 +142,7 @@ bool
 pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 {
 	assert(bitness == PINK_BITNESS_32);
-	assert(call != NULL);
+	assert(subcall_r != NULL);
 
 	/* Decode socketcall(2) */
 	if (!pink_util_get_arg(pid, bitness, 0, subcall_r))
