@@ -90,8 +90,7 @@ pink_util_set_return(pid_t pid, long ret)
 	else
 		flags &= ~SO_MASK;
 
-	return pink_util_poke(pid, ACCUM, ret) &&
-		pink_util_poke(pid, ACCUM_FLAGS, flags);
+	return pink_util_poke(pid, ACCUM, ret) && pink_util_poke(pid, ACCUM_FLAGS, flags);
 }
 
 bool
@@ -109,10 +108,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_moven(pid, addr, dest, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_moven(pid, addr, dest, len);
 }
 
 bool
@@ -122,10 +118,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_movestr(pid, addr, dest, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_movestr(pid, addr, dest, len);
 }
 
 char *
@@ -148,10 +141,7 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_putn(pid, addr, src, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_putn(pid, addr, src, len);
 }
 
 bool
@@ -161,10 +151,7 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_putn_safe(pid, addr, src, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_putn_safe(pid, addr, src, len);
 }
 
 bool
@@ -173,10 +160,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 	assert(subcall_r != NULL);
 
 	/* Decode socketcall(2) */
-	if (!pink_util_get_arg(pid, bitness, 0, subcall_r))
-		return false;
-
-	return true;
+	return pink_util_get_arg(pid, bitness, 0, subcall_r);
 }
 
 bool

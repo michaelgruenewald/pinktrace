@@ -97,10 +97,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_moven(pid, addr, dest, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_moven(pid, addr, dest, len);
 }
 
 bool
@@ -111,10 +108,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_movestr(pid, addr, dest, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_movestr(pid, addr, dest, len);
 }
 
 char *
@@ -126,7 +120,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 	assert(ind < PINK_MAX_INDEX);
 
 	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
+		return NULL;
 
 	return pink_util_movestr_persistent(pid, addr);
 }
@@ -139,10 +133,7 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_putn(pid, addr, src, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_putn(pid, addr, src, len);
 }
 
 bool
@@ -153,10 +144,7 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
-		return false;
-
-	return pink_util_putn_safe(pid, addr, src, len);
+	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_putn_safe(pid, addr, src, len);
 }
 
 bool
@@ -168,13 +156,9 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (!pink_util_get_arg(pid, PINK_BITNESS_32, 0, subcall_r))
-			return false;
-		return true;
+		return pink_util_get_arg(pid, PINK_BITNESS_32, 0, subcall_r);
 	case PINK_BITNESS_64:
-		if (!pink_util_get_syscall(pid, PINK_BITNESS_64, subcall_r))
-			return false;
-		return true;
+		return pink_util_get_syscall(pid, PINK_BITNESS_64, subcall_r);
 	case PINK_BITNESS_UNKNOWN:
 	default:
 		abort();
