@@ -19,6 +19,7 @@
  */
 
 #include <stdio.h> /* NULL */
+#include <string.h> /* strcmp() */
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>

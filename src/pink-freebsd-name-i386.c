@@ -20,8 +20,8 @@
 
 #include <pinktrace/internal.h>
 
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h> /* NULL */
+#include <string.h> /* strcmp() */
 
 #include <pinktrace/pink.h>
 
