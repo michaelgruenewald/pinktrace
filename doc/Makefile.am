@@ -1,7 +1,8 @@
 SUBDIRS= api .
 HOMEPAGE= http://dev.exherbo.org/~alip/pinktrace
 SCM_URI= git://github.com/alip/pinktrace.git
-GENERATED_FILES= _config.yml \
+GENERATED_FILES= \
+		 _config.yml \
 		 c-pink-about.html \
 		 c-pink-fork-freebsd.html \
 		 c-pink-fork-linux.html \
@@ -18,7 +19,8 @@ GENERATED_FILES= _config.yml \
 		 rb-pink-simple-strace-freebsd.html \
 		 rb-pink-simple-strace-linux.html
 CLEANFILES= $(GENERATED_FILES)
-WWW_FILES= _layouts/default.html \
+WWW_FILES= \
+	   _layouts/default.html \
 	   _includes/footer.html \
 	   _includes/google-analytics.html \
 	   _includes/menu.html \

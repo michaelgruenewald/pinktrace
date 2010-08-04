@@ -1,17 +1,22 @@
 SUBDIRS=
 if I386
 SUBDIRS+= x86
-endif
+endif # I386
+
 if X86_64
 SUBDIRS+= x86_64
-endif
+endif # X86_64
+
 if IA64
 SUBDIRS+= ia64
-endif
+endif # IA64
+
 if POWERPC
 SUBDIRS+= powerpc
-endif
+endif # POWERPC
+
 if POWERPC64
 SUBDIRS+= powerpc
-endif
+endif # POWERPC64
+
 SUBDIRS+= .

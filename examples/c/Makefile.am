@@ -3,7 +3,9 @@ EXAMPLES= \
 	  pink-about \
 	  pink-fork \
 	  pink-simple-strace
-AM_CFLAGS= -I$(top_srcdir)/include -L$(top_builddir)/src/.libs @PINKTRACE_CFLAGS@
+AM_CFLAGS= \
+	   -I$(top_srcdir)/include -L$(top_builddir)/src/.libs \
+	   @PINKTRACE_CFLAGS@
 COMMON_LINK= -lpinktrace_@PINKTRACE_PC_SLOT@
 
 pink_about_SOURCES= pink-about.c

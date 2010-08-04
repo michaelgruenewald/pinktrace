@@ -1,14 +1,17 @@
 SUBDIRS=
 if FREEBSD
 SUBDIRS+= freebsd
-endif
+endif # FREEBSD
+
 if LINUX
 SUBDIRS+= linux
-endif
+endif # LINUX
 SUBDIRS+= .
 
 CLEANFILES=
-AM_CFLAGS= -I$(top_srcdir)/include @PINKTRACE_CFLAGS@
+AM_CFLAGS= \
+	   -I$(top_srcdir)/include \
+	   @PINKTRACE_CFLAGS@
 
 lib_LTLIBRARIES = libpinktrace_@PINKTRACE_PC_SLOT@.la
 
@@ -48,25 +51,30 @@ if I386
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-linux-name-x86.c \
 					      pink-linux-trace-x86.c
-endif
+endif # I386
+
 if X86_64
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-linux-name-x86_64.c \
 					      pink-linux-trace-x86_64.c
-endif
+endif # X86_64
+
 if IA64
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-linux-name-ia64.c \
 					      pink-linux-trace-ia64.c
-endif
+endif # IA64
+
 if POWERPC
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-linux-name-powerpc.c \
 					      pink-linux-trace-powerpc.c
-endif
+endif # POWERPC
+
 if POWERPC64
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
 					      pink-linux-name-powerpc.c \
 					      pink-linux-trace-powerpc.c
-endif
+endif # POWERPC64
+
 endif # LINUX

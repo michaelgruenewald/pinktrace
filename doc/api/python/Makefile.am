@@ -1,6 +1,7 @@
 SUBDIRS= .
 EXTRA_DIST= epydoc.css
-EPYDOC_FLAGS= --verbose \
+EPYDOC_FLAGS= \
+	      --verbose \
 	      --name "pinktrace" \
 	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python" \
 	      --no-frames \

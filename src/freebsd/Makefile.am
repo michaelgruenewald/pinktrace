@@ -1,7 +1,7 @@
 SUBDIRS=
 if X86_64
 SUBDIRS+= amd64
-endif
+endif # X86_64
 SUBDIRS+= .
 
 EXTRA_DIST= pink-syscallent.conf

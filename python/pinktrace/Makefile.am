@@ -1,6 +1,8 @@
 CLEANFILES= *.so *.pyc
 SUBDIRS= .
-AM_CFLAGS= -I. -I@PYTHON_INCLUDE_DIR@ -I$(top_srcdir)/include \
+AM_CFLAGS= \
+	   -I. -I@PYTHON_INCLUDE_DIR@ \
+	   -I$(top_srcdir)/include \
 	   @PINKTRACE_CFLAGS@
 BUILT_SOURCES=
 
