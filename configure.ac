@@ -179,14 +179,10 @@ AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
 AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
 
-if test x"$opsys" = x"freebsd" ; then
-	PINKTRACE_SUPPORTED_BITNESS=1
+if test x"$arch" = x"x86_64" ; then
+	PINKTRACE_SUPPORTED_BITNESS=2
 else
-	if test x"$arch" = x"x86_64" ; then
-		PINKTRACE_SUPPORTED_BITNESS=2
-	else
-		PINKTRACE_SUPPORTED_BITNESS=1
-	fi
+	PINKTRACE_SUPPORTED_BITNESS=1
 fi
 AC_SUBST([PINKTRACE_SUPPORTED_BITNESS])
 AM_CONDITIONAL(BITNESS_ONE, test x"$PINKTRACE_SUPPORTED_BITNESS" = x"1")
