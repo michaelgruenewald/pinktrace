@@ -1337,7 +1337,7 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  */
 
 /*
- * Document-method: PinkTrace::Socket.subcall
+ * Document-method: PinkTrace::Socket.name
  * call-seq: PinkTrace::Socket.name(subcall) => String or nil
  *
  * Returns a string representation of the socket subcall.
