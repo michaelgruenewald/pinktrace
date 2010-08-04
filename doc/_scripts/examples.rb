@@ -33,4 +33,5 @@ EOF
   IO.foreach(example) {|line| puts "\t#{line}"}
   puts
   puts '{% endhighlight %}'
+  puts '<!-- vim: set ro : -->'
 end
