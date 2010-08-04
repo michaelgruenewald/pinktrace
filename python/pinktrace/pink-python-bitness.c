@@ -72,7 +72,7 @@ pinkpy_bitness_name(pink_unused PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, "i", &bit))
 		return NULL;
 
-	strbit = pink_bitness_tostring(bit);
+	strbit = pink_bitness_name(bit);
 
 #if PY_MAJOR_VERSION > 2
 	return PyUnicode_FromString(strbit);

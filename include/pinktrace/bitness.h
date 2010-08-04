@@ -32,7 +32,7 @@
  * Bitness modes
  **/
 typedef enum {
-	/** Unknown bitness (error with pink_bitness_get) **/
+	/** Unknown bitness ( error with #pink_bitness_get ) **/
 	PINK_BITNESS_UNKNOWN = -1,
 	/** 32 bit mode **/
 	PINK_BITNESS_32,
@@ -58,6 +58,6 @@ pink_bitness_get(pid_t pid);
  * \return String representation of the bitness.
  **/
 const char *
-pink_bitness_tostring(pink_bitness_t bitness);
+pink_bitness_name(pink_bitness_t bitness);
 
 #endif /* !PINKTRACE_GUARD_BITNESS_H */

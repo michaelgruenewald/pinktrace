@@ -181,7 +181,7 @@ main(int argc, char **argv)
 		son.bitness = pink_bitness_get(son.pid);
 		if (son.bitness == PINK_BITNESS_UNKNOWN)
 			err(EXIT_FAILURE, "pink_bitness_get");
-		printf("Child %i runs in %s mode\n", son.pid, pink_bitness_tostring(son.bitness));
+		printf("Child %i runs in %s mode\n", son.pid, pink_bitness_name(son.bitness));
 
 		son.dead = son.insyscall = false;
 		sig = exit_code = 0;
@@ -215,7 +215,7 @@ main(int argc, char **argv)
 					err(EXIT_FAILURE, "pink_bitness_get");
 				else
 					printf(" (Updating the bitness of child %i to %s mode)\n",
-						son.pid, pink_bitness_tostring(son.bitness));
+						son.pid, pink_bitness_name(son.bitness));
 				break;
 			case PINK_EVENT_GENUINE:
 			case PINK_EVENT_UNKNOWN:

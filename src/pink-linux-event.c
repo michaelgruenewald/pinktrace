@@ -64,7 +64,7 @@ pink_event_decide(int status)
 }
 
 const char *
-pink_event_tostring(pink_event_t event)
+pink_event_name(pink_event_t event)
 {
 	switch (event) {
 	case PINK_EVENT_STOP:

@@ -21,7 +21,7 @@
 #include <pinktrace/pink.h>
 
 const char *
-pink_bitness_tostring(pink_bitness_t bitness)
+pink_bitness_name(pink_bitness_t bitness)
 {
 	switch (bitness) {
 	case PINK_BITNESS_32:

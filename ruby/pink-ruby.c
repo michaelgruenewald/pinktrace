@@ -836,7 +836,7 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
 	else
 		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
 
-	return rb_str_new2(pink_bitness_tostring(bit));
+	return rb_str_new2(pink_bitness_name(bit));
 }
 
 /*
