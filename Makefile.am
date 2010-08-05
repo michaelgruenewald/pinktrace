@@ -3,7 +3,7 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 		      config.h config.h.in INSTALL
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
-EXTRA_DIST= autogen.sh README.mkd misc/generated-file.txt
+EXTRA_DIST= autogen.sh COPYRIGHT README.mkd misc/generated-file.txt
 SUBDIRS= . src tests python ruby doc pkg-config
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
