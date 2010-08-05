@@ -11,4 +11,3 @@ exclude: [ api, Makefile, Makefile.am, Makefile.in, index.md.in ]
 title: "PinkTrace-##VERSION##"
 url: "##HOMEPAGE##"
 scm: "##SCM_URI##"
-
