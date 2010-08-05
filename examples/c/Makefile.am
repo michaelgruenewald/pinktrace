@@ -14,20 +14,19 @@ pink_about_LDADD= $(COMMON_LINK)
 pink_fork_SOURCES=
 if FREEBSD
 pink_fork_SOURCES+= pink-fork-freebsd.c
-endif
+endif # FREEBSD
 if LINUX
 pink_fork_SOURCES+= pink-fork-linux.c
-endif
+endif # LINUX
 pink_fork_LDADD= $(COMMON_LINK)
-
 
 pink_simple_strace_SOURCES=
 if FREEBSD
 pink_simple_strace_SOURCES+= pink-simple-strace-freebsd.c
-endif
+endif # FREEBSD
 if LINUX
 pink_simple_strace_SOURCES+= pink-simple-strace-linux.c
-endif
+endif # LINUX
 pink_simple_strace_LDADD= $(COMMON_LINK)
 
 noinst_PROGRAMS= $(EXAMPLES)
