@@ -35,6 +35,7 @@ gprof*
 /libtool
 /ltmain.sh
 
+doc/css/screen.css
 doc/_config.yml
 doc/*.html
 doc/_site

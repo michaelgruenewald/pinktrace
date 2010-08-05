@@ -2,6 +2,7 @@ SUBDIRS= api .
 HOMEPAGE= http://dev.exherbo.org/~alip/pinktrace
 SCM_URI= git://github.com/alip/pinktrace.git
 GENERATED_FILES= \
+		 css/screen.css \
 		 _config.yml \
 		 c-pink-about.html \
 		 c-pink-fork-freebsd.html \
@@ -27,8 +28,15 @@ WWW_FILES= \
 	   _scripts/examples.rb \
 	   css/syntax.css \
 	   css/screen.css \
+	   images/header.png \
 	   images/favicon.png
 EXTRA_DIST= $(WWW_FILES)
+
+%.css: %.css.in
+	$(AM_V_GEN)
+	$(AM_V_at)$(SED) \
+		-e "s,##HOMEPAGE##,$(HOMEPAGE),g" \
+		$< > $@
 
 %.yml: %.yml.in
 	$(AM_V_GEN)

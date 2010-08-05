@@ -5,7 +5,7 @@ markdown: maruku
 permalink: "/:year/:month/:day/:title"
 pygments: true
 lsi: false
-exclude: [ api, Makefile, Makefile.am, Makefile.in, index.md.in ]
+exclude: [ api, Makefile, Makefile.am, Makefile.in, css/screen.css.in ]
 
 # Custom variables
 title: "PinkTrace-##VERSION##"
