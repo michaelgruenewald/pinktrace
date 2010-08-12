@@ -19,6 +19,7 @@ library
   build-depends: base >=3 && < 5
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
   extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
   extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
   include-dirs: #TOP_SRCDIR#/include

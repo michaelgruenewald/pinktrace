@@ -62,11 +62,17 @@ module System.PinkTrace.Trace
 #include <pinktrace/pink.h>
 --}}}
 --{{{ Imports
-import Data.Bits          ((.|.))
 import Foreign.C.Error    (throwErrno)
-import Foreign.C.Types    (CInt, CULong)
-import Foreign.Ptr        (Ptr)
 import System.Posix.Types (CPid)
+#ifdef PINKTRACE_LINUX
+import Data.Bits          ((.|.))
+import Foreign.Ptr        (Ptr)
+#endif
+import Foreign.C.Types    ( CInt
+#ifdef PINKTRACE_LINUX
+                          , CULong
+#endif
+                          )
 --}}}
 --{{{ Types
 type Pid    = Int
