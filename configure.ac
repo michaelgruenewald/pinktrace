@@ -293,6 +293,24 @@ AC_SUBST([HAVE_DOXYGEN])
 AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
 dnl }}}
 
+dnl {{{ Haskell interface
+AC_ARG_VAR([CABAL], [Path to the cabal install tool])
+AC_MSG_CHECKING([whether to build the Haskell interface])
+AC_ARG_ENABLE([haskell],
+			  AS_HELP_STRING([--enable-haskell], [Enable Haskell interface (default: disable)]),
+			  enable_haskell="$enableval",
+			  enable_haskell=no)
+AC_MSG_RESULT([$enable_haskell])
+
+if test x"$enable_haskell" = x"yes" ; then
+	AC_PATH_PROG([CABAL], cabal)
+	if test x"$CABAL" = x ; then
+		AC_MSG_ERROR([Cabal is required for --enable-haskell])
+	fi
+fi
+AM_CONDITIONAL([ENABLE_HASKELL], test x"$enable_haskell" = x"yes")
+dnl }}}
+
 dnl {{{ Ruby interface
 AC_ARG_VAR([RUBY], [Path to the Ruby interpreter])
 AC_MSG_CHECKING([whether to build the Ruby interface])
@@ -498,6 +516,8 @@ AC_OUTPUT(
 		  examples/c/Makefile
 		  examples/python/Makefile
 		  examples/ruby/Makefile
+		  haskell/Makefile
+		  haskell/System/PinkTrace.hs
 		  include/pinktrace/about.h
 		  python/Makefile
 		  python/pinktrace/Makefile

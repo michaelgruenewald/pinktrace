@@ -1,0 +1,22 @@
+name:          pinktrace
+version:       #VERSION#
+synopsis:      Haskell bindings to Pink's Tracing Library
+homepage:      http://dev.exherbo.org/~alip/pinktrace
+license:       BSD3
+author:        Ali Polatel
+maintainer:    alip@exherbo.org
+category:      System
+build-type:    Simple
+cabal-version: >=1.2
+
+library
+  hs-source-dirs: haskell
+  exposed-modules:
+    System.PinkTrace
+    System.PinkTrace.Trace
+  build-depends: base >=3 && < 5
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include

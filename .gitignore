@@ -29,11 +29,13 @@ gprof*
 /configure
 /compile
 /depcomp
+/dist
 /install-sh
 /missing
 /stamp-h1
 /libtool
 /ltmain.sh
+/pinktrace.cabal
 
 doc/css/screen.css
 doc/_config.yml
@@ -48,6 +50,8 @@ doc/api/ruby/ruby
 examples/c/pink-about
 examples/c/pink-fork
 examples/c/pink-simple-strace
+
+haskell/System/PinkTrace.hs
 
 include/pinktrace/about.h
 

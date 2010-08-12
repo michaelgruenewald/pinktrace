@@ -1,4 +1,4 @@
-CLEANFILES= *~
+CLEANFILES= *~ pinktrace.cabal
 MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 		      config.h config.h.in INSTALL
 ACLOCAL_AMFLAGS= -I m4
@@ -21,6 +21,17 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/pink.h
 
 noinst_HEADERS= include/pinktrace/internal.h
+
+noinst_DATA= pinktrace.cabal
+pinktrace.cabal: pinktrace.cabal.in Makefile
+	$(AM_V_GEN)
+	$(AM_V_at)$(SED) \
+		-e "s|#VERSION#|$(VERSION)|" \
+		-e "s|#PINKTRACE_CFLAGS#|$(PINKTRACE_CFLAGS)|" \
+		-e "s|#PINKTRACE_PC_SLOT#|$(PINKTRACE_PC_SLOT)|" \
+		-e "s|#TOP_BUILDDIR#|$(top_builddir)|" \
+		-e "s|#TOP_SRCDIR#|$(top_srcdir)|" \
+		< $(srcdir)/pinktrace.cabal.in > pinktrace.cabal
 
 doxygen:
 	$(MAKE) -C doc $@
