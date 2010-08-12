@@ -13,6 +13,7 @@ library
   hs-source-dirs: haskell
   exposed-modules:
     System.PinkTrace
+    System.PinkTrace.Bitness
     System.PinkTrace.Trace
   build-depends: base >=3 && < 5
   build-tools: hsc2hs
