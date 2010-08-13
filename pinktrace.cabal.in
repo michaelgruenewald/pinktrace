@@ -15,6 +15,7 @@ library
     System.PinkTrace
     System.PinkTrace.Bitness
     System.PinkTrace.Event
+    System.PinkTrace.Socket
     System.PinkTrace.String
     System.PinkTrace.SysCall
     System.PinkTrace.Trace
