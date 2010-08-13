@@ -37,8 +37,6 @@
  * Pink's version and build constants
  **/
 
-#include <pinktrace/bitness.h>
-
 /**
  * The package name (eg pinktrace)
  **/
@@ -79,15 +77,5 @@
  * The suffix used for so names (eg "0.30" or "0.31_15ece615")
  **/
 #define PINKTRACE_PC_SLOT "@PINKTRACE_PC_SLOT@"
-
-/**
- * Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
- **/
-#define PINKTRACE_SUPPORTED_BITNESS @PINKTRACE_SUPPORTED_BITNESS@
-
-/**
- * Default bitness (eg #PINK_BITNESS_64 on x86_64, #PINK_BITNESS_32 on i386)
- **/
-#define PINKTRACE_DEFAULT_BITNESS @PINKTRACE_DEFAULT_BITNESS@
 
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

@@ -27,6 +27,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+@GENERATED_FILE@
+
 #ifndef PINKTRACE_GUARD_BITNESS_H
 #define PINKTRACE_GUARD_BITNESS_H 1
 
@@ -48,6 +50,26 @@ typedef enum {
 	/** 64 bit mode **/
 	PINK_BITNESS_64,
 } pink_bitness_t;
+
+/**
+ * Default bitness (eg #PINK_BITNESS_64 on x86_64, #PINK_BITNESS_32 on i386)
+ **/
+#define PINKTRACE_BITNESS_DEFAULT @PINKTRACE_BITNESS_DEFAULT@
+
+/**
+ * Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
+ **/
+#define PINKTRACE_BITNESS_COUNT_SUPPORTED @PINKTRACE_BITNESS_COUNT_SUPPORTED@
+
+/**
+ * Non-zero if 64bit is supported, 0 otherwise (eg 1 on x86_64, 0 on i386)
+ **/
+#define PINKTRACE_BITNESS_64_SUPPORTED @PINKTRACE_BITNESS_64_SUPPORTED@
+
+/**
+ * Non-zero if 32bit is supported, 0 otherwise (eg 1 on i386, 0 on ia64)
+ **/
+#define PINKTRACE_BITNESS_32_SUPPORTED @PINKTRACE_BITNESS_32_SUPPORTED@
 
 /**
  * Return the bitness of the given process ID.

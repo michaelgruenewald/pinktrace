@@ -88,7 +88,7 @@ START_TEST(t_decode_stat)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the address of second argument */
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &addr),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &addr),
 			"%d(%s)", errno, strerror(errno));
 
 		/* Resume the child and it will stop at the exit of next system call */
@@ -134,7 +134,7 @@ START_TEST(t_decode_string_first)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -171,7 +171,7 @@ START_TEST(t_decode_string_second)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -208,7 +208,7 @@ START_TEST(t_decode_string_third)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -245,7 +245,7 @@ START_TEST(t_decode_string_fourth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -282,7 +282,7 @@ START_TEST(t_decode_string_persistent_null)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
 		fail_unless(buf == NULL, "NULL != `%s'", buf);
 		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
@@ -320,7 +320,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(buf[0] == 'n', "n != %c", buf[0]);
 		fail_unless(buf[1] == 'i', "i != %c", buf[1]);
@@ -360,7 +360,7 @@ START_TEST(t_decode_string_persistent_first)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 0);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -397,7 +397,7 @@ START_TEST(t_decode_string_persistent_second)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 1);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 1);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -434,7 +434,7 @@ START_TEST(t_decode_string_persistent_third)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 2);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 2);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -471,7 +471,7 @@ START_TEST(t_decode_string_persistent_fourth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		buf = pink_decode_string_persistent(pid, PINKTRACE_DEFAULT_BITNESS, 3);
+		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 3);
 		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
 		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
 
@@ -535,7 +535,7 @@ START_TEST(t_decode_socket_address_null_second)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
@@ -605,7 +605,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -681,7 +681,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
@@ -767,7 +767,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 1, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
@@ -840,7 +840,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
@@ -912,7 +912,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
@@ -988,7 +988,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
@@ -1074,7 +1074,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
 		/* Get the file descriptor and compare */
-		fail_unless(pink_decode_socket_address(pid, PINKTRACE_DEFAULT_BITNESS, 4, &fd, &res),
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);

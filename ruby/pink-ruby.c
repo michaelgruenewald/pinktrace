@@ -788,7 +788,7 @@ pinkrb_event_decide(
  *
  * == Constants
  *
- * - PinkTrace::Bitness::SUPPORTED
+ * - PinkTrace::Bitness::COUNT_SUPPORTED
  *
  *   Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
  *
@@ -803,6 +803,14 @@ pinkrb_event_decide(
  * - PinkTrace::Bitness::BITNESS_64
  *
  *   64 bit mode
+ *
+ * - PinkTrace::Bitness::BITNESS_32_SUPPORTED
+ *
+ *   True if 32 bit is supported, False otherwise
+ *
+ * - PinkTrace::Bitness::BITNESS_64_SUPPORTED
+ *
+ *   True if 64 bit is supported, False otherwise
  */
 
 /*
@@ -887,7 +895,7 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	scname = pink_name_syscall(scno, bit);
 	return scname ? rb_str_new2(scname) : Qnil;
@@ -928,7 +936,7 @@ pinkrb_name_lookup(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	return LONG2NUM(pink_name_lookup(name, bit));
 }
@@ -963,7 +971,7 @@ pinkrb_util_get_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_util_get_syscall(pid, bit, &scno))
 		rb_sys_fail("pink_util_get_syscall()");
@@ -1006,7 +1014,7 @@ pinkrb_util_set_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_util_set_syscall(pid, bit, scno))
 		rb_sys_fail("pink_util_set_syscall()");
@@ -1108,7 +1116,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_util_get_arg(pid, bit, ind, &arg))
 		rb_sys_fail("pink_util_get_arg()");
@@ -1178,7 +1186,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (maxlen < 0) {
 		/* Use pink_decode_string_persistent() */
@@ -1267,7 +1275,7 @@ pinkrb_encode_string_safe(
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_encode_simple_safe(pid, bit, ind, src, ++len))
 		rb_sys_fail("pink_encode_simple_safe()");
@@ -1331,7 +1339,7 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_encode_simple(pid, bit, ind, src, ++len))
 		rb_sys_fail("pink_encode_simple()");
@@ -1428,7 +1436,7 @@ pinkrb_decode_socket_call(
 			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_decode_socket_call(pid, bit, &subcall))
 		rb_sys_fail("pink_decode_socket_call()");
@@ -1501,7 +1509,7 @@ pinkrb_decode_socket_fd(
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	if (!pink_decode_socket_fd(pid, bit, ind, &fd))
 		rb_sys_fail("pink_decode_socket_fd()");
@@ -1563,7 +1571,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	addrObj = Data_Make_Struct(pinkrb_cAddress, pink_socket_address_t, NULL, free, addr);
 
@@ -1620,7 +1628,7 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
 			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
 	}
 	else
-		bit = PINKTRACE_DEFAULT_BITNESS;
+		bit = PINKTRACE_BITNESS_DEFAULT;
 
 	addrObj = Data_Make_Struct(pinkrb_cAddress, pink_socket_address_t, NULL, free, addr);
 
@@ -1799,10 +1807,20 @@ Init_PinkTrace(void)
 
 	/* bitness.h */
 	bitness_mod = rb_define_module_under(mod, "Bitness");
-	rb_define_const(bitness_mod, "SUPPORTED", INT2FIX(PINKTRACE_SUPPORTED_BITNESS));
-	rb_define_const(bitness_mod, "DEFAULT", INT2FIX(PINKTRACE_DEFAULT_BITNESS));
+	rb_define_const(bitness_mod, "COUNT_SUPPORTED", INT2FIX(PINKTRACE_BITNESS_COUNT_SUPPORTED));
+	rb_define_const(bitness_mod, "DEFAULT", INT2FIX(PINKTRACE_BITNESS_DEFAULT));
 	rb_define_const(bitness_mod, "BITNESS_32", INT2FIX(PINK_BITNESS_32));
 	rb_define_const(bitness_mod, "BITNESS_64", INT2FIX(PINK_BITNESS_64));
+#if PINKTRACE_BITNESS_32_SUPPORTED
+	rb_define_const(bitness_mod, "BITNESS_32_SUPPORTED", Qtrue);
+#else
+	rb_define_const(bitness_mod, "BITNESS_32_SUPPORTED", Qfalse);
+#endif /* PINKTRACE_BITNESS_32_SUPPORTED */
+#if PINKTRACE_BITNESS_64_SUPPORTED
+	rb_define_const(bitness_mod, "BITNESS_64_SUPPORTED", Qtrue);
+#else
+	rb_define_const(bitness_mod, "BITNESS_64_SUPPORTED", Qfalse);
+#endif /* PINKTRACE_BITNESS_64_SUPPORTED */
 	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
 	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
 

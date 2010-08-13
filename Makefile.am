@@ -20,6 +20,7 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/util.h \
 			  include/pinktrace/pink.h
 
+EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
 
 noinst_DATA= pinktrace.cabal
