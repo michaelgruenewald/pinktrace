@@ -16,6 +16,7 @@ library
     System.PinkTrace.Bitness
     System.PinkTrace.Event
     System.PinkTrace.String
+    System.PinkTrace.SysCall
     System.PinkTrace.Trace
   build-depends: base >=3 && < 5
   build-tools: hsc2hs
