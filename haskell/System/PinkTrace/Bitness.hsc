@@ -58,9 +58,10 @@ import Foreign.C.Error    (throwErrno)
 import Foreign.C.String   (CString, peekCString)
 import Foreign.C.Types    (CInt)
 import System.Posix.Types (CPid)
+
+import System.PinkTrace   (Pid)
 --}}}
 --{{{ Types
-type Pid     = Int
 data Bitness = Bitness32 | Bitness64
     deriving (Eq,Show)
 instance Enum Bitness where

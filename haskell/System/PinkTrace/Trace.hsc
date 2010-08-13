@@ -41,10 +41,7 @@
 --}}}
 --{{{ Exports
 module System.PinkTrace.Trace
-    ( Pid
-    , Addr
-    , Sig
-    , Option(..)
+    ( Option(..)
     , me
     , cont
     , kill
@@ -73,11 +70,10 @@ import Foreign.C.Types    ( CInt
                           , CULong
 #endif
                           )
+
+import System.PinkTrace   (Addr, Pid, Sig)
 --}}}
 --{{{ Types
-type Pid    = Int
-type Addr   = Int
-type Sig    = Int
 data Option = Option
     { sysGood   :: Bool
     , fork      :: Bool

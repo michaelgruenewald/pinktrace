@@ -42,12 +42,14 @@
 --{{{ Exports
 module System.PinkTrace.Event
     ( Event(..)
-    , Status
     , decide
     ) where
 --}}}
 --{{{ Includes
 #include <pinktrace/pink.h>
+--}}}
+--{{{ Imports
+import System.PinkTrace (Status)
 --}}}
 --{{{ Types
 data Event = Event_Stop
@@ -62,7 +64,6 @@ data Event = Event_Stop
     | Event_ExitGenuine
     | Event_Unknown
     deriving (Eq,Show)
-type Status = Int
 #ifdef PINKTRACE_LINUX
 instance Enum Event where
     fromEnum Event_Stop        = #{const PINK_EVENT_STOP}

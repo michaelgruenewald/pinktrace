@@ -63,14 +63,11 @@ import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid)
 
+import System.PinkTrace         (Index, Pid)
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
                                 )
---}}}
---{{{ Types
-type Pid   = Int
-type Index = Int
 --}}}
 --{{{ Functions
 foreign import ccall pink_name_syscall :: CLong -> CInt -> CString

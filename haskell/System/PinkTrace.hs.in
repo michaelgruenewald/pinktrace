@@ -39,7 +39,13 @@
 --}}}
 --{{{ Exports
 module System.PinkTrace
-    ( package          -- :: String
+    ( Addr             -- = Int
+    , Index            -- = Int
+    , Length           -- = Int
+    , Pid              -- = Int
+    , Sig              -- = Int
+    , Status           -- = Int
+    , package          -- :: String
     , version          -- :: Int
     , versionMajor     -- :: Int
     , versionMinor     -- :: Int
@@ -48,6 +54,14 @@ module System.PinkTrace
     , gitHead          -- :: String
     , pcSlot           -- :: String
     ) where
+--}}}
+--{{{ Common Types
+type Addr   = Int
+type Index  = Int
+type Length = Int
+type Pid    = Int
+type Sig    = Int
+type Status = Int
 --}}}
 --{{{ Functions
 package :: String

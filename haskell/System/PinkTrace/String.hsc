@@ -58,15 +58,11 @@ import Foreign.Ptr           (nullPtr)
 import Foreign.Marshal.Alloc (allocaBytes)
 import System.Posix.Types    (CPid)
 
+import System.PinkTrace         (Index, Length, Pid)
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
                                 )
---}}}
---{{{ Types
-type Pid    = Int
-type Index  = Int
-type Length = Int
 --}}}
 --{{{ Functions
 foreign import ccall "free" c_free :: CString -> IO ()
