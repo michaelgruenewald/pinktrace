@@ -101,9 +101,9 @@ decode pid bit index len
 foreign import ccall pink_encode_simple :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
 encode :: Pid -> Bitness -> Index -> String -> IO ()
 encode pid bit index src
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decode: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "decode: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "decode: unsupported bitness " ++ show bit
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "encode: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "encode: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
         ret <- pink_encode_simple pid' bit' index' s $ fromIntegral l
         if ret == 0
@@ -121,9 +121,9 @@ encode pid bit index src
 foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
 encode_safe :: Pid -> Bitness -> Index -> String -> IO ()
 encode_safe pid bit index src
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "encode: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "encode: unsupported bitness " ++ show bit
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode_safe: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "encode_safe: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "encode_safe: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
         ret <- pink_encode_simple_safe pid' bit' index' s $ fromIntegral l
         if ret == 0
