@@ -41,8 +41,7 @@
 --}}}
 --{{{ Exports
 module System.PinkTrace.Bitness
-    ( bitness32
-    , bitness64
+    ( Bitness(..)
     , bitnessDefault
     , bitnessCountSupported
     , bitness32Supported
@@ -62,17 +61,19 @@ import System.Posix.Types (CPid)
 --}}}
 --{{{ Types
 type Pid     = Int
-type Bitness = Int
+data Bitness = Bitness32 | Bitness64
+    deriving (Eq,Show)
+instance Enum Bitness where
+    fromEnum Bitness32 = #{const PINK_BITNESS_32}
+    fromEnum Bitness64 = #{const PINK_BITNESS_64}
+
+    toEnum #{const PINK_BITNESS_32} = Bitness32
+    toEnum #{const PINK_BITNESS_64} = Bitness64
+    toEnum unmatched                = error $ "Bitness.toEnum: Cannot match " ++ show unmatched
 --}}}
 --{{{ Functions
-bitness32 :: Int
-bitness32 = #{const PINK_BITNESS_32}
-
-bitness64 :: Int
-bitness64 = #{const PINK_BITNESS_64}
-
-bitnessDefault :: Int
-bitnessDefault = #{const PINKTRACE_BITNESS_DEFAULT}
+bitnessDefault :: Bitness
+bitnessDefault = toEnum #{const PINKTRACE_BITNESS_DEFAULT}
 
 bitnessCountSupported :: Int
 bitnessCountSupported = #{const PINKTRACE_BITNESS_COUNT_SUPPORTED}
@@ -97,7 +98,7 @@ get pid = do
     ret <- pink_bitness_get pid'
     if ret == #{const PINK_BITNESS_UNKNOWN}
         then throwErrno "pink_bitness_get"
-        else return $ fromIntegral ret
+        else return $ toEnum $ fromIntegral ret
     where
         pid' :: CPid
         pid' = fromIntegral pid
@@ -107,6 +108,6 @@ name :: Bitness -> IO String
 name bit = peekCString $ pink_bitness_name bit'
     where
         bit' :: CInt
-        bit' = fromIntegral bit
+        bit' = fromIntegral $ fromEnum bit
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
