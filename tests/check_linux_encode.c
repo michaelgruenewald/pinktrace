@@ -76,9 +76,9 @@ START_TEST(t_encode_string_first_lensame)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -119,9 +119,9 @@ START_TEST(t_encode_string_first_lenshort)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -162,9 +162,9 @@ START_TEST(t_encode_string_first_lenlong)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 0, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 0, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 0, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 0, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -205,9 +205,9 @@ START_TEST(t_encode_string_second_lensame)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -248,9 +248,9 @@ START_TEST(t_encode_string_second_lenshort)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -291,9 +291,9 @@ START_TEST(t_encode_string_second_lenlong)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 1, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 1, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 1, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -334,9 +334,9 @@ START_TEST(t_encode_string_third_lensame)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -377,9 +377,9 @@ START_TEST(t_encode_string_third_lenshort)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -420,9 +420,9 @@ START_TEST(t_encode_string_third_lenlong)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 2, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 2, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 2, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 2, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -463,9 +463,9 @@ START_TEST(t_encode_string_fourth_lensame)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -506,9 +506,9 @@ START_TEST(t_encode_string_fourth_lenshort)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -549,9 +549,9 @@ START_TEST(t_encode_string_fourth_lenlong)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 3, "/dev/zero", 10),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 3, "/dev/zero", 10),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_string(pid, PINKTRACE_DEFAULT_BITNESS, 3, buf, 10),
+		fail_unless(pink_decode_string(pid, PINKTRACE_BITNESS_DEFAULT, 3, buf, 10),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(strncmp(buf, "/dev/zero", 10) == 0, "/dev/zero != `%s'", buf);
 
@@ -669,9 +669,9 @@ START_TEST(t_encode_stat)
 		buf.st_mode = S_IFCHR;
 		buf.st_rdev = 259; /* /dev/null */
 
-		fail_unless(pink_encode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &buf, sizeof(struct stat)),
+		fail_unless(pink_encode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 1, &buf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_decode_simple(pid, PINKTRACE_DEFAULT_BITNESS, 1, &newbuf, sizeof(struct stat)),
+		fail_unless(pink_decode_simple(pid, PINKTRACE_BITNESS_DEFAULT, 1, &newbuf, sizeof(struct stat)),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(S_ISCHR(newbuf.st_mode), "%d", newbuf.st_mode);
 		fail_unless(newbuf.st_rdev == 259, "%d != %d", 259, newbuf.st_rdev);

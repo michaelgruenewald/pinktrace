@@ -58,7 +58,7 @@ pinkpy_syscall_name(pink_unused PyObject *self, PyObject *args)
 	pink_bitness_t bit;
 	const char *scname;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, "l|i", &scno, &bit))
 		return NULL;
 
@@ -85,7 +85,7 @@ pinkpy_syscall_lookup(pink_unused PyObject *self, PyObject *args)
 	pink_bitness_t bit;
 	const char *name;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, "s|i", &name, &bit))
 		return NULL;
 
@@ -111,7 +111,7 @@ pinkpy_syscall_get_no(pink_unused PyObject *self, PyObject *args)
 	pink_bitness_t bit;
 	long scno;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"|I", &pid, &bit))
 		return NULL;
 
@@ -138,7 +138,7 @@ pinkpy_syscall_set_no(pink_unused PyObject *self, PyObject *args)
 	pink_bitness_t bit;
 	long scno;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"l|I", &pid, &scno, &bit))
 		return NULL;
 
@@ -215,7 +215,7 @@ pinkpy_syscall_get_arg(pink_unused PyObject *self, PyObject *args)
 	pink_bitness_t bit;
 	long arg;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|I", &pid, &ind, &bit))
 		return NULL;
 

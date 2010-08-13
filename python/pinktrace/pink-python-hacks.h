@@ -86,13 +86,13 @@ check_bitness(int bit)
 {
 	switch (bit) {
 	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
+#if !PINKTRACE_BITNESS_64_SUPPORTED
 		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
 		return false;
 #endif
 		break;
 	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
+#if !PINKTRACE_BITNESS_32_SUPPORTED
 		PyErr_SetString(PyExc_ValueError, "Unsupported bitness");
 		return false;
 #endif

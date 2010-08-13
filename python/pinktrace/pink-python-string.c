@@ -68,7 +68,7 @@ pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
 	PyObject *obj;
 
 	maxlen = -1;
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|iI", &pid, &ind, &maxlen, &bit))
 		return NULL;
 
@@ -125,7 +125,7 @@ pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
 	char *str;
 	Py_ssize_t len;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"Is#|I", &pid, &ind, &str, &len, &bit))
 		return NULL;
 
@@ -166,7 +166,7 @@ pinkpy_string_encode_safe(pink_unused PyObject *self,
 	char *str;
 	Py_ssize_t len;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"Is#|I", &pid, &ind, &str, &len, &bit))
 		return NULL;
 

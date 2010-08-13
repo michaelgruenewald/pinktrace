@@ -68,7 +68,7 @@ START_TEST(t_util_get_syscall)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_util_get_syscall(pid, PINKTRACE_BITNESS_DEFAULT, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == SYS_getpid, "%ld != %ld", SYS_getpid, scno);
 
@@ -105,9 +105,9 @@ START_TEST(t_util_set_syscall)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_set_syscall(pid, PINKTRACE_DEFAULT_BITNESS, 0xbadca11),
+		fail_unless(pink_util_set_syscall(pid, PINKTRACE_BITNESS_DEFAULT, 0xbadca11),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(pink_util_get_syscall(pid, PINKTRACE_DEFAULT_BITNESS, &scno),
+		fail_unless(pink_util_get_syscall(pid, PINKTRACE_BITNESS_DEFAULT, &scno),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(scno == 0xbadca11, "%ld != %ld", 0xbadca11, scno);
 
@@ -290,7 +290,7 @@ START_TEST(t_util_get_arg_first)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 0, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 0, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -327,7 +327,7 @@ START_TEST(t_util_get_arg_second)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 1, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -364,7 +364,7 @@ START_TEST(t_util_get_arg_third)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 2, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 2, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -401,7 +401,7 @@ START_TEST(t_util_get_arg_fourth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 3, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 3, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -438,7 +438,7 @@ START_TEST(t_util_get_arg_fifth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 4, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 4, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 
@@ -475,7 +475,7 @@ START_TEST(t_util_get_arg_sixth)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_DEFAULT_BITNESS, 5, &arg),
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &arg),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(arg == 13, "13 != %ld", arg);
 

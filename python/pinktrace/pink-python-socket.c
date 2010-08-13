@@ -169,7 +169,7 @@ pinkpy_socket_decode_fd(pink_unused PyObject *self,
 	long fd;
 
 	ind = 0;
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"|II", &pid, &ind, &bit))
 		return NULL;
 
@@ -434,7 +434,7 @@ pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
 	PyObject *obj;
 	Address *addr;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|I", &pid, &ind, &bit))
 		return NULL;
 
@@ -479,7 +479,7 @@ pinkpy_socket_decode_address_fd(pink_unused PyObject *self, PyObject *args)
 	PyObject *obj;
 	Address *addr;
 
-	bit = PINKTRACE_DEFAULT_BITNESS;
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"I|I", &pid, &ind, &bit))
 		return NULL;
 
