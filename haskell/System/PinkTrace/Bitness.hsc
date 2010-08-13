@@ -44,7 +44,9 @@ module System.PinkTrace.Bitness
     ( bitness32
     , bitness64
     , bitnessDefault
-    , bitnessSupported
+    , bitnessCountSupported
+    , bitness32Supported
+    , bitness64Supported
     , get
     , name
     ) where
@@ -70,10 +72,24 @@ bitness64 :: Int
 bitness64 = #{const PINK_BITNESS_64}
 
 bitnessDefault :: Int
-bitnessDefault = #{const PINKTRACE_DEFAULT_BITNESS}
+bitnessDefault = #{const PINKTRACE_BITNESS_DEFAULT}
 
-bitnessSupported :: Int
-bitnessSupported = #{const PINKTRACE_SUPPORTED_BITNESS}
+bitnessCountSupported :: Int
+bitnessCountSupported = #{const PINKTRACE_BITNESS_COUNT_SUPPORTED}
+
+bitness32Supported :: Bool
+#if PINKTRACE_BITNESS_32_SUPPORTED
+bitness32Supported = True
+#else
+bitness32Supported = False
+#endif
+
+bitness64Supported :: Bool
+#if PINKTRACE_BITNESS_64_SUPPORTED
+bitness64Supported = True
+#else
+bitness64Supported = False
+#endif
 
 foreign import ccall pink_bitness_get :: CPid -> IO CInt
 get :: Pid -> IO Bitness
