@@ -9,7 +9,7 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 > import System.Posix.Process
 > import System.Posix.Signals
 > import System.PinkTrace.Bitness
-> import qualified System.PinkTrace.Trace as Trace
+> import System.PinkTrace.Trace
 >
 > main :: IO ()
 > main = do
@@ -25,6 +25,6 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >   where
 >       child :: IO ()
 >       child = do
->           Trace.me
+>           traceMe
 >           raiseSignal sigSTOP
 >           exitImmediately $ ExitFailure 13
