@@ -20,6 +20,7 @@ library
     System.PinkTrace.SysCall
     System.PinkTrace.Trace
   build-depends: base >=3 && < 5
+  build-depends: unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall
