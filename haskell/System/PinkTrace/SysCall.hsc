@@ -61,9 +61,9 @@ import Foreign.C.Types       (CInt, CLong, CUInt)
 import Foreign.Marshal.Alloc (alloca)
 import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
-import System.Posix.Types    (CPid)
+import System.Posix.Types    (CPid, ProcessID)
 
-import System.PinkTrace         (Index, Pid)
+import System.PinkTrace         (Index)
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
@@ -99,71 +99,60 @@ lookup scname bit
         bit' = fromIntegral $ fromEnum bit
 
 foreign import ccall pink_util_get_syscall :: CPid -> CInt -> Ptr CLong -> IO CInt
-getNo :: Pid -> Bitness -> IO Int
+getNo :: ProcessID -> Bitness -> IO Int
 getNo pid bit
     | bit == Bitness32 && not bitness32Supported = error $ "getNo: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "getNo: unsupported bitness " ++ show bit
     | otherwise = alloca $ \ptr -> do
-        ret <- pink_util_get_syscall pid' bit' ptr
+        ret <- pink_util_get_syscall pid bit' ptr
         fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_syscall" else peek ptr
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
 
 foreign import ccall pink_util_set_syscall :: CPid -> CInt -> CLong -> IO CInt
-setNo :: Pid -> Bitness -> Int -> IO ()
+setNo :: ProcessID -> Bitness -> Int -> IO ()
 setNo pid bit scno
     | bit == Bitness32 && not bitness32Supported = error $ "setNo: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "setNo: unsupported bitness " ++ show bit
     | otherwise = do
-        ret <- pink_util_set_syscall pid' bit' scno'
+        ret <- pink_util_set_syscall pid bit' scno'
         if ret == 0
             then throwErrno "pink_util_set_syscall"
             else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
         scno' :: CLong
         scno' = fromIntegral scno
 
 foreign import ccall pink_util_get_return :: CPid -> Ptr CLong -> IO CInt
-getRet :: Pid -> IO Int
+getRet :: ProcessID -> IO Int
 getRet pid = alloca $ \ptr -> do
-    ret <- pink_util_get_return pid' ptr
+    ret <- pink_util_get_return pid ptr
     fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_return" else peek ptr
-    where
-        pid' :: CPid
-        pid' = fromIntegral pid
 
 foreign import ccall pink_util_set_return :: CPid -> CLong -> IO CInt
-setRet :: Pid -> Int -> IO ()
+setRet :: ProcessID -> Int -> IO ()
 setRet pid ret = do
-    res <- pink_util_set_return pid' ret'
+    res <- pink_util_set_return pid ret'
     if res == 0
         then throwErrno "pink_util_set_return"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         ret' :: CLong
         ret' = fromIntegral ret
 
 foreign import ccall pink_util_get_arg :: CPid -> CInt -> CUInt -> Ptr CLong -> IO CInt
-getArg :: Pid -> Bitness -> Index -> IO Int
+getArg :: ProcessID -> Bitness -> Index -> IO Int
 getArg pid bit index
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "getArg: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "getArg: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "getArg: unsupported bitness " ++ show bit
     | otherwise = alloca $ \ptr -> do
-        ret <- pink_util_get_arg pid' bit' index' ptr
+        ret <- pink_util_get_arg pid bit' index' ptr
         fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_arg" else peek ptr
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
         index' :: CUInt

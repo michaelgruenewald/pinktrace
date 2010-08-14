@@ -57,9 +57,7 @@ module System.PinkTrace.Bitness
 import Foreign.C.Error    (throwErrno)
 import Foreign.C.String   (CString, peekCString)
 import Foreign.C.Types    (CInt)
-import System.Posix.Types (CPid)
-
-import System.PinkTrace   (Pid)
+import System.Posix.Types (CPid, ProcessID)
 --}}}
 --{{{ Types
 data Bitness = Bitness32 | Bitness64
@@ -94,15 +92,12 @@ bitness64Supported = False
 #endif
 
 foreign import ccall pink_bitness_get :: CPid -> IO CInt
-getBitness :: Pid -> IO Bitness
+getBitness :: ProcessID -> IO Bitness
 getBitness pid = do
-    ret <- pink_bitness_get pid'
+    ret <- pink_bitness_get pid
     if ret == #{const PINK_BITNESS_UNKNOWN}
         then throwErrno "pink_bitness_get"
         else return $ toEnum $ fromIntegral ret
-    where
-        pid' :: CPid
-        pid' = fromIntegral pid
 
 foreign import ccall pink_bitness_name :: CInt -> CString
 nameBitness :: Bitness -> IO String

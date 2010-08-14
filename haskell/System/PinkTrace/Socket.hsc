@@ -58,9 +58,9 @@ import Foreign.ForeignPtr    (ForeignPtr)
 import Foreign.Marshal.Alloc (alloca, free, mallocBytes)
 import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
-import System.Posix.Types    (CPid)
+import System.Posix.Types    (CPid, ProcessID)
 
-import System.PinkTrace         (Index, Pid)
+import System.PinkTrace         (Index)
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
@@ -142,26 +142,24 @@ name _ = error "name: not implemented"
 #endif
 
 foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
-decodeAddress :: Pid -> Bitness -> Index -> IO (Ptr Address)
+decodeAddress :: ProcessID -> Bitness -> Index -> IO (Ptr Address)
 decodeAddress pid bit index
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddress: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
-        ret <- pink_decode_socket_address pid' bit' index' nullPtr ptr
+        ret <- pink_decode_socket_address pid bit' index' nullPtr ptr
         if ret == 0
             then free ptr >> throwErrno "pink_decode_socket_address"
             else return ptr
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
         index' :: CUInt
         index' = fromIntegral index
 
-decodeAddressFd :: Pid -> Bitness -> Index -> IO (Int, Ptr Address)
+decodeAddressFd :: ProcessID -> Bitness -> Index -> IO (Int, Ptr Address)
 decodeAddressFd pid bit index
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddressFd: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decodeAddressFd: unsupported bitness " ++ show bit
@@ -169,15 +167,13 @@ decodeAddressFd pid bit index
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
         alloca $ \fptr -> do
-            ret <- pink_decode_socket_address pid' bit' index' fptr ptr
+            ret <- pink_decode_socket_address pid bit' index' fptr ptr
             if ret == 0
                 then free ptr >> throwErrno "pink_decode_socket_address"
                 else do
                     fd <- peek fptr
                     return (fromIntegral fd, ptr)
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
         index' :: CUInt

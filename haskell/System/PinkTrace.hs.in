@@ -42,7 +42,6 @@ module System.PinkTrace
     ( Addr             -- = Int
     , Index            -- = Int
     , Length           -- = Int
-    , Pid              -- = Int
     , Sig              -- = Int
     , Status           -- = Int
     , package          -- :: String
@@ -59,7 +58,6 @@ module System.PinkTrace
 type Addr   = Int
 type Index  = Int
 type Length = Int
-type Pid    = Int
 type Sig    = Int
 type Status = Int
 --}}}

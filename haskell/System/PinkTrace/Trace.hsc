@@ -60,7 +60,7 @@ module System.PinkTrace.Trace
 --}}}
 --{{{ Imports
 import Foreign.C.Error    (throwErrno)
-import System.Posix.Types (CPid)
+import System.Posix.Types (CPid, ProcessID)
 #ifdef PINKTRACE_LINUX
 import Data.Bits          ((.|.))
 import Foreign.Ptr        (Ptr)
@@ -71,7 +71,7 @@ import Foreign.C.Types    ( CInt
 #endif
                           )
 
-import System.PinkTrace   (Addr, Pid, Sig)
+import System.PinkTrace   (Addr, Sig)
 --}}}
 --{{{ Types
 data Option = Option
@@ -94,113 +94,95 @@ me = do
         else return ()
 
 foreign import ccall pink_trace_cont :: CPid -> CInt -> CInt -> IO CInt
-cont :: Pid -> Sig -> Addr -> IO ()
+cont :: ProcessID -> Sig -> Addr -> IO ()
 cont pid sig addr = do
-    ret <- pink_trace_cont pid' sig' addr'
+    ret <- pink_trace_cont pid sig' addr'
     if ret == 0
         then throwErrno "pink_trace_cont"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
         addr' :: CInt
         addr' = fromIntegral addr
 
 foreign import ccall pink_trace_kill :: CPid -> IO CInt
-kill :: Pid -> IO ()
+kill :: ProcessID -> IO ()
 kill pid = do
-    ret <- pink_trace_kill pid'
+    ret <- pink_trace_kill pid
     if ret == 0
         then throwErrno "pink_trace_kill"
         else return ()
-    where
-        pid' :: CPid
-        pid' = fromIntegral pid
 
 foreign import ccall pink_trace_singlestep :: CPid -> CInt -> IO CInt
-singlestep :: Pid -> Sig -> IO ()
+singlestep :: ProcessID -> Sig -> IO ()
 singlestep pid sig = do
-    ret <- pink_trace_singlestep pid' sig'
+    ret <- pink_trace_singlestep pid sig'
     if ret == 0
         then throwErrno "pink_trace_singlestep"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
 
 foreign import ccall pink_trace_syscall :: CPid -> CInt -> IO CInt
-syscall :: Pid -> Sig -> IO ()
+syscall :: ProcessID -> Sig -> IO ()
 syscall pid sig = do
-    ret <- pink_trace_syscall pid' sig'
+    ret <- pink_trace_syscall pid sig'
     if ret == 0
         then throwErrno "pink_trace_syscall"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
 
 #ifdef PINKTRACE_FREEBSD
 foreign import ccall pink_trace_syscall_entry :: CPid -> CInt -> IO CInt
-syscallEntry :: Pid -> Sig -> IO ()
+syscallEntry :: ProcessID -> Sig -> IO ()
 syscallEntry pid sig = do
-    ret <- pink_trace_syscall_entry pid' sig'
+    ret <- pink_trace_syscall_entry pid sig'
     if ret == 0
         then throwErrno "pink_trace_syscall_entry"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
 
 foreign import ccall pink_trace_syscall_exit :: CPid -> CInt -> IO CInt
-syscallExit :: Pid -> Sig -> IO ()
+syscallExit :: ProcessID -> Sig -> IO ()
 syscallExit pid sig = do
-    ret <- pink_trace_syscall_exit pid' sig'
+    ret <- pink_trace_syscall_exit pid sig'
     if ret == 0
         then throwErrno "pink_trace_syscall_exit"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
 #else
-syscallEntry :: Pid -> Sig -> IO ()
+syscallEntry :: ProcessID -> Sig -> IO ()
 syscallEntry _ _ = error "syscallEntry: not implemented"
 
-syscallExit :: Pid -> Sig -> IO ()
+syscallExit :: ProcessID -> Sig -> IO ()
 syscallExit _ _ = error "syscallExit: not implemented"
 #endif
 
 #ifdef PINKTRACE_LINUX
 foreign import ccall pink_trace_geteventmsg :: CPid -> Ptr CULong -> IO CInt
-geteventmsg :: Pid -> IO Int
+geteventmsg :: ProcessID -> IO Int
 geteventmsg pid = alloca $ \ptr -> do
-    ret <- pink_trace_geteventmsg pid' ptr
+    ret <- pink_trace_geteventmsg pid ptr
     if ret == 0
         then throwErrno "pink_trace_geteventmsg"
         else return $ fromIntegral $ peek ptr
-    where
-        pid' :: CPid
-        pid' = fromIntegral pid
 
 foreign import ccall pink_trace_setup :: CPid -> CInt -> IO CInt
-setup :: Pid -> Option -> IO ()
+setup :: ProcessID -> Option -> IO ()
 setup pid opt = do
-    ret <- #{call pink_trace_setup} pid' o'''''''
+    ret <- #{call pink_trace_setup} pid o'''''''
     if ret == 0
         then throwErrno "pink_trace_setup"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         o :: CInt
         o        = 0
         o'       = if sysGood opt   then o       .|. #{const PINK_TRACE_OPTION_SYSGOOD}    else o
@@ -211,34 +193,29 @@ setup pid opt = do
         o''''''  = if vForkDone opt then o'''''  .|. #{const PINK_TRACE_OPTION_VFORK_DONE} else o'''''
         o''''''' = if exit opt      then o'''''' .|. #{const PINK_TRACE_OPTION_EXIT}       else o''''''
 #else
-geteventmsg :: Pid -> IO Int
+geteventmsg :: ProcessID -> IO Int
 geteventmsg _ = error "geteventmsg: not implemented"
 
-setup :: Pid -> Option -> IO ()
+setup :: ProcessID -> Option -> IO ()
 setup _ _ = error "setup: not implemented"
 #endif
 
 foreign import ccall pink_trace_attach :: CPid -> IO CInt
-attach :: Pid -> IO ()
+attach :: ProcessID -> IO ()
 attach pid = do
-    ret <- pink_trace_attach pid'
+    ret <- pink_trace_attach pid
     if ret == 0
         then throwErrno "pink_trace_attach"
         else return ()
-    where
-        pid' :: CPid
-        pid' = fromIntegral pid
 
 foreign import ccall pink_trace_detach :: CPid -> CInt -> IO CInt
-detach :: Pid -> Sig -> IO ()
+detach :: ProcessID -> Sig -> IO ()
 detach pid sig = do
-    ret <- pink_trace_detach pid' sig'
+    ret <- pink_trace_detach pid sig'
     if ret == 0
         then throwErrno "pink_trace_detach"
         else return ()
     where
-        pid' :: CPid
-        pid' = fromIntegral pid
         sig' :: CInt
         sig' = fromIntegral sig
 --}}}
