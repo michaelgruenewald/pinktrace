@@ -44,8 +44,8 @@ module System.PinkTrace.Socket
     ( Address(..)
     , SubCall(..)
     , name
-    , decode_address
-    , decode_address_fd
+    , decodeAddress
+    , decodeAddressFd
     ) where
 --}}}
 --{{{ Includes
@@ -142,11 +142,11 @@ name _ = error "name: not implemented"
 #endif
 
 foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
-decode_address :: Pid -> Bitness -> Index -> IO (Ptr Address)
-decode_address pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decode_address: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "decode_address: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "decode_address: unsupported bitness " ++ show bit
+decodeAddress :: Pid -> Bitness -> Index -> IO (Ptr Address)
+decodeAddress pid bit index
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddress: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
         ret <- pink_decode_socket_address pid' bit' index' nullPtr ptr
@@ -161,11 +161,11 @@ decode_address pid bit index
         index' :: CUInt
         index' = fromIntegral index
 
-decode_address_fd :: Pid -> Bitness -> Index -> IO (Int, Ptr Address)
-decode_address_fd pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decode_address_fd: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "decode_address_fd: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "decode_address_fd: unsupported bitness " ++ show bit
+decodeAddressFd :: Pid -> Bitness -> Index -> IO (Int, Ptr Address)
+decodeAddressFd pid bit index
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddressFd: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "decodeAddressFd: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "decodeAddressFd: unsupported bitness " ++ show bit
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
         alloca $ \fptr -> do

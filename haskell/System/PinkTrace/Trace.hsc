@@ -47,8 +47,8 @@ module System.PinkTrace.Trace
     , kill
     , singlestep
     , syscall
-    , syscall_entry
-    , syscall_exit
+    , syscallEntry
+    , syscallExit
     , geteventmsg
     , setup
     , attach
@@ -147,8 +147,8 @@ syscall pid sig = do
 
 #ifdef PINKTRACE_FREEBSD
 foreign import ccall pink_trace_syscall_entry :: CPid -> CInt -> IO CInt
-syscall_entry :: Pid -> Sig -> IO ()
-syscall_entry pid sig = do
+syscallEntry :: Pid -> Sig -> IO ()
+syscallEntry pid sig = do
     ret <- pink_trace_syscall_entry pid' sig'
     if ret == 0
         then throwErrno "pink_trace_syscall_entry"
@@ -160,8 +160,8 @@ syscall_entry pid sig = do
         sig' = fromIntegral sig
 
 foreign import ccall pink_trace_syscall_exit :: CPid -> CInt -> IO CInt
-syscall_exit :: Pid -> Sig -> IO ()
-syscall_exit pid sig = do
+syscallExit :: Pid -> Sig -> IO ()
+syscallExit pid sig = do
     ret <- pink_trace_syscall_exit pid' sig'
     if ret == 0
         then throwErrno "pink_trace_syscall_exit"
@@ -172,11 +172,11 @@ syscall_exit pid sig = do
         sig' :: CInt
         sig' = fromIntegral sig
 #else
-syscall_entry :: Pid -> Sig -> IO ()
-syscall_entry _ _ = error "syscall_entry: not implemented"
+syscallEntry :: Pid -> Sig -> IO ()
+syscallEntry _ _ = error "syscallEntry: not implemented"
 
-syscall_exit :: Pid -> Sig -> IO ()
-syscall_exit _ _ = error "syscall_exit: not implemented"
+syscallExit :: Pid -> Sig -> IO ()
+syscallExit _ _ = error "syscallExit: not implemented"
 #endif
 
 #ifdef PINKTRACE_LINUX

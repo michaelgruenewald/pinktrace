@@ -43,7 +43,7 @@
 module System.PinkTrace.String
     ( decode
     , encode
-    , encode_safe
+    , encodeSafe
     ) where
 --}}}
 --{{{ Includes
@@ -115,8 +115,8 @@ encode pid bit index src
 
 #ifdef PINKTRACE_LINUX
 foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
-encode_safe :: Pid -> Bitness -> Index -> String -> IO ()
-encode_safe pid bit index src
+encodeSafe :: Pid -> Bitness -> Index -> String -> IO ()
+encodeSafe pid bit index src
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode_safe: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "encode_safe: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encode_safe: unsupported bitness " ++ show bit
@@ -133,8 +133,8 @@ encode_safe pid bit index src
         index' :: CUInt
         index' = fromIntegral index
 #else
-encode_safe :: Pid -> Bitness -> Index -> String -> IO ()
-encode_safe _ _ _ _ = error "encode_safe: not implemented"
+encodeSafe :: Pid -> Bitness -> Index -> String -> IO ()
+encodeSafe _ _ _ _ = error "encode_safe: not implemented"
 #endif
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
