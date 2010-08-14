@@ -46,8 +46,8 @@ module System.PinkTrace.Bitness
     , bitnessCountSupported
     , bitness32Supported
     , bitness64Supported
-    , get
-    , name
+    , getBitness
+    , nameBitness
     ) where
 --}}}
 --{{{ Includes
@@ -94,8 +94,8 @@ bitness64Supported = False
 #endif
 
 foreign import ccall pink_bitness_get :: CPid -> IO CInt
-get :: Pid -> IO Bitness
-get pid = do
+getBitness :: Pid -> IO Bitness
+getBitness pid = do
     ret <- pink_bitness_get pid'
     if ret == #{const PINK_BITNESS_UNKNOWN}
         then throwErrno "pink_bitness_get"
@@ -105,8 +105,8 @@ get pid = do
         pid' = fromIntegral pid
 
 foreign import ccall pink_bitness_name :: CInt -> CString
-name :: Bitness -> IO String
-name bit = peekCString $ pink_bitness_name bit'
+nameBitness :: Bitness -> IO String
+nameBitness bit = peekCString $ pink_bitness_name bit'
     where
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
