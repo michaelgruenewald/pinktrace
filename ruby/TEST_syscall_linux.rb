@@ -99,14 +99,14 @@ class TestPinkSyscall < Test::Unit::TestCase
     assert_raise ArgumentError do
       PinkTrace::Syscall.set_no 0
     end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_no 0, 1, 2
-    end
     assert_raise TypeError do
       PinkTrace::Syscall.set_no 'pink', 1
     end
     assert_raise TypeError do
       PinkTrace::Syscall.set_no 0, 'pink'
+    end
+    assert_raise PinkTrace::BitnessError do
+      PinkTrace::Syscall.set_no 0, 1, 123
     end
   end
 
