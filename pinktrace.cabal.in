@@ -19,6 +19,8 @@ library
     System.PinkTrace.String
     System.PinkTrace.SysCall
     System.PinkTrace.Trace
+  c-sources:
+    haskell/cbits/HsWaitPid.c
   build-depends: base >=3 && < 5
   build-depends: unix
   build-tools: hsc2hs
@@ -27,3 +29,4 @@ library
   extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
   extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
   include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include

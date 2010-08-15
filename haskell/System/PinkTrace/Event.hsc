@@ -2,6 +2,8 @@
 
 {-
  - Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ - Based in part upon System.Posix.Process module of GHC which is:
+ -   (c) The University of Glasgow 2002
  - All rights reserved.
  -
  - Redistribution and use in source and binary forms, with or without
@@ -27,82 +29,245 @@
  - THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -}
 
---{{{ Description
-{-| Module:      System.PinkTrace.Event
+--{{{ Exports
+{-|
+    Module:      System.PinkTrace.Event
     Copyright:   (c) Ali Polatel 2010
     License:     BSD3
 
     Maintainer:  alip@exherbo.org
     Stability:   provisional
-    Portability: portable, ffi
+    Portability: Non-portable, requires Linux
 
     Pink's event handling
 -}
---}}}
---{{{ Exports
 module System.PinkTrace.Event
     ( Event(..)
-    , decide
+    , ProcessStatus(..)
+    , getProcessStatus      -- :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
+    , getGroupProcessStatus -- :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
+    , getAnyProcessStatus   -- :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
     ) where
 --}}}
 --{{{ Includes
 #include <pinktrace/pink.h>
+#include "HsWaitPid.h"
 --}}}
 --{{{ Imports
-import System.PinkTrace (Status)
+import System.Exit          (ExitCode)
+import System.Posix.Signals (Signal)
+import System.Posix.Types   (ProcessID, ProcessGroupID)
+#ifdef PINKTRACE_LINUX
+import Foreign.C.Types      (CInt)
+import Foreign.Ptr          (Ptr)
+import System.Posix.Types   (CPid)
+#endif
+--}}}
+--{{{ Foreign Imports
+#ifdef PINKTRACE_LINUX
+-- safe, because this call might block
+foreign import ccall safe "waitpid" c_waitpid :: CPid -> Ptr CInt -> CInt -> IO CPid
+foreign import ccall unsafe "__pinkhs_wexitstatus" c_WEXITSTATUS :: CInt -> CInt
+foreign import ccall unsafe "__pinkhs_wtermsig"    c_WTERMSIG :: CInt -> CInt
+foreign import ccall unsafe "__pinkhs_wstopsig"    c_WSTOPSIG :: CInt -> CInt
+
+foreign import ccall pink_event_decide :: CInt -> CInt
+#endif
 --}}}
 --{{{ Types
-data Event = Event_Stop
-    | Event_SysCall
-    | Event_Fork
-    | Event_VFork
-    | Event_Clone
-    | Event_VForkDone
-    | Event_Exec
-    | Event_Exit
-    | Event_Genuine
-    | Event_ExitGenuine
-    | Event_Unknown
-    deriving (Eq,Show)
-#ifdef PINKTRACE_LINUX
-instance Enum Event where
-    fromEnum Event_Stop        = #{const PINK_EVENT_STOP}
-    fromEnum Event_SysCall     = #{const PINK_EVENT_SYSCALL}
-    fromEnum Event_Fork        = #{const PINK_EVENT_FORK}
-    fromEnum Event_VFork       = #{const PINK_EVENT_VFORK}
-    fromEnum Event_Clone       = #{const PINK_EVENT_CLONE}
-    fromEnum Event_VForkDone   = #{const PINK_EVENT_VFORK_DONE}
-    fromEnum Event_Exec        = #{const PINK_EVENT_EXEC}
-    fromEnum Event_Exit        = #{const PINK_EVENT_EXIT}
-    fromEnum Event_Genuine     = #{const PINK_EVENT_GENUINE}
-    fromEnum Event_ExitGenuine = #{const PINK_EVENT_EXIT_GENUINE}
-    fromEnum Event_Unknown     = #{const PINK_EVENT_UNKNOWN}
+data Event = SysCall -- ^ Child has entered/exited a system call.
+    | Fork           -- ^ Child has called fork().
+    | VFork          -- ^ Child has called vfork().
+    | Clone          -- ^ Child has called clone().
+    | VForkDone      -- ^ Child has exited a vfork() call.
+    | Exec           -- ^ Child has called execve().
+    deriving (Eq,Ord,Show)
+data ProcessStatus = Exited ExitCode -- ^ Child has exited with 'ExitCode'.
+    | Terminated Signal              -- ^ Child was terminated with 'Signal'.
+    | Stopped Signal                 -- ^ Child was stopped with 'Signal'.
+    | StoppedTrace Event             -- ^ Child was stopped with @SIGTRAP@ due to a @ptrace@ 'Event'.
 
-    toEnum #{const PINK_EVENT_STOP}         = Event_Stop
-    toEnum #{const PINK_EVENT_SYSCALL}      = Event_SysCall
-    toEnum #{const PINK_EVENT_FORK}         = Event_Fork
-    toEnum #{const PINK_EVENT_VFORK}        = Event_VFork
-    toEnum #{const PINK_EVENT_CLONE}        = Event_Clone
-    toEnum #{const PINK_EVENT_VFORK_DONE}   = Event_VForkDone
-    toEnum #{const PINK_EVENT_EXEC}         = Event_Exec
-    toEnum #{const PINK_EVENT_EXIT}         = Event_Exit
-    toEnum #{const PINK_EVENT_GENUINE}      = Event_Genuine
-    toEnum #{const PINK_EVENT_EXIT_GENUINE} = Event_ExitGenuine
-    toEnum #{const PINK_EVENT_UNKNOWN}      = Event_Unknown
-    toEnum unmatched                        = error $ "Event.toEnum: Cannot match " ++ show unmatched
+--}}}
+--{{{ Local Functions
+#ifdef PINKTRACE_LINUX
+decipherWaitStatus :: CInt -> IO ProcessStatus
+decipherWaitStatus wstat =
+    case event of
+        pink_EVENT_EXIT_GENUINE -> let exitstatus = c_WEXITSTATUS wstat
+                                   if exitstatus == 0
+                                       then return (Exited ExitSuccess)
+                                       else return (ExitFailure (fromIntegral exitstatus))
+        pink_EVENT_EXIT_SIGNAL  -> let termsig = c_WTERMSIG wstat
+                                   return (Terminated (fromIntegral termsig))
+        pink_EVENT_STOP         -> let stopsig = c_WSTOPSIG wstat
+                                   return (Stopped (fromIntegral stopsig))
+        pink_EVENT_GENUINE      -> let stopsig = c_WSTOPSIG wstat
+                                   return (Stopped (fromIntegral stopsig))
+        pink_EVENT_SYSCALL      -> return (StoppedTrace SysCall)
+        pink_EVENT_FORK         -> return (StoppedTrace Fork)
+        pink_EVENT_VFORK        -> return (StoppedTrace VFork)
+        pink_EVENT_CLONE        -> return (StoppedTrace Clone)
+        pink_EVENT_VFORK_DONE   -> return (StoppedTrace VForkDone)
+        pink_EVENT_EXEC         -> return (StoppedTrace Exec)
+        pink_EVENT_UNKNOWN      -> ioError (mkIOError illegalOperationErrorType "waitStatus" Nothing Nothing)
+    where
+        event :: Int
+        event = fromIntegral $ pink_event_decide wstat
+        pink_EVENT_EXIT_GENUINE :: Int
+        pink_EVENT_EXIT_GENUINE = #{const PINK_EVENT_EXIT_GENUINE}
+        pink_EVENT_EXIT_SIGNAL :: Int
+        pink_EVENT_EXIT_SIGNAL = #{const PINK_EVENT_EXIT_SIGNAL}
+        pink_EVENT_STOP :: Int
+        pink_EVENT_STOP = #{const PINK_EVENT_STOP}
+        pink_EVENT_GENUINE :: Int
+        pink_EVENT_GENUINE = #{const PINK_EVENT_GENUINE}
+        pink_EVENT_SYSCALL :: Int
+        pink_EVENT_SYSCALL = #{const PINK_EVENT_SYSCALL}
+        pink_EVENT_FORK :: Int
+        pink_EVENT_FORK = #{const PINK_EVENT_FORK}
+        pink_EVENT_VFORK :: Int
+        pink_EVENT_VFORK = #{const PINK_EVENT_VFORK}
+        pink_EVENT_CLONE :: Int
+        pink_EVENT_CLONE = #{const PINK_EVENT_CLONE}
+        pink_EVENT_VFORK_DONE :: Int
+        pink_EVENT_VFORK_DONE = #{const PINK_EVENT_VFORK_DONE}
+        pink_EVENT_EXEC :: Int
+        pink_EVENT_EXEC = #{const PINK_EVENT_EXEC}
+        pink_EVENT_UNKNOWN :: Int
+        pink_EVENT_UNKNOWN = #{const PINK_EVENT_UNKNOWN}
+
+waitOptions :: Bool -> Bool -> CInt
+--             block   stopped
+waitOptions False False = #{const WNOHANG}
+waitOptions False True  = #{const (WNOHANG|WUNTRACED)}
+waitOptions True  False = 0
+waitOptions True  True  = #{const WUNTRACED}
+
+readWaitStatus :: Ptr CInt -> IO ProcessStatus
+readWaitStatus wstatp = do
+    wstat <- peek wstatp
+    decipherWaitStatus wstat
 #endif
 --}}}
 --{{{ Functions
 #ifdef PINKTRACE_LINUX
-foreign import ccall pink_event_decide :: CInt -> CInt
-decide :: Status -> Event
-decide st = toEnum $ fromIntegral $ pink_event_decide st'
-    where
-        st' :: CInt
-        st' = fromIntegral st
+{-|
+    @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
+    @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
+    available, 'Nothing' otherwise.  If @blk@ is 'False', then
+    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
+    If @stopped@ is 'True', then @WUNTRACED@ is set in the
+    options for @waitpid@, otherwise not.
+
+    * Note: Because @getProcessStatus@ of 'System.Posix.Process' module doesn't
+      give information about @ptrace@ events, this is a re-implementation that
+      gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
+getProcessStatus block stopped pid =
+    alloca $ \wstatp -> do
+        pid' <- throwErrnoIfMinus1Retry "getProcessStatus"
+            (c_waitpid pid wstatp (waitOptions block stopped))
+        case pid' of
+            0 -> return Nothing
+            _ -> do ps <- readWaitStatus wstatp
+                    return (Just ps)
+
+{-|
+    @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
+    returning @'Just' (pid, tc)@, the 'ProcessID' and
+    'ProcessStatus' for any process in group @pgid@ if one is
+    available, 'Nothing' otherwise.  If @blk@ is 'False', then
+    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
+    If @stopped@ is 'True', then @WUNTRACED@ is set in the
+    options for @waitpid@, otherwise not.
+
+    * Note: Because @getGroupProcessStatus@ of 'System.Posix.Process' module
+      doesn't give information about @ptrace@ events, this is a
+      re-implementation that gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
+getGroupProcessStatus block stopped pgid =
+    alloca $ \wstatp -> do
+    pid <- throwErrnoIfMinus1Retry "getGroupProcessStatus"
+        (c_waitpid (-pgid) wstatp (waitOptions block stopped))
+    case pid of
+        0 -> return Nothing
+        _ -> do ps <- readWaitStatus wstatp
+                return (Just (pid, ps))
+
+{-|
+    @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
+    @'Just' (pid, tc)@, the 'ProcessID' and 'ProcessStatus' for any
+    child process if one is available, 'Nothing' otherwise.  If
+    @blk@ is 'False', then @WNOHANG@ is set in the options for
+    @waitpid@, otherwise not.  If @stopped@ is 'True', then
+    @WUNTRACED@ is set in the options for @waitpid@, otherwise not.
+
+    * Note: Because @getAnyProcessStatus@ of 'System.Posix.Process' module
+      doesn't give information about @ptrace@ events, this is a
+      re-implementation that gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
+getAnyProcessStatus block stopped = getGroupProcessStatus block stopped 1
 #else
-decide :: Status -> Event
-decide _ = error "decide: Not implemented"
+{-|
+    @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
+    @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
+    available, 'Nothing' otherwise.  If @blk@ is 'False', then
+    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
+    If @stopped@ is 'True', then @WUNTRACED@ is set in the
+    options for @waitpid@, otherwise not.
+
+    * Note: Because @getProcessStatus@ of 'System.Posix.Process' module doesn't
+      give information about @ptrace@ events, this is a re-implementation that
+      gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
+getProcessStatus _ _ _ = error "getProcessStatus: not implemented"
+
+{-|
+    @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
+    returning @'Just' (pid, tc)@, the 'ProcessID' and
+    'ProcessStatus' for any process in group @pgid@ if one is
+    available, 'Nothing' otherwise.  If @blk@ is 'False', then
+    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
+    If @stopped@ is 'True', then @WUNTRACED@ is set in the
+    options for @waitpid@, otherwise not.
+
+    * Note: Because @getGroupProcessStatus@ of 'System.Posix.Process' module
+      doesn't give information about @ptrace@ events, this is a
+      re-implementation that gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
+getGroupProcessStatus _ _ _ = error "getGroupProcessStatus: not implemented"
+
+{-|
+    @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
+    @'Just' (pid, tc)@, the 'ProcessID' and 'ProcessStatus' for any
+    child process if one is available, 'Nothing' otherwise.  If
+    @blk@ is 'False', then @WNOHANG@ is set in the options for
+    @waitpid@, otherwise not.  If @stopped@ is 'True', then
+    @WUNTRACED@ is set in the options for @waitpid@, otherwise not.
+
+    * Note: Because @getAnyProcessStatus@ of 'System.Posix.Process' module
+      doesn't give information about @ptrace@ events, this is a
+      re-implementation that gives information about @ptrace@ events.
+
+    * Availability: Linux
+-}
+getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
+getAnyProcessStatus _ _ = error "getAnyProcessStatus: not implemented"
 #endif
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
