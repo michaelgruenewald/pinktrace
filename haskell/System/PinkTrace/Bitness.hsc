@@ -35,7 +35,7 @@
 
     Maintainer:  alip@exherbo.org
     Stability:   provisional
-    Portability: portable, ffi
+    Portability: non-portable, requires freebsd or linux
 
     Pink's bitness modes
 -}

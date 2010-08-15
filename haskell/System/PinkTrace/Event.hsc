@@ -37,7 +37,7 @@
 
     Maintainer:  alip@exherbo.org
     Stability:   provisional
-    Portability: Non-portable, requires Linux
+    Portability: non-portable, requires linux
 
     Pink's event handling
 -}
