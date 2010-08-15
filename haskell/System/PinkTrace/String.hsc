@@ -27,19 +27,18 @@
  - THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -}
 
---{{{ Description
-{-| Module:      System.PinkTrace.String
+--{{{ Exports
+{-|
+    Module:      System.PinkTrace.String
     Copyright:   (c) Ali Polatel 2010
     License:     BSD3
 
     Maintainer:  alip@exherbo.org
     Stability:   provisional
-    Portability: portable, ffi
+    Portability: non-portable, requires freebsd or linux
 
     Pink's string decoding and encoding functions
 -}
---}}}
---{{{ Exports
 module System.PinkTrace.String
     ( decode
     , encode
@@ -64,11 +63,27 @@ import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness64Supported
                                 )
 --}}}
---{{{ Functions
+--{{{ Foreign Imports
 foreign import ccall "free" c_free :: CString -> IO ()
 foreign import ccall pink_decode_string :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
 foreign import ccall pink_decode_string_persistent :: CPid -> CInt -> CUInt -> IO CString
-decode :: ProcessID -> Bitness -> Index -> Length -> IO String
+foreign import ccall pink_encode_simple :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
+#ifdef PINKTRACE_LINUX
+foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
+#endif
+--}}}
+--{{{ Functions
+{-|
+    This function decodes the string at the argument of the given index.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+-}
+decode :: ProcessID -- ^ Process ID of the traced child
+       -> Bitness   -- ^ The bitness of the traced child
+       -> Index     -- ^ The index of the argument
+       -> Length    -- ^ Max length of the string
+                    --   If smaller than zero, @pinktrace@ tries to determine the string length.
+       -> IO String -- ^ The decoded string
 decode pid bit index len
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decode: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decode: unsupported bitness " ++ show bit
@@ -92,8 +107,18 @@ decode pid bit index len
         len' :: CSize
         len' = fromIntegral len
 
-foreign import ccall pink_encode_simple :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
-encode :: ProcessID -> Bitness -> Index -> String -> IO ()
+{-|
+    Encode a string into the argument of the given index.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+
+    * Warning: Care must be taken when using this function as unexpected things may happen.
+-}
+encode :: ProcessID -- ^ Process ID of the traced child
+       -> Bitness   -- ^ The bitness of the traced child
+       -> Index     -- ^ The index of the argument
+       -> String    -- ^ The string to be encoded
+       -> IO ()
 encode pid bit index src
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "encode: unsupported bitness " ++ show bit
@@ -110,8 +135,21 @@ encode pid bit index src
         index' = fromIntegral index
 
 #ifdef PINKTRACE_LINUX
-foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString -> CSize -> IO CInt
-encodeSafe :: ProcessID -> Bitness -> Index -> String -> IO ()
+{-|
+    Encode a string into the argument of the given index with additional
+    checking for writable areas.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+
+    * Availability: Linux
+
+    * Warning: Care must be taken when using this function as unexpected things may happen.
+-}
+encodeSafe :: ProcessID -- ^ Process ID of the traced child
+           -> Bitness   -- ^ The bitness of the traced child
+           -> Index     -- ^ The index of the argument
+           -> String    -- ^ The string to be encoded
+           -> IO ()
 encodeSafe pid bit index src
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode_safe: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "encode_safe: unsupported bitness " ++ show bit
@@ -127,7 +165,21 @@ encodeSafe pid bit index src
         index' :: CUInt
         index' = fromIntegral index
 #else
-encodeSafe :: ProcessID -> Bitness -> Index -> String -> IO ()
+{-|
+    Encode a string into the argument of the given index with additional
+    checking for writable areas.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+
+    * Availability: Linux
+
+    * Warning: Care must be taken when using this function as unexpected things may happen.
+-}
+encodeSafe :: ProcessID -- ^ Process ID of the traced child
+           -> Bitness   -- ^ The bitness of the traced child
+           -> Index     -- ^ The index of the argument
+           -> String    -- ^ The string to be encoded
+           -> IO ()
 encodeSafe _ _ _ _ = error "encode_safe: not implemented"
 #endif
 --}}}
