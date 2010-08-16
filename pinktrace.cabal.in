@@ -17,7 +17,7 @@ library
     System.PinkTrace.Event
     System.PinkTrace.Socket
     System.PinkTrace.String
-    System.PinkTrace.SysCall
+    System.PinkTrace.SystemCall
     System.PinkTrace.Trace
   c-sources:
     haskell/cbits/HsWaitPid.c
