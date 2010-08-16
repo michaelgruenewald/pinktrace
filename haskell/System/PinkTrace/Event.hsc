@@ -54,13 +54,17 @@ module System.PinkTrace.Event
 #include "HsWaitPid.h"
 --}}}
 --{{{ Imports
-import System.Exit          (ExitCode)
+import System.Exit          (ExitCode(..))
 import System.Posix.Signals (Signal)
 import System.Posix.Types   (ProcessID, ProcessGroupID)
 #ifdef PINKTRACE_LINUX
-import Foreign.C.Types      (CInt)
-import Foreign.Ptr          (Ptr)
-import System.Posix.Types   (CPid)
+import Foreign.C.Error       (throwErrnoIfMinus1Retry)
+import Foreign.C.Types       (CInt)
+import Foreign.Ptr           (Ptr)
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Storable      (peek)
+import System.Posix.Types    (CPid)
+import System.IO.Error       (illegalOperationErrorType, mkIOError)
 #endif
 --}}}
 --{{{ Foreign Imports
@@ -92,49 +96,45 @@ data ProcessStatus = Exited ExitCode -- ^ Child has exited with 'ExitCode'.
 #ifdef PINKTRACE_LINUX
 decipherWaitStatus :: CInt -> IO ProcessStatus
 decipherWaitStatus wstat =
-    case event of
-        pink_EVENT_EXIT_GENUINE -> let exitstatus = c_WEXITSTATUS wstat
-                                   if exitstatus == 0
-                                       then return (Exited ExitSuccess)
-                                       else return (ExitFailure (fromIntegral exitstatus))
-        pink_EVENT_EXIT_SIGNAL  -> let termsig = c_WTERMSIG wstat
-                                   return (Terminated (fromIntegral termsig))
-        pink_EVENT_STOP         -> let stopsig = c_WSTOPSIG wstat
-                                   return (Stopped (fromIntegral stopsig))
-        pink_EVENT_GENUINE      -> let stopsig = c_WSTOPSIG wstat
-                                   return (Stopped (fromIntegral stopsig))
-        pink_EVENT_SYSCALL      -> return (StoppedTrace SysCall)
-        pink_EVENT_FORK         -> return (StoppedTrace Fork)
-        pink_EVENT_VFORK        -> return (StoppedTrace VFork)
-        pink_EVENT_CLONE        -> return (StoppedTrace Clone)
-        pink_EVENT_VFORK_DONE   -> return (StoppedTrace VForkDone)
-        pink_EVENT_EXEC         -> return (StoppedTrace Exec)
-        pink_EVENT_UNKNOWN      -> ioError (mkIOError illegalOperationErrorType "waitStatus" Nothing Nothing)
+    if event == #{const PINK_EVENT_EXIT_GENUINE}
+        then do
+	     let exitstatus = c_WEXITSTATUS wstat
+             if exitstatus == 0
+                 then return (Exited ExitSuccess)
+		 else return (Exited (ExitFailure (fromIntegral exitstatus)))
+        else
+             if event == #{const PINK_EVENT_EXIT_SIGNAL}
+                 then do
+                      let termsig = c_WTERMSIG wstat
+                      return (Terminated (fromIntegral termsig))
+                 else
+                     if event == #{const PINK_EVENT_STOP} || event == #{const PINK_EVENT_GENUINE}
+                       then do
+                            let stopsig = c_WSTOPSIG wstat
+                            return (Stopped (fromIntegral stopsig))
+                     else
+                         if event == #{const PINK_EVENT_SYSCALL}
+                             then return (StoppedTrace SysCall)
+                             else
+                                 if event == #{const PINK_EVENT_FORK}
+                                     then return (StoppedTrace Fork)
+                                     else
+                                         if event == #{const PINK_EVENT_VFORK}
+                                             then return (StoppedTrace VFork)
+                                             else
+                                                 if event == #{const PINK_EVENT_CLONE}
+                                                     then return (StoppedTrace Clone)
+                                                     else
+                                                         if event == #{const PINK_EVENT_VFORK_DONE}
+                                                             then return (StoppedTrace VForkDone)
+                                                             else
+                                                                 if event == #{const PINK_EVENT_EXEC}
+                                                                     then return (StoppedTrace Exec)
+                                                                     else ioError (mkIOError illegalOperationErrorType
+                                                                                   "waitStatus" Nothing Nothing)
     where
         event :: Int
         event = fromIntegral $ pink_event_decide wstat
-        pink_EVENT_EXIT_GENUINE :: Int
-        pink_EVENT_EXIT_GENUINE = #{const PINK_EVENT_EXIT_GENUINE}
-        pink_EVENT_EXIT_SIGNAL :: Int
-        pink_EVENT_EXIT_SIGNAL = #{const PINK_EVENT_EXIT_SIGNAL}
-        pink_EVENT_STOP :: Int
-        pink_EVENT_STOP = #{const PINK_EVENT_STOP}
-        pink_EVENT_GENUINE :: Int
-        pink_EVENT_GENUINE = #{const PINK_EVENT_GENUINE}
-        pink_EVENT_SYSCALL :: Int
-        pink_EVENT_SYSCALL = #{const PINK_EVENT_SYSCALL}
-        pink_EVENT_FORK :: Int
-        pink_EVENT_FORK = #{const PINK_EVENT_FORK}
-        pink_EVENT_VFORK :: Int
-        pink_EVENT_VFORK = #{const PINK_EVENT_VFORK}
-        pink_EVENT_CLONE :: Int
-        pink_EVENT_CLONE = #{const PINK_EVENT_CLONE}
-        pink_EVENT_VFORK_DONE :: Int
-        pink_EVENT_VFORK_DONE = #{const PINK_EVENT_VFORK_DONE}
-        pink_EVENT_EXEC :: Int
-        pink_EVENT_EXEC = #{const PINK_EVENT_EXEC}
-        pink_EVENT_UNKNOWN :: Int
-        pink_EVENT_UNKNOWN = #{const PINK_EVENT_UNKNOWN}
 
 waitOptions :: Bool -> Bool -> CInt
 --             block   stopped
