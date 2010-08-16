@@ -268,7 +268,7 @@ traceGetEventMessage pid = alloca $ \ptr -> do
     ret <- pink_trace_geteventmsg pid ptr
     if ret == 0
         then throwErrno "pink_trace_geteventmsg"
-        else return $ peek ptr
+        else peek ptr
 
 {-|
     Sets the tracing options.
