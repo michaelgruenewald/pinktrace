@@ -98,40 +98,40 @@ decipherWaitStatus :: CInt -> IO ProcessStatus
 decipherWaitStatus wstat =
     if event == #{const PINK_EVENT_EXIT_GENUINE}
         then do
-	     let exitstatus = c_WEXITSTATUS wstat
+             let exitstatus = c_WEXITSTATUS wstat
              if exitstatus == 0
                  then return (Exited ExitSuccess)
-		 else return (Exited (ExitFailure (fromIntegral exitstatus)))
-        else
-             if event == #{const PINK_EVENT_EXIT_SIGNAL}
-                 then do
-                      let termsig = c_WTERMSIG wstat
-                      return (Terminated (fromIntegral termsig))
-                 else
-                     if event == #{const PINK_EVENT_STOP} || event == #{const PINK_EVENT_GENUINE}
-                       then do
-                            let stopsig = c_WSTOPSIG wstat
-                            return (Stopped (fromIntegral stopsig))
-                     else
-                         if event == #{const PINK_EVENT_SYSCALL}
-                             then return (StoppedTrace SysCall)
-                             else
-                                 if event == #{const PINK_EVENT_FORK}
-                                     then return (StoppedTrace Fork)
-                                     else
-                                         if event == #{const PINK_EVENT_VFORK}
-                                             then return (StoppedTrace VFork)
-                                             else
-                                                 if event == #{const PINK_EVENT_CLONE}
-                                                     then return (StoppedTrace Clone)
-                                                     else
-                                                         if event == #{const PINK_EVENT_VFORK_DONE}
-                                                             then return (StoppedTrace VForkDone)
-                                                             else
-                                                                 if event == #{const PINK_EVENT_EXEC}
-                                                                     then return (StoppedTrace Exec)
-                                                                     else ioError (mkIOError illegalOperationErrorType
-                                                                                   "waitStatus" Nothing Nothing)
+        else return (Exited (ExitFailure (fromIntegral exitstatus)))
+    else
+        if event == #{const PINK_EVENT_EXIT_SIGNAL}
+            then do
+                  let termsig = c_WTERMSIG wstat
+                  return (Terminated (fromIntegral termsig))
+            else
+                if event == #{const PINK_EVENT_STOP} || event == #{const PINK_EVENT_GENUINE}
+                    then do
+                         let stopsig = c_WSTOPSIG wstat
+                         return (Stopped (fromIntegral stopsig))
+                    else
+                        if event == #{const PINK_EVENT_SYSCALL}
+                            then return (StoppedTrace SysCall)
+                            else
+                                if event == #{const PINK_EVENT_FORK}
+                                    then return (StoppedTrace Fork)
+                                    else
+                                        if event == #{const PINK_EVENT_VFORK}
+                                            then return (StoppedTrace VFork)
+                                            else
+                                                if event == #{const PINK_EVENT_CLONE}
+                                                    then return (StoppedTrace Clone)
+                                                    else
+                                                        if event == #{const PINK_EVENT_VFORK_DONE}
+                                                            then return (StoppedTrace VForkDone)
+                                                            else
+                                                                if event == #{const PINK_EVENT_EXEC}
+                                                                    then return (StoppedTrace Exec)
+                                                                    else ioError (mkIOError illegalOperationErrorType
+                                                                                  "waitStatus" Nothing Nothing)
     where
         event :: Int
         event = fromIntegral $ pink_event_decide wstat
