@@ -130,7 +130,7 @@ instance Enum SubCall where
     toEnum #{const PINK_SOCKET_SUBCALL_SEND}        = Send
     toEnum #{const PINK_SOCKET_SUBCALL_RECV}        = Recv
     toEnum #{const PINK_SOCKET_SUBCALL_SENDTO}      = Sendto
-    toEnum #{const PINK_SOCKET_SUBCALL_RECVFROM}    = RecvFrom
+    toEnum #{const PINK_SOCKET_SUBCALL_RECVFROM}    = Recvfrom
     toEnum #{const PINK_SOCKET_SUBCALL_SHUTDOWN}    = Shutdown
     toEnum #{const PINK_SOCKET_SUBCALL_SETSOCKOPT}  = Setsockopt
     toEnum #{const PINK_SOCKET_SUBCALL_GETSOCKOPT}  = Getsockopt
