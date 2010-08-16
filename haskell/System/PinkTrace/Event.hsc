@@ -101,7 +101,7 @@ decipherWaitStatus wstat =
              let exitstatus = c_WEXITSTATUS wstat
              if exitstatus == 0
                  then return (Exited ExitSuccess)
-        else return (Exited (ExitFailure (fromIntegral exitstatus)))
+             else return (Exited (ExitFailure (fromIntegral exitstatus)))
     else
         if event == #{const PINK_EVENT_EXIT_SIGNAL}
             then do
