@@ -35,8 +35,8 @@ gprof*
 /stamp-h1
 /libtool
 /ltmain.sh
-/haskell-test.sh
 /pinktrace.cabal
+/Setup.lhs
 
 doc/css/screen.css
 doc/_config.yml

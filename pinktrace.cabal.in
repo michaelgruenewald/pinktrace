@@ -6,8 +6,12 @@ license:       BSD3
 author:        Ali Polatel
 maintainer:    alip@exherbo.org
 category:      System
-build-type:    Simple
+build-type:    Custom
 cabal-version: >=1.2
+
+flag test
+  description: build test programs
+  default: False
 
 library
   hs-source-dirs: haskell
@@ -21,8 +25,7 @@ library
     System.PinkTrace.Trace
   c-sources:
     haskell/cbits/HsWaitPid.c
-  build-depends: base >=3 && < 5
-  build-depends: unix
+  build-depends: base, unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall
@@ -30,3 +33,27 @@ library
   extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
   include-dirs: #TOP_SRCDIR#/include
   include-dirs: #TOP_SRCDIR#/haskell/include
+
+executable test01Bitness
+  main-is: test01Bitness.lhs
+  hs-source-dirs: haskell, haskell/tests
+  other-modules:
+    System.PinkTrace
+    System.PinkTrace.Bitness
+    System.PinkTrace.Event
+    System.PinkTrace.Socket
+    System.PinkTrace.String
+    System.PinkTrace.SystemCall
+    System.PinkTrace.Trace
+  c-sources:
+    haskell/cbits/HsWaitPid.c
+  build-depends: base, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !flag(test)
+    buildable: False

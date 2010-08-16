@@ -23,7 +23,7 @@ pinktrace_include_HEADERS= \
 EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
 
-noinst_DATA= pinktrace.cabal haskell-test.sh
+noinst_DATA= pinktrace.cabal Setup.lhs
 pinktrace.cabal: pinktrace.cabal.in Makefile
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
@@ -33,13 +33,12 @@ pinktrace.cabal: pinktrace.cabal.in Makefile
 		-e "s|#TOP_BUILDDIR#|$(top_builddir)|" \
 		-e "s|#TOP_SRCDIR#|$(top_srcdir)|" \
 		< $(srcdir)/pinktrace.cabal.in > pinktrace.cabal
-haskell-test.sh: haskell-test.sh.in Makefile
+Setup.lhs: Setup.lhs.in
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
-		-e "s|#PINKTRACE_PC_SLOT#|$(PINKTRACE_PC_SLOT)|" \
 		-e "s|#TOP_BUILDDIR#|$(top_builddir)|" \
-		< $(srcdir)/haskell-test.sh.in > haskell-test.sh
-	$(AM_V_at)chmod +x haskell-test.sh
+		< $(srcdir)/Setup.lhs.in > Setup.lhs
+	$(AM_V_at)chmod +x Setup.lhs
 
 doxygen:
 	$(MAKE) -C doc $@

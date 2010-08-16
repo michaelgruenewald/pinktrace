@@ -1,0 +1,36 @@
+#!/usr/bin/env runhaskell
+vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
+
+> module Main (main) where
+>
+> import System.Cmd (system)
+> import System.Exit (ExitCode(..))
+> import System.FilePath.Posix ((</>))
+> import System.Posix.Env (setEnv)
+>
+> import Distribution.Simple.LocalBuildInfo (LocalBuildInfo(..))
+> import Distribution.PackageDescription (PackageDescription)
+> import Distribution.Simple ( Args
+>                            , UserHooks(..)
+>                            , defaultMainWithHooks
+>                            , simpleUserHooks
+>                            )
+>
+> main :: IO ()
+> main = defaultMainWithHooks hooks
+>   where hooks = simpleUserHooks { runTests = runTests' }
+>
+> runTests' :: Args -> Bool -> PackageDescription -> LocalBuildInfo -> IO ()
+> runTests' _ _ _ lbi =
+>   setEnv "LD_LIBRARY_PATH" "#TOP_BUILDDIR#/src/.libs" True >>
+>   putStr "test01Bitness: " >> system test01 >>= die >>
+>   return ()
+>   where
+>       test01 :: FilePath
+>       test01 = (buildDir lbi) </> "test01Bitness" </> "test01Bitness"
+>
+> die :: ExitCode -> IO ()
+> die code =
+>   case code of
+>       ExitFailure ret -> error $ "Failed: " ++ show ret
+>       _               -> putStrLn "OK"
