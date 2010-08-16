@@ -261,8 +261,8 @@ traceSysCallExit _ _ = error "syscallExit: not implemented"
     * Availability: Linux
 -}
 traceGetEventMessage :: ProcessID       -- ^ Process ID of the child whose event is to be reported.
-                     -> IO EventMessage -- ^ The event message, for 'Event_Exit' this is the child's exit status.
-                                        --   For 'Event_Fork', 'Event_VFork', 'Event_Clone', 'Event_VForkDone'
+                     -> IO EventMessage -- ^ The event message, for @Exit@ this is the child's exit status.
+                                        --   For @Fork@, @VFork@, @Clone@, @VForkDone@
                                         --   this is the process ID of the new process.
 traceGetEventMessage pid = alloca $ \ptr -> do
     ret <- pink_trace_geteventmsg pid ptr
@@ -304,8 +304,8 @@ traceSetup pid opt = do
     * Availability: Linux
 -}
 traceGetEventMessage :: ProcessID       -- ^ Process ID of the child whose event is to be reported.
-                     -> IO EventMessage -- ^ The event message, for 'Event_Exit' this is the child's exit status.
-                                        --   For 'Event_Fork', 'Event_VFork', 'Event_Clone', 'Event_VForkDone'
+                     -> IO EventMessage -- ^ The event message, for @Exit@ this is the child's exit status.
+                                        --   For @Fork@, @VFork@, @Clone@, @VForkDone@
                                         --   this is the process ID of the new process.
 traceGetEventMessage _ = error "traceGetEventMessage: not implemented"
 

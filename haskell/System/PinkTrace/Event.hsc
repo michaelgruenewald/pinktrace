@@ -85,6 +85,7 @@ data Event = SysCall -- ^ Child has entered/exited a system call.
     | Clone          -- ^ Child has called clone().
     | VForkDone      -- ^ Child has exited a vfork() call.
     | Exec           -- ^ Child has called execve().
+    | Exit           -- ^ Child is exiting. (@ptrace@ way, stopped before exit)
     deriving (Eq,Ord,Show)
 data ProcessStatus = Exited ExitCode -- ^ Child has exited with 'ExitCode'.
     | Terminated Signal              -- ^ Child was terminated with 'Signal'.
@@ -130,8 +131,13 @@ decipherWaitStatus wstat =
                                                             else
                                                                 if event == #{const PINK_EVENT_EXEC}
                                                                     then return (StoppedTrace Exec)
-                                                                    else ioError (mkIOError illegalOperationErrorType
-                                                                                  "waitStatus" Nothing Nothing)
+                                                                    else
+                                                                        if event == #{const PINK_EVENT_EXIT}
+                                                                            then return (StoppedTrace Exit)
+                                                                            else ioError (mkIOError
+                                                                                          illegalOperationErrorType
+                                                                                          "waitStatus"
+                                                                                          Nothing Nothing)
     where
         event :: Int
         event = fromIntegral $ pink_event_decide wstat
