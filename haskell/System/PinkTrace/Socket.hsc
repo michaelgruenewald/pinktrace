@@ -27,8 +27,9 @@
  - THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -}
 
---{{{ Description
-{-| Module:      System.PinkTrace.Socket
+--{{{ Exports
+{-|
+    Module:      System.PinkTrace.Socket
     Copyright:   (c) Ali Polatel 2010
     License:     BSD3
 
@@ -38,14 +39,12 @@
 
     Pink's socket decoding functions
 -}
---}}}
---{{{ Exports
 module System.PinkTrace.Socket
     ( Address(..)
     , SubCall(..)
-    , name
-    , decodeAddress
-    , decodeAddressFd
+    , nameSocketSubCall
+    , decodeSocketAddress
+    , decodeSocketAddressFd
     ) where
 --}}}
 --{{{ Includes
@@ -60,93 +59,123 @@ import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid, ProcessID)
 
+#ifdef PINKTRACE_LINUX
+import Foreign.C.String      (CString, peekCString)
+#endif
+
 import System.PinkTrace         (Index)
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
                                 )
 --}}}
+--{{{ Foreign Imports
+#ifdef PINKTRACE_LINUX
+foreign import ccall pink_name_socket_subcall :: CInt -> CString
+#endif
+foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
+--}}}
 --{{{ Types
+-- |This type represents a decoded socket address.
 newtype Address = Address (ForeignPtr Address)
-data SubCall = SubCall_Socket
-    | SubCall_Bind
-    | SubCall_Connect
-    | SubCall_Listen
-    | SubCall_Accept
-    | SubCall_Getsockname
-    | SubCall_Getpeername
-    | SubCall_Socketpair
-    | SubCall_Send
-    | SubCall_Recv
-    | SubCall_Sendto
-    | SubCall_Recvfrom
-    | SubCall_Shutdown
-    | SubCall_Setsockopt
-    | SubCall_Getsockopt
-    | SubCall_Sendmsg
-    | SubCall_Recvmsg
-    | SubCall_Accept4
+-- |Socket subcalls
+data SubCall = Socket -- ^ socket() subcall
+    | Bind            -- ^ bind() subcall
+    | Connect         -- ^ connect() subcall
+    | Listen          -- ^ listen() subcall
+    | Accept          -- ^ accept() subcall
+    | Getsockname     -- ^ getsockname() subcall
+    | Getpeername     -- ^ getpeername() subcall
+    | Socketpair      -- ^ socketpair() subcall
+    | Send            -- ^ send() subcall
+    | Recv            -- ^ recv() subcall
+    | Sendto          -- ^ sendto() subcall
+    | Recvfrom        -- ^ recvfrom() subcall
+    | Shutdown        -- ^ shutdown() subcall
+    | Setsockopt      -- ^ setsockopt() subcall
+    | Getsockopt      -- ^ getsockopt() subcall
+    | Sendmsg         -- ^ sendmsg() subcall
+    | Recvmsg         -- ^ recvmsg() subcall
+    | Accept4         -- ^ accept4() subcall
     deriving (Eq,Show)
 #ifdef PINKTRACE_LINUX
 instance Enum SubCall where
-    fromEnum SubCall_Socket      = #{const PINK_SOCKET_SUBCALL_SOCKET}
-    fromEnum SubCall_Bind        = #{const PINK_SOCKET_SUBCALL_BIND}
-    fromEnum SubCall_Connect     = #{const PINK_SOCKET_SUBCALL_CONNECT}
-    fromEnum SubCall_Listen      = #{const PINK_SOCKET_SUBCALL_LISTEN}
-    fromEnum SubCall_Accept      = #{const PINK_SOCKET_SUBCALL_ACCEPT}
-    fromEnum SubCall_Getsockname = #{const PINK_SOCKET_SUBCALL_GETSOCKNAME}
-    fromEnum SubCall_Getpeername = #{const PINK_SOCKET_SUBCALL_GETPEERNAME}
-    fromEnum SubCall_Socketpair  = #{const PINK_SOCKET_SUBCALL_SOCKETPAIR}
-    fromEnum SubCall_Send        = #{const PINK_SOCKET_SUBCALL_SEND}
-    fromEnum SubCall_Recv        = #{const PINK_SOCKET_SUBCALL_RECV}
-    fromEnum SubCall_Sendto      = #{const PINK_SOCKET_SUBCALL_SENDTO}
-    fromEnum SubCall_Recvfrom    = #{const PINK_SOCKET_SUBCALL_RECVFROM}
-    fromEnum SubCall_Shutdown    = #{const PINK_SOCKET_SUBCALL_SHUTDOWN}
-    fromEnum SubCall_Setsockopt  = #{const PINK_SOCKET_SUBCALL_SETSOCKOPT}
-    fromEnum SubCall_Getsockopt  = #{const PINK_SOCKET_SUBCALL_GETSOCKOPT}
-    fromEnum SubCall_Sendmsg     = #{const PINK_SOCKET_SUBCALL_SENDMSG}
-    fromEnum SubCall_Recvmsg     = #{const PINK_SOCKET_SUBCALL_RECVMSG}
-    fromEnum SubCall_Accept4     = #{const PINK_SOCKET_SUBCALL_ACCEPT4}
+    fromEnum Socket      = #{const PINK_SOCKET_SUBCALL_SOCKET}
+    fromEnum Bind        = #{const PINK_SOCKET_SUBCALL_BIND}
+    fromEnum Connect     = #{const PINK_SOCKET_SUBCALL_CONNECT}
+    fromEnum Listen      = #{const PINK_SOCKET_SUBCALL_LISTEN}
+    fromEnum Accept      = #{const PINK_SOCKET_SUBCALL_ACCEPT}
+    fromEnum Getsockname = #{const PINK_SOCKET_SUBCALL_GETSOCKNAME}
+    fromEnum Getpeername = #{const PINK_SOCKET_SUBCALL_GETPEERNAME}
+    fromEnum Socketpair  = #{const PINK_SOCKET_SUBCALL_SOCKETPAIR}
+    fromEnum Send        = #{const PINK_SOCKET_SUBCALL_SEND}
+    fromEnum Recv        = #{const PINK_SOCKET_SUBCALL_RECV}
+    fromEnum Sendto      = #{const PINK_SOCKET_SUBCALL_SENDTO}
+    fromEnum Recvfrom    = #{const PINK_SOCKET_SUBCALL_RECVFROM}
+    fromEnum Shutdown    = #{const PINK_SOCKET_SUBCALL_SHUTDOWN}
+    fromEnum Setsockopt  = #{const PINK_SOCKET_SUBCALL_SETSOCKOPT}
+    fromEnum Getsockopt  = #{const PINK_SOCKET_SUBCALL_GETSOCKOPT}
+    fromEnum Sendmsg     = #{const PINK_SOCKET_SUBCALL_SENDMSG}
+    fromEnum Recvmsg     = #{const PINK_SOCKET_SUBCALL_RECVMSG}
+    fromEnum Accept4     = #{const PINK_SOCKET_SUBCALL_ACCEPT4}
 
-    toEnum #{const PINK_SOCKET_SUBCALL_SOCKET}      = SubCall_Socket
-    toEnum #{const PINK_SOCKET_SUBCALL_BIND}        = SubCall_Bind
-    toEnum #{const PINK_SOCKET_SUBCALL_CONNECT}     = SubCall_Connect
-    toEnum #{const PINK_SOCKET_SUBCALL_LISTEN}      = SubCall_Listen
-    toEnum #{const PINK_SOCKET_SUBCALL_ACCEPT}      = SubCall_Accept
-    toEnum #{const PINK_SOCKET_SUBCALL_GETSOCKNAME} = SubCall_Getsockname
-    toEnum #{const PINK_SOCKET_SUBCALL_GETPEERNAME} = SubCall_Getpeername
-    toEnum #{const PINK_SOCKET_SUBCALL_SOCKETPAIR}  = SubCall_Socketpair
-    toEnum #{const PINK_SOCKET_SUBCALL_SEND}        = SubCall_Send
-    toEnum #{const PINK_SOCKET_SUBCALL_RECV}        = SubCall_Recv
-    toEnum #{const PINK_SOCKET_SUBCALL_SENDTO}      = SubCall_Sendto
-    toEnum #{const PINK_SOCKET_SUBCALL_RECVFROM}    = SubCall_RecvFrom
-    toEnum #{const PINK_SOCKET_SUBCALL_SHUTDOWN}    = SubCall_Shutdown
-    toEnum #{const PINK_SOCKET_SUBCALL_SETSOCKOPT}  = SubCall_Setsockopt
-    toEnum #{const PINK_SOCKET_SUBCALL_GETSOCKOPT}  = SubCall_Getsockopt
-    toEnum #{const PINK_SOCKET_SUBCALL_SENDMSG}     = SubCall_Sendmsg
-    toEnum #{const PINK_SOCKET_SUBCALL_RECVMSG}     = SubCall_Recvmsg
-    toEnum #{const PINK_SOCKET_SUBCALL_ACCEPT4}     = SubCall_Accept4
+    toEnum #{const PINK_SOCKET_SUBCALL_SOCKET}      = Socket
+    toEnum #{const PINK_SOCKET_SUBCALL_BIND}        = Bind
+    toEnum #{const PINK_SOCKET_SUBCALL_CONNECT}     = Connect
+    toEnum #{const PINK_SOCKET_SUBCALL_LISTEN}      = Listen
+    toEnum #{const PINK_SOCKET_SUBCALL_ACCEPT}      = Accept
+    toEnum #{const PINK_SOCKET_SUBCALL_GETSOCKNAME} = Getsockname
+    toEnum #{const PINK_SOCKET_SUBCALL_GETPEERNAME} = Getpeername
+    toEnum #{const PINK_SOCKET_SUBCALL_SOCKETPAIR}  = Socketpair
+    toEnum #{const PINK_SOCKET_SUBCALL_SEND}        = Send
+    toEnum #{const PINK_SOCKET_SUBCALL_RECV}        = Recv
+    toEnum #{const PINK_SOCKET_SUBCALL_SENDTO}      = Sendto
+    toEnum #{const PINK_SOCKET_SUBCALL_RECVFROM}    = RecvFrom
+    toEnum #{const PINK_SOCKET_SUBCALL_SHUTDOWN}    = Shutdown
+    toEnum #{const PINK_SOCKET_SUBCALL_SETSOCKOPT}  = Setsockopt
+    toEnum #{const PINK_SOCKET_SUBCALL_GETSOCKOPT}  = Getsockopt
+    toEnum #{const PINK_SOCKET_SUBCALL_SENDMSG}     = Sendmsg
+    toEnum #{const PINK_SOCKET_SUBCALL_RECVMSG}     = Recvmsg
+    toEnum #{const PINK_SOCKET_SUBCALL_ACCEPT4}     = Accept4
     toEnum unmatched                                = error $ "SubCall.toEnum: Cannot match " ++ show unmatched
 #endif
 --}}}
 --{{{ Functions
 #ifdef PINKTRACE_LINUX
-foreign import ccall pink_name_socket_subcall :: CInt -> CString
-name :: SubCall -> IO String
-name scall = peekCString $ pink_name_socket_subcall scall'
+{-|
+    Returns the name of the socket subcall.
+
+    * Availability: Linux
+-}
+nameSocketSubCall :: SubCall -> IO String
+nameSocketSubCall scall = peekCString $ pink_name_socket_subcall scall'
     where
+        scall' :: CInt
         scall' = fromIntegral $ fromEnum scall
 #else
-name :: SubCall -> IO String
-name _ = error "name: not implemented"
+{-|
+    Returns the name of the socket subcall.
+
+    * Availability: Linux
+-}
+nameSocketSubCall :: SubCall -> IO String
+nameSocketSubCall _ = error "nameSocketSubCall: not implemented"
 #endif
 
-foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
-decodeAddress :: ProcessID -> Bitness -> Index -> IO (Ptr Address)
-decodeAddress pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddress: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "decodeAddress: unsupported bitness " ++ show bit
+{-|
+    Decodes the socket address at the given argument index.
+
+    * Note: This function decodes the @socketcall(2)@ system call on some
+      architectures.
+-}
+decodeSocketAddress :: ProcessID        -- ^ Process ID of the traced child
+                    -> Bitness          -- ^ The bitness of the traced child
+                    -> Index            -- ^ The index of the argument
+                    -> IO (Ptr Address) -- ^ The decoded socket address
+decodeSocketAddress pid bit index
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeSocketAddress: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
         ret <- pink_decode_socket_address pid bit' index' nullPtr ptr
@@ -159,11 +188,21 @@ decodeAddress pid bit index
         index' :: CUInt
         index' = fromIntegral index
 
-decodeAddressFd :: ProcessID -> Bitness -> Index -> IO (Int, Ptr Address)
-decodeAddressFd pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeAddressFd: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "decodeAddressFd: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "decodeAddressFd: unsupported bitness " ++ show bit
+{-|
+    Decodes the socket address at the given argument index; and the file
+    descriptor at index 0.
+
+    * Note: This function decodes the @socketcall(2)@ system call on some
+      architectures.
+-}
+decodeSocketAddressFd :: ProcessID             -- ^ Process ID of the traced child
+                      -> Bitness               -- ^ The bitness of the traced child
+                      -> Index                 -- ^ The index of the argument
+                      -> IO (Int, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
+decodeSocketAddressFd pid bit index
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeSocketAddressFd: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | otherwise = do
         ptr <- mallocBytes #{size pink_socket_address_t}
         alloca $ \fptr -> do
