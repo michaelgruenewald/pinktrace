@@ -60,13 +60,16 @@ module System.PinkTrace.Trace
 --}}}
 --{{{ Imports
 import Foreign.C.Error      (throwErrno)
+import Foreign.C.Types      (CInt, CULong)
 import System.Posix.Signals (Signal)
 import System.Posix.Types   (CPid, ProcessID)
+
 #ifdef PINKTRACE_LINUX
-import Data.Bits            ((.|.))
-import Foreign.Ptr          (Ptr)
+import Data.Bits             ((.|.))
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Ptr           (Ptr)
+import Foreign.Storable      (peek)
 #endif
-import Foreign.C.Types      (CInt, CULong)
 
 import System.PinkTrace     (Addr)
 --}}}
