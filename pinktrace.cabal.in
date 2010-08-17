@@ -59,3 +59,28 @@ executable test01TraceMe
   include-dirs: #TOP_SRCDIR#/haskell/include
   if !flag(test)
     buildable: False
+
+executable test02TraceSignal
+  main-is: test02TraceSignal.lhs
+  hs-source-dirs: haskell, haskell/tests
+  other-modules:
+    System.PinkTrace
+    System.PinkTrace.Bitness
+    System.PinkTrace.Event
+    System.PinkTrace.Socket
+    System.PinkTrace.String
+    System.PinkTrace.SystemCall
+    System.PinkTrace.Trace
+  c-sources:
+    haskell/cbits/HsWaitPid.c
+    haskell/cbits/HsSocket.c
+  build-depends: base, network, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !flag(test)
+    buildable: False
