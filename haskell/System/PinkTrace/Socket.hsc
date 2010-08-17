@@ -195,10 +195,10 @@ decodeSocketAddress pid bit index
     * Note: This function decodes the @socketcall(2)@ system call on some
       architectures.
 -}
-decodeSocketAddressFd :: ProcessID             -- ^ Process ID of the traced child
-                      -> Bitness               -- ^ The bitness of the traced child
-                      -> Index                 -- ^ The index of the argument
-                      -> IO (Int, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
+decodeSocketAddressFd :: ProcessID              -- ^ Process ID of the traced child
+                      -> Bitness                -- ^ The bitness of the traced child
+                      -> Index                  -- ^ The index of the argument
+                      -> IO (CInt, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
 decodeSocketAddressFd pid bit index
     | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeSocketAddressFd: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
