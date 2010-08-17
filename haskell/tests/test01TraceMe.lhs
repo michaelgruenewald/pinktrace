@@ -1,6 +1,8 @@
 #!/usr/bin/env runhaskell
 vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 
+A simple test case, which tests whether 'traceMe' works fine.
+
 > module Main (main) where
 >
 > import Data.Maybe
