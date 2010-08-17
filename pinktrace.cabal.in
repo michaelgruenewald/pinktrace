@@ -25,7 +25,8 @@ library
     System.PinkTrace.Trace
   c-sources:
     haskell/cbits/HsWaitPid.c
-  build-depends: base, unix
+    haskell/cbits/HsSocket.c
+  build-depends: base, network, unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall
@@ -47,7 +48,8 @@ executable test01Bitness
     System.PinkTrace.Trace
   c-sources:
     haskell/cbits/HsWaitPid.c
-  build-depends: base, unix
+    haskell/cbits/HsSocket.c
+  build-depends: base, network, unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall

@@ -45,10 +45,13 @@ module System.PinkTrace.Socket
     , nameSocketSubCall
     , decodeSocketAddress
     , decodeSocketAddressFd
+    , freeSocketAddress
+    , familySocketAddress
     ) where
 --}}}
 --{{{ Includes
 #include <pinktrace/pink.h>
+#include "HsSocket.h"
 --}}}
 --{{{ Imports
 import Foreign.C.Error       (throwErrno)
@@ -58,6 +61,8 @@ import Foreign.Marshal.Alloc (alloca, free, mallocBytes)
 import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid, ProcessID)
+
+import Network.Socket        (Family(..))
 
 #ifdef PINKTRACE_LINUX
 import Foreign.C.String      (CString, peekCString)
@@ -74,6 +79,7 @@ import System.PinkTrace.Bitness ( Bitness(..)
 foreign import ccall pink_name_socket_subcall :: CInt -> CString
 #endif
 foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
+foreign import ccall "__pinkhs_socket_family" c_socket_family :: Ptr Address -> CInt
 --}}}
 --{{{ Types
 -- |This type represents a decoded socket address.
@@ -217,5 +223,33 @@ decodeSocketAddressFd pid bit index
         bit' = fromIntegral $ fromEnum bit
         index' :: CUInt
         index' = fromIntegral index
+
+-- |Free the block of memory allocated for 'Address'
+freeSocketAddress :: Ptr Address -> IO ()
+freeSocketAddress = free
+
+{-|
+    Returns the family of the decoded socket 'Address'.
+    If 'Address' is NULL, this function returns @AF_UNSPEC@.
+-}
+familySocketAddress :: Ptr Address -> IO Family
+familySocketAddress ptr = do
+    let f = c_socket_family ptr
+    if f < 0
+        then return AF_UNSPEC
+        else
+            if f == #{const AF_UNIX}
+                then return AF_UNIX
+            else
+                if f == #{const AF_INET}
+                        then return AF_INET
+#if PINKTRACE_HAVE_IPV6
+                        else
+                            if f == #{const AF_INET6}
+                                then return AF_INET6
+                                else error $ "familySocketAddress: unknown family " ++ show f
+#else
+                        else error $ "familySocketAddress: unknown family " ++ show f
+#endif
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
