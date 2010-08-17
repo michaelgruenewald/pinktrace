@@ -35,8 +35,8 @@ library
   include-dirs: #TOP_SRCDIR#/include
   include-dirs: #TOP_SRCDIR#/haskell/include
 
-executable test01Bitness
-  main-is: test01Bitness.lhs
+executable test01TraceMe
+  main-is: test01TraceMe.lhs
   hs-source-dirs: haskell, haskell/tests
   other-modules:
     System.PinkTrace
