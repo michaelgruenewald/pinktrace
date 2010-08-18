@@ -37,6 +37,7 @@
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
 
+#define pink_nonnull(...) __attribute__((nonnull (__VA_ARGS__)))
 #define pink_noreturn __attribute__((noreturn))
 #define pink_pure __attribute__((pure))
 #define pink_unused __attribute__((unused))
@@ -44,6 +45,10 @@
 #define pink_unlikely(x) __builtin_expect(!!(x), 0)
 
 #else
+/**
+ * GCC nonnull attribute
+ **/
+#define pink_nonnull(...)
 /**
  * GCC noreturn attribute
  **/
