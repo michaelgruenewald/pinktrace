@@ -111,6 +111,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
+pink_nonnull(4)
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
 #endif /* defined(PINKTRACE_LINUX)... */
@@ -136,6 +137,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
+pink_nonnull(5)
 bool
 pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
 	long *fd_r, pink_socket_address_t *addr_r);
