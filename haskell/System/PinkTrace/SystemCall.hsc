@@ -54,6 +54,7 @@ module System.PinkTrace.SystemCall
 #include <pinktrace/pink.h>
 --}}}
 --{{{ Imports
+import Control.Monad         (when)
 import Foreign.C.Error       (throwErrno)
 import Foreign.C.String      (CString, peekCString, withCString)
 import Foreign.C.Types       (CInt, CLong, CUInt)
@@ -149,9 +150,7 @@ setSystemCallNumber pid bit scno
     | bit == Bitness64 && not bitness64Supported = error $ "setSystemCallNumber: unsupported bitness " ++ show bit
     | otherwise = do
         ret <- pink_util_set_syscall pid bit' scno'
-        if ret == 0
-            then throwErrno "pink_util_set_syscall"
-            else return ()
+        when (ret == 0) (throwErrno "pink_util_set_syscall")
     where
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
@@ -179,9 +178,7 @@ setSystemCallReturn :: ProcessID        -- ^ Process ID of the traced child
                     -> IO ()
 setSystemCallReturn pid ret = do
     res <- pink_util_set_return pid ret
-    if res == 0
-        then throwErrno "pink_util_set_return"
-        else return ()
+    when (res == 0) (throwErrno "pink_util_set_return")
 
 {-|
     Returns the system call argument at the given index.

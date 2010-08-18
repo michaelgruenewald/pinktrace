@@ -59,6 +59,7 @@ module System.PinkTrace.Trace
 #include <pinktrace/pink.h>
 --}}}
 --{{{ Imports
+import Control.Monad        (when)
 import Foreign.C.Error      (throwErrno)
 import Foreign.C.Types      (CInt, CULong)
 import System.Posix.Signals (Signal)
@@ -120,9 +121,7 @@ data TraceOption = TraceOption
 traceMe :: IO ()
 traceMe = do
     ret <- pink_trace_me
-    if ret == 0
-        then throwErrno "pink_trace_me"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_me")
 
 {-|
     Restarts the stopped child process.
@@ -140,9 +139,7 @@ traceContinue :: ProcessID -- ^ Process ID of the child to be restarted.
               -> IO ()
 traceContinue pid sig addr = do
     ret <- pink_trace_cont pid sig addr'
-    if ret == 0
-        then throwErrno "pink_trace_cont"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_cont")
     where
         addr' :: CInt
         addr' = fromIntegral addr
@@ -156,9 +153,7 @@ traceKill :: ProcessID -- ^ Process ID of the child to be killed.
           -> IO ()
 traceKill pid = do
     ret <- pink_trace_kill pid
-    if ret == 0
-        then throwErrno "pink_trace_kill"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_kill")
 
 {-|
     Restarts the stopped child process and arranges it to be stopped after
@@ -171,9 +166,7 @@ traceSingleStep :: ProcessID -- ^ Process ID of the child to be restarted.
                 -> IO ()
 traceSingleStep pid sig = do
     ret <- pink_trace_singlestep pid sig
-    if ret == 0
-        then throwErrno "pink_trace_singlestep"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_singlestep")
 
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
@@ -186,9 +179,7 @@ traceSysCall :: ProcessID -- ^ Process ID of the child to be restarted.
              -> IO ()
 traceSysCall pid sig = do
     ret <- pink_trace_syscall pid sig
-    if ret == 0
-        then throwErrno "pink_trace_syscall"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_syscall")
 
 #ifdef PINKTRACE_FREEBSD
 {-|
@@ -204,9 +195,7 @@ traceSysCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
                   -> IO ()
 traceSysCallEntry pid sig = do
     ret <- pink_trace_syscall_entry pid sig
-    if ret == 0
-        then throwErrno "pink_trace_syscall_entry"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_syscall_entry")
 
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
@@ -221,9 +210,7 @@ traceSysCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
                  -> IO ()
 traceSysCallExit pid sig = do
     ret <- pink_trace_syscall_exit pid sig
-    if ret == 0
-        then throwErrno "pink_trace_syscall_exit"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_syscall_exit")
 #else
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
@@ -282,9 +269,7 @@ traceSetup :: ProcessID   -- ^ Process ID of the child to be setup.
            -> IO ()
 traceSetup pid opt = do
     ret <- pink_trace_setup pid o'''''''
-    if ret == 0
-        then throwErrno "pink_trace_setup"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_setup")
     where
         o :: CInt
         o        = 0
@@ -335,9 +320,7 @@ traceAttach :: ProcessID -- ^ Process ID of the child to be attached.
             -> IO ()
 traceAttach pid = do
     ret <- pink_trace_attach pid
-    if ret == 0
-        then throwErrno "pink_trace_attach"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_attach")
 
 {-|
     Restarts the stopped child as for 'traceContinue', but first detaches from
@@ -350,8 +333,6 @@ traceDetach :: ProcessID -- ^ Process ID of the child to be detached.
             -> IO ()
 traceDetach pid sig = do
     ret <- pink_trace_detach pid sig
-    if ret == 0
-        then throwErrno "pink_trace_detach"
-        else return ()
+    when (ret == 0) (throwErrno "pink_trace_detach")
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

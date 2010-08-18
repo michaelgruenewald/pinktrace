@@ -50,6 +50,7 @@ module System.PinkTrace.String
 #include <pinktrace/pink.h>
 --}}}
 --{{{ Imports
+import Control.Monad         (when)
 import Foreign.C.Error       (throwErrno)
 import Foreign.C.String      (CString, peekCString, withCStringLen)
 import Foreign.C.Types       (CInt, CUInt, CSize)
@@ -125,9 +126,7 @@ encode pid bit index src
     | bit == Bitness64 && not bitness64Supported = error $ "encode: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
         ret <- pink_encode_simple pid bit' index' s $ fromIntegral l
-        if ret == 0
-            then throwErrno "pink_encode_simple"
-            else return ()
+        when (ret == 0) (throwErrno "pink_encode_simple")
     where
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
@@ -151,14 +150,12 @@ encodeSafe :: ProcessID -- ^ Process ID of the traced child
            -> String    -- ^ The string to be encoded
            -> IO ()
 encodeSafe pid bit index src
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode_safe: invalid index " ++ show index
-    | bit == Bitness32 && not bitness32Supported = error $ "encode_safe: unsupported bitness " ++ show bit
-    | bit == Bitness64 && not bitness64Supported = error $ "encode_safe: unsupported bitness " ++ show bit
+    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encodeSafe: invalid index " ++ show index
+    | bit == Bitness32 && not bitness32Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
         ret <- pink_encode_simple_safe pid bit' index' s $ fromIntegral l
-        if ret == 0
-            then throwErrno "pink_encode_simple"
-            else return ()
+        when (ret == 0) (throwErrno "pink_encode_simple_safe")
     where
         bit' :: CInt
         bit' = fromIntegral $ fromEnum bit
@@ -180,7 +177,7 @@ encodeSafe :: ProcessID -- ^ Process ID of the traced child
            -> Index     -- ^ The index of the argument
            -> String    -- ^ The string to be encoded
            -> IO ()
-encodeSafe _ _ _ _ = error "encode_safe: not implemented"
+encodeSafe _ _ _ _ = error "encodeSafe: not implemented"
 #endif
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
