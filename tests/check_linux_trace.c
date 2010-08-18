@@ -58,7 +58,7 @@ START_TEST(t_trace_me_basic)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", status);
 	}
 }
@@ -80,7 +80,7 @@ START_TEST(t_trace_me_signal)
 		_exit(EXIT_FAILURE);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		kill(pid, SIGKILL);
 	}
@@ -104,7 +104,7 @@ START_TEST(t_trace_me_execve)
 		_exit(EXIT_FAILURE);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 		kill(pid, SIGKILL);
@@ -128,14 +128,13 @@ START_TEST(t_trace_cont_basic)
 		_exit(13);
 	}
 	else {
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
 
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFEXITED(status), "%#x", status);
 		fail_unless(WEXITSTATUS(status) == 13, "%#x", status);
 	}
@@ -158,14 +157,13 @@ START_TEST(t_trace_cont_signal)
 		_exit(13);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
 		fail_unless(pink_trace_cont(pid, SIGTERM, NULL), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
 
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSIGNALED(status), "%#x", status);
 		fail_unless(WTERMSIG(status) == SIGTERM, "%#x", status);
 	}
@@ -188,14 +186,13 @@ START_TEST(t_trace_kill)
 		_exit(13);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
 		fail_unless(pink_trace_kill(pid), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
 
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSIGNALED(status), "%#x", status);
 		fail_unless(WTERMSIG(status) == SIGKILL, "%#x", status);
 	}
