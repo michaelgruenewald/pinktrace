@@ -47,7 +47,7 @@
  * between normal traps and those caused by a syscall. This option may not work
  * on all architectures.
  *
- * \note Availablity: Linux
+ * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_SYSGOOD   (1 << 0)
 /**
@@ -215,7 +215,7 @@ pink_trace_syscall_entry(pid_t pid, int sig);
 
 /**
  * Restarts the stopped child process and arranges it to be stopped after
- * the entry of the next system call.
+ * the exit of the next system call.
  *
  * \note Availability: FreeBSD
  *
