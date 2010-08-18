@@ -57,7 +57,7 @@ START_TEST(t_bitness)
 		kill(getpid(), SIGSTOP);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 
 		bitness = pink_bitness_get(pid);
 		fail_unless(bitness == PINKTRACE_BITNESS_DEFAULT,

@@ -58,7 +58,7 @@ START_TEST(t_event_stop)
 		kill(getpid(), SIGSTOP);
 	}
 	else { /* parent */
-		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s", strerror(errno));
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_STOP, "%d != %d", PINK_EVENT_STOP, event);
 
@@ -87,16 +87,17 @@ START_TEST(t_event_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child and arrange it to be stopped at the next
 		 * system call. */
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -127,16 +128,17 @@ START_TEST(t_event_fork)
 		_exit(0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_FORK),
 			"%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, it will stop at the next fork(2) call. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
-		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_FORK, "%d != %d", PINK_EVENT_FORK, event);
 
@@ -166,10 +168,10 @@ START_TEST(t_event_vfork)
 		_exit(0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_VFORK),
 			"%d(%s)", errno, strerror(errno));
 
@@ -215,16 +217,17 @@ START_TEST(t_event_exec)
 		_exit(-1);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC),
 			"%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, it will stop at the next execve(2) call. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXEC, "%d != %d", PINK_EVENT_EXEC, event);
 
@@ -250,16 +253,17 @@ START_TEST(t_event_exit)
 		_exit(0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT),
 			"%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, it will stop before exit. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT, "%d != %d", PINK_EVENT_EXIT, event);
 
@@ -285,16 +289,17 @@ START_TEST(t_event_genuine)
 		kill(getpid(), SIGINT);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
 			"%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, it will send itself a signal. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_GENUINE, "%d != %d", PINK_EVENT_GENUINE, event);
 
@@ -320,10 +325,10 @@ START_TEST(t_event_exit_genuine)
 		_exit(0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		/* Do NOT set EXIT option, we want the exit(2) to be genuine.
 		 */
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
@@ -332,6 +337,7 @@ START_TEST(t_event_exit_genuine)
 		/* Resume the child, it will exit. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT_GENUINE, "%d != %d", PINK_EVENT_EXIT_GENUINE, event);
 
@@ -346,8 +352,6 @@ START_TEST(t_event_exit_signal)
 	pid_t pid;
 	pink_event_t event;
 
-	/* Do NOT set EXIT option, we want the exit(2) to be genuine.
-	 */
 	if ((pid = fork()) < 0)
 		fail("fork: %s", strerror(errno));
 	else if (!pid) { /* child */
@@ -359,10 +363,10 @@ START_TEST(t_event_exit_signal)
 		kill(getpid(), SIGKILL);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
 		/* Do NOT set EXIT option, we want the exit(2) to be genuine.
 		 */
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD),
@@ -371,6 +375,7 @@ START_TEST(t_event_exit_signal)
 		/* Resume the child, it will exit with a signal. */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_EXIT_SIGNAL, "%d != %d", PINK_EVENT_EXIT_SIGNAL, event);
 

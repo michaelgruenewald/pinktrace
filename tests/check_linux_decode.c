@@ -95,8 +95,7 @@ START_TEST(t_decode_stat)
 		stat("/dev/null", &buf);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -106,7 +105,7 @@ START_TEST(t_decode_stat)
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
@@ -139,8 +138,7 @@ START_TEST(t_decode_string_first)
 		open("/dev/null", O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -149,7 +147,7 @@ START_TEST(t_decode_string_first)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -180,8 +178,7 @@ START_TEST(t_decode_string_second)
 		openat(-1, "/dev/null", O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -190,7 +187,7 @@ START_TEST(t_decode_string_second)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -221,8 +218,7 @@ START_TEST(t_decode_string_third)
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -231,7 +227,7 @@ START_TEST(t_decode_string_third)
 		fail_unless(pink_trace_syscall(pid, 0), "%s", strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -262,8 +258,7 @@ START_TEST(t_decode_string_fourth)
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -272,7 +267,7 @@ START_TEST(t_decode_string_fourth)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -303,8 +298,7 @@ START_TEST(t_decode_string_persistent_null)
 		open(NULL, O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -313,7 +307,7 @@ START_TEST(t_decode_string_persistent_null)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -345,8 +339,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 		open(notrailingzero, O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -355,7 +348,7 @@ START_TEST(t_decode_string_persistent_notrailingzero)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -389,8 +382,7 @@ START_TEST(t_decode_string_persistent_first)
 		open("/dev/null", O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -399,7 +391,7 @@ START_TEST(t_decode_string_persistent_first)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -431,8 +423,7 @@ START_TEST(t_decode_string_persistent_second)
 		openat(-1, "/dev/null", O_RDONLY);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -441,7 +432,7 @@ START_TEST(t_decode_string_persistent_second)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -473,8 +464,7 @@ START_TEST(t_decode_string_persistent_third)
 		symlinkat("/var/empty", AT_FDCWD, "/dev/null");
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -483,7 +473,7 @@ START_TEST(t_decode_string_persistent_third)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -515,8 +505,7 @@ START_TEST(t_decode_string_persistent_fourth)
 		linkat(AT_FDCWD, "/var/empty", AT_FDCWD, "/dev/null", 0600);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -525,7 +514,7 @@ START_TEST(t_decode_string_persistent_fourth)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -557,8 +546,7 @@ START_TEST(t_decode_socket_call)
 		socket(AF_UNIX, SOCK_STREAM, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -567,11 +555,12 @@ START_TEST(t_decode_socket_call)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_decode_socket_call(pid, PINKTRACE_BITNESS_DEFAULT, &scall), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_decode_socket_call(pid, PINKTRACE_BITNESS_DEFAULT, &scall), "%d(%s)",
+			errno, strerror(errno));
 #if defined(SYS_socketcall)
 		fail_unless(scall == PINK_SOCKET_SUBCALL_SOCKET, "%d != %ld", PINK_SOCKET_SUBCALL_SOCKET, scall);
 #else
@@ -630,7 +619,7 @@ START_TEST(t_decode_socket_fd)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%d != %d", SIGSTOP, WSTOPSIG(status));
@@ -641,7 +630,7 @@ START_TEST(t_decode_socket_fd)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -698,7 +687,7 @@ START_TEST(t_decode_socket_address_null_second)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -709,7 +698,7 @@ START_TEST(t_decode_socket_address_null_second)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -772,7 +761,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -783,7 +772,7 @@ START_TEST(t_decode_socket_address_unix_second)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -854,7 +843,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -865,7 +854,7 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -935,7 +924,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -946,7 +935,7 @@ START_TEST(t_decode_socket_address_inet_second)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1019,7 +1008,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1030,7 +1019,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1096,7 +1085,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1107,7 +1096,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1172,7 +1161,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1183,7 +1172,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1254,7 +1243,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1265,7 +1254,7 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1335,7 +1324,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1346,7 +1335,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 
@@ -1419,7 +1408,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		realfd = atoi(strfd);
 		close(pfd[0]);
 
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_if(WIFEXITED(status), "%#x", status);
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
@@ -1430,7 +1419,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		for (unsigned int i = 0; i < 2; i++) {
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			fail_unless(WIFSTOPPED(status), "%#x", status);
 		}
 

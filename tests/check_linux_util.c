@@ -71,8 +71,7 @@ START_TEST(t_util_get_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -81,7 +80,7 @@ START_TEST(t_util_get_syscall)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -120,8 +119,7 @@ START_TEST(t_util_set_syscall)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -130,7 +128,7 @@ START_TEST(t_util_set_syscall)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
@@ -171,8 +169,7 @@ START_TEST(t_util_get_return_success)
 		syscall(SYS_getpid);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -182,7 +179,7 @@ START_TEST(t_util_get_return_success)
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
@@ -213,8 +210,7 @@ START_TEST(t_util_get_return_fail)
 		open(NULL, 0); /* Should fail with -EFAULT */
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -224,7 +220,7 @@ START_TEST(t_util_get_return_fail)
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
@@ -261,8 +257,7 @@ START_TEST(t_util_set_return_success)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -272,7 +267,7 @@ START_TEST(t_util_set_return_success)
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
@@ -314,8 +309,7 @@ START_TEST(t_util_set_return_fail)
 		_exit(EXIT_SUCCESS);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -325,7 +319,7 @@ START_TEST(t_util_set_return_fail)
 			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 			/* Make sure we got the right event */
-			waitpid(pid, &status, 0);
+			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 			event = pink_event_decide(status);
 			fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 		}
@@ -334,7 +328,7 @@ START_TEST(t_util_set_return_fail)
 
 		/* Let the child exit and check her exit status */
 		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WEXITSTATUS(status) == EXIT_SUCCESS, "%#x", errno, strerror(errno));
 	}
 }
@@ -358,8 +352,7 @@ START_TEST(t_util_get_arg_first)
 		mmap((void *)13, 0, 0, 0, 0, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -368,11 +361,12 @@ START_TEST(t_util_get_arg_first)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 0, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 0, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -398,8 +392,7 @@ START_TEST(t_util_get_arg_second)
 		mmap(NULL, 13, 0, 0, 0, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -408,11 +401,12 @@ START_TEST(t_util_get_arg_second)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -438,8 +432,7 @@ START_TEST(t_util_get_arg_third)
 		mmap(NULL, 0, 13, 0, 0, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -448,11 +441,12 @@ START_TEST(t_util_get_arg_third)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 2, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 2, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -478,8 +472,7 @@ START_TEST(t_util_get_arg_fourth)
 		mmap(NULL, 0, 0, 13, 0, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -488,11 +481,12 @@ START_TEST(t_util_get_arg_fourth)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 3, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 3, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -518,8 +512,7 @@ START_TEST(t_util_get_arg_fifth)
 		mmap(NULL, 0, 0, 0, 13, 0);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -528,11 +521,12 @@ START_TEST(t_util_get_arg_fifth)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 4, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 4, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
@@ -558,8 +552,7 @@ START_TEST(t_util_get_arg_sixth)
 		mmap(NULL, 0, 0, 0, 0, 13);
 	}
 	else { /* parent */
-		waitpid(pid, &status, 0);
-
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
@@ -568,11 +561,12 @@ START_TEST(t_util_get_arg_sixth)
 		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		/* Make sure we got the right event */
-		waitpid(pid, &status, 0);
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &ret), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &ret), "%d(%s)",
+			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
 
 		pink_trace_kill(pid);
