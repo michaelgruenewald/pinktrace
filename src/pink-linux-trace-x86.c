@@ -84,6 +84,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
 
 	assert(bitness == PINK_BITNESS_32);
 	assert(ind < PINK_MAX_INDEX);
+	assert(dest != NULL);
 
 	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_moven(pid, addr, dest, len);
 }
@@ -95,6 +96,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 
 	assert(bitness == PINK_BITNESS_32);
 	assert(ind < PINK_MAX_INDEX);
+	assert(dest != NULL);
 
 	return pink_util_get_arg(pid, bitness, ind, &addr) && pink_util_movestr(pid, addr, dest, len);
 }
