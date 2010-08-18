@@ -42,6 +42,8 @@
 #include <netinet/in.h>
 #include <sys/un.h>
 
+#include <pinktrace/gcc.h>
+
 /**
  * This struct defines a decoded socket address.
  **/
@@ -131,6 +133,7 @@ typedef enum {
  *
  * \return The name of the subcall
  **/
+pink_pure
 const char *
 pink_name_socket_subcall(pink_socket_subcall_t subcall);
 

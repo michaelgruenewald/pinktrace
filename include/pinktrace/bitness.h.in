@@ -39,6 +39,8 @@
 
 #include <sys/types.h>
 
+#include <pinktrace/gcc.h>
+
 /**
  * Bitness modes
  **/
@@ -88,6 +90,7 @@ pink_bitness_get(pid_t pid);
  *
  * \return String representation of the bitness.
  **/
+pink_pure
 const char *
 pink_bitness_name(pink_bitness_t bitness);
 

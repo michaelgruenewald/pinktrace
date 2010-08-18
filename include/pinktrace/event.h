@@ -37,6 +37,8 @@
 
 #include <stdbool.h>
 
+#include <pinktrace/gcc.h>
+
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 
 /**
@@ -83,6 +85,7 @@ typedef enum {
  *
  * \return One of PINK_EVENT_* constants
  **/
+pink_pure
 pink_event_t
 pink_event_decide(int status);
 
@@ -95,6 +98,7 @@ pink_event_decide(int status);
  *
  * \return The string representation of the event.
  **/
+pink_pure
 const char *
 pink_event_name(pink_event_t event);
 
