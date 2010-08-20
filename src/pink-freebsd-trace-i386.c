@@ -49,7 +49,7 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 	unsigned parm_offset;
 	struct reg r;
 
-	if (!pink_util_get_regs(pid, &r))
+	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -62,7 +62,7 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 	case SYS_syscall:
 	case SYS___syscall:
 		parm_offset = r.r_esp + sizeof(int);
-		if (!pink_util_peekdata(pid, parm_offset, res))
+		if (pink_unlikely(!pink_util_peekdata(pid, parm_offset, res)))
 			return false;
 		return true;
 	default:
@@ -75,15 +75,12 @@ pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
-	if (!pink_util_get_regs(pid, &r))
+	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	r.r_eax = scno;
 
-	if (!pink_util_set_regs(pid, &r))
-		return false;
-
-	return true;
+	return pink_util_set_regs(pid, &r)
 }
 
 bool
@@ -92,13 +89,13 @@ pink_util_get_return(pid_t pid, long *res)
 	bool errorp;
 	struct reg r;
 
-	if (!pink_util_get_regs(pid, &r))
+	assert(res != NULL);
+
+	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
 		return false;
 
-	if (res) {
-		errorp = !!(r.r_eflags & PSL_C);
-		*res = errorp ? -r.r_eax : r.r_eax;
-	}
+	errorp = !!(r.r_eflags & PSL_C);
+	*res = errorp ? -r.r_eax : r.r_eax;
 
 	return true;
 }
@@ -108,7 +105,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	struct reg r;
 
-	if (!pink_util_get_regs(pid, &r))
+	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	if (ret < 0) {
@@ -118,10 +115,7 @@ pink_util_set_return(pid_t pid, long ret)
 	else
 		r.r_eax = ret;
 
-	if (!pink_util_set_regs(pid, &r))
-		return false;
-
-	return true;
+	return pink_util_set_regs(pid, &r);
 }
 
 bool
@@ -132,8 +126,9 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	struct reg r;
 
 	assert(ind < PINK_MAX_INDEX);
+	assert(res != NULL);
 
-	if (!pink_util_get_regs(pid, &r))
+	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -155,7 +150,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	}
 
 	parm_offset += ind * sizeof(int);
-	if (!pink_util_peekdata(pid, parm_offset, &arg))
+	if (pink_unlikely(!pink_util_peekdata(pid, parm_offset, &arg)))
 		return false;
 
 	*res = arg;
@@ -203,10 +198,14 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	long addr;
 	long addrlen;
 
-	if (fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r))
+	assert(ind < PINK_MAX_INDEX);
+	assert(addr_r != NULL);
+
+	if (pink_unlikely(fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r)))
 		return false;
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr) || !pink_util_get_arg(pid, bitness, ind + 1, &addrlen))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)
+				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 
 	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);

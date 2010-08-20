@@ -44,15 +44,15 @@ const char *
 pink_name_syscall(long scno, pink_bitness_t bitness)
 {
 #if defined(POWERPC)
-	if (bitness != PINK_BITNESS_32)
+	if (pink_unlikely(bitness != PINK_BITNESS_32))
 		return NULL;
 #elif defined(POWERPC64)
-	if (bitness != PINK_BITNESS_64)
+	if (pink_unlikely(bitness != PINK_BITNESS_64))
 		return NULL;
 #else
 #error unsupported architecture
 #endif
-	if (scno < 0 || scno >= nsys)
+	if (pink_unlikely(scno < 0 || scno >= nsys))
 		return NULL;
 	return sysnames[scno];
 }
@@ -63,15 +63,15 @@ pink_name_lookup(const char *name, pink_bitness_t bitness)
 	long scno;
 
 #if defined(POWERPC)
-	if (bitness != PINK_BITNESS_32)
+	if (pink_unlikely(bitness != PINK_BITNESS_32))
 		return -1;
 #elif defined(POWERPC64)
-	if (bitness != PINK_BITNESS_64)
+	if (pink_unlikely(bitness != PINK_BITNESS_64))
 		return -1;
 #else
 #error unsupported architecture
 #endif
-	if (name == NULL || name[0] == '\0')
+	if (pink_unlikely(name == NULL || name[0] == '\0'))
 		return -1;
 
 	for (scno = 0; scno < nsys; scno++) {

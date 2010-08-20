@@ -43,9 +43,9 @@ pink_util_peek_ia64(pid_t pid, int narg, long *res)
 	unsigned long *out0, cfm, sof, sol;
 	long rbs_end;
 
-	if (!pink_util_peek(pid, PT_AR_BSP, &rbs_end))
+	if (pink_unlikely(!pink_util_peek(pid, PT_AR_BSP, &rbs_end)))
 		return false;
-	if (!pink_util_peek(pid, PT_CFM, (long *)&cfm))
+	if (pink_unlikely(!pink_util_peek(pid, PT_CFM, (long *)&cfm)))
 		return false;
 
 	sof = (cfm >> 0) & 0x7f;
@@ -78,8 +78,10 @@ pink_util_get_return(pid_t pid, long *res)
 {
 	long r8, r10;
 
-	if (!pink_util_peek(pid, PT_R8, &r8)
-		|| !pink_util_peek(pid, PT_R10, &r10))
+	assert(res != NULL);
+
+	if (pink_unlikely(!pink_util_peek(pid, PT_R8, &r8)
+				|| !pink_util_peek(pid, PT_R10, &r10)))
 		return false;
 
 	*res = (r10 != 0) ? -r8 : r8;
@@ -101,6 +103,7 @@ bool
 pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
 {
 	assert(ind < PINK_MAX_INDEX);
+	assert(res != NULL);
 
 	return pink_util_peek_ia64(pid, ind, res);
 }
@@ -134,7 +137,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return NULL;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -181,17 +184,19 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 }
 
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
-	long *fd_r, pink_socket_address_t *addr_r)
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd_r, pink_socket_address_t *addr_r)
 {
 	long addr, addrlen;
 
+	assert(ind < PINK_MAX_INDEX);
+	assert(addr_r != NULL);
+
 	/* No decoding needed */
-	if (fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r))
+	if (pink_unlikely(fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r)))
 		return false;
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return false;
-	if (!pink_util_get_arg(pid, bitness, ind + 1, &addrlen))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 
 	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);

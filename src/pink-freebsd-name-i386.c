@@ -41,9 +41,9 @@ static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness)
 {
-	if (bitness != PINK_BITNESS_32)
+	if (pink_unlikely(bitness != PINK_BITNESS_32))
 		return NULL;
-	if (scno < 0 || scno >= nsys)
+	if (pink_unlikely(scno < 0 || scno >= nsys))
 		return NULL;
 	return sysnames[scno];
 }
@@ -53,9 +53,9 @@ pink_name_lookup(const char *name, pink_bitness_t bitness)
 {
 	long scno;
 
-	if (bitness != PINK_BITNESS_32)
+	if (pink_unlikely(bitness != PINK_BITNESS_32))
 		return -1;
-	if (name == NULL || name[0] == '\0')
+	if (pink_unlikely(name == NULL || name[0] == '\0'))
 		return -1;
 
 	for (scno = 0; scno < nsys; scno++) {

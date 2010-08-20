@@ -37,8 +37,7 @@
  **/
 
 bool
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
-	pink_socket_address_t *addr_r)
+pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *addr_r)
 {
 	if (addr == 0) {
 		/* NULL */
@@ -49,7 +48,7 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen,
 		addrlen = sizeof(addr_r->u);
 
 	memset(&addr_r->u, 0, sizeof(addr_r->u));
-	if (!pink_util_moven(pid, addr, addr_r->u._pad, addrlen))
+	if (pink_unlikely(!pink_util_moven(pid, addr, addr_r->u._pad, addrlen)))
 		return false;
 	addr_r->u._pad[sizeof(addr_r->u._pad) - 1] = '\0';
 
