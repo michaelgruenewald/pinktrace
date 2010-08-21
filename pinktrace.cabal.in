@@ -39,17 +39,8 @@ executable test01TraceMe
   main-is: test01TraceMe.lhs
   hs-source-dirs: haskell, haskell/tests
   other-modules:
-    System.PinkTrace
-    System.PinkTrace.Bitness
-    System.PinkTrace.Event
-    System.PinkTrace.Socket
-    System.PinkTrace.String
-    System.PinkTrace.SystemCall
     System.PinkTrace.Trace
-  c-sources:
-    haskell/cbits/HsWaitPid.c
-    haskell/cbits/HsSocket.c
-  build-depends: base, network, unix
+  build-depends: base, unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall
@@ -64,17 +55,8 @@ executable test02TraceSignal
   main-is: test02TraceSignal.lhs
   hs-source-dirs: haskell, haskell/tests
   other-modules:
-    System.PinkTrace
-    System.PinkTrace.Bitness
-    System.PinkTrace.Event
-    System.PinkTrace.Socket
-    System.PinkTrace.String
-    System.PinkTrace.SystemCall
     System.PinkTrace.Trace
-  c-sources:
-    haskell/cbits/HsWaitPid.c
-    haskell/cbits/HsSocket.c
-  build-depends: base, network, unix
+  build-depends: base, unix
   build-tools: hsc2hs
   cc-options: -std=c99 #PINKTRACE_CFLAGS#
   ghc-options: -Wall
