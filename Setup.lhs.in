@@ -34,6 +34,7 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >   runOneTest' "testFreeBSD03TraceKill" >>
 >   runOneTest' "testFreeBSD04TraceSingleStep" >>
 >   runOneTest' "testFreeBSD05TraceSingleStepSignal" >>
+>   runOneTest' "testFreeBSD06TraceSystemCall" >>
 >   return ()
 >   where
 >       runOneTest' :: TestCase -> IO ()
