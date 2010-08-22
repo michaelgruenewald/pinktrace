@@ -39,10 +39,8 @@
 --}}}
 --{{{ Exports
 module System.PinkTrace
-    ( Addr             -- = Int
-    , Index            -- = Int
+    ( Index            -- = Int
     , Length           -- = Int
-    , Status           -- = Int
     , package          -- :: String
     , version          -- :: Int
     , versionMajor     -- :: Int
@@ -54,10 +52,8 @@ module System.PinkTrace
     ) where
 --}}}
 --{{{ Common Types
-type Addr   = Int
 type Index  = Int
 type Length = Int
-type Status = Int
 --}}}
 --{{{ Functions
 package :: String

@@ -71,8 +71,6 @@ import Foreign.Marshal.Alloc (alloca)
 import Foreign.Ptr           (Ptr)
 import Foreign.Storable      (peek)
 #endif
-
-import System.PinkTrace     (Addr)
 --}}}
 --{{{ Foreign Imports
 foreign import ccall pink_trace_me :: IO CInt
@@ -92,6 +90,8 @@ foreign import ccall pink_trace_attach :: CPid -> IO CInt
 foreign import ccall pink_trace_detach :: CPid -> CInt -> IO CInt
 --}}}
 --{{{ Types
+-- |Address argument of 'traceContinue' and similar functions.
+type Addr = CInt
 -- |EventMessage returned by 'traceGetEventMessage'.
 type EventMessage = CULong
 -- |Trace options that may be passed to 'traceSetup'.
@@ -138,11 +138,8 @@ traceContinue :: ProcessID -- ^ Process ID of the child to be restarted.
                            --   On Linux this argument is not used.
               -> IO ()
 traceContinue pid sig addr = do
-    ret <- pink_trace_cont pid sig addr'
+    ret <- pink_trace_cont pid sig addr
     when (ret == 0) (throwErrno "pink_trace_cont")
-    where
-        addr' :: CInt
-        addr' = fromIntegral addr
 
 {-|
     Kills the traced child process with SIGKILL.
