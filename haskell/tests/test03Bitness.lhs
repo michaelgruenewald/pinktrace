@@ -1,6 +1,8 @@
 #!/usr/bin/env runhaskell
 vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 
+Check whether getBitness works correctly.
+
 > module Main (main) where
 >
 > import Data.Maybe
@@ -22,9 +24,10 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >   when (sig /= sigSTOP) (putStrLn ("Invalid signal " ++ show sig) >> exitFailure)
 >   bit <- getBitness pid
 >   when (bit /= bitnessDefault) (putStrLn ("Invalid bitness " ++ show bit) >> exitFailure)
+>   signalProcess killProcess pid
 >   where
 >       child :: IO ()
 >       child = do
 >           traceMe
 >           raiseSignal sigSTOP
->           exitImmediately $ ExitFailure 13
+>           exitImmediately ExitSuccess

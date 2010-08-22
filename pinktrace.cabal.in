@@ -67,6 +67,23 @@ executable test02TraceSignal
   if !flag(test)
     buildable: False
 
+executable test03Bitness
+  main-is: test03Bitness.lhs
+  hs-source-dirs: haskell, haskell/tests
+  other-modules:
+    System.PinkTrace.Bitness
+    System.PinkTrace.Trace
+  build-depends: base, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !flag(test)
+    buildable: False
+
 executable testFreeBSD01TraceCont
   main-is: test01TraceCont.lhs
   hs-source-dirs: haskell haskell/tests/freebsd
