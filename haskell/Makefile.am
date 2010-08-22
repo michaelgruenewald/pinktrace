@@ -1,1 +1,1 @@
-SUBDIRS= .
+SUBDIRS= . System cbits include tests

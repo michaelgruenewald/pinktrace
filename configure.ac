@@ -531,6 +531,12 @@ AC_OUTPUT(
 		  examples/python/Makefile
 		  examples/ruby/Makefile
 		  haskell/Makefile
+		  haskell/System/Makefile.am
+		  haskell/System/PinkTrace/Makefile.am
+		  haskell/cbits/Makefile.am
+		  haskell/include/Makefile.am
+		  haskell/tests/Makefile.am
+		  haskell/tests/freebsd/Makefile.am
 		  haskell/System/PinkTrace.hs
 		  include/pinktrace/about.h
 		  include/pinktrace/bitness.h
