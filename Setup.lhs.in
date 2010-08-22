@@ -3,7 +3,9 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 
 > module Main (main) where
 >
+> import Control.Monad (when)
 > import System.Cmd (system)
+> import System.Directory (doesFileExist)
 > import System.Exit (ExitCode(..))
 > import System.FilePath.Posix ((</>))
 > import System.Posix.Env (setEnv)
@@ -16,6 +18,8 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >                            , simpleUserHooks
 >                            )
 >
+> type TestCase = String
+>
 > main :: IO ()
 > main = defaultMainWithHooks hooks
 >   where hooks = simpleUserHooks { runTests = runTests' }
@@ -23,14 +27,24 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 > runTests' :: Args -> Bool -> PackageDescription -> LocalBuildInfo -> IO ()
 > runTests' _ _ _ lbi =
 >   setEnv "LD_LIBRARY_PATH" "#TOP_BUILDDIR#/src/.libs" True >>
->   putStr "test01TraceMe: " >> system test01 >>= die >>
->   putStr "test02TraceSignal: " >> system test02 >>= die >>
+>   runOneTest' "test01TraceMe" >>
+>   runOneTest' "test02TraceSignal" >>
+>   runOneTest' "testFreeBSD01TraceCont" >>
 >   return ()
 >   where
->       test01 :: FilePath
->       test01 = (buildDir lbi) </> "test01TraceMe" </> "test01TraceMe"
->       test02 :: FilePath
->       test02 = (buildDir lbi) </> "test02TraceSignal" </> "test02TraceSignal"
+>       runOneTest' :: TestCase -> IO ()
+>       runOneTest' = runOneTest lbi
+>
+> runOneTest :: LocalBuildInfo -> TestCase -> IO ()
+> runOneTest lbi f = do
+>   putStr (f ++ ": ")
+>   hast <- doesFileExist patht
+>   if hast
+>       then system patht >>= die
+>       else putStrLn "SKIP"
+>   where
+>       patht :: FilePath
+>       patht = (buildDir lbi) </> f </> f
 >
 > die :: ExitCode -> IO ()
 > die code =
