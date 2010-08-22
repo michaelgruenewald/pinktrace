@@ -46,9 +46,9 @@ module System.PinkTrace.Trace
     , traceContinue         -- :: ProcessID -> Signal -> Addr -> IO ()
     , traceKill             -- :: ProcessID -> IO ()
     , traceSingleStep       -- :: ProcessID -> Signal -> IO ()
-    , traceSysCall          -- :: ProcessID -> Signal -> IO ()
-    , traceSysCallEntry     -- :: ProcessID -> Signal -> IO ()
-    , traceSysCallExit      -- :: ProcessID -> Signal -> IO ()
+    , traceSystemCall       -- :: ProcessID -> Signal -> IO ()
+    , traceSystemCallEntry  -- :: ProcessID -> Signal -> IO ()
+    , traceSystemCallExit   -- :: ProcessID -> Signal -> IO ()
     , traceGetEventMessage  -- :: ProcessID -> IO Int
     , traceSetup            -- :: ProcessID -> TraceOption -> IO ()
     , traceAttach           -- :: ProcessID -> IO ()
@@ -174,10 +174,10 @@ traceSingleStep pid sig = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-traceSysCall :: ProcessID -- ^ Process ID of the child to be restarted.
-             -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-             -> IO ()
-traceSysCall pid sig = do
+traceSystemCall :: ProcessID -- ^ Process ID of the child to be restarted.
+                -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                -> IO ()
+traceSystemCall pid sig = do
     ret <- pink_trace_syscall pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall")
 
@@ -190,10 +190,10 @@ traceSysCall pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSysCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
-                  -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                  -> IO ()
-traceSysCallEntry pid sig = do
+traceSystemCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
+                     -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                     -> IO ()
+traceSystemCallEntry pid sig = do
     ret <- pink_trace_syscall_entry pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_entry")
 
@@ -205,10 +205,10 @@ traceSysCallEntry pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSysCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
-                 -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                 -> IO ()
-traceSysCallExit pid sig = do
+traceSystemCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
+                    -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                    -> IO ()
+traceSystemCallExit pid sig = do
     ret <- pink_trace_syscall_exit pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_exit")
 #else
@@ -220,10 +220,10 @@ traceSysCallExit pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSysCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
-                  -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                  -> IO ()
-traceSysCallEntry _ _ = error "syscallEntry: not implemented"
+traceSystemCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
+                     -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                     -> IO ()
+traceSystemCallEntry _ _ = error "traceSystemCallEntry: not implemented"
 
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
@@ -233,10 +233,10 @@ traceSysCallEntry _ _ = error "syscallEntry: not implemented"
 
     * Availability: FreeBSD
 -}
-traceSysCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
-                 -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                 -> IO ()
-traceSysCallExit _ _ = error "syscallExit: not implemented"
+traceSystemCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
+                    -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                    -> IO ()
+traceSystemCallExit _ _ = error "traceSystemCallExit: not implemented"
 #endif
 
 #ifdef PINKTRACE_LINUX
