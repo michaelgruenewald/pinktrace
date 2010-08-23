@@ -301,3 +301,23 @@ executable testFreeBSD12SystemCallGetNumber
     buildable: False
   if !flag(test)
     buildable: False
+
+executable testFreeBSD13SystemCallSetNumber
+  main-is: test13SystemCallSetNumber.lhs
+  hs-source-dirs: haskell haskell/tests/freebsd
+  other-modules:
+    System.PinkTrace.Bitness
+    System.PinkTrace.SystemCall
+    System.PinkTrace.Trace
+  build-depends: base, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !os(freebsd)
+    buildable: False
+  if !flag(test)
+    buildable: False
