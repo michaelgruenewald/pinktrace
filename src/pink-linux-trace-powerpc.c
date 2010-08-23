@@ -74,11 +74,13 @@ pink_util_get_return(pid_t pid, long *res)
 {
 	long flags;
 
-	if (!pink_util_peek(pid, ACCUM, res) ||
-			!pink_util_peek(pid, ACCUM_FLAGS, &flags))
+	assert(res != NULL);
+
+	if (pink_unlikely(!pink_util_peek(pid, ACCUM, res)
+				|| !pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
-	if (flags & SO_MASK)
+	if (pink_unlikely(flags & SO_MASK))
 		*res = -(*res);
 
 	return true;
@@ -89,7 +91,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	long flags;
 
-	if (!pink_util_peek(pid, ACCUM_FLAGS, &flags))
+	if (pink_unlikely(!pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
 	if (ret < 0) {
@@ -139,7 +141,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (!pink_util_get_arg(pid, bitness, ind, &addr))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -182,7 +184,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 	assert(ind < PINK_MAX_INDEX);
 
 	/* Decode socketcall(2) */
-	if (!pink_util_get_arg(pid, bitness, 1, &args))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
 	args += ind * sizeof(unsigned int);
 
@@ -191,24 +193,24 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 }
 
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind,
-	long *fd_r, pink_socket_address_t *addr_r)
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd_r, pink_socket_address_t *addr_r)
 {
 	unsigned int iaddr, iaddrlen;
 	long addr, addrlen, args;
 
 	assert(ind < PINK_MAX_INDEX);
+	assert(addr_r != NULL);
 
 	/* Decode socketcall(2) */
-	if (!pink_util_get_arg(pid, bitness, 1, &args))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
-	if (fd_r && !pink_util_move(pid, args, fd_r))
+	if (pink_unlikely(fd_r && !pink_util_move(pid, args, fd_r)))
 		return false;
 	args += ind * sizeof(unsigned int);
-	if (!pink_util_move(pid, args, &iaddr))
+	if (pink_unlikely(!pink_util_move(pid, args, &iaddr)))
 		return false;
 	args += sizeof(unsigned int);
-	if (!pink_util_move(pid, args, &iaddrlen))
+	if (pink_unlikely(!pink_util_move(pid, args, &iaddrlen)))
 		return false;
 	addr = iaddr;
 	addrlen = iaddrlen;

@@ -457,7 +457,6 @@ if test x"$enable_python" = x"yes" ; then
 	if test x"$PYTHON" = x ; then
 		AC_MSG_ERROR([Python is required for --enable-python])
 	fi
-	AC_SUBST([PYTHON_INSTALL_DIR])
 
 	AC_MSG_CHECKING([for headers required to compile python extensions])
 	py_prefix=`$PYTHON -c "import sys; sys.stdout.write(sys.prefix)"`
@@ -554,4 +553,39 @@ AC_OUTPUT(
 		  src/linux/powerpc/Makefile
 		  tests/Makefile
 	)
+dnl }}}
+
+dnl {{{ User message
+echo
+echo "PinkTrace was configured successfully"
+echo "-----------------------------------------------------"
+echo "Version: ${VERSION_FULL}"
+echo "Slot: ${PINKTRACE_PC_SLOT}"
+if test x"$enable_doxygen" = x"yes" ; then
+	echo "API documentation: Enabled"
+else
+	echo "API documentation: Disabled"
+fi
+if test x"$enable_python" = x"yes" ; then
+	echo "Python bindings: Enabled (using ${PYTHON})"
+	echo "Python install directory: ${PYTHON_INSTALL_DIR}"
+	if test x"$enable_python_doc" = x"yes" ; then
+		echo "Python API documentation: Enabled (using ${EPYDOC})"
+	else
+		echo "Python documentation: Disabled"
+	fi
+else
+	echo "Python bindings: Disabled"
+fi
+if test x"$enable_ruby" = x"yes" ; then
+	echo "Ruby bindings: Enabled (using ${RUBY})"
+	echo "Ruby install directory: ${RUBY_INSTALL_DIR}"
+	if test x"$enable_ruby_doc" = x"yes" ; then
+		echo "Ruby API documentation: Enabled (using ${RDOC})"
+	else
+		echo "Ruby API documentation: Disabled"
+	fi
+fi
+echo "Now run make (or gmake on FreeBSD) to build PinkTrace"
+echo "-----------------------------------------------------"
 dnl }}}
