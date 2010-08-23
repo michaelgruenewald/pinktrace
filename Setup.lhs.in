@@ -20,6 +20,25 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >
 > type TestCase = String
 >
+> testList :: [TestCase]
+> testList = [ "test01TraceMe"
+>            , "test02TraceSignal"
+>            , "test03Bitness"
+>            , "testFreeBSD01TraceCont"
+>            , "testFreeBSD02TraceContSignal"
+>            , "testFreeBSD03TraceKill"
+>            , "testFreeBSD04TraceSingleStep"
+>            , "testFreeBSD05TraceSingleStepSignal"
+>            , "testFreeBSD06TraceSystemCall"
+>            , "testFreeBSD07TraceSystemCallSignal"
+>            , "testFreeBSD08TraceSystemCallEntry"
+>            , "testFreeBSD09TraceSystemCallEntrySignal"
+>            , "testFreeBSD10TraceSystemCallExit"
+>            , "testFreeBSD11TraceSystemCallExitSignal"
+>            , "testFreeBSD12SystemCallGetNumber"
+>            , "testFreeBSD13SystemCallSetNumber"
+>            ]
+>
 > main :: IO ()
 > main = defaultMainWithHooks hooks
 >   where hooks = simpleUserHooks { runTests = runTests' }
@@ -27,26 +46,13 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 > runTests' :: Args -> Bool -> PackageDescription -> LocalBuildInfo -> IO ()
 > runTests' _ _ _ lbi =
 >   setEnv "LD_LIBRARY_PATH" "#TOP_BUILDDIR#/src/.libs" True >>
->   runOneTest' "test01TraceMe" >>
->   runOneTest' "test02TraceSignal" >>
->   runOneTest' "test03Bitness" >>
->   runOneTest' "testFreeBSD01TraceCont" >>
->   runOneTest' "testFreeBSD02TraceContSignal" >>
->   runOneTest' "testFreeBSD03TraceKill" >>
->   runOneTest' "testFreeBSD04TraceSingleStep" >>
->   runOneTest' "testFreeBSD05TraceSingleStepSignal" >>
->   runOneTest' "testFreeBSD06TraceSystemCall" >>
->   runOneTest' "testFreeBSD07TraceSystemCallSignal" >>
->   runOneTest' "testFreeBSD08TraceSystemCallEntry" >>
->   runOneTest' "testFreeBSD09TraceSystemCallEntrySignal" >>
->   runOneTest' "testFreeBSD10TraceSystemCallExit" >>
->   runOneTest' "testFreeBSD11TraceSystemCallExitSignal" >>
->   runOneTest' "testFreeBSD12SystemCallGetNumber" >>
->   runOneTest' "testFreeBSD13SystemCallSetNumber" >>
->   return ()
+>   runAllTests testList
 >   where
 >       runOneTest' :: TestCase -> IO ()
 >       runOneTest' = runOneTest lbi
+>       runAllTests :: [TestCase] -> IO ()
+>       runAllTests [] = return ()
+>       runAllTests (x:xs) = runOneTest' x >> runAllTests xs
 >
 > runOneTest :: LocalBuildInfo -> TestCase -> IO ()
 > runOneTest lbi f = do
