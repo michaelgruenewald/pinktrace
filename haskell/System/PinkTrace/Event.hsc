@@ -42,11 +42,11 @@
     Pink's event handling
 -}
 module System.PinkTrace.Event
-    ( Event(..)
-    , ProcessStatus(..)
-    , getProcessStatus      -- :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
-    , getGroupProcessStatus -- :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
-    , getAnyProcessStatus   -- :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
+    ( TraceEvent(..)
+    , TracedProcessStatus(..)
+    , getTracedProcessStatus      -- :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
+    , getGroupTracedProcessStatus -- :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
+    , getAnyTracedProcessStatus   -- :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
     ) where
 --}}}
 --{{{ Includes
@@ -79,23 +79,23 @@ foreign import ccall pink_event_decide :: CInt -> CInt
 #endif
 --}}}
 --{{{ Types
-data Event = SysCall -- ^ Child has entered/exited a system call.
-    | Fork           -- ^ Child has called fork().
-    | VFork          -- ^ Child has called vfork().
-    | Clone          -- ^ Child has called clone().
-    | VForkDone      -- ^ Child has exited a vfork() call.
-    | Exec           -- ^ Child has called execve().
-    | Exit           -- ^ Child is exiting. (@ptrace@ way, stopped before exit)
+data TraceEvent = SysCall -- ^ Child has entered/exited a system call.
+    | Fork                -- ^ Child has called fork().
+    | VFork               -- ^ Child has called vfork().
+    | Clone               -- ^ Child has called clone().
+    | VForkDone           -- ^ Child has exited a vfork() call.
+    | Exec                -- ^ Child has called execve().
+    | Exit                -- ^ Child is exiting. (@ptrace@ way, stopped before exit)
     deriving (Eq,Ord,Show)
-data ProcessStatus = Exited ExitCode -- ^ Child has exited with 'ExitCode'.
-    | Terminated Signal              -- ^ Child was terminated with 'Signal'.
-    | Stopped Signal                 -- ^ Child was stopped with 'Signal'.
-    | StoppedTrace Event             -- ^ Child was stopped with @SIGTRAP@ due to a @ptrace@ 'Event'.
+data TracedProcessStatus = Exited ExitCode -- ^ Child has exited with 'ExitCode'.
+    | Terminated Signal                    -- ^ Child was terminated with 'Signal'.
+    | Stopped Signal                       -- ^ Child was stopped with 'Signal'.
+    | StoppedTrace TraceEvent              -- ^ Child was stopped with @SIGTRAP@ due to a @ptrace@ 'TraceEvent'.
 
 --}}}
 --{{{ Local Functions
 #ifdef PINKTRACE_LINUX
-decipherWaitStatus :: CInt -> IO ProcessStatus
+decipherWaitStatus :: CInt -> IO TracedProcessStatus
 decipherWaitStatus wstat =
     if event == #{const PINK_EVENT_EXIT_GENUINE}
         then do
@@ -149,7 +149,7 @@ waitOptions False True  = #{const (WNOHANG|WUNTRACED)}
 waitOptions True  False = 0
 waitOptions True  True  = #{const WUNTRACED}
 
-readWaitStatus :: Ptr CInt -> IO ProcessStatus
+readWaitStatus :: Ptr CInt -> IO TracedProcessStatus
 readWaitStatus wstatp = do
     wstat <- peek wstatp
     decipherWaitStatus wstat
@@ -158,8 +158,8 @@ readWaitStatus wstatp = do
 --{{{ Functions
 #ifdef PINKTRACE_LINUX
 {-|
-    @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
-    @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
+    @'getTracedProcessStatus' blk stopped pid@ calls @waitpid@, returning
+    @'Just' tc@, the 'TracedProcessStatus' for process @pid@ if it is
     available, 'Nothing' otherwise.  If @blk@ is 'False', then
     @WNOHANG@ is set in the options for @waitpid@, otherwise not.
     If @stopped@ is 'True', then @WUNTRACED@ is set in the
@@ -171,10 +171,10 @@ readWaitStatus wstatp = do
 
     * Availability: Linux
 -}
-getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
-getProcessStatus block stopped pid =
+getTracedProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe TracedProcessStatus)
+getTracedProcessStatus block stopped pid =
     alloca $ \wstatp -> do
-        pid' <- throwErrnoIfMinus1Retry "getProcessStatus"
+        pid' <- throwErrnoIfMinus1Retry "getTracedProcessStatus"
             (c_waitpid pid wstatp (waitOptions block stopped))
         case pid' of
             0 -> return Nothing
@@ -182,9 +182,9 @@ getProcessStatus block stopped pid =
                     return (Just ps)
 
 {-|
-    @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
+    @'getGroupTracedProcessStatus' blk stopped pgid@ calls @waitpid@,
     returning @'Just' (pid, tc)@, the 'ProcessID' and
-    'ProcessStatus' for any process in group @pgid@ if one is
+    'TracedProcessStatus' for any process in group @pgid@ if one is
     available, 'Nothing' otherwise.  If @blk@ is 'False', then
     @WNOHANG@ is set in the options for @waitpid@, otherwise not.
     If @stopped@ is 'True', then @WUNTRACED@ is set in the
@@ -196,10 +196,10 @@ getProcessStatus block stopped pid =
 
     * Availability: Linux
 -}
-getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
-getGroupProcessStatus block stopped pgid =
+getGroupTracedProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, TracedProcessStatus))
+getGroupTracedProcessStatus block stopped pgid =
     alloca $ \wstatp -> do
-    pid <- throwErrnoIfMinus1Retry "getGroupProcessStatus"
+    pid <- throwErrnoIfMinus1Retry "getGroupTracedProcessStatus"
         (c_waitpid (-pgid) wstatp (waitOptions block stopped))
     case pid of
         0 -> return Nothing
@@ -207,8 +207,8 @@ getGroupProcessStatus block stopped pgid =
                 return (Just (pid, ps))
 
 {-|
-    @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
-    @'Just' (pid, tc)@, the 'ProcessID' and 'ProcessStatus' for any
+    @'getAnyTracedProcessStatus' blk stopped@ calls @waitpid@, returning
+    @'Just' (pid, tc)@, the 'ProcessID' and 'TracedProcessStatus' for any
     child process if one is available, 'Nothing' otherwise.  If
     @blk@ is 'False', then @WNOHANG@ is set in the options for
     @waitpid@, otherwise not.  If @stopped@ is 'True', then
@@ -220,12 +220,12 @@ getGroupProcessStatus block stopped pgid =
 
     * Availability: Linux
 -}
-getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
-getAnyProcessStatus block stopped = getGroupProcessStatus block stopped 1
+getAnyTracedProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, TracedProcessStatus))
+getAnyTracedProcessStatus block stopped = getGroupProcessStatus block stopped 1
 #else
 {-|
-    @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
-    @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
+    @'getTracedProcessStatus' blk stopped pid@ calls @waitpid@, returning
+    @'Just' tc@, the 'TracedProcessStatus' for process @pid@ if it is
     available, 'Nothing' otherwise.  If @blk@ is 'False', then
     @WNOHANG@ is set in the options for @waitpid@, otherwise not.
     If @stopped@ is 'True', then @WUNTRACED@ is set in the
@@ -237,13 +237,13 @@ getAnyProcessStatus block stopped = getGroupProcessStatus block stopped 1
 
     * Availability: Linux
 -}
-getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
-getProcessStatus _ _ _ = error "getProcessStatus: not implemented"
+getTracedProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe TracedProcessStatus)
+getTracedProcessStatus _ _ _ = error "getTracedProcessStatus: not implemented"
 
 {-|
-    @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
+    @'getGroupTracedProcessStatus' blk stopped pgid@ calls @waitpid@,
     returning @'Just' (pid, tc)@, the 'ProcessID' and
-    'ProcessStatus' for any process in group @pgid@ if one is
+    'TracedProcessStatus' for any process in group @pgid@ if one is
     available, 'Nothing' otherwise.  If @blk@ is 'False', then
     @WNOHANG@ is set in the options for @waitpid@, otherwise not.
     If @stopped@ is 'True', then @WUNTRACED@ is set in the
@@ -255,12 +255,12 @@ getProcessStatus _ _ _ = error "getProcessStatus: not implemented"
 
     * Availability: Linux
 -}
-getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
-getGroupProcessStatus _ _ _ = error "getGroupProcessStatus: not implemented"
+getGroupTracedProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, TracedProcessStatus))
+getGroupTracedProcessStatus _ _ _ = error "getGroupTracedProcessStatus: not implemented"
 
 {-|
-    @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
-    @'Just' (pid, tc)@, the 'ProcessID' and 'ProcessStatus' for any
+    @'getAnyTracedProcessStatus' blk stopped@ calls @waitpid@, returning
+    @'Just' (pid, tc)@, the 'ProcessID' and 'TracedProcessStatus' for any
     child process if one is available, 'Nothing' otherwise.  If
     @blk@ is 'False', then @WNOHANG@ is set in the options for
     @waitpid@, otherwise not.  If @stopped@ is 'True', then
@@ -272,8 +272,8 @@ getGroupProcessStatus _ _ _ = error "getGroupProcessStatus: not implemented"
 
     * Availability: Linux
 -}
-getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
-getAnyProcessStatus _ _ = error "getAnyProcessStatus: not implemented"
+getAnyTracedProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, TracedProcessStatus))
+getAnyTracedProcessStatus _ _ = error "getAnyTracedProcessStatus: not implemented"
 #endif
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
