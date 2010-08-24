@@ -39,6 +39,7 @@ vim: set ft=lhaskell et ts=4 sts=4 sw=4 fdm=marker :
 >            , "testFreeBSD13SystemCallSetNumber"
 >            , "testFreeBSD14SystemCallGetReturn"
 >            -- , "testFreeBSD15SystemCallSetReturn" FIXME: This testcase fails!
+>            , "testLinux01TraceContinue"
 >            ]
 >
 > main :: IO ()

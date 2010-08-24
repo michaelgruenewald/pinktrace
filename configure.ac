@@ -537,6 +537,7 @@ AC_OUTPUT(
 		  haskell/include/Makefile
 		  haskell/tests/Makefile
 		  haskell/tests/freebsd/Makefile
+		  haskell/tests/linux/Makefile
 		  haskell/System/PinkTrace.hs
 		  include/pinktrace/about.h
 		  include/pinktrace/bitness.h
