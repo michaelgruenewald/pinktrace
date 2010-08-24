@@ -527,6 +527,7 @@ AC_OUTPUT(
 		  doc/api/ruby/Makefile
 		  examples/Makefile
 		  examples/c/Makefile
+		  examples/haskell/Makefile
 		  examples/python/Makefile
 		  examples/ruby/Makefile
 		  haskell/Makefile

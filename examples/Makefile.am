@@ -1,8 +1,10 @@
-SUBDIRS= c python ruby .
+SUBDIRS= c haskell python ruby .
 RSYNC= rsync -avze ssh --delete \
        --filter '+ c/' \
+       --filter '+ haskell/' \
        --filter '+ python/' \
        --filter '+ ruby/' \
+       --filter '+ haskell/*.hs' \
        --filter '+ c/*.c' \
        --filter '+ python/*.py' \
        --filter '+ ruby/*.rb' \
