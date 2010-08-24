@@ -6,7 +6,6 @@ A simple test case, which tests whether 'traceMe' works fine.
 > module Main (main) where
 >
 > import Data.Maybe
-> import Control.Monad
 > import System.Exit
 > import System.Posix.Process
 > import System.PinkTrace.Trace

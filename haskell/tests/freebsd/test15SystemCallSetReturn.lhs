@@ -10,7 +10,6 @@ Check whether 'setSystemCallReturn' works correctly.
 > import System.Exit
 > import System.Posix.Process
 > import System.Posix.Signals
-> import System.PinkTrace.Bitness
 > import System.PinkTrace.SystemCall
 > import System.PinkTrace.Trace
 >
