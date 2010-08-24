@@ -86,7 +86,7 @@ executable test03Bitness
 
 executable testFreeBSD01TraceCont
   main-is: test01TraceCont.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -104,7 +104,7 @@ executable testFreeBSD01TraceCont
 
 executable testFreeBSD02TraceContSignal
   main-is: test02TraceContSignal.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -122,7 +122,7 @@ executable testFreeBSD02TraceContSignal
 
 executable testFreeBSD03TraceKill
   main-is: test03TraceKill.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -140,7 +140,7 @@ executable testFreeBSD03TraceKill
 
 executable testFreeBSD04TraceSingleStep
   main-is: test04TraceSingleStep.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -158,7 +158,7 @@ executable testFreeBSD04TraceSingleStep
 
 executable testFreeBSD05TraceSingleStepSignal
   main-is: test05TraceSingleStepSignal.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -176,7 +176,7 @@ executable testFreeBSD05TraceSingleStepSignal
 
 executable testFreeBSD06TraceSystemCall
   main-is: test06TraceSystemCall.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -194,7 +194,7 @@ executable testFreeBSD06TraceSystemCall
 
 executable testFreeBSD07TraceSystemCallSignal
   main-is: test07TraceSystemCallSignal.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -212,7 +212,7 @@ executable testFreeBSD07TraceSystemCallSignal
 
 executable testFreeBSD08TraceSystemCallEntry
   main-is: test08TraceSystemCallEntry.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -230,7 +230,7 @@ executable testFreeBSD08TraceSystemCallEntry
 
 executable testFreeBSD09TraceSystemCallEntrySignal
   main-is: test09TraceSystemCallEntrySignal.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -248,7 +248,7 @@ executable testFreeBSD09TraceSystemCallEntrySignal
 
 executable testFreeBSD10TraceSystemCallExit
   main-is: test10TraceSystemCallExit.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -266,7 +266,7 @@ executable testFreeBSD10TraceSystemCallExit
 
 executable testFreeBSD11TraceSystemCallExitSignal
   main-is: test11TraceSystemCallExitSignal.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Trace
   build-depends: base, unix
@@ -284,7 +284,7 @@ executable testFreeBSD11TraceSystemCallExitSignal
 
 executable testFreeBSD12SystemCallGetNumber
   main-is: test12SystemCallGetNumber.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Bitness
     System.PinkTrace.SystemCall
@@ -304,7 +304,7 @@ executable testFreeBSD12SystemCallGetNumber
 
 executable testFreeBSD13SystemCallSetNumber
   main-is: test13SystemCallSetNumber.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
     System.PinkTrace.Bitness
     System.PinkTrace.SystemCall
@@ -324,8 +324,29 @@ executable testFreeBSD13SystemCallSetNumber
 
 executable testFreeBSD14SystemCallGetReturn
   main-is: test14SystemCallGetReturn.lhs
-  hs-source-dirs: haskell haskell/tests/freebsd
+  hs-source-dirs: haskell, haskell/tests/freebsd
   other-modules:
+    System.PinkTrace.Bitness
+    System.PinkTrace.SystemCall
+    System.PinkTrace.Trace
+  build-depends: base, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !os(freebsd)
+    buildable: False
+  if !flag(test)
+    buildable: False
+
+executable testFreeBSD15SystemCallSetReturn
+  main-is: test15SystemCallSetReturn.lhs
+  hs-source-dirs: haskell, haskell/tests/freebsd
+  other-modules:
+    System.PinkTrace.Bitness
     System.PinkTrace.SystemCall
     System.PinkTrace.Trace
   build-depends: base, unix
