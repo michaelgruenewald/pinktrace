@@ -559,6 +559,8 @@ if test x"$enable_ruby" = x"yes" ; then
 	else
 		echo "Ruby API documentation: Disabled"
 	fi
+else
+	echo "Ruby bindings: Disabled"
 fi
 echo "Now run make (or gmake on FreeBSD) to build PinkTrace"
 echo "-----------------------------------------------------"
