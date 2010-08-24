@@ -221,7 +221,7 @@ getGroupTracedProcessStatus block stopped pgid =
     * Availability: Linux
 -}
 getAnyTracedProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, TracedProcessStatus))
-getAnyTracedProcessStatus block stopped = getGroupProcessStatus block stopped 1
+getAnyTracedProcessStatus block stopped = getGroupTracedProcessStatus block stopped 1
 #else
 {-|
     @'getTracedProcessStatus' blk stopped pid@ calls @waitpid@, returning
