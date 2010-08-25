@@ -17,25 +17,29 @@ if WANT_IPV6
 __init__.py: __init__.py.in
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
-		-e "s,##VERSION##,$(VERSION)," \
-		-e "s,##VERSION_MAJOR##,$(VERSION_MAJOR)," \
-		-e "s,##VERSION_MINOR##,$(VERSION_MINOR)," \
-		-e "s,##VERSION_MICRO##,$(VERSION_MICRO)," \
-		-e "s,##VERSION_SUFFIX##,$(VERSION_SUFFIX)," \
-		-e "s,##GIT_HEAD##,$(GITHEAD)," \
-		-e "s,##HAVE_IPV6##,True," \
+		-e "s,#PACKAGE#,$(PACKAGE)," \
+		-e "s,#VERSION#,$(VERSION)," \
+		-e "s,#VERSION_MAJOR#,$(VERSION_MAJOR)," \
+		-e "s,#VERSION_MINOR#,$(VERSION_MINOR)," \
+		-e "s,#VERSION_MICRO#,$(VERSION_MICRO)," \
+		-e "s,#VERSION_SUFFIX#,$(VERSION_SUFFIX)," \
+		-e "s,#GIT_HEAD#,$(GITHEAD)," \
+		-e "s,#PC_SLOT#,$(PINKTRACE_PC_SLOT)," \
+		-e "s,#HAVE_IPV6#,True," \
 		$< > $@
 else
 __init__.py: __init__.py.in
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
-		-e "s,##VERSION##,$(VERSION)," \
-		-e "s,##VERSION_MAJOR##,$(VERSION_MAJOR)," \
-		-e "s,##VERSION_MINOR##,$(VERSION_MINOR)," \
-		-e "s,##VERSION_MICRO##,$(VERSION_MICRO)," \
-		-e "s,##VERSION_SUFFIX##,$(VERSION_SUFFIX)," \
-		-e "s,##GIT_HEAD##,$(GITHEAD)," \
-		-e "s,##HAVE_IPV6##,False," \
+		-e "s,#PACKAGE#,$(PACKAGE)," \
+		-e "s,#VERSION#,$(VERSION)," \
+		-e "s,#VERSION_MAJOR#,$(VERSION_MAJOR)," \
+		-e "s,#VERSION_MINOR#,$(VERSION_MINOR)," \
+		-e "s,#VERSION_MICRO#,$(VERSION_MICRO)," \
+		-e "s,#VERSION_SUFFIX#,$(VERSION_SUFFIX)," \
+		-e "s,#GIT_HEAD#,$(GITHEAD)," \
+		-e "s,#PC_SLOT#,$(PINKTRACE_PC_SLOT)," \
+		-e "s,#HAVE_IPV6#,False," \
 		$< > $@
 endif # WANT_IPV6
 
