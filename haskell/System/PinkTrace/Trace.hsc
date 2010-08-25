@@ -40,7 +40,8 @@
     Pink's low level wrappers around ptrace(2) internals
 -}
 module System.PinkTrace.Trace
-    ( EventMessage          -- = CLong
+    ( Addr                  -- = CInt
+    , EventMessage          -- = CLong
     , TraceOption(..)
     , traceMe               -- :: IO ()
     , traceContinue         -- :: ProcessID -> Signal -> Addr -> IO ()

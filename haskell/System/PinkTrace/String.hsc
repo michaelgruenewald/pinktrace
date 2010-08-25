@@ -58,7 +58,7 @@ import Foreign.Ptr           (nullPtr)
 import Foreign.Marshal.Alloc (allocaBytes)
 import System.Posix.Types    (CPid, ProcessID)
 
-import System.PinkTrace         (Index, Length)
+import System.PinkTrace         (Index(..))
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
@@ -82,11 +82,10 @@ foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString
 decode :: ProcessID -- ^ Process ID of the traced child
        -> Bitness   -- ^ The bitness of the traced child
        -> Index     -- ^ The index of the argument
-       -> Length    -- ^ Max length of the string
+       -> Int       -- ^ Max length of the string
                     --   If smaller than zero, @pinktrace@ tries to determine the string length.
        -> IO String -- ^ The decoded string
 decode pid bit index len
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decode: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decode: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decode: unsupported bitness " ++ show bit
     | len < 0   = do
@@ -102,9 +101,9 @@ decode pid bit index len
             else peekCString ptr
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
         len' :: CSize
         len' = fromIntegral len
 
@@ -121,7 +120,6 @@ encode :: ProcessID -- ^ Process ID of the traced child
        -> String    -- ^ The string to be encoded
        -> IO ()
 encode pid bit index src
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encode: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "encode: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encode: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
@@ -129,9 +127,9 @@ encode pid bit index src
         when (ret == 0) (throwErrno "pink_encode_simple")
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
 
 #ifdef PINKTRACE_LINUX
 {-|
@@ -150,7 +148,6 @@ encodeSafe :: ProcessID -- ^ Process ID of the traced child
            -> String    -- ^ The string to be encoded
            -> IO ()
 encodeSafe pid bit index src
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "encodeSafe: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
@@ -158,9 +155,9 @@ encodeSafe pid bit index src
         when (ret == 0) (throwErrno "pink_encode_simple_safe")
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
 #else
 {-|
     Encode a string into the argument of the given index with additional

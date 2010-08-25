@@ -68,7 +68,7 @@ import Network.Socket        (Family(..))
 import Foreign.C.String      (CString, peekCString)
 #endif
 
-import System.PinkTrace         (Index)
+import System.PinkTrace         (Index(..))
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
@@ -179,7 +179,6 @@ decodeSocketAddress :: ProcessID        -- ^ Process ID of the traced child
                     -> Index            -- ^ The index of the argument
                     -> IO (Ptr Address) -- ^ The decoded socket address
 decodeSocketAddress pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeSocketAddress: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | otherwise = do
@@ -190,9 +189,9 @@ decodeSocketAddress pid bit index
             else return ptr
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
 
 {-|
     Decodes the socket address at the given argument index; and the file
@@ -206,7 +205,6 @@ decodeSocketAddressFd :: ProcessID              -- ^ Process ID of the traced ch
                       -> Index                  -- ^ The index of the argument
                       -> IO (CInt, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
 decodeSocketAddressFd pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "decodeSocketAddressFd: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | otherwise = do
@@ -220,9 +218,9 @@ decodeSocketAddressFd pid bit index
                     return (fromIntegral fd, ptr)
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
 
 -- |Free the block of memory allocated for 'Address'
 freeSocketAddress :: Ptr Address -> IO ()

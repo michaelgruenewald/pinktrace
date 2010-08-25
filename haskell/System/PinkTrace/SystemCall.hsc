@@ -63,7 +63,7 @@ import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid, ProcessID)
 
-import System.PinkTrace         (Index)
+import System.PinkTrace         (Index(..))
 import System.PinkTrace.Bitness ( Bitness(..)
                                 , bitness32Supported
                                 , bitness64Supported
@@ -190,7 +190,6 @@ getSystemCallArgument :: ProcessID -- ^ Process ID of the traced child
                       -> Index     -- ^ The index of the argument
                       -> IO Int    -- ^ The value of the argument
 getSystemCallArgument pid bit index
-    | index < 0 || index >= #{const PINK_MAX_INDEX} = error $ "getSystemCallArgument: invalid index " ++ show index
     | bit == Bitness32 && not bitness32Supported = error $ "getSystemCallArgument: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "getSystemCallArgument: unsupported bitness " ++ show bit
     | otherwise = alloca $ \ptr -> do
@@ -198,8 +197,8 @@ getSystemCallArgument pid bit index
         fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_arg" else peek ptr
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         index' :: CUInt
-        index' = fromIntegral index
+        index' = (fromIntegral . fromEnum) index
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
