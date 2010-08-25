@@ -1754,12 +1754,14 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "HAVE_IPV6", Qfalse);
 #endif /* PINKTRACE_HAVE_IPV6 */
 	/* about.h */
+	rb_define_const(mod, "PACKAGE", rb_str_new2(PINKTRACE_PACKAGE));
 	rb_define_const(mod, "VERSION", INT2FIX(PINKTRACE_VERSION));
 	rb_define_const(mod, "VERSION_MAJOR", INT2FIX(PINKTRACE_VERSION_MAJOR));
 	rb_define_const(mod, "VERSION_MINOR", INT2FIX(PINKTRACE_VERSION_MINOR));
 	rb_define_const(mod, "VERSION_MICRO", INT2FIX(PINKTRACE_VERSION_MICRO));
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
+	rb_define_const(mod, "PC_SLOT", rb_str_new2(PINKTRACE_PC_SLOT));
 	/* util.h */
 	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
