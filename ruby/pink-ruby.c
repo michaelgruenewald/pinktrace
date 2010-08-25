@@ -117,6 +117,10 @@ check_index(unsigned ind)
  *
  * == Constants
  *
+ * - PinkTrace::PACKAGE
+ *
+ *   The name of the package (eg pinktrace)
+ *
  * - PinkTrace::VERSION_MAJOR
  *
  *   The major version (eg 0.4.1 -> 0)
@@ -140,6 +144,10 @@ check_index(unsigned ind)
  * - PinkTrace::GIT_HEAD
  *
  *   The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
+ *
+ * - PinkTrace::PC_SLOT
+ *
+ *   The suffix used for so names (eg "0.30" or "0.31_15ece615")
  *
  * - PinkTrace::HAVE_IPV6
  *
