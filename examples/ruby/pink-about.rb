@@ -8,8 +8,10 @@ Simple example showing how to use PinkTrace version constants
 
 require 'PinkTrace'
 
-print 'Built using PinkTrace ', PinkTrace::VERSION_MAJOR, ".",
-  PinkTrace::VERSION_MINOR, ".", PinkTrace::VERSION_MICRO,
+print 'Built using ', PinkTrace::PACKAGE, " ",
+  PinkTrace::VERSION_MAJOR, ".",
+  PinkTrace::VERSION_MINOR, ".",
+  PinkTrace::VERSION_MICRO,
   PinkTrace::VERSION_SUFFIX
 
 unless PinkTrace::GIT_HEAD.empty?

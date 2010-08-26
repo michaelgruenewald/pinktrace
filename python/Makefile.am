@@ -25,6 +25,6 @@ endif # LINUX
 
 %.py: %.py.in
 	$(AM_V_GEN)
-	$(AM_V_at)$(SED) -e "s,##PYTHON##,$(PYTHON)," $< > $@
+	$(AM_V_at)$(SED) -e "s,#PYTHON#,$(PYTHON)," $< > $@
 	$(AM_V_at)chmod +x $@
 endif # ENABLE_PYTHON

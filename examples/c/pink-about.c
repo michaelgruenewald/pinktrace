@@ -9,7 +9,8 @@
 int
 main(void)
 {
-	printf("Built using pinktrace %d.%d.%d%s",
+	printf("Built using %s %d.%d.%d%s",
+		PINKTRACE_PACKAGE,
 		PINKTRACE_VERSION_MAJOR,
 		PINKTRACE_VERSION_MINOR,
 		PINKTRACE_VERSION_MICRO,

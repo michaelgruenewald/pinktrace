@@ -10,14 +10,16 @@ pinktrace Python bindings
 
 __author__ = "Ali Polatel <alip@exherbo.org>"
 __license__ = "BSD-3"
-__version__ = "##VERSION##"
+__version__ = "#VERSION#"
 
 __all__ = ('bitness', 'event', 'socket', 'string', 'syscall', 'trace')
 
-VERSION = "##VERSION##"
-VERSION_MAJOR = ##VERSION_MAJOR##
-VERSION_MINOR = ##VERSION_MINOR##
-VERSION_MICRO = ##VERSION_MICRO##
-VERSION_SUFFIX = "##VERSION_SUFFIX##"
-GIT_HEAD = "##GIT_HEAD##"
-HAVE_IPV6 = ##HAVE_IPV6##
+PACKAGE = "#PACKAGE#"
+VERSION = "#VERSION#"
+VERSION_MAJOR = #VERSION_MAJOR#
+VERSION_MINOR = #VERSION_MINOR#
+VERSION_MICRO = #VERSION_MICRO#
+VERSION_SUFFIX = "#VERSION_SUFFIX#"
+GIT_HEAD = "#GIT_HEAD#"
+PC_SLOT = "#PC_SLOT#"
+HAVE_IPV6 = #HAVE_IPV6#
