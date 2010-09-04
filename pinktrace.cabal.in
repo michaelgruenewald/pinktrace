@@ -462,3 +462,24 @@ executable testLinux02TraceContinueSignal
     buildable: False
   if !flag(test)
     buildable: False
+
+executable testLinux03TraceKill
+  main-is: test03TraceKill.lhs
+  hs-source-dirs: haskell, haskell/tests/linux
+  other-modules:
+    System.PinkTrace.Event
+    System.PinkTrace.Trace
+  c-sources:
+    haskell/cbits/HsWaitPid.c
+  build-depends: base, unix
+  build-tools: hsc2hs
+  cc-options: -std=c99 #PINKTRACE_CFLAGS#
+  ghc-options: -Wall
+  extra-libraries: pinktrace_#PINKTRACE_PC_SLOT#
+  extra-lib-dirs: #TOP_BUILDDIR#/src/.libs
+  include-dirs: #TOP_SRCDIR#/include
+  include-dirs: #TOP_SRCDIR#/haskell/include
+  if !os(linux)
+    buildable: False
+  if !flag(test)
+    buildable: False
