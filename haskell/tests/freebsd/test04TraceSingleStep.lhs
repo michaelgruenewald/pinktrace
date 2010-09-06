@@ -32,7 +32,8 @@ A simple test case, which tests whether 'traceSingleStep' works correctly.
 >       Stopped sig              -> unless (sig == breakpointTrap)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   signalProcess killProcess pid
+>   traceContinue pid nullSignal 1
+>   getProcessStatus True False pid >> return ()
 >   where
 >       child :: IO ()
 >       child = do
