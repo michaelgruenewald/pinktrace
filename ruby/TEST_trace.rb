@@ -43,12 +43,10 @@ class TestPinkTrace < Test::Unit::TestCase
     rescue Errno::ESRCH ;end
   end
 
-=begin
-FIXME: Fails on FreeBSD, why?
   def test_trace_execve
     pid = fork do
       PinkTrace::Trace.me
-      exec "/bin/true"
+      exec "true"
     end
 
     Process.waitpid pid
@@ -58,7 +56,6 @@ FIXME: Fails on FreeBSD, why?
     begin PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
-=end
 
   def test_cont_invalid
     assert_raise TypeError do
