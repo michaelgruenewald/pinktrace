@@ -24,7 +24,7 @@ sending signals.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceContinue pid killProcess 1
+>   traceContinue 1 killProcess pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Exited (ExitFailure ret) -> putStrLn ("Child exited with code: " ++ (show ret)) >> exitFailure

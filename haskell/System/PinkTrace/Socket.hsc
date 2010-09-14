@@ -157,7 +157,7 @@ nameSocketSubCall :: SubCall -> IO String
 nameSocketSubCall scall = peekCString $ pink_name_socket_subcall scall'
     where
         scall' :: CInt
-        scall' = fromIntegral $ fromEnum scall
+        scall' = (fromIntegral . fromEnum) scall
 #else
 {-|
     Returns the name of the socket subcall.
@@ -174,11 +174,11 @@ nameSocketSubCall _ = error "nameSocketSubCall: not implemented"
     * Note: This function decodes the @socketcall(2)@ system call on some
       architectures.
 -}
-decodeSocketAddress :: ProcessID        -- ^ Process ID of the traced child
+decodeSocketAddress :: Index            -- ^ The index of the argument
                     -> Bitness          -- ^ The bitness of the traced child
-                    -> Index            -- ^ The index of the argument
+                    -> ProcessID        -- ^ Process ID of the traced child
                     -> IO (Ptr Address) -- ^ The decoded socket address
-decodeSocketAddress pid bit index
+decodeSocketAddress index bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | otherwise = do
@@ -200,11 +200,11 @@ decodeSocketAddress pid bit index
     * Note: This function decodes the @socketcall(2)@ system call on some
       architectures.
 -}
-decodeSocketAddressFd :: ProcessID              -- ^ Process ID of the traced child
+decodeSocketAddressFd :: Index                  -- ^ The index of the argument
                       -> Bitness                -- ^ The bitness of the traced child
-                      -> Index                  -- ^ The index of the argument
+                      -> ProcessID              -- ^ Process ID of the traced child
                       -> IO (CInt, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
-decodeSocketAddressFd pid bit index
+decodeSocketAddressFd index bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | otherwise = do

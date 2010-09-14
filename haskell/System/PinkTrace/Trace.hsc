@@ -129,16 +129,16 @@ traceMe = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-traceContinue :: ProcessID -- ^ Process ID of the child to be restarted.
-              -> Signal    -- ^ If this is non-zero and not 'sigSTOP',
-                           --   it is interpreted as the signal delivered to the child;
-                           --   otherwise, no signal is delivered.
-              -> Addr      -- ^ On FreeBSD this argument is an address specifying the place
+traceContinue :: Addr      -- ^ On FreeBSD this argument is an address specifying the place
                            --   where execution is to be resumed (a new value for the program counter),
                            --   or 1 to indicate that execution is to pick up where it left off.
                            --   On Linux this argument is not used.
+              -> Signal    -- ^ If this is non-zero and not 'sigSTOP',
+                           --   it is interpreted as the signal delivered to the child;
+                           --   otherwise, no signal is delivered.
+              -> ProcessID -- ^ Process ID of the child to be restarted.
               -> IO ()
-traceContinue pid sig addr = do
+traceContinue addr sig pid = do
     ret <- pink_trace_cont pid sig addr
     when (ret == 0) (throwErrno "pink_trace_cont")
 
@@ -159,10 +159,10 @@ traceKill pid = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-traceSingleStep :: ProcessID -- ^ Process ID of the child to be restarted.
-                -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSingleStep :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                -> ProcessID -- ^ Process ID of the child to be restarted.
                 -> IO ()
-traceSingleStep pid sig = do
+traceSingleStep sig pid = do
     ret <- pink_trace_singlestep pid sig
     when (ret == 0) (throwErrno "pink_trace_singlestep")
 
@@ -172,10 +172,10 @@ traceSingleStep pid sig = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-traceSystemCall :: ProcessID -- ^ Process ID of the child to be restarted.
-                -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSystemCall :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                -> ProcessID -- ^ Process ID of the child to be restarted.
                 -> IO ()
-traceSystemCall pid sig = do
+traceSystemCall sig pid = do
     ret <- pink_trace_syscall pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall")
 
@@ -188,10 +188,10 @@ traceSystemCall pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSystemCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
-                     -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSystemCallEntry :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                     -> ProcessID -- ^ Process ID of the child to be restarted.
                      -> IO ()
-traceSystemCallEntry pid sig = do
+traceSystemCallEntry sig pid = do
     ret <- pink_trace_syscall_entry pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_entry")
 
@@ -203,10 +203,10 @@ traceSystemCallEntry pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSystemCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
-                    -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSystemCallExit :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                    -> ProcessID -- ^ Process ID of the child to be restarted.
                     -> IO ()
-traceSystemCallExit pid sig = do
+traceSystemCallExit sig pid = do
     ret <- pink_trace_syscall_exit pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_exit")
 #else
@@ -218,8 +218,8 @@ traceSystemCallExit pid sig = do
 
     * Availability: FreeBSD
 -}
-traceSystemCallEntry :: ProcessID -- ^ Process ID of the child to be restarted.
-                     -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSystemCallEntry :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                     -> ProcessID -- ^ Process ID of the child to be restarted.
                      -> IO ()
 traceSystemCallEntry _ _ = error "traceSystemCallEntry: not implemented"
 
@@ -231,8 +231,8 @@ traceSystemCallEntry _ _ = error "traceSystemCallEntry: not implemented"
 
     * Availability: FreeBSD
 -}
-traceSystemCallExit :: ProcessID -- ^ Process ID of the child to be restarted.
-                    -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceSystemCallExit :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                    -> ProcessID -- ^ Process ID of the child to be restarted.
                     -> IO ()
 traceSystemCallExit _ _ = error "traceSystemCallExit: not implemented"
 #endif
@@ -262,10 +262,10 @@ traceGetEventMessage pid = alloca $ \ptr -> do
 
     * Availability: Linux
 -}
-traceSetup :: ProcessID   -- ^ Process ID of the child to be setup.
-           -> TraceOption -- ^ Tracing options
+traceSetup :: TraceOption -- ^ Tracing options
+           -> ProcessID   -- ^ Process ID of the child to be setup.
            -> IO ()
-traceSetup pid opt = do
+traceSetup opt pid = do
     ret <- pink_trace_setup pid o'''''''
     when (ret == 0) (throwErrno "pink_trace_setup")
     where
@@ -299,8 +299,8 @@ traceGetEventMessage _ = error "traceGetEventMessage: not implemented"
 
     * Availability: Linux
 -}
-traceSetup :: ProcessID   -- ^ Process ID of the child to be setup.
-           -> TraceOption -- ^ Tracing options
+traceSetup :: TraceOption -- ^ Tracing options
+           -> ProcessID   -- ^ Process ID of the child to be setup.
            -> IO ()
 traceSetup _ _ = error "traceSetup: not implemented"
 #endif
@@ -326,10 +326,10 @@ traceAttach pid = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-traceDetach :: ProcessID -- ^ Process ID of the child to be detached.
-            -> Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+traceDetach :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+            -> ProcessID -- ^ Process ID of the child to be detached.
             -> IO ()
-traceDetach pid sig = do
+traceDetach sig pid = do
     ret <- pink_trace_detach pid sig
     when (ret == 0) (throwErrno "pink_trace_detach")
 --}}}

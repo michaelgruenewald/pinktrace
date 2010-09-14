@@ -23,7 +23,7 @@ A simple test case, which tests whether 'traceSingleStep' works correctly.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceSingleStep pid nullSignal
+>   traceSingleStep nullSignal pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Exited (ExitFailure ret) -> putStrLn ("Child exited with code: " ++ (show ret)) >> exitFailure
@@ -32,7 +32,7 @@ A simple test case, which tests whether 'traceSingleStep' works correctly.
 >       Stopped sig              -> unless (sig == breakpointTrap)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceContinue pid nullSignal 1
+>   traceContinue 1 nullSignal pid
 >   getProcessStatus True False pid >> return ()
 >   where
 >       child :: IO ()

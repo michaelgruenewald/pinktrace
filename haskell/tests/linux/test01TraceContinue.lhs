@@ -25,7 +25,7 @@ A simple test case, which tests whether 'traceContinue' works correctly.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceContinue pid nullSignal 0
+>   traceContinue 0 nullSignal pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Stopped sig              -> putStrLn ("Child was stopped: " ++ (show sig)) >> exitFailure

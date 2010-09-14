@@ -117,6 +117,6 @@ nameBitness :: Bitness -> IO String
 nameBitness bit = peekCString $ pink_bitness_name bit'
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

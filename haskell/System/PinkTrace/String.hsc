@@ -79,13 +79,13 @@ foreign import ccall pink_encode_simple_safe :: CPid -> CInt -> CUInt -> CString
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-decode :: ProcessID -- ^ Process ID of the traced child
-       -> Bitness   -- ^ The bitness of the traced child
-       -> Index     -- ^ The index of the argument
+decode :: Index     -- ^ The index of the argument
        -> Int       -- ^ Max length of the string
                     --   If smaller than zero, @pinktrace@ tries to determine the string length.
+       -> Bitness   -- ^ The bitness of the traced child
+       -> ProcessID -- ^ Process ID of the traced child
        -> IO String -- ^ The decoded string
-decode pid bit index len
+decode index len bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "decode: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decode: unsupported bitness " ++ show bit
     | len < 0   = do
@@ -114,12 +114,12 @@ decode pid bit index len
 
     * Warning: Care must be taken when using this function as unexpected things may happen.
 -}
-encode :: ProcessID -- ^ Process ID of the traced child
-       -> Bitness   -- ^ The bitness of the traced child
-       -> Index     -- ^ The index of the argument
+encode :: Index     -- ^ The index of the argument
        -> String    -- ^ The string to be encoded
+       -> Bitness   -- ^ The bitness of the traced child
+       -> ProcessID -- ^ Process ID of the traced child
        -> IO ()
-encode pid bit index src
+encode index src bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "encode: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encode: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
@@ -142,12 +142,12 @@ encode pid bit index src
 
     * Warning: Care must be taken when using this function as unexpected things may happen.
 -}
-encodeSafe :: ProcessID -- ^ Process ID of the traced child
-           -> Bitness   -- ^ The bitness of the traced child
-           -> Index     -- ^ The index of the argument
+encodeSafe :: Index     -- ^ The index of the argument
            -> String    -- ^ The string to be encoded
+           -> Bitness   -- ^ The bitness of the traced child
+           -> ProcessID -- ^ Process ID of the traced child
            -> IO ()
-encodeSafe pid bit index src
+encodeSafe index src bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encodeSafe: unsupported bitness " ++ show bit
     | otherwise = withCStringLen src $ \(s, l) -> do
@@ -169,10 +169,10 @@ encodeSafe pid bit index src
 
     * Warning: Care must be taken when using this function as unexpected things may happen.
 -}
-encodeSafe :: ProcessID -- ^ Process ID of the traced child
-           -> Bitness   -- ^ The bitness of the traced child
-           -> Index     -- ^ The index of the argument
+encodeSafe :: Index     -- ^ The index of the argument
            -> String    -- ^ The string to be encoded
+           -> Bitness   -- ^ The bitness of the traced child
+           -> ProcessID -- ^ Process ID of the traced child
            -> IO ()
 encodeSafe _ _ _ _ = error "encodeSafe: not implemented"
 #endif

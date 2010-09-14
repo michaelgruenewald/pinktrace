@@ -21,7 +21,7 @@ main = do
 
     -- Nothing interesting in this example.
     -- Let the child continue its execution.
-    traceContinue pid nullSignal 1
+    traceContinue 1 nullSignal pid
     where
         child :: IO ()
         child = do

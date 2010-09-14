@@ -23,7 +23,7 @@ A simple test case, which tests whether 'traceSystemCall' works correctly.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceSystemCall pid nullSignal
+>   traceSystemCall nullSignal pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Exited (ExitFailure ret) -> putStrLn ("Child exited with code: " ++ (show ret)) >> exitFailure

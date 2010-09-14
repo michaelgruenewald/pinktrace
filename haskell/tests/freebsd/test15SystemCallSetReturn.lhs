@@ -24,7 +24,7 @@ Check whether 'setSystemCallReturn' works correctly.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceSystemCallExit pid nullSignal
+>   traceSystemCallExit nullSignal pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Exited (ExitFailure ret) -> putStrLn ("Child exited with code: " ++ (show ret)) >> exitFailure
@@ -33,8 +33,8 @@ Check whether 'setSystemCallReturn' works correctly.
 >       Stopped sig              -> unless (sig == breakpointTrap)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   setSystemCallReturn pid 0xbad
->   traceContinue pid nullSignal 1
+>   setSystemCallReturn 0xbad pid
+>   traceContinue 1 nullSignal pid
 >   status'' <- getProcessStatus True False pid
 >   case fromJust status'' of
 >       Stopped sig              -> putStrLn ("Child was stopped: " ++ (show sig)) >> exitFailure

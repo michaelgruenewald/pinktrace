@@ -25,7 +25,7 @@ Check whether 'setSystemCallNumber' works correctly.
 >       Stopped sig              -> unless (sig == softwareStop)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   traceSystemCall pid nullSignal
+>   traceSystemCall nullSignal pid
 >   status' <- getProcessStatus True False pid
 >   case fromJust status' of
 >       Exited (ExitFailure ret) -> putStrLn ("Child exited with code: " ++ (show ret)) >> exitFailure
@@ -34,15 +34,15 @@ Check whether 'setSystemCallNumber' works correctly.
 >       Stopped sig              -> unless (sig == breakpointTrap)
 >                                       (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 >
->   sno   <- getSystemCallNumber pid bitnessDefault
->   sname <- nameSystemCall sno bitnessDefault
+>   sno   <- getSystemCallNumber bitnessDefault pid
+>   sname <- nameSystemCall bitnessDefault sno
 >   case sname of
 >       Nothing   -> putStrLn ("Wrong system call: " ++ show sno) >> exitFailure
 >       Just name -> (unless (name == "getpid"))
 >                       (putStrLn ("Wrong system call: " ++ show sno) >> exitFailure)
 >
->   setSystemCallNumber pid bitnessDefault 0xbadca11
->   sno' <- getSystemCallNumber pid bitnessDefault
+>   setSystemCallNumber 0xbadca11 bitnessDefault pid
+>   sno' <- getSystemCallNumber bitnessDefault pid
 >   unless (sno' == 0xbadca11)
 >           (putStrLn ("Wrong system call: " ++ show sno') >> exitFailure)
 >

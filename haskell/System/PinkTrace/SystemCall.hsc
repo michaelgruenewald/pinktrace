@@ -85,10 +85,10 @@ type SystemCallReturn = CLong
 {-|
     Return the name of the given system call.
 -}
-nameSystemCall :: Int               -- ^ System call number
-               -> Bitness           -- ^ The bitness of the traced child
+nameSystemCall :: Bitness           -- ^ The bitness of the traced child
+               -> Int               -- ^ System call number
                -> IO (Maybe String) -- ^ Just @name@ if system call is valid, 'Nothing' otherwise
-nameSystemCall scno bit
+nameSystemCall bit scno
     | bit == Bitness32 && not bitness32Supported = error $ "nameSystemCall: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "nameSystemCall: unsupported bitness " ++ show bit
     | otherwise = if scname == nullPtr then return Nothing else fmap Just (peekCString scname)
@@ -96,17 +96,17 @@ nameSystemCall scno bit
         scno' :: CLong
         scno' = fromIntegral scno
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         scname :: CString
         scname = pink_name_syscall scno' bit'
 
 {-|
     Look up the number of the given system call name.
 -}
-lookupSystemCall :: String         -- ^ System call name
-                 -> Bitness        -- ^ The bitness of the traced child
+lookupSystemCall :: Bitness        -- ^ The bitness of the traced child
+                 -> String         -- ^ System call name
                  -> IO (Maybe Int) -- ^ Just @scno@ if system call name is valid, 'Nothing' otherwise
-lookupSystemCall scname bit
+lookupSystemCall bit scname
     | bit == Bitness32 && not bitness32Supported = error $ "lookupSystemCall: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "lookupSystemCall: unsupported bitness " ++ show bit
     | otherwise = withCString scname $ \ptr -> do
@@ -116,17 +116,17 @@ lookupSystemCall scname bit
             else return $ Just (fromIntegral ret)
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
 
 {-|
     Returns the last system call number called by the traced child.
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-getSystemCallNumber :: ProcessID -- ^ Process ID of the traced child
-                    -> Bitness   -- ^ Bitness of the traced child
+getSystemCallNumber :: Bitness   -- ^ Bitness of the traced child
+                    -> ProcessID -- ^ Process ID of the traced child
                     -> IO Int    -- ^ The number of the system call
-getSystemCallNumber pid bit
+getSystemCallNumber bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "getSystemCallNumber: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "getSystemCallNumber: unsupported bitness " ++ show bit
     | otherwise = alloca $ \ptr -> do
@@ -134,18 +134,18 @@ getSystemCallNumber pid bit
         fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_syscall" else peek ptr
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
 
 {-|
     Sets the number of the last system call called by the traced child.
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-setSystemCallNumber :: ProcessID -- ^ Process ID of the traced child
+setSystemCallNumber :: Int       -- ^ The number of the system call
                     -> Bitness   -- ^ Bitness of the traced child
-                    -> Int       -- ^ The number of the system call
+                    -> ProcessID -- ^ Process ID of the traced child
                     -> IO ()
-setSystemCallNumber pid bit scno
+setSystemCallNumber scno bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "setSystemCallNumber: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "setSystemCallNumber: unsupported bitness " ++ show bit
     | otherwise = do
@@ -153,7 +153,7 @@ setSystemCallNumber pid bit scno
         when (ret == 0) (throwErrno "pink_util_set_syscall")
     where
         bit' :: CInt
-        bit' = fromIntegral $ fromEnum bit
+        bit' = (fromIntegral . fromEnum) bit
         scno' :: CLong
         scno' = fromIntegral scno
 
@@ -173,10 +173,10 @@ getSystemCallReturn pid = alloca $ \ptr -> do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-setSystemCallReturn :: ProcessID        -- ^ Process ID of the traced child
-                    -> SystemCallReturn -- ^ The return value
+setSystemCallReturn :: SystemCallReturn -- ^ The return value
+                    -> ProcessID        -- ^ Process ID of the traced child
                     -> IO ()
-setSystemCallReturn pid ret = do
+setSystemCallReturn ret pid = do
     res <- pink_util_set_return pid ret
     when (res == 0) (throwErrno "pink_util_set_return")
 
@@ -185,11 +185,11 @@ setSystemCallReturn pid ret = do
 
     * Note: This function calls 'throwErrno' in case of failure.
 -}
-getSystemCallArgument :: ProcessID -- ^ Process ID of the traced child
+getSystemCallArgument :: Index     -- ^ The index of the argument
                       -> Bitness   -- ^ The bitness of the traced child
-                      -> Index     -- ^ The index of the argument
+                      -> ProcessID -- ^ Process ID of the traced child
                       -> IO Int    -- ^ The value of the argument
-getSystemCallArgument pid bit index
+getSystemCallArgument index bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "getSystemCallArgument: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "getSystemCallArgument: unsupported bitness " ++ show bit
     | otherwise = alloca $ \ptr -> do
