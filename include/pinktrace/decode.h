@@ -93,7 +93,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  *
  * \param pid Process ID of the child whose argument is to be received
  * \param bitness Bitness of the child
- * \param subcall_r The pointer to store the decoded socket call
+ * \param subcall The pointer to store the decoded socket call
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/

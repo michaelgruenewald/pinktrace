@@ -168,6 +168,12 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 }
 
 bool
+pink_has_socketcall(pink_unused pink_bitness_t bitness)
+{
+	return true;
+}
+
+bool
 pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall)
 {
 	assert(subcall != NULL);

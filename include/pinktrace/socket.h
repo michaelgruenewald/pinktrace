@@ -125,6 +125,22 @@ typedef enum {
 } pink_socket_subcall_t;
 
 /**
+ * Decide whether the socketcall() system call is defined for the given
+ * bitness. On some architectures the socket system calls - socket, connect,
+ * bind etc. - are implemented as separate system calls. On others these calls
+ * are subcalls of the socketcall() system call.
+ *
+ * \note Availability: Linux
+ *
+ * \see pink_socket_subcall_t
+ *
+ * \param bitness Bitness of the child
+ * \return true if socketcall() system call is available, false otherwise.
+ **/
+bool
+pink_has_socketcall(pink_bitness_t bitness);
+
+/**
  * Name the given socket subcall
  *
  * \note Availability: Linux

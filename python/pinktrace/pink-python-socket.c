@@ -67,6 +67,44 @@ typedef struct {
 	pink_socket_address_t addr;
 } Address;
 
+static char pinkpy_socket_has_socketcall_doc[] = ""
+	"Returns C{True} if the socket calls - like connect, bind, sendto etc. - are\n"
+	"implemented as subcalls of the socketcall(2) system call, C{False} otherwise.\n"
+	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
+	"@param bitness: The bitness of the traced child\n"
+	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n";
+static PyObject *
+pinkpy_socket_has_socketcall(pink_unused PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	pink_unused
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_LINUX)
+	pink_bitness_t bit;
+
+	bit = PINKTRACE_BITNESS_DEFAULT;
+	if (!PyArg_ParseTuple(args, "|I", &bit))
+		return NULL;
+
+	if (!check_bitness(bit))
+		return NULL;
+
+	if (pink_has_socketcall(bit)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+	Py_INCREF(Py_False);
+	return Py_False;
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
 static char pinkpy_socket_name_doc[] = ""
 	"Returns the name of the socket subcall.\n"
 	"\n"
@@ -507,6 +545,7 @@ socket_init(PyObject *mod)
 
 static char socket_doc[] = "Pink's socket decoding functions";
 static PyMethodDef socket_methods[] = {
+	{"has_socketcall", pinkpy_socket_has_socketcall, METH_VARARGS, pinkpy_socket_has_socketcall_doc},
 	{"name", pinkpy_socket_name, METH_VARARGS, pinkpy_socket_name_doc},
 	{"decode_call", pinkpy_socket_decode_call, METH_VARARGS, pinkpy_socket_decode_call_doc},
 	{"decode_fd", pinkpy_socket_decode_fd, METH_VARARGS, pinkpy_socket_decode_fd_doc},

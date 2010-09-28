@@ -1362,6 +1362,51 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  */
 
 /*
+ * Document-method: PinkTrace::Socket.has_socketcall?
+ * call-seq: PinkTrace::Socket.has_socketcall?([bitness=PinkTrace::Bitness::DEFAULT]) => true or false
+ *
+ * Returns true if the socket calls - like connect, bind, sendto etc. - are
+ * implemented as subcalls of the socketcall(2) system call, false otherwise.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+pink_noreturn
+#endif
+static VALUE
+pinkrb_has_socketcall(pink_unused VALUE mod,
+#if !defined(PINKTRACE_LINUX)
+		pink_unused
+#endif
+		int argc,
+#if !defined(PINKTRACE_LINUX)
+		pink_unused
+#endif
+		VALUE *argv)
+{
+#if defined(PINKTRACE_LINUX)
+	unsigned bit;
+
+	if (argc > 1)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+	else if (argc > 0) {
+		if (FIXNUM_P(argv[0])) {
+			bit = FIX2UINT(argv[0]);
+			check_bitness(bit);
+		}
+		else
+			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_BITNESS_DEFAULT;
+
+	return pink_has_socketcall(bit) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+/*
  * Document-method: PinkTrace::Socket.name
  * call-seq: PinkTrace::Socket.name(subcall) => String or nil
  *
@@ -1852,6 +1897,7 @@ Init_PinkTrace(void)
 
 	/* decode.h && socket.h */
 	socket_mod = rb_define_module_under(mod, "Socket");
+	rb_define_module_function(socket_mod, "has_socketcall?", pinkrb_has_socketcall, -1);
 	rb_define_module_function(socket_mod, "name", pinkrb_name_socket_subcall, 1);
 	rb_define_module_function(socket_mod, "decode_call", pinkrb_decode_socket_call, -1);
 	rb_define_module_function(socket_mod, "decode_fd", pinkrb_decode_socket_fd, -1);
