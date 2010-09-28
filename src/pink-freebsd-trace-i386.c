@@ -193,22 +193,22 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 }
 
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd_r, pink_socket_address_t *addr_r)
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr)
 {
 	long addr;
 	long addrlen;
 
 	assert(ind < PINK_MAX_INDEX);
-	assert(addr_r != NULL);
+	assert(paddr != NULL);
 
-	if (pink_unlikely(fd_r && !pink_util_get_arg(pid, bitness, 0, fd_r)))
+	if (pink_unlikely(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
 		return false;
 
 	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)
 				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
+	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
 }
 
 bool

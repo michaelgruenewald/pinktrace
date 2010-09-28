@@ -37,21 +37,21 @@
  **/
 
 bool
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *addr_r)
+pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *paddr)
 {
 	if (addr == 0) {
 		/* NULL */
-		addr_r->family = -1;
+		paddr->family = -1;
 		return true;
 	}
-	if (addrlen < 2 || (unsigned long)addrlen > sizeof(addr_r->u))
-		addrlen = sizeof(addr_r->u);
+	if (addrlen < 2 || (unsigned long)addrlen > sizeof(paddr->u))
+		addrlen = sizeof(paddr->u);
 
-	memset(&addr_r->u, 0, sizeof(addr_r->u));
-	if (pink_unlikely(!pink_util_moven(pid, addr, addr_r->u._pad, addrlen)))
+	memset(&paddr->u, 0, sizeof(paddr->u));
+	if (pink_unlikely(!pink_util_moven(pid, addr, paddr->u._pad, addrlen)))
 		return false;
-	addr_r->u._pad[sizeof(addr_r->u._pad) - 1] = '\0';
+	paddr->u._pad[sizeof(paddr->u._pad) - 1] = '\0';
 
-	addr_r->family = addr_r->u._sa.sa_family;
+	paddr->family = paddr->u._sa.sa_family;
 	return true;
 }
