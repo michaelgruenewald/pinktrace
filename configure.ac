@@ -534,6 +534,7 @@ AC_OUTPUT(
 		  src/linux/x86_64/Makefile
 		  src/linux/ia64/Makefile
 		  src/linux/powerpc/Makefile
+		  src/linux/arm/Makefile
 		  tests/Makefile
 	)
 dnl }}}

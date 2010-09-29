@@ -79,6 +79,7 @@ endif # POWERPC64
 
 if ARM
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-linux-name-arm.c \
 					      pink-linux-trace-arm.c
 endif # ARM
 
