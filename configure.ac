@@ -173,6 +173,7 @@ arm*)
 		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
 	fi
 	AC_DEFINE([ARM], 1, [Define for the ARM architecture.])
+	;;
 *)
 	AC_MSG_RESULT([NO!])
 	AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
