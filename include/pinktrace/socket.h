@@ -137,6 +137,7 @@ typedef enum {
  * \param bitness Bitness of the child
  * \return true if socketcall() system call is available, false otherwise.
  **/
+pink_pure
 bool
 pink_has_socketcall(pink_bitness_t bitness);
 
