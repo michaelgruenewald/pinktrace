@@ -129,8 +129,8 @@ pink_util_pokedata(pid_t pid, long off, long val);
  *
  * \param pid Process ID of the child.
  * \param regs Pointer to the structure of registers. On FreeBSD this is
- * "struct reg" defined in <machine/reg.h>, on Linux this is "struct
- * user_regs_struct" defined in <sys/user.h>.
+ * "struct reg" defined in <machine/reg.h>, on Linux this is "struct pt_regs"
+ * defined in <asm/ptrace.h>.
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
