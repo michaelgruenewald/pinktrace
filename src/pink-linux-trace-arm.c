@@ -130,3 +130,15 @@ pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 
 	return pink_util_set_regs(pid, &regs);
 }
+
+bool
+pink_util_get_return(pid_t pid, long *res)
+{
+	struct pt_regs regs;
+
+	if (!pink_util_get_regs(pid, &regs))
+		return false;
+
+	*res = regs.ARM_r0;
+	return true;
+}
