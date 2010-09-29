@@ -21,6 +21,13 @@ class TestTrace_01_Invalid(unittest.TestCase):
         self.assertRaises(TypeError, trace.cont, 0, 'pink')
         self.assertRaises(OSError, trace.cont, 0)
 
+    def test_02_resume(self):
+        self.assertRaises(TypeError, trace.resume)
+        self.assertRaises(TypeError, trace.resume, 1, 2, 3)
+        self.assertRaises(TypeError, trace.resume, 'pink')
+        self.assertRaises(TypeError, trace.resume, 0, 'pink')
+        self.assertRaises(OSError, trace.resume, 0)
+
     def test_02_kill(self):
         self.assertRaises(TypeError, trace.kill)
         self.assertRaises(TypeError, trace.kill, 'pink')

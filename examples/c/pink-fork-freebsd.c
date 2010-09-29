@@ -42,8 +42,8 @@ main(void)
 		assert(WSTOPSIG(status) == SIGSTOP);
 
 		/* The child is ready for tracing, nothing interesting in this
-		 * example, let the child continue its execution. */
-		pink_trace_cont(pid, 0, (char *)1);
+		 * example, let the child resume its execution. */
+		pink_trace_resume(pid, 0);
 		return EXIT_SUCCESS;
 	}
 }

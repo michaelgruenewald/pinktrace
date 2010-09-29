@@ -326,6 +326,47 @@ pinkrb_trace_cont(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
+ * Document-method: PinkTrace::Trace.resume
+ * call-seq: PinkTrace::Trace.resume(pid, [sig=0]) => nil
+ *
+ * Resumes the stopped child process. This is equivalent to
+ * PinkTrace::Trace.cont(pid, sig, 1)
+ *
+ * If +sig+ argument is non-zero and not SIGSTOP, it is interpreted as the
+ * signal to be delivered to the child; otherwise, no signal is delivered.
+ * Thus, for example, the parent can control whether a signal sent to the child
+ * is delivered or not.
+ */
+static VALUE
+pinkrb_trace_resume(int argc, VALUE *argv, pink_unused VALUE mod)
+{
+	pid_t pid;
+	long sig;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc > 1) {
+		if (FIXNUM_P(argv[1]))
+			sig = FIX2LONG(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		sig = 0;
+
+	if (!pink_trace_resume(pid, sig))
+		rb_sys_fail("pink_trace_resume()");
+
+	return Qnil;
+}
+
+/*
  * Document-method: PinkTrace::Trace.kill
  * call-seq: PinkTrace::Trace.kill(pid) => nil
  *
@@ -1832,6 +1873,7 @@ Init_PinkTrace(void)
 #endif /* defined(PINKTRACE_LINUX) */
 	rb_define_module_function(trace_mod, "me", pinkrb_trace_me, 0);
 	rb_define_module_function(trace_mod, "cont", pinkrb_trace_cont, -1);
+	rb_define_module_function(trace_mod, "resume", pinkrb_trace_resume, -1);
 	rb_define_module_function(trace_mod, "kill", pinkrb_trace_kill, 1);
 	rb_define_module_function(trace_mod, "singlestep", pinkrb_trace_singlestep, -1);
 	rb_define_module_function(trace_mod, "syscall", pinkrb_trace_syscall, -1);

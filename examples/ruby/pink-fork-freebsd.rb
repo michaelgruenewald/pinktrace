@@ -27,6 +27,6 @@ unless $?.stopsig == Signal.list['STOP']
   exit 2
 end
 
-# Let the child continue...
-PinkTrace::Trace.cont pid
+# Let the child resume its execution.
+PinkTrace::Trace.resume pid
 Process.wait

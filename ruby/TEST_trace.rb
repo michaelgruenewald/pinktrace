@@ -103,6 +103,52 @@ class TestPinkTrace < Test::Unit::TestCase
     assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: #{$?.termsig}")
   end
 
+  def test_resume_invalid
+    assert_raise TypeError do
+      PinkTrace::Trace.resume 'pink', 0
+    end
+    assert_raise TypeError do
+      PinkTrace::Trace.resume 0, 'pink'
+    end
+    assert_raise ArgumentError do
+      PinkTrace::Trace.resume 1, 2, 3
+    end
+  end
+
+  def test_trace_resume_basic
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+      exit 13
+    end
+
+    Process.waitpid pid
+    assert $?.stopped?, "Child hasn't stopped"
+    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: #{$?.stopsig}")
+
+    PinkTrace::Trace.resume pid
+    Process.waitpid pid
+    assert $?.exited?, "Child hasn't exited"
+    assert($?.exitstatus == 13, "Wrong exit status, expected: 13, got: #{$?.exitstatus}")
+  end
+
+  def test_trace_resume_signal
+    pid = fork do
+      PinkTrace::Trace.me
+      Process.kill 'STOP', Process.pid
+      exit 13
+    end
+
+    Process.waitpid pid
+    assert $?.stopped?, "Child hasn't stopped"
+    assert($?.stopsig == Signal.list['STOP'], "Wrong signal, expected: STOP, got: #{$?.stopsig}")
+
+    PinkTrace::Trace.resume pid, Signal.list['KILL']
+    Process.waitpid pid
+    assert $?.signaled?, "Child hasn't been signaled"
+    assert($?.termsig == Signal.list['KILL'], "Wrong termsig, expected: KILL, got: #{$?.termsig}")
+  end
+
   def test_trace_kill_invalid
     assert_raise ArgumentError do
       PinkTrace::Trace.kill

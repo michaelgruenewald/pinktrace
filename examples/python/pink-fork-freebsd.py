@@ -26,6 +26,6 @@ else: # parent
     assert os.WIFSTOPPED(status), "%#x" % status
     assert os.WSTOPSIG(status) == signal.SIGSTOP, "%#x" % status
 
-    # Let the child continue...
-    pinktrace.trace.cont(pid)
+    # Let the child resume its execution.
+    pinktrace.trace.resume(pid)
     os.waitpid(pid, 0)

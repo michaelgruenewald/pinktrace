@@ -165,6 +165,13 @@ bool
 pink_trace_cont(pid_t pid, int sig, char *addr);
 
 /**
+ * Convenience macro to resume the stopped child process.
+ *
+ * \see pink_trace_cont
+ **/
+#define pink_trace_resume(pid, sig) pink_trace_cont((pid), (sig), (char *)1)
+
+/**
  * Kills the traced child process with SIGKILL.
  *
  * \param pid Process ID of the child to be killed.
