@@ -35,7 +35,7 @@
 #include <pinktrace/pink.h>
 
 static const char *sysnames[] = {
-#include "linux/x86/syscallent.h"
+#include "linux/x86/pink-syscallent.h"
 };
 
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
