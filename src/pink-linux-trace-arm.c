@@ -126,7 +126,7 @@ pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 	/*
 	 * FIXME: This doesn't handle ARM-mode system call numbers
 	 */
-	regs.ARM_v7 = scno;
+	regs.ARM_r7 = scno;
 
-	return pink_util_set_regs(pid, regs);
+	return pink_util_set_regs(pid, &regs);
 }
