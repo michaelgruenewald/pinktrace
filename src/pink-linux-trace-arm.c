@@ -144,3 +144,16 @@ pink_util_get_return(pid_t pid, long *res)
 	*res = regs.ARM_r0;
 	return true;
 }
+
+bool
+pink_util_set_return(pid_t pid, long ret)
+{
+	struct pt_regs regs;
+
+	if (!pink_util_get_regs(pid, &regs))
+		return false;
+
+	regs.ARM_r0 = ret;
+
+	return pink_util_set_regs(pid, &regs);
+}
