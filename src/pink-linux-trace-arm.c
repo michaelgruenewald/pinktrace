@@ -136,6 +136,8 @@ pink_util_get_return(pid_t pid, long *res)
 {
 	struct pt_regs regs;
 
+	assert(res != NULL);
+
 	if (!pink_util_get_regs(pid, &regs))
 		return false;
 
