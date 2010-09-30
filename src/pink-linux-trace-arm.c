@@ -228,7 +228,7 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 }
 
 bool
-pink_has_socketcall(pink_bitness_t bitness)
+pink_has_socketcall(pink_unused pink_bitness_t bitness)
 {
 	return true;
 }
