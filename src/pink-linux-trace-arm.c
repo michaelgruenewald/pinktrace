@@ -236,15 +236,9 @@ pink_has_socketcall(pink_bitness_t bitness)
 bool
 pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall)
 {
-	long sc;
-
 	assert(subcall != NULL);
 
-	if (!pink_util_get_arg(pid, bitness, 0, &sc))
-		return false;
-
-	*subcall = sc - 280;
-	return true;
+	return pink_util_get_arg(pid, bitness, 0, subcall);
 }
 
 bool
