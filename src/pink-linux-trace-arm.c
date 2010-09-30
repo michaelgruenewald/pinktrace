@@ -230,7 +230,7 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 bool
 pink_has_socketcall(pink_unused pink_bitness_t bitness)
 {
-	return true;
+	return false;
 }
 
 bool
@@ -238,24 +238,17 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall)
 {
 	assert(subcall != NULL);
 
-	return pink_util_get_arg(pid, bitness, 0, subcall);
+	/* No decoding needed */
+	return pink_util_get_syscall(pid, bitness, subcall);
 }
 
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 {
-	long args;
-
-	assert(ind < PINK_MAX_INDEX);
 	assert(fd != NULL);
 
-	/* Decode socketcall(2) */
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
-		return false;
-
-	args += ind * sizeof(unsigned int);
-	return pink_util_move(pid, args, fd);
-
+	/* No decoding needed */
+	return pink_util_get_arg(pid, bitness, ind, fd);
 }
 
 bool
@@ -267,19 +260,13 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(ind < PINK_MAX_INDEX);
 	assert(paddr != NULL);
 
-	/* Decode socketcall(2) */
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
+	/* No decoding needed */
+	if (pink_unlikely(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
 		return false;
-	if (pink_unlikely(fd && !pink_util_move(pid, args, fd)))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return false;
-	args += ind * sizeof(unsigned int);
-	if (pink_unlikely(!pink_util_move(pid, args, &iaddr)))
+	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
-	args += sizeof(unsigned int);
-	if (pink_unlikely(!pink_util_move(pid, args, &iaddrlen)))
-		return false;
-	addr = iaddr;
-	addrlen = iaddrlen;
 
 	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
 }
