@@ -627,12 +627,11 @@ START_TEST(t_decode_socket_fd)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_fd(pid, PINKTRACE_BITNESS_DEFAULT, 0, &fd),
@@ -695,12 +694,10 @@ START_TEST(t_decode_socket_address_null_second)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
@@ -769,12 +766,10 @@ START_TEST(t_decode_socket_address_unix_second)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
@@ -851,12 +846,10 @@ START_TEST(t_decode_socket_address_unix_abstract_second)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
@@ -932,12 +925,10 @@ START_TEST(t_decode_socket_address_inet_second)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
@@ -1016,12 +1007,10 @@ START_TEST(t_decode_socket_address_inet6_second)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the connect() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
@@ -1093,12 +1082,10 @@ START_TEST(t_decode_socket_address_null_fifth)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the sendto() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
@@ -1169,12 +1156,10 @@ START_TEST(t_decode_socket_address_unix_fifth)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the sendto() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
@@ -1251,12 +1236,10 @@ START_TEST(t_decode_socket_address_unix_abstract_fifth)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the sendto() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
@@ -1332,12 +1315,10 @@ START_TEST(t_decode_socket_address_inet_fifth)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the sendto() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
@@ -1416,12 +1397,10 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
 
 		/* Resume the child, until the sendto() call */
-		for (unsigned int i = 0; i < 2; i++) {
-			fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
 
-			fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
-			fail_unless(WIFSTOPPED(status), "%#x", status);
-		}
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
 
 		/* Get the file descriptor and compare */
 		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
