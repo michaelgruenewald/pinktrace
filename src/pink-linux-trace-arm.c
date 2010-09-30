@@ -157,3 +157,17 @@ pink_util_set_return(pid_t pid, long ret)
 
 	return pink_util_set_regs(pid, &regs);
 }
+
+bool
+pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
+{
+	struct pt_regs regs;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (!pink_util_get_regs(pid, &regs))
+		return false;
+
+	*res = regs.uregs[ind];
+	return true;
+}
