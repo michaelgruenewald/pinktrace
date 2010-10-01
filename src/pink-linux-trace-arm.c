@@ -108,17 +108,15 @@ pink_util_set_return(pid_t pid, long ret)
 bool
 pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
 {
+	long sp;
+
 	assert(ind < PINK_MAX_INDEX);
 	assert(res != NULL);
 
 	if (ind < 5)
 		return pink_util_peek(pid, ind * sizeof(long), res);
 
-	/* FIXME: This doesn't work for some reason.
-	 * return pink_util_peek(pid, OFFSET_SP, &sp) && pink_util_peekdata(pid, sp + sizeof(long) * ind, res);
-	 */
-	errno = ENOTSUP;
-	return false;
+	return pink_util_peek(pid, OFFSET_SP, &sp) && pink_util_peekdata(pid, sp + sizeof(long) * ind, res);
 }
 
 bool
