@@ -49,11 +49,10 @@ pink_bitness_get(pink_unused pid_t pid)
 bool
 pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
-	long pc, swi, ip, scno;
+	long pc, swi, scno;
 
 	if (!pink_util_peek(pid, OFFSET_PC, &pc)
-			|| !pink_util_peekdata(pid, pc - sizeof(long), &swi)
-			|| !pink_util_peek(pid, OFFSET_IP, &ip))
+			|| !pink_util_peekdata(pid, pc - sizeof(long), &swi))
 		return false;
 
 	if (swi == 0xef000000 || swi == 0x0f000000) {
@@ -76,8 +75,8 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 		 * distinguish between normal system calls and architecture
 		 * specific system calls.
 		 */
-		*res = -scno;
-		return true;
+		scno &= ~0xf0000;
+		scno = -scno;
 	}
 
 	*res = scno;
