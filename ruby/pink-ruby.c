@@ -909,6 +909,14 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
  * Document-class: PinkTrace::Syscall
  *
  * This class defines utilities useful when tracing processes.
+ *
+ * == Constants
+ *
+ * - PinkTrace::Syscall::INVALID
+ *
+ *   This constant is an invalid system call number. You may use this constant
+ *   as an argument to PinkTrace::Syscall.set_no to deny a system call from
+ *   execution.
  */
 
 /*
@@ -1923,6 +1931,7 @@ Init_PinkTrace(void)
 
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");
+	rb_define_const(syscall_mod, "INVALID", INT2FIX(PINKTRACE_INVALID_SYSCALL));
 	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
 	rb_define_module_function(syscall_mod, "lookup", pinkrb_name_lookup, -1);
 	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, -1);

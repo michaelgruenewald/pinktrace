@@ -231,6 +231,7 @@ pinkpy_syscall_get_arg(pink_unused PyObject *self, PyObject *args)
 static void
 syscall_init(PyObject *mod)
 {
+	PyModule_AddIntConstant(mod, "INVALID", PINKTRACE_INVALID_SYSCALL);
 	PyModule_AddIntConstant(mod, "MAX_INDEX", PINK_MAX_INDEX);
 }
 

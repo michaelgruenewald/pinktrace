@@ -132,11 +132,11 @@ START_TEST(t_util_set_syscall)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
-		fail_unless(pink_util_set_syscall(pid, PINKTRACE_BITNESS_DEFAULT, 0xbad),
+		fail_unless(pink_util_set_syscall(pid, PINKTRACE_BITNESS_DEFAULT, PINKTRACE_INVALID_SYSCALL),
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(pink_util_get_syscall(pid, PINKTRACE_BITNESS_DEFAULT, &scno),
 			"%d(%s)", errno, strerror(errno));
-		fail_unless(scno == 0xbad, "%ld != %ld", 0xbad, scno);
+		fail_unless(scno == PINKTRACE_INVALID_SYSCALL, "%ld != %ld", PINKTRACE_INVALID_SYSCALL, scno);
 
 		pink_trace_kill(pid);
 	}

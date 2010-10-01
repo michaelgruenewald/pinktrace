@@ -202,9 +202,9 @@ if PinkTrace::Syscall.name 0
           scno = PinkTrace::Syscall.get_no pid
           name = PinkTrace::Syscall.name scno
           if name == 'kill' then
-            PinkTrace::Syscall.set_no pid, 0xbadca11
+            PinkTrace::Syscall.set_no pid, PinkTrace::Syscall::INVALID
             scno = PinkTrace::Syscall.get_no pid
-            assert(scno == 0xbadca11, "Wrong system call no, expected: 0xbadca11 got: #{scno}")
+            assert(scno == PinkTrace::Syscall::INVALID, "Wrong system call no, expected: #{PinkTrace::Syscall::INVALID} got: #{scno}")
             break
           end
         end
