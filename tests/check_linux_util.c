@@ -565,9 +565,18 @@ START_TEST(t_util_get_arg_sixth)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
+#ifdef ARM
+		/*
+		 * FIXME: PinkTrace doesn't support decoding the sixth syscall
+		 * argument on ARM yet.
+		 */
+		pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &ret);
+		fail_unless(errno == ENOTSUP, "%d(%s)", errno, strerror(errno));
+#else
 		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &ret), "%d(%s)",
 			errno, strerror(errno));
 		fail_unless(ret == 13, "13 != %ld", ret);
+#endif /* ARM */
 
 		pink_trace_kill(pid);
 	}

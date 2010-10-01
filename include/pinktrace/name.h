@@ -41,6 +41,11 @@
 /**
  * Return the name of the given system call.
  *
+ * \note On ARM architecture, this function considers the system call
+ * architecture specific if scno is smaller than zero.
+ *
+ * \see pink_util_get_syscall
+ *
  * \param scno System call number
  * \param bitness Bitness of the child
  *
