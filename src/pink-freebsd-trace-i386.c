@@ -2,7 +2,8 @@
 
 /*
  * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
- * Copyright (c) 1997 Sean Eric Fagan
+ * Based in part upon truss which is:
+ *   Copyright (c) 1997 Sean Eric Fagan
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

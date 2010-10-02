@@ -1,8 +1,9 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
- * Copyright (c) 1997 Sean Eric Fagan
+ * Copyright (c) 2010 Ali Polatel <alip@exheribo.org>
+ * Based in part upon truss which is:
+ *   Copyright (c) 1997 Sean Eric Fagan
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
