@@ -43,7 +43,7 @@ class TestPinkSyscall < Test::Unit::TestCase
       PinkTrace::Syscall.get_no
     end
     assert_raise ArgumentError do
-      PinkTrace::Syscall.get_no 0, 1
+      PinkTrace::Syscall.get_no 0, 1, 2
     end
     assert_raise TypeError do
       PinkTrace::Syscall.get_no 'pink'
