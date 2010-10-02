@@ -7,7 +7,7 @@ title: Home
 **PinkTrace** is a *ptrace()* wrapper library.
 
 ## Overview
-**PinkTrace** is a lightweight C library that eases the writing of tracing
+**PinkTrace** is a lightweight [C99](http://en.wikipedia.org/wiki/C99) library that eases the writing of tracing
 applications. It consists of the following parts:
 
 - Wrappers around different *ptrace()* requests.

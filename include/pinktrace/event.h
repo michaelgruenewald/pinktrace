@@ -73,6 +73,10 @@ typedef enum {
 	PINK_EVENT_UNKNOWN,
 } pink_event_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Return the last event made by child.
  *
@@ -101,6 +105,10 @@ pink_event_decide(int status);
 PINK_PURE
 const char *
 pink_event_name(pink_event_t event);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
 

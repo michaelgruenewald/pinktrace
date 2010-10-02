@@ -38,6 +38,10 @@
 #include <pinktrace/bitness.h>
 #include <pinktrace/gcc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Return the name of the given system call.
  *
@@ -66,5 +70,9 @@ pink_name_syscall(long scno, pink_bitness_t bitness);
 PINK_PURE
 long
 pink_name_lookup(const char *name, pink_bitness_t bitness);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_NAME_H */

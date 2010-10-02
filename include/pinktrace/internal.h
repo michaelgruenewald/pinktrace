@@ -77,7 +77,15 @@
 #include <pinktrace/bitness.h>
 #include <pinktrace/socket.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 bool
 pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *paddr);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_INTERNAL_H */

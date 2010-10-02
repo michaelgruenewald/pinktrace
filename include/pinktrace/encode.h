@@ -40,6 +40,10 @@
 
 #include <pinktrace/bitness.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Write the given data argument src to the address of the argument arg.
  *
@@ -71,5 +75,9 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
 bool
 pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *src, size_t len);
 #endif /* defined(PINKTRACE_LINUX)... */
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */

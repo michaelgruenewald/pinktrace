@@ -131,6 +131,10 @@
 
 #endif /* defined(PINKTRACE_LINUX)... */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Indicates that this process is to be traced by its parent. Any signal
  * (except SIGKILL) delivered to this process will cause it to stop and its
@@ -293,5 +297,9 @@ pink_trace_attach(pid_t pid);
  **/
 bool
 pink_trace_detach(pid_t pid, int sig);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_TRACE_H */

@@ -52,6 +52,10 @@
  **/
 #define PINK_MAX_INDEX 6
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * On FreeBSD this reads a single int of data at the given offset in the traced
  * process's instruction space and places it in res, aka PT_READ_I.
@@ -322,5 +326,9 @@ pink_util_set_return(pid_t pid, long ret);
 PINK_NONNULL(4)
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */

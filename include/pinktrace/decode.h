@@ -42,6 +42,10 @@
 #include <pinktrace/gcc.h>
 #include <pinktrace/socket.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Get the data in argument arg and place it in dest.
  *
@@ -144,5 +148,9 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 PINK_NONNULL(5)
 bool
 pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

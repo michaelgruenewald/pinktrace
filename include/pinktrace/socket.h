@@ -124,6 +124,10 @@ typedef enum {
 	PINK_SOCKET_SUBCALL_ACCEPT4,
 } pink_socket_subcall_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Decide whether the socketcall() system call is defined for the given
  * bitness. On some architectures the socket system calls - socket, connect,
@@ -153,6 +157,10 @@ pink_has_socketcall(pink_bitness_t bitness);
 PINK_PURE
 const char *
 pink_name_socket_subcall(pink_socket_subcall_t subcall);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
 
