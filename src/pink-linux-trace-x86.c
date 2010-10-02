@@ -183,7 +183,7 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(paddr != NULL);
 
 	/* Decode socketcall(2) */
-	if (PINK_UNLIKELY(!pink_util_get_arg(pink, bitness, 1, &args)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
 	if (PINK_UNLIKELY(fd && !pink_util_move(pid, args, fd)))
 		return false;
