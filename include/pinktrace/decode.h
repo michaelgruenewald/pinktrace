@@ -51,7 +51,7 @@
  * \param dest Pointer to store the data
  * \param len Length of the data
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
 
@@ -68,7 +68,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
 
@@ -97,7 +97,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(3)
+PINK_NONNULL(3)
 bool
 pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
 
@@ -115,7 +115,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
 #endif /* defined(PINKTRACE_LINUX)... */
@@ -141,7 +141,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(5)
+PINK_NONNULL(5)
 bool
 pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr);
 

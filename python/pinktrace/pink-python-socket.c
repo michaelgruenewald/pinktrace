@@ -77,9 +77,9 @@ static char pinkpy_socket_has_socketcall_doc[] = ""
 	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n";
 static PyObject *
-pinkpy_socket_has_socketcall(pink_unused PyObject *self,
+pinkpy_socket_has_socketcall(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -114,9 +114,9 @@ static char pinkpy_socket_name_doc[] = ""
 	"@rtype: str\n"
 	"@return: The name of the socket subcall or C{None}";
 static PyObject *
-pinkpy_socket_name(pink_unused PyObject *self,
+pinkpy_socket_name(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -151,9 +151,9 @@ static char pinkpy_socket_decode_call_doc[] = ""
 	"@rtype: long\n"
 	"@return: The decoded socket call";
 static PyObject *
-pinkpy_socket_decode_call(pink_unused PyObject *self,
+pinkpy_socket_decode_call(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -194,9 +194,9 @@ static char pinkpy_socket_decode_fd_doc[] = ""
 	"@rtype: long\n"
 	"@return: The socket file descriptor";
 static PyObject *
-pinkpy_socket_decode_fd(pink_unused PyObject *self,
+pinkpy_socket_decode_fd(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -225,7 +225,7 @@ pinkpy_socket_decode_fd(pink_unused PyObject *self,
 }
 
 static PyObject *
-Address_new(PyTypeObject *t, pink_unused PyObject *a, pink_unused PyObject *k)
+Address_new(PyTypeObject *t, PINK_UNUSED PyObject *a, PINK_UNUSED PyObject *k)
 {
 	return t->tp_alloc(t, 0);
 }
@@ -237,7 +237,7 @@ Address_dealloc(PyObject *o)
 }
 
 static PyObject *
-Address_family(PyObject *self, pink_unused void *x)
+Address_family(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
 #if PY_MAJOR_VERSION > 2
@@ -248,7 +248,7 @@ Address_family(PyObject *self, pink_unused void *x)
 }
 
 static PyObject *
-Address_abstract(PyObject *self, pink_unused void *x)
+Address_abstract(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
 
@@ -464,7 +464,7 @@ static char pinkpy_socket_decode_address_doc[] = ""
 	"@rtype: pinktrace.socket.Address\n"
 	"@return: The decoded socket address";
 static PyObject *
-pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_address(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -508,7 +508,7 @@ static char pinkpy_socket_decode_address_fd_doc[] = ""
 	"@rtype: tuple\n"
 	"@return: The decoded socket address and the file descriptor";
 static PyObject *
-pinkpy_socket_decode_address_fd(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_address_fd(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;

@@ -48,7 +48,7 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_soc
 		addrlen = sizeof(paddr->u);
 
 	memset(&paddr->u, 0, sizeof(paddr->u));
-	if (pink_unlikely(!pink_util_moven(pid, addr, paddr->u._pad, addrlen)))
+	if (PINK_UNLIKELY(!pink_util_moven(pid, addr, paddr->u._pad, addrlen)))
 		return false;
 	paddr->u._pad[sizeof(paddr->u._pad) - 1] = '\0';
 

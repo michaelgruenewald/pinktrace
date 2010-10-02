@@ -42,7 +42,7 @@ pink_trace_me(void)
 }
 
 bool
-pink_trace_cont(pid_t pid, int sig, pink_unused char *addr)
+pink_trace_cont(pid_t pid, int sig, PINK_UNUSED char *addr)
 {
 	return !(0 > ptrace(PTRACE_CONT, pid, NULL, sig));
 }

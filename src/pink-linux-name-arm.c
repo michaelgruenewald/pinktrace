@@ -51,7 +51,7 @@ pink_name_syscall(long scno, pink_bitness_t bitness)
 	int n;
 	const char **names;
 
-	if (pink_unlikely(bitness != PINK_BITNESS_32))
+	if (PINK_UNLIKELY(bitness != PINK_BITNESS_32))
 		return NULL;
 	if (scno < 0) {
 		/* Architecture specific system call */
@@ -65,7 +65,7 @@ pink_name_syscall(long scno, pink_bitness_t bitness)
 		names = sysnames;
 	}
 
-	if (pink_unlikely(scno < 0 || scno >= n))
+	if (PINK_UNLIKELY(scno < 0 || scno >= n))
 		return NULL;
 	return names[scno];
 }
@@ -75,9 +75,9 @@ pink_name_lookup(const char *name, pink_bitness_t bitness)
 {
 	long scno;
 
-	if (pink_unlikely(bitness != PINK_BITNESS_32))
+	if (PINK_UNLIKELY(bitness != PINK_BITNESS_32))
 		return -1;
-	if (pink_unlikely(name == NULL || name[0] == '\0'))
+	if (PINK_UNLIKELY(name == NULL || name[0] == '\0'))
 		return -1;
 
 	for (scno = 0; scno < nsys; scno++) {

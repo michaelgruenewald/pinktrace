@@ -38,18 +38,18 @@
 #include <pinktrace/pink.h>
 
 pink_bitness_t
-pink_bitness_get(pink_unused pid_t pid)
+pink_bitness_get(PINK_UNUSED pid_t pid)
 {
 	return PINK_BITNESS_32;
 }
 
 bool
-pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
+pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {
 	unsigned parm_offset;
 	struct reg r;
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -62,7 +62,7 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 	case SYS_syscall:
 	case SYS___syscall:
 		parm_offset = r.r_esp + sizeof(int);
-		if (pink_unlikely(!pink_util_peekdata(pid, parm_offset, res)))
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, res)))
 			return false;
 		return true;
 	default:
@@ -71,11 +71,11 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 }
 
 bool
-pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	r.r_eax = scno;
@@ -91,7 +91,7 @@ pink_util_get_return(pid_t pid, long *res)
 
 	assert(res != NULL);
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	errorp = !!(r.r_eflags & PSL_C);
@@ -105,7 +105,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	struct reg r;
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	if (ret < 0) {
@@ -119,7 +119,7 @@ pink_util_set_return(pid_t pid, long ret)
 }
 
 bool
-pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
+pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
 {
 	unsigned parm_offset;
 	long scno, arg;
@@ -128,7 +128,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	assert(ind < PINK_MAX_INDEX);
 	assert(res != NULL);
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -150,7 +150,7 @@ pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, l
 	}
 
 	parm_offset += ind * sizeof(int);
-	if (pink_unlikely(!pink_util_peekdata(pid, parm_offset, &arg)))
+	if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, &arg)))
 		return false;
 
 	*res = arg;
@@ -201,10 +201,10 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(ind < PINK_MAX_INDEX);
 	assert(paddr != NULL);
 
-	if (pink_unlikely(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
+	if (PINK_UNLIKELY(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
 		return false;
 
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)
 				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 

@@ -137,7 +137,7 @@ typedef enum {
  * \param bitness Bitness of the child
  * \return true if socketcall() system call is available, false otherwise.
  **/
-pink_pure
+PINK_PURE
 bool
 pink_has_socketcall(pink_bitness_t bitness);
 
@@ -150,7 +150,7 @@ pink_has_socketcall(pink_bitness_t bitness);
  *
  * \return The name of the subcall
  **/
-pink_pure
+PINK_PURE
 const char *
 pink_name_socket_subcall(pink_socket_subcall_t subcall);
 

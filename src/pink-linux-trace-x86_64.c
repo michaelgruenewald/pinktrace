@@ -52,7 +52,7 @@ pink_bitness_get(pid_t pid)
 	 * 0x23    for compatibility mode (32 bit)
 	 */
 
-	if (pink_unlikely(!pink_util_peek(pid, 8 * CS, &cs)))
+	if (PINK_UNLIKELY(!pink_util_peek(pid, 8 * CS, &cs)))
 		return PINK_BITNESS_UNKNOWN;
 
 	switch (cs) {
@@ -66,13 +66,13 @@ pink_bitness_get(pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
+pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {
 	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
 {
 	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
@@ -132,7 +132,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 	assert(ind < PINK_MAX_INDEX);
 
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return NULL;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -206,7 +206,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (pink_unlikely(!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args)))
+		if (PINK_UNLIKELY(!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args)))
 			return false;
 		args += ind * sizeof(unsigned int);
 		return pink_util_move(pid, args, fd);
@@ -231,25 +231,25 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	switch (bitness) {
 	case PINK_BITNESS_32:
 		/* Decode socketcall(2) */
-		if (pink_unlikely(!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args)))
+		if (PINK_UNLIKELY(!pink_util_get_arg(pid, PINK_BITNESS_32, 1, &args)))
 			return false;
-		if (pink_unlikely(fd && !pink_util_move(pid, args, fd)))
+		if (PINK_UNLIKELY(fd && !pink_util_move(pid, args, fd)))
 			return false;
 		args += ind * sizeof(unsigned int);
-		if (pink_unlikely(!pink_util_move(pid, args, &iaddr)))
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
 			return false;
 		args += sizeof(unsigned int);
-		if (pink_unlikely(!pink_util_move(pid, args, &iaddrlen)))
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
 			return false;
 		addr = iaddr;
 		addrlen = iaddrlen;
 		break;
 	case PINK_BITNESS_64:
-		if (pink_unlikely(fd && !pink_util_get_arg(pid, PINK_BITNESS_64, 0, fd)))
+		if (PINK_UNLIKELY(fd && !pink_util_get_arg(pid, PINK_BITNESS_64, 0, fd)))
 			return false;
-		if (pink_unlikely(!pink_util_get_arg(pid, PINK_BITNESS_64, ind, &addr)))
+		if (PINK_UNLIKELY(!pink_util_get_arg(pid, PINK_BITNESS_64, ind, &addr)))
 			return false;
-		if (pink_unlikely(!pink_util_get_arg(pid, PINK_BITNESS_64, ind + 1, &addrlen)))
+		if (PINK_UNLIKELY(!pink_util_get_arg(pid, PINK_BITNESS_64, ind + 1, &addrlen)))
 			return false;
 		break;
 	case PINK_BITNESS_UNKNOWN:

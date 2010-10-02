@@ -61,7 +61,7 @@ pink_bitness_get(pid_t pid)
 	mib[2] = KERN_PROC_SV_NAME;
 	mib[3] = pid;
 
-	if (pink_unlikely(sysctl(mib, 4, progt, &len, NULL, 0) < 0))
+	if (PINK_UNLIKELY(sysctl(mib, 4, progt, &len, NULL, 0) < 0))
 		return PINK_BITNESS_UNKNOWN;
 
 	for (walk = bitness_types; walk->type; walk++) {
@@ -80,7 +80,7 @@ pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res)
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -106,16 +106,16 @@ pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res)
 }
 
 bool
-pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	r.r_rax = scno;
 
-	if (pink_unlikely(!pink_util_set_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_set_regs(pid, &r)))
 		return false;
 
 	return true;
@@ -129,7 +129,7 @@ pink_util_get_return(pid_t pid, long *res)
 
 	assert(res != NULL);
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	errorp = !!(r.r_rflags & PSL_C);
@@ -143,7 +143,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	struct reg r;
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	if (ret < 0) {
@@ -166,7 +166,7 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 	assert(ind < PINK_MAX_INDEX);
 	assert(res != NULL);
 
-	if (pink_unlikely(!pink_util_get_regs(pid, &r)))
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -220,7 +220,7 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 		break;
 	case 6:
 		/* system call redirection */
-		if (pink_unlikely(!pink_util_peekdata(pid, parm_offset, res)))
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, res)))
 			return false;
 		break;
 	default:
@@ -259,7 +259,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return NULL;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -274,10 +274,10 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(ind < PINK_MAX_INDEX);
 	assert(paddr != NULL);
 
-	if (pink_unlikely(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
+	if (PINK_UNLIKELY(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
 		return false;
 
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)
 				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 

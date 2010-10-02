@@ -52,7 +52,7 @@ static char pinkpy_syscall_name_doc[] = ""
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
 	"@return: The name of the system call or C{None}";
 static PyObject *
-pinkpy_syscall_name(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_name(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	long scno;
 	pink_bitness_t bit;
@@ -79,7 +79,7 @@ static char pinkpy_syscall_lookup_doc[] = ""
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
 	"@return: The number of the system call or -1.";
 static PyObject *
-pinkpy_syscall_lookup(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_lookup(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	long scno;
 	pink_bitness_t bit;
@@ -105,7 +105,7 @@ static char pinkpy_syscall_get_no_doc[] = ""
 	"@rtype: long\n"
 	"@return: The number of the system call";
 static PyObject *
-pinkpy_syscall_get_no(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_get_no(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	pink_bitness_t bit;
@@ -132,7 +132,7 @@ static char pinkpy_syscall_set_no_doc[] = ""
 	"@param bitness: Bitness of the traced child\n"
 	"@raise OSError: Raised when the underlying ptrace call fails.\n";
 static PyObject *
-pinkpy_syscall_set_no(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_set_no(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	pink_bitness_t bit;
@@ -159,7 +159,7 @@ static char pinkpy_syscall_get_ret_doc[] = ""
 	"@rtype: long\n"
 	"@return: The return value";
 static PyObject *
-pinkpy_syscall_get_ret(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_get_ret(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	long ret;
@@ -181,7 +181,7 @@ static char pinkpy_syscall_set_ret_doc[] = ""
 	"@param ret: The return value\n"
 	"@raise OSError: Raised when the underlying ptrace call fails.\n";
 static PyObject *
-pinkpy_syscall_set_ret(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_set_ret(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	long ret;
@@ -208,7 +208,7 @@ static char pinkpy_syscall_get_arg_doc[] = ""
 	"@rtype: long\n"
 	"@return: The value of the argument";
 static PyObject *
-pinkpy_syscall_get_arg(pink_unused PyObject *self, PyObject *args)
+pinkpy_syscall_get_arg(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;

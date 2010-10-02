@@ -37,38 +37,38 @@
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
 
-#define pink_nonnull(...) __attribute__((nonnull (__VA_ARGS__)))
-#define pink_noreturn __attribute__((noreturn))
-#define pink_pure __attribute__((pure))
-#define pink_unused __attribute__((unused))
-#define pink_likely(x) __builtin_expect(!!(x), 1)
-#define pink_unlikely(x) __builtin_expect(!!(x), 0)
+#define PINK_NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
+#define PINK_NORETURN __attribute__((noreturn))
+#define PINK_PURE __attribute__((pure))
+#define PINK_UNUSED __attribute__((unused))
+#define PINK_LIKELY(x) __builtin_expect(!!(x), 1)
+#define PINK_UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 #else
 /**
  * GCC nonnull attribute
  **/
-#define pink_nonnull(...)
+#define PINK_NONNULL(...)
 /**
  * GCC noreturn attribute
  **/
-#define pink_noreturn
+#define PINK_NORETURN
 /**
  * GCC pure attribute
  **/
-#define pink_pure
+#define PINK_PURE
 /**
  * GCC unused attribute
  **/
-#define pink_unused
+#define PINK_UNUSED
 /**
  * GCC builtin_expect macro
  **/
-#define pink_likely(x) (x)
+#define PINK_LIKELY(x) (x)
 /**
  * GCC builtin_expect macro
  **/
-#define pink_unlikely(x) (x)
+#define PINK_UNLIKELY(x) (x)
 
 #endif /* !defined(SPARSE) ... */
 

@@ -51,7 +51,7 @@
  *
  * \return The name of the system call, NULL if system call name is unknown.
  **/
-pink_pure
+PINK_PURE
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness);
 
@@ -63,7 +63,7 @@ pink_name_syscall(long scno, pink_bitness_t bitness);
  *
  * \return The system call number on success, -1 on failure.
  **/
-pink_pure
+PINK_PURE
 long
 pink_name_lookup(const char *name, pink_bitness_t bitness);
 

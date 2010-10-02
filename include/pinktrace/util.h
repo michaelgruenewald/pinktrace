@@ -292,7 +292,7 @@ pink_util_set_syscall(pid_t pid, pink_bitness_t bitness, long scno);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(2)
+PINK_NONNULL(2)
 bool
 pink_util_get_return(pid_t pid, long *res);
 
@@ -319,7 +319,7 @@ pink_util_set_return(pid_t pid, long ret);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
 
