@@ -2,6 +2,17 @@
 
 /*
  * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Based in part upon strace which is:
+ *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
+ *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
+ *   Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
+ *   Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
+ *   Copyright (c) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+ *                       Linux for s390 port by D.J. Barrow
+ *                      <barrow_dj@mail.yahoo.com,djbarrow@de.ibm.com>
+ *   Copyright (c) 2000 PocketPenguins Inc.  Linux for Hitachi SuperH
+ *                      port by Greg Banks <gbanks@pocketpenguins.com>
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +51,10 @@
 #define OFFSET_SP 52
 #define OFFSET_PC 60
 
+#ifndef PTRACE_SET_SYSCALL
+#define PTRACE_SET_SYSCALL 23
+#endif /* !PTRACE_SET_SYSCALL */
+
 pink_bitness_t
 pink_bitness_get(pink_unused pid_t pid)
 {
@@ -50,6 +65,8 @@ bool
 pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 {
 	long pc, swi, scno;
+
+	assert(res != NULL);
 
 	if (!pink_util_peek(pid, OFFSET_PC, &pc)
 			|| !pink_util_peekdata(pid, pc - sizeof(long), &swi))
@@ -86,10 +103,7 @@ pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
 bool
 pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
 {
-	/*
-	 * FIXME: This only handles EABI system calls.
-	 */
-	return pink_util_poke(pid, OFFSET_R7, scno);
+	return (0 == ptrace(PTRACE_SET_SYSCALL, pid, 0, scno & 0xffff));
 }
 
 bool

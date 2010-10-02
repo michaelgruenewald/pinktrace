@@ -583,7 +583,13 @@ util_suite_create(void)
 	TCase *tc_pink_util = tcase_create("pink_util");
 
 	tcase_add_test(tc_pink_util, t_util_get_syscall);
+#ifndef ARM
+	/*
+	 * Disable this test on ARM because this architecture has the special
+	 * request PTRACE_SET_SYSCALL.
+	 */
 	tcase_add_test(tc_pink_util, t_util_set_syscall);
+#endif /* !ARM */
 	tcase_add_test(tc_pink_util, t_util_get_return_success);
 	tcase_add_test(tc_pink_util, t_util_get_return_fail);
 	tcase_add_test(tc_pink_util, t_util_set_return_success);
@@ -599,7 +605,7 @@ util_suite_create(void)
 	 * However, the sendto() decode tests work. wtf?
 	 */
 	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
-#endif /* ARM */
+#endif /* !ARM */
 
 	suite_add_tcase(s, tc_pink_util);
 
