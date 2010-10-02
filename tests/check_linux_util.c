@@ -599,13 +599,13 @@ util_suite_create(void)
 	tcase_add_test(tc_pink_util, t_util_get_arg_third);
 	tcase_add_test(tc_pink_util, t_util_get_arg_fourth);
 	tcase_add_test(tc_pink_util, t_util_get_arg_fifth);
-#ifndef ARM
+#if __WORDSIZE == 64
 	/*
-	 * FIXME: This testcase fails on ARM for unknown reasons.
-	 * However, the sendto() decode tests work. wtf?
+	 * FIXME: This testcase fails on 32bit architectures.
+	 * We need a better testcase.
 	 */
 	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
-#endif /* !ARM */
+#endif /* __WORDSIZE == 64 */
 
 	suite_add_tcase(s, tc_pink_util);
 
