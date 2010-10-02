@@ -169,7 +169,7 @@ check_index(unsigned ind)
 /*
  * Document-class: PinkTrace::IndexError
  *
- * Raised when an index argument is not smaller than PinkTrace::MAX_INDEX.
+ * Raised when an index argument is not smaller than PinkTrace::Syscall::MAX_INDEX.
  */
 
 /*
@@ -917,6 +917,11 @@ pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE bitv)
  *   This constant is an invalid system call number. You may use this constant
  *   as an argument to PinkTrace::Syscall.set_no to deny a system call from
  *   execution.
+ *
+ * - PinkTrace::Syscall::MAX_INDEX
+ *
+ *   The index arguments of system call functions must be smaller than this
+ *   constant.
  */
 
 /*
@@ -1137,7 +1142,7 @@ pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE pidv, VALUE retv)
  * Returns the system call argument at the given index for the traced child.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1196,7 +1201,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * determine the length of the string itself.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1274,7 +1279,7 @@ pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Encode a string into the argument of the given index safely.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1350,7 +1355,7 @@ pinkrb_encode_string_safe(
  * Encode a string into the argument of the given index.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1559,7 +1564,7 @@ pinkrb_decode_socket_call(
  * architectures.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1636,7 +1641,7 @@ pinkrb_decode_socket_fd(
  * If the system call's address argument was NULL, this function returns +nil+.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1692,7 +1697,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * and the file descriptor.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1864,8 +1869,6 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
 	rb_define_const(mod, "PC_SLOT", rb_str_new2(PINKTRACE_PC_SLOT));
-	/* util.h */
-	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
 	/* trace.h */
 	trace_mod = rb_define_module_under(mod, "Trace");
@@ -1932,6 +1935,7 @@ Init_PinkTrace(void)
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");
 	rb_define_const(syscall_mod, "INVALID", INT2FIX(PINKTRACE_INVALID_SYSCALL));
+	rb_define_const(syscall_mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
 	rb_define_module_function(syscall_mod, "lookup", pinkrb_name_lookup, -1);
 	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, -1);

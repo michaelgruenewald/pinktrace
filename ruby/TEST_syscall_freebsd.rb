@@ -28,7 +28,7 @@ class TestPinkSyscall < Test::Unit::TestCase
       PinkTrace::Syscall.get_arg 0, 1, 13
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::Syscall.get_arg 0, PinkTrace::MAX_INDEX
+      PinkTrace::Syscall.get_arg 0, PinkTrace::Syscall::MAX_INDEX
     end
   end
 
