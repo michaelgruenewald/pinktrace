@@ -42,6 +42,10 @@
 #include <pinktrace/gcc.h>
 #include <pinktrace/socket.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Get the data in argument arg and place it in dest.
  *
@@ -51,7 +55,7 @@
  * \param dest Pointer to store the data
  * \param len Length of the data
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
 
@@ -68,7 +72,7 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
 
@@ -93,13 +97,13 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  *
  * \param pid Process ID of the child whose argument is to be received
  * \param bitness Bitness of the child
- * \param subcall_r The pointer to store the decoded socket call
+ * \param subcall The pointer to store the decoded socket call
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(3)
+PINK_NONNULL(3)
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
 
 /**
  * Get the socket file descriptor in argument arg and place it in fd.
@@ -115,7 +119,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
 #endif /* defined(PINKTRACE_LINUX)... */
@@ -134,15 +138,19 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  * \param ind The index of the argument. One of:
  *  - 1 (for connect, bind etc.)
  *  - 4 (for sendto)
- * \param fd_r The pointer to store the socket file descriptor that resides in
+ * \param fd The pointer to store the socket file descriptor that resides in
  * argument one with index zero. Set this to NULL if you don't need the file
  * descriptor to be decoded.
- * \param addr_r The pointer to store the decoded socket address
+ * \param paddr The pointer to store the decoded socket address
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(5)
+PINK_NONNULL(5)
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd_r, pink_socket_address_t *addr_r);
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

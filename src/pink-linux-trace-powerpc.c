@@ -46,7 +46,7 @@
 		: (sizeof(unsigned long) * ((i) + PT_R3)))
 
 pink_bitness_t
-pink_bitness_get(pink_unused pid_t pid)
+pink_bitness_get(PINK_UNUSED pid_t pid)
 {
 #if defined(POWERPC)
 	return PINK_BITNESS_32;
@@ -58,13 +58,13 @@ pink_bitness_get(pink_unused pid_t pid)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long *res)
+pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {
 	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, pink_unused pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
 {
 	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
@@ -76,11 +76,11 @@ pink_util_get_return(pid_t pid, long *res)
 
 	assert(res != NULL);
 
-	if (pink_unlikely(!pink_util_peek(pid, ACCUM, res)
+	if (PINK_UNLIKELY(!pink_util_peek(pid, ACCUM, res)
 				|| !pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
-	if (pink_unlikely(flags & SO_MASK))
+	if (PINK_UNLIKELY(flags & SO_MASK))
 		*res = -(*res);
 
 	return true;
@@ -91,7 +91,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	long flags;
 
-	if (pink_unlikely(!pink_util_peek(pid, ACCUM_FLAGS, &flags)))
+	if (PINK_UNLIKELY(!pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
 	if (ret < 0) {
@@ -105,7 +105,7 @@ pink_util_set_return(pid_t pid, long ret)
 }
 
 bool
-pink_util_get_arg(pid_t pid, pink_unused pink_bitness_t bitness, unsigned ind, long *res)
+pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
 {
 	assert(ind < PINK_MAX_INDEX);
 
@@ -141,7 +141,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, ind, &addr)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -168,12 +168,18 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 }
 
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall_r)
+pink_has_socketcall(PINK_UNUSED pink_bitness_t bitness)
 {
-	assert(subcall_r != NULL);
+	return true;
+}
+
+bool
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall)
+{
+	assert(subcall != NULL);
 
 	/* Decode socketcall(2) */
-	return pink_util_get_arg(pid, bitness, 0, subcall_r);
+	return pink_util_get_arg(pid, bitness, 0, subcall);
 }
 
 bool
@@ -184,7 +190,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 	assert(ind < PINK_MAX_INDEX);
 
 	/* Decode socketcall(2) */
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
 	args += ind * sizeof(unsigned int);
 
@@ -193,27 +199,27 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 }
 
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd_r, pink_socket_address_t *addr_r)
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr)
 {
 	unsigned int iaddr, iaddrlen;
 	long addr, addrlen, args;
 
 	assert(ind < PINK_MAX_INDEX);
-	assert(addr_r != NULL);
+	assert(paddr != NULL);
 
 	/* Decode socketcall(2) */
-	if (pink_unlikely(!pink_util_get_arg(pid, bitness, 1, &args)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
-	if (pink_unlikely(fd_r && !pink_util_move(pid, args, fd_r)))
+	if (PINK_UNLIKELY(fd && !pink_util_move(pid, args, fd)))
 		return false;
 	args += ind * sizeof(unsigned int);
-	if (pink_unlikely(!pink_util_move(pid, args, &iaddr)))
+	if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
 		return false;
 	args += sizeof(unsigned int);
-	if (pink_unlikely(!pink_util_move(pid, args, &iaddrlen)))
+	if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
 		return false;
 	addr = iaddr;
 	addrlen = iaddrlen;
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen, addr_r);
+	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
 }

@@ -51,7 +51,7 @@ static char pinkpy_bitness_get_doc[] = ""
 	"@rtype: int\n"
 	"@return: One of C{pinktrace.bitness.BITNESS_*} constants";
 static PyObject *
-pinkpy_bitness_get(pink_unused PyObject *self, PyObject *args)
+pinkpy_bitness_get(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	pink_bitness_t bit;
@@ -73,7 +73,7 @@ static char pinkpy_bitness_name_doc[] = ""
 	"@rtype: str\n"
 	"@return: The name of the bitness";
 static PyObject *
-pinkpy_bitness_name(pink_unused PyObject *self, PyObject *args)
+pinkpy_bitness_name(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	const char *strbit;
 	pink_bitness_t bit;

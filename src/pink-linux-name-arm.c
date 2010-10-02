@@ -29,23 +29,45 @@
 
 #include <pinktrace/internal.h>
 
-#include <stdio.h> /* NULL */
-#include <string.h> /* strcmp() */
+#include <stdio.h>
+#include <string.h>
 
 #include <pinktrace/pink.h>
 
-#include "freebsd/pink-syscallent.h"
+static const char *sysnames[] = {
+#include "linux/arm/pink-syscallent.h"
+};
+
+static const char *sysnames_arch[] = {
+#include "linux/arm/pink-syscallent-arch.h"
+};
 
 static int nsys = sizeof(sysnames) / sizeof(sysnames[0]);
+static int nsys_arch = sizeof(sysnames_arch) / sizeof(sysnames_arch[0]);
 
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness)
 {
+	int n;
+	const char **names;
+
 	if (PINK_UNLIKELY(bitness != PINK_BITNESS_32))
 		return NULL;
-	if (PINK_UNLIKELY(scno < 0 || scno >= nsys))
+	if (scno < 0) {
+		/* Architecture specific system call */
+		scno = -scno;
+		n = nsys_arch;
+		names = sysnames_arch;
+	}
+	else {
+		/* Thumb-mode system call */
+		n = nsys;
+		names = sysnames;
+	}
+
+	if (PINK_UNLIKELY(scno < 0 || scno >= n))
 		return NULL;
-	return sysnames[scno];
+	return names[scno];
 }
 
 long

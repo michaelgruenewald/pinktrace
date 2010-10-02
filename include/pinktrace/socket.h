@@ -124,6 +124,27 @@ typedef enum {
 	PINK_SOCKET_SUBCALL_ACCEPT4,
 } pink_socket_subcall_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/**
+ * Decide whether the socketcall() system call is defined for the given
+ * bitness. On some architectures the socket system calls - socket, connect,
+ * bind etc. - are implemented as separate system calls. On others these calls
+ * are subcalls of the socketcall() system call.
+ *
+ * \note Availability: Linux
+ *
+ * \see pink_socket_subcall_t
+ *
+ * \param bitness Bitness of the child
+ * \return true if socketcall() system call is available, false otherwise.
+ **/
+PINK_PURE
+bool
+pink_has_socketcall(pink_bitness_t bitness);
+
 /**
  * Name the given socket subcall
  *
@@ -133,9 +154,13 @@ typedef enum {
  *
  * \return The name of the subcall
  **/
-pink_pure
+PINK_PURE
 const char *
 pink_name_socket_subcall(pink_socket_subcall_t subcall);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
 

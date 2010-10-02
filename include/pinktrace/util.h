@@ -52,6 +52,10 @@
  **/
 #define PINK_MAX_INDEX 6
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * On FreeBSD this reads a single int of data at the given offset in the traced
  * process's instruction space and places it in res, aka PT_READ_I.
@@ -129,8 +133,8 @@ pink_util_pokedata(pid_t pid, long off, long val);
  *
  * \param pid Process ID of the child.
  * \param regs Pointer to the structure of registers. On FreeBSD this is
- * "struct reg" defined in <machine/reg.h>, on Linux this is "struct
- * user_regs_struct" defined in <sys/user.h>.
+ * "struct reg" defined in <machine/reg.h>, on Linux this is "struct pt_regs"
+ * defined in <asm/ptrace.h>.
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
@@ -255,6 +259,10 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 /**
  * Gets the last system call called by child with the given process ID.
  *
+ * \note Architecture specific system calls on ARM architecture are negated so
+ * that the user can distinguish between normal system calls and architecture
+ * specific system calls.
+ *
  * \param pid Process ID of the child whose system call is to be returned.
  * \param bitness Bitness of the child
  * \param res Pointer to store the result.
@@ -266,6 +274,8 @@ pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res);
 
 /**
  * Sets the system call to the given value.
+ *
+ * \note On ARM architecture, this only works for EABI system calls.
  *
  * \param pid Process ID of the child whose system call is to be set.
  * \param bitness Bitness of the child
@@ -286,7 +296,7 @@ pink_util_set_syscall(pid_t pid, pink_bitness_t bitness, long scno);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(2)
+PINK_NONNULL(2)
 bool
 pink_util_get_return(pid_t pid, long *res);
 
@@ -313,8 +323,12 @@ pink_util_set_return(pid_t pid, long ret);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-pink_nonnull(4)
+PINK_NONNULL(4)
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */

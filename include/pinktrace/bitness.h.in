@@ -73,6 +73,10 @@ typedef enum {
  **/
 #define PINKTRACE_BITNESS_32_SUPPORTED @PINKTRACE_BITNESS_32_SUPPORTED@
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Return the bitness of the given process ID.
  *
@@ -90,8 +94,12 @@ pink_bitness_get(pid_t pid);
  *
  * \return String representation of the bitness.
  **/
-pink_pure
+PINK_PURE
 const char *
 pink_bitness_name(pink_bitness_t bitness);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_BITNESS_H */

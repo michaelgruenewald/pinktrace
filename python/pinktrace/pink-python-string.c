@@ -58,7 +58,7 @@ static char pinkpy_string_decode_doc[] = ""
 	"@rtype: str\n"
 	"@return: The decoded string";
 static PyObject *
-pinkpy_string_decode(pink_unused PyObject *self, PyObject *args)
+pinkpy_string_decode(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -117,7 +117,7 @@ static char pinkpy_string_encode_doc[] = ""
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_string_encode(pink_unused PyObject *self, PyObject *args)
+pinkpy_string_encode(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -153,9 +153,9 @@ static char pinkpy_string_encode_safe_doc[] = ""
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_string_encode_safe(pink_unused PyObject *self,
+pinkpy_string_encode_safe(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {

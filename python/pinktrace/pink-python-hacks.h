@@ -80,7 +80,7 @@
 
 #endif /* PY_MAJOR_VERSION < 3 */
 
-pink_unused
+PINK_UNUSED
 static bool
 check_bitness(int bit)
 {
@@ -105,7 +105,7 @@ check_bitness(int bit)
 	return true;
 }
 
-pink_unused
+PINK_UNUSED
 static bool
 check_index(unsigned ind)
 {

@@ -67,6 +67,44 @@ typedef struct {
 	pink_socket_address_t addr;
 } Address;
 
+static char pinkpy_socket_has_socketcall_doc[] = ""
+	"Returns C{True} if the socket calls - like connect, bind, sendto etc. - are\n"
+	"implemented as subcalls of the socketcall(2) system call, C{False} otherwise.\n"
+	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
+	"@param bitness: The bitness of the traced child\n"
+	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n";
+static PyObject *
+pinkpy_socket_has_socketcall(PINK_UNUSED PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_LINUX)
+	pink_bitness_t bit;
+
+	bit = PINKTRACE_BITNESS_DEFAULT;
+	if (!PyArg_ParseTuple(args, "|I", &bit))
+		return NULL;
+
+	if (!check_bitness(bit))
+		return NULL;
+
+	if (pink_has_socketcall(bit)) {
+		Py_INCREF(Py_True);
+		return Py_True;
+	}
+	Py_INCREF(Py_False);
+	return Py_False;
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
 static char pinkpy_socket_name_doc[] = ""
 	"Returns the name of the socket subcall.\n"
 	"\n"
@@ -76,9 +114,9 @@ static char pinkpy_socket_name_doc[] = ""
 	"@rtype: str\n"
 	"@return: The name of the socket subcall or C{None}";
 static PyObject *
-pinkpy_socket_name(pink_unused PyObject *self,
+pinkpy_socket_name(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -113,9 +151,9 @@ static char pinkpy_socket_decode_call_doc[] = ""
 	"@rtype: long\n"
 	"@return: The decoded socket call";
 static PyObject *
-pinkpy_socket_decode_call(pink_unused PyObject *self,
+pinkpy_socket_decode_call(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -156,9 +194,9 @@ static char pinkpy_socket_decode_fd_doc[] = ""
 	"@rtype: long\n"
 	"@return: The socket file descriptor";
 static PyObject *
-pinkpy_socket_decode_fd(pink_unused PyObject *self,
+pinkpy_socket_decode_fd(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -187,7 +225,7 @@ pinkpy_socket_decode_fd(pink_unused PyObject *self,
 }
 
 static PyObject *
-Address_new(PyTypeObject *t, pink_unused PyObject *a, pink_unused PyObject *k)
+Address_new(PyTypeObject *t, PINK_UNUSED PyObject *a, PINK_UNUSED PyObject *k)
 {
 	return t->tp_alloc(t, 0);
 }
@@ -199,7 +237,7 @@ Address_dealloc(PyObject *o)
 }
 
 static PyObject *
-Address_family(PyObject *self, pink_unused void *x)
+Address_family(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
 #if PY_MAJOR_VERSION > 2
@@ -210,7 +248,7 @@ Address_family(PyObject *self, pink_unused void *x)
 }
 
 static PyObject *
-Address_abstract(PyObject *self, pink_unused void *x)
+Address_abstract(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
 
@@ -426,7 +464,7 @@ static char pinkpy_socket_decode_address_doc[] = ""
 	"@rtype: pinktrace.socket.Address\n"
 	"@return: The decoded socket address";
 static PyObject *
-pinkpy_socket_decode_address(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_address(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -470,7 +508,7 @@ static char pinkpy_socket_decode_address_fd_doc[] = ""
 	"@rtype: tuple\n"
 	"@return: The decoded socket address and the file descriptor";
 static PyObject *
-pinkpy_socket_decode_address_fd(pink_unused PyObject *self, PyObject *args)
+pinkpy_socket_decode_address_fd(PINK_UNUSED PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -507,6 +545,7 @@ socket_init(PyObject *mod)
 
 static char socket_doc[] = "Pink's socket decoding functions";
 static PyMethodDef socket_methods[] = {
+	{"has_socketcall", pinkpy_socket_has_socketcall, METH_VARARGS, pinkpy_socket_has_socketcall_doc},
 	{"name", pinkpy_socket_name, METH_VARARGS, pinkpy_socket_name_doc},
 	{"decode_call", pinkpy_socket_decode_call, METH_VARARGS, pinkpy_socket_decode_call_doc},
 	{"decode_fd", pinkpy_socket_decode_fd, METH_VARARGS, pinkpy_socket_decode_fd_doc},

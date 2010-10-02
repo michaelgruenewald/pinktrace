@@ -38,15 +38,24 @@
 #include <pinktrace/bitness.h>
 #include <pinktrace/gcc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**
  * Return the name of the given system call.
+ *
+ * \note On ARM architecture, this function considers the system call
+ * architecture specific if scno is smaller than zero.
+ *
+ * \see pink_util_get_syscall
  *
  * \param scno System call number
  * \param bitness Bitness of the child
  *
  * \return The name of the system call, NULL if system call name is unknown.
  **/
-pink_pure
+PINK_PURE
 const char *
 pink_name_syscall(long scno, pink_bitness_t bitness);
 
@@ -58,8 +67,12 @@ pink_name_syscall(long scno, pink_bitness_t bitness);
  *
  * \return The system call number on success, -1 on failure.
  **/
-pink_pure
+PINK_PURE
 long
 pink_name_lookup(const char *name, pink_bitness_t bitness);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* !PINKTRACE_GUARD_NAME_H */

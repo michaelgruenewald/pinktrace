@@ -34,7 +34,7 @@ class TestPinkString < Test::Unit::TestCase
       PinkTrace::String.decode 0, 1, 2, 13
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::String.decode 0, PinkTrace::MAX_INDEX
+      PinkTrace::String.decode 0, PinkTrace::Syscall::MAX_INDEX
     end
   end
 
@@ -70,7 +70,7 @@ class TestPinkString < Test::Unit::TestCase
       PinkTrace::String.encode! 0, 1, 'pink', 13
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::String.encode! 0, PinkTrace::MAX_INDEX, 'pink'
+      PinkTrace::String.encode! 0, PinkTrace::Syscall::MAX_INDEX, 'pink'
     end
   end
 

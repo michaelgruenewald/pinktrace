@@ -166,6 +166,14 @@ powerpc*)
 	fi
 	AC_DEFINE([POWERPC], 1, [Define for the POWERPC architecture.])
 	;;
+arm*)
+	arch=arm
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_RESULT([NO!])
+		AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
+	fi
+	AC_DEFINE([ARM], 1, [Define for the ARM architecture.])
+	;;
 *)
 	AC_MSG_RESULT([NO!])
 	AC_MSG_ERROR([Architecture $host_cpu is not supported by pinktrace])
@@ -178,6 +186,7 @@ AM_CONDITIONAL(X86_64, test x"$arch" = x"x86_64")
 AM_CONDITIONAL(IA64, test x"$arch" = x"ia64")
 AM_CONDITIONAL(POWERPC, test x"$arch" = x"powerpc")
 AM_CONDITIONAL(POWERPC64, test x"$arch" = x"powerpc64")
+AM_CONDITIONAL(ARM, test x"$arch" = x"arm")
 
 if test x"$arch" = x"x86_64" ; then
 	PINKTRACE_BITNESS_COUNT_SUPPORTED=2
@@ -188,14 +197,14 @@ AC_SUBST([PINKTRACE_BITNESS_COUNT_SUPPORTED])
 AM_CONDITIONAL(BITNESS_ONE, test x"$PINKTRACE_BITNESS_COUNT_SUPPORTED" = x"1")
 AM_CONDITIONAL(BITNESS_TWO, test x"$PINKTRACE_BITNESS_COUNT_SUPPORTED" = x"2")
 
-if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" ; then
+if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" -o x"$arch" = x"arm" ; then
 	PINKTRACE_BITNESS_DEFAULT="PINK_BITNESS_32"
 else
 	PINKTRACE_BITNESS_DEFAULT="PINK_BITNESS_64"
 fi
 AC_SUBST([PINKTRACE_BITNESS_DEFAULT])
 
-if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" ; then
+if test x"$arch" = x"i386" -o x"$arch" = x"powerpc" -o x"$arch" = x"arm" ; then
 	PINKTRACE_BITNESS_64_SUPPORTED=0
 else
 	PINKTRACE_BITNESS_64_SUPPORTED=1
@@ -208,6 +217,14 @@ else
 	PINKTRACE_BITNESS_32_SUPPORTED=1
 fi
 AC_SUBST([PINKTRACE_BITNESS_32_SUPPORTED])
+
+if test x"$arch" = x"arm" ; then
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbad"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbad"
+else
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbadca11"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbadca11"
+fi
 dnl }}}
 
 dnl {{{ Check for types
@@ -553,6 +570,7 @@ AC_OUTPUT(
 		  src/linux/x86_64/Makefile
 		  src/linux/ia64/Makefile
 		  src/linux/powerpc/Makefile
+		  src/linux/arm/Makefile
 		  tests/Makefile
 	)
 dnl }}}

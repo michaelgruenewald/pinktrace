@@ -2,13 +2,14 @@
 
 /*
  * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
- * Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
- * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
- * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
- * Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
- * Copyright (c) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
- *                    Linux for s390 port by D.J. Barrow
- *                    <barrow_dj@mail.yahoo.com,djbarrow@de.ibm.com>
+ * Based in part upon strace which is:
+ *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
+ *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
+ *   Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
+ *   Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
+ *   Copyright (c) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+ *                      Linux for s390 port by D.J. Barrow
+ *                      <barrow_dj@mail.yahoo.com,djbarrow@de.ibm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +51,7 @@ pink_util_peek(pid_t pid, long off, long *res)
 
 	errno = 0;
 	val = ptrace(PTRACE_PEEKUSER, pid, off, NULL);
-	if (pink_unlikely(val == -1 && errno != 0))
+	if (PINK_UNLIKELY(val == -1 && errno != 0))
 		return false;
 
 	if (res)
@@ -66,7 +67,7 @@ pink_util_peekdata(pid_t pid, long off, long *res)
 
 	errno = 0;
 	val = ptrace(PTRACE_PEEKDATA, pid, off, NULL);
-	if (pink_unlikely(val == -1 && errno != 0))
+	if (PINK_UNLIKELY(val == -1 && errno != 0))
 		return false;
 
 	if (res)
@@ -113,7 +114,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 
 	while (n < m) {
 		memcpy(u.x, src, sizeof(long));
-		if (pink_unlikely(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
+		if (PINK_UNLIKELY(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
 			return false;
 		++n;
 		src += sizeof(long);
@@ -122,7 +123,7 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 	m = len % sizeof(long);
 	if (m) {
 		memcpy(u.x, src, m);
-		if (pink_unlikely(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
+		if (PINK_UNLIKELY(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
 			return false;
 	}
 
@@ -143,9 +144,9 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 
 	while (n < m) {
 		memcpy(u.x, src, sizeof(long));
-		if (pink_unlikely(!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL)))
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL)))
 			return false;
-		if (pink_unlikely(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
+		if (PINK_UNLIKELY(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
 			return false;
 		++n;
 		src += sizeof(long);
@@ -154,9 +155,9 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len)
 	m = len % sizeof(long);
 	if (m) {
 		memcpy(u.x, src, m);
-		if (pink_unlikely(!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL)))
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr + n * ADDR_MUL, NULL)))
 			return false;
-		if (pink_unlikely(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
+		if (PINK_UNLIKELY(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
 			return false;
 	}
 
@@ -179,8 +180,8 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -192,8 +193,8 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 		addr += sizeof(long), dest += m, len -= m;
 	}
 	while (len > 0) {
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -222,8 +223,8 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -238,8 +239,8 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		addr += sizeof(long), dest += m, len -= m;
 	}
 	while (len > 0) {
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -283,8 +284,8 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		n = addr - (addr & -sizeof(long)); /* residue */
 		addr &= -sizeof(long); /* residue */
 
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return res;
 			}
@@ -305,8 +306,8 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		addr += sizeof(long), res_ptr += m;
 	}
 	for (;;) {
-		if (pink_unlikely(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (pink_likely(started && (errno == EPERM || errno == EIO))) {
+		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
 				/* Ran into end of memory */
 				return res;
 			}

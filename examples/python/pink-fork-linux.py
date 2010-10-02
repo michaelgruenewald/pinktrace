@@ -28,6 +28,6 @@ else: # parent
 
     # Set tracing options
     pinktrace.trace.setup(pid)
-    # Let the child continue...
-    pinktrace.trace.cont(pid)
+    # Let the child resume its execution.
+    pinktrace.trace.resume(pid)
     os.waitpid(pid, 0)

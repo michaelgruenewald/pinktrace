@@ -66,9 +66,9 @@ class TestSyscallLinux_01(unittest.TestCase):
                     scno = syscall.get_no(pid)
                     name = syscall.name(scno)
                     if name == 'kill':
-                        syscall.set_no(pid, 0xbadca11)
+                        syscall.set_no(pid, syscall.INVALID)
                         scno = syscall.get_no(pid)
-                        self.assertEqual(scno, 0xbadca11)
+                        self.assertEqual(scno, syscall.INVALID)
                         break
 
             try: trace.kill(pid)

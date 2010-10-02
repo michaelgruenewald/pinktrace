@@ -28,7 +28,7 @@ class TestPinkSyscall < Test::Unit::TestCase
       PinkTrace::Syscall.get_arg 0, 1, 13
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::Syscall.get_arg 0, PinkTrace::MAX_INDEX
+      PinkTrace::Syscall.get_arg 0, PinkTrace::Syscall::MAX_INDEX
     end
   end
 
@@ -43,7 +43,7 @@ class TestPinkSyscall < Test::Unit::TestCase
       PinkTrace::Syscall.get_no
     end
     assert_raise ArgumentError do
-      PinkTrace::Syscall.get_no 0, 1
+      PinkTrace::Syscall.get_no 0, 1, 2
     end
     assert_raise TypeError do
       PinkTrace::Syscall.get_no 'pink'
@@ -202,9 +202,9 @@ if PinkTrace::Syscall.name 0
           scno = PinkTrace::Syscall.get_no pid
           name = PinkTrace::Syscall.name scno
           if name == 'kill' then
-            PinkTrace::Syscall.set_no pid, 0xbadca11
+            PinkTrace::Syscall.set_no pid, PinkTrace::Syscall::INVALID
             scno = PinkTrace::Syscall.get_no pid
-            assert(scno == 0xbadca11, "Wrong system call no, expected: 0xbadca11 got: #{scno}")
+            assert(scno == PinkTrace::Syscall::INVALID, "Wrong system call no, expected: #{PinkTrace::Syscall::INVALID} got: #{scno}")
             break
           end
         end

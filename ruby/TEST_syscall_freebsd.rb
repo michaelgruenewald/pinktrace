@@ -28,7 +28,7 @@ class TestPinkSyscall < Test::Unit::TestCase
       PinkTrace::Syscall.get_arg 0, 1, 13
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::Syscall.get_arg 0, PinkTrace::MAX_INDEX
+      PinkTrace::Syscall.get_arg 0, PinkTrace::Syscall::MAX_INDEX
     end
   end
 
@@ -201,9 +201,9 @@ class TestPinkSyscall
       scno = PinkTrace::Syscall.get_no pid
       name = PinkTrace::Syscall.name scno
       if name == 'kill' then
-        PinkTrace::Syscall.set_no pid, 0xbadca11
+        PinkTrace::Syscall.set_no pid, PinkTrace::Syscall::INVALID
         scno = PinkTrace::Syscall.get_no pid
-        assert(scno == 0xbadca11, "#{scno}")
+        assert(scno == PinkTrace::Syscall::INVALID, "#{PinkTrace::Syscall::INVALID} != #{scno}")
         break
       end
     end

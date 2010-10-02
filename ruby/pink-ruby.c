@@ -169,7 +169,7 @@ check_index(unsigned ind)
 /*
  * Document-class: PinkTrace::IndexError
  *
- * Raised when an index argument is not smaller than PinkTrace::MAX_INDEX.
+ * Raised when an index argument is not smaller than PinkTrace::Syscall::MAX_INDEX.
  */
 
 /*
@@ -263,7 +263,7 @@ check_index(unsigned ind)
  * only by the parent.
  */
 static VALUE
-pinkrb_trace_me(pink_unused VALUE mod)
+pinkrb_trace_me(PINK_UNUSED VALUE mod)
 {
 	if (!pink_trace_me())
 		rb_sys_fail("pink_trace_me()");
@@ -288,7 +288,7 @@ pinkrb_trace_me(pink_unused VALUE mod)
  * On Linux, this argument is not used.
  */
 static VALUE
-pinkrb_trace_cont(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_trace_cont(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig, addr;
@@ -326,13 +326,54 @@ pinkrb_trace_cont(int argc, VALUE *argv, pink_unused VALUE mod)
 }
 
 /*
+ * Document-method: PinkTrace::Trace.resume
+ * call-seq: PinkTrace::Trace.resume(pid, [sig=0]) => nil
+ *
+ * Resumes the stopped child process. This is equivalent to
+ * PinkTrace::Trace.cont(pid, sig, 1)
+ *
+ * If +sig+ argument is non-zero and not SIGSTOP, it is interpreted as the
+ * signal to be delivered to the child; otherwise, no signal is delivered.
+ * Thus, for example, the parent can control whether a signal sent to the child
+ * is delivered or not.
+ */
+static VALUE
+pinkrb_trace_resume(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+{
+	pid_t pid;
+	long sig;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc > 1) {
+		if (FIXNUM_P(argv[1]))
+			sig = FIX2LONG(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		sig = 0;
+
+	if (!pink_trace_resume(pid, sig))
+		rb_sys_fail("pink_trace_resume()");
+
+	return Qnil;
+}
+
+/*
  * Document-method: PinkTrace::Trace.kill
  * call-seq: PinkTrace::Trace.kill(pid) => nil
  *
  * Kills the traced child process with SIGKILL.
  */
 static VALUE
-pinkrb_trace_kill(pink_unused VALUE mod, VALUE pidv)
+pinkrb_trace_kill(PINK_UNUSED VALUE mod, VALUE pidv)
 {
 	pid_t pid;
 
@@ -358,7 +399,7 @@ pinkrb_trace_kill(pink_unused VALUE mod, VALUE pidv)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_singlestep(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_trace_singlestep(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -397,7 +438,7 @@ pinkrb_trace_singlestep(int argc, VALUE *argv, pink_unused VALUE mod)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_trace_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -438,16 +479,16 @@ pinkrb_trace_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
  * Availability: FreeBSD
  */
 #if !defined(PINKTRACE_FREEBSD)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_trace_syscall_entry(
 #if !defined(PINKTRACE_FREEBSD)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
@@ -492,16 +533,16 @@ pinkrb_trace_syscall_entry(
  * Availability: FreeBSD
  */
 #if !defined(PINKTRACE_FREEBSD)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_trace_syscall_exit(
 #if !defined(PINKTRACE_FREEBSD)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
@@ -545,12 +586,12 @@ pinkrb_trace_syscall_exit(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
-pinkrb_trace_geteventmsg(pink_unused VALUE mod,
+pinkrb_trace_geteventmsg(PINK_UNUSED VALUE mod,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	VALUE pidv)
 {
@@ -581,16 +622,16 @@ pinkrb_trace_geteventmsg(pink_unused VALUE mod,
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_trace_setup(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -633,7 +674,7 @@ pinkrb_trace_setup(
  * child to stop.
  */
 static VALUE
-pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
+pinkrb_trace_attach(PINK_UNUSED VALUE mod, VALUE pidv)
 {
 	pid_t pid;
 
@@ -659,7 +700,7 @@ pinkrb_trace_attach(pink_unused VALUE mod, VALUE pidv)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -747,16 +788,16 @@ pinkrb_trace_detach(int argc, VALUE *argv, pink_unused VALUE mod)
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_event_decide(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	unsigned int event;
@@ -828,7 +869,7 @@ pinkrb_event_decide(
  * Returns the bitness of the traced child.
  */
 static VALUE
-pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
+pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE pidv)
 {
 	pid_t pid;
 	int bit;
@@ -852,7 +893,7 @@ pinkrb_bitness_get(pink_unused VALUE mod, VALUE pidv)
  * Returns the name of the given bitness.
  */
 static VALUE
-pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
+pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE bitv)
 {
 	pink_bitness_t bit;
 
@@ -868,6 +909,19 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
  * Document-class: PinkTrace::Syscall
  *
  * This class defines utilities useful when tracing processes.
+ *
+ * == Constants
+ *
+ * - PinkTrace::Syscall::INVALID
+ *
+ *   This constant is an invalid system call number. You may use this constant
+ *   as an argument to PinkTrace::Syscall.set_no to deny a system call from
+ *   execution.
+ *
+ * - PinkTrace::Syscall::MAX_INDEX
+ *
+ *   The index arguments of system call functions must be smaller than this
+ *   constant.
  */
 
 /*
@@ -880,7 +934,7 @@ pinkrb_bitness_name(pink_unused VALUE mod, VALUE bitv)
  * or undefined.
  */
 static VALUE
-pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_name_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	unsigned bit;
 	long scno;
@@ -920,7 +974,7 @@ pinkrb_name_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_name_lookup(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_name_lookup(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	unsigned bit;
 	const char *name;
@@ -956,7 +1010,7 @@ pinkrb_name_lookup(int argc, VALUE *argv, pink_unused VALUE mod)
  * Returns the last system call number called by the traced child.
  */
 static VALUE
-pinkrb_util_get_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_util_get_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit;
@@ -994,7 +1048,7 @@ pinkrb_util_get_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
  * Sets the system call number for the traced child.
  */
 static VALUE
-pinkrb_util_set_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit;
@@ -1037,7 +1091,7 @@ pinkrb_util_set_syscall(int argc, VALUE *argv, pink_unused VALUE mod)
  * Returns the return value of the last system call called by the traced child.
  */
 static VALUE
-pinkrb_util_get_return(pink_unused VALUE mod, VALUE pidv)
+pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE pidv)
 {
 	pid_t pid;
 	long ret;
@@ -1060,7 +1114,7 @@ pinkrb_util_get_return(pink_unused VALUE mod, VALUE pidv)
  * Set the return value of the system call for the traced child.
  */
 static VALUE
-pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
+pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE pidv, VALUE retv)
 {
 	pid_t pid;
 	long ret;
@@ -1088,13 +1142,13 @@ pinkrb_util_set_return(pink_unused VALUE mod, VALUE pidv, VALUE retv)
  * Returns the system call argument at the given index for the traced child.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
  */
 static VALUE
-pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1147,13 +1201,13 @@ pinkrb_util_get_arg(int argc, VALUE *argv, pink_unused VALUE mod)
  * determine the length of the string itself.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
  */
 static VALUE
-pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1225,7 +1279,7 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  * Encode a string into the argument of the given index safely.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1233,16 +1287,16 @@ pinkrb_decode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_encode_string_safe(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1301,13 +1355,13 @@ pinkrb_encode_string_safe(
  * Encode a string into the argument of the given index.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
  */
 static VALUE
-pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_encode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1362,6 +1416,51 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  */
 
 /*
+ * Document-method: PinkTrace::Socket.has_socketcall?
+ * call-seq: PinkTrace::Socket.has_socketcall?([bitness=PinkTrace::Bitness::DEFAULT]) => true or false
+ *
+ * Returns true if the socket calls - like connect, bind, sendto etc. - are
+ * implemented as subcalls of the socketcall(2) system call, false otherwise.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+PINK_NORETURN
+#endif
+static VALUE
+pinkrb_has_socketcall(PINK_UNUSED VALUE mod,
+#if !defined(PINKTRACE_LINUX)
+		PINK_UNUSED
+#endif
+		int argc,
+#if !defined(PINKTRACE_LINUX)
+		PINK_UNUSED
+#endif
+		VALUE *argv)
+{
+#if defined(PINKTRACE_LINUX)
+	unsigned bit;
+
+	if (argc > 1)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+	else if (argc > 0) {
+		if (FIXNUM_P(argv[0])) {
+			bit = FIX2UINT(argv[0]);
+			check_bitness(bit);
+		}
+		else
+			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_BITNESS_DEFAULT;
+
+	return pink_has_socketcall(bit) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+/*
  * Document-method: PinkTrace::Socket.name
  * call-seq: PinkTrace::Socket.name(subcall) => String or nil
  *
@@ -1370,12 +1469,12 @@ pinkrb_encode_string(int argc, VALUE *argv, pink_unused VALUE mod)
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
-pinkrb_name_socket_subcall(pink_unused VALUE mod,
+pinkrb_name_socket_subcall(PINK_UNUSED VALUE mod,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	VALUE subcallv)
 {
@@ -1411,16 +1510,16 @@ pinkrb_name_socket_subcall(pink_unused VALUE mod,
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_decode_socket_call(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1465,7 +1564,7 @@ pinkrb_decode_socket_call(
  * architectures.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
@@ -1473,16 +1572,16 @@ pinkrb_decode_socket_call(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-pink_noreturn
+PINK_NORETURN
 #endif
 static VALUE
 pinkrb_decode_socket_fd(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused int argc, pink_unused VALUE *argv,
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	pink_unused VALUE mod)
+	PINK_UNUSED VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1542,13 +1641,13 @@ pinkrb_decode_socket_fd(
  * If the system call's address argument was NULL, this function returns +nil+.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
  */
 static VALUE
-pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1598,13 +1697,13 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, pink_unused VALUE mod)
  * and the file descriptor.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
- * than PinkTrace::MAX_INDEX.
+ * than PinkTrace::Syscall::MAX_INDEX.
  *
  * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
  * or undefined.
  */
 static VALUE
-pinkrb_decode_socket_address_fd(int argc, VALUE *argv, pink_unused VALUE mod)
+pinkrb_decode_socket_address_fd(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1770,8 +1869,6 @@ Init_PinkTrace(void)
 	rb_define_const(mod, "VERSION_SUFFIX", rb_str_new2(PINKTRACE_VERSION_SUFFIX));
 	rb_define_const(mod, "GIT_HEAD", rb_str_new2(PINKTRACE_GIT_HEAD));
 	rb_define_const(mod, "PC_SLOT", rb_str_new2(PINKTRACE_PC_SLOT));
-	/* util.h */
-	rb_define_const(mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 
 	/* trace.h */
 	trace_mod = rb_define_module_under(mod, "Trace");
@@ -1787,6 +1884,7 @@ Init_PinkTrace(void)
 #endif /* defined(PINKTRACE_LINUX) */
 	rb_define_module_function(trace_mod, "me", pinkrb_trace_me, 0);
 	rb_define_module_function(trace_mod, "cont", pinkrb_trace_cont, -1);
+	rb_define_module_function(trace_mod, "resume", pinkrb_trace_resume, -1);
 	rb_define_module_function(trace_mod, "kill", pinkrb_trace_kill, 1);
 	rb_define_module_function(trace_mod, "singlestep", pinkrb_trace_singlestep, -1);
 	rb_define_module_function(trace_mod, "syscall", pinkrb_trace_syscall, -1);
@@ -1836,6 +1934,8 @@ Init_PinkTrace(void)
 
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");
+	rb_define_const(syscall_mod, "INVALID", INT2FIX(PINKTRACE_INVALID_SYSCALL));
+	rb_define_const(syscall_mod, "MAX_INDEX", INT2FIX(PINK_MAX_INDEX));
 	rb_define_module_function(syscall_mod, "name", pinkrb_name_syscall, -1);
 	rb_define_module_function(syscall_mod, "lookup", pinkrb_name_lookup, -1);
 	rb_define_module_function(syscall_mod, "get_no", pinkrb_util_get_syscall, -1);
@@ -1852,6 +1952,7 @@ Init_PinkTrace(void)
 
 	/* decode.h && socket.h */
 	socket_mod = rb_define_module_under(mod, "Socket");
+	rb_define_module_function(socket_mod, "has_socketcall?", pinkrb_has_socketcall, -1);
 	rb_define_module_function(socket_mod, "name", pinkrb_name_socket_subcall, 1);
 	rb_define_module_function(socket_mod, "decode_call", pinkrb_decode_socket_call, -1);
 	rb_define_module_function(socket_mod, "decode_fd", pinkrb_decode_socket_fd, -1);

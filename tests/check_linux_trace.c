@@ -132,7 +132,7 @@ START_TEST(t_trace_cont_basic)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, 0, NULL), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_resume(pid, 0), "%d(%s)", errno, strerror(errno));
 
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFEXITED(status), "%#x", status);
@@ -161,7 +161,7 @@ START_TEST(t_trace_cont_signal)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
 
-		fail_unless(pink_trace_cont(pid, SIGTERM, NULL), "%d(%s)", errno, strerror(errno));
+		fail_unless(pink_trace_resume(pid, SIGTERM), "%d(%s)", errno, strerror(errno));
 
 		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
 		fail_unless(WIFSIGNALED(status), "%#x", status);
@@ -263,7 +263,7 @@ trace_suite_create(void)
 
 	suite_add_tcase(s, tc_pink_trace_me);
 
-	/* pink_trace_cont() */
+	/* pink_trace_cont() & pink_trace_resume() */
 	TCase *tc_pink_trace_cont = tcase_create("pink_trace_cont");
 
 	tcase_add_test(tc_pink_trace_cont, t_trace_cont_basic);

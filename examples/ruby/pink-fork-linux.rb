@@ -27,6 +27,6 @@ end
 
 # Set tracing options
 PinkTrace::Trace.setup pid
-# Let the child continue...
-PinkTrace::Trace.cont pid
+# Let the child resume its execution.
+PinkTrace::Trace.resume pid
 Process.wait

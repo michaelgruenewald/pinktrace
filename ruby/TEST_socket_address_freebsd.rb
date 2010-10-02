@@ -33,7 +33,7 @@ class TestPinkSocketAddress < Test::Unit::TestCase
       PinkTrace::Socket.decode_address 0, 1, 'pink'
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::Socket.decode_address 0, PinkTrace::MAX_INDEX
+      PinkTrace::Socket.decode_address 0, PinkTrace::Syscall::MAX_INDEX
     end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Socket.decode_address 0, 1, 13
@@ -66,7 +66,7 @@ class TestPinkSocketAddress < Test::Unit::TestCase
       PinkTrace::Socket.decode_address_fd 0, 1, 'pink'
     end
     assert_raise PinkTrace::IndexError do
-      PinkTrace::Socket.decode_address_fd 0, PinkTrace::MAX_INDEX
+      PinkTrace::Socket.decode_address_fd 0, PinkTrace::Syscall::MAX_INDEX
     end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Socket.decode_address_fd 0, 1, 13

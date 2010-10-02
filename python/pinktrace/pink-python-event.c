@@ -54,9 +54,9 @@ static char pinkpy_event_decide_doc[] = ""
 	"@rtype: int\n"
 	"@return: One of the C{pinktrace.event.EVENT_*} constants";
 static PyObject *
-pinkpy_event_decide(pink_unused PyObject *self,
+pinkpy_event_decide(PINK_UNUSED PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *args)
 {
@@ -84,7 +84,7 @@ static PyMethodDef event_methods[] = {
 static void
 event_init(
 #if !defined(PINKTRACE_LINUX)
-	pink_unused
+	PINK_UNUSED
 #endif
 	PyObject *mod)
 {

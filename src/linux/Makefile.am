@@ -19,4 +19,8 @@ if POWERPC64
 SUBDIRS+= powerpc
 endif # POWERPC64
 
+if ARM
+SUBDIRS+= arm
+endif # ARM
+
 SUBDIRS+= .
