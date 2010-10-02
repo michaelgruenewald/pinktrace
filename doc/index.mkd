@@ -144,6 +144,7 @@ The supported architectures are:
 - [ia64](http://en.wikipedia.org/wiki/Ia64) (Linux only)
 - [ppc](http://en.wikipedia.org/wiki/PowerPC) (Linux only)
 - [ppc64](http://en.wikipedia.org/wiki/Ppc64) (Linux only)
+- [arm](http://en.wikipedia.org/wiki/ARM_architecture) (Linux only)
 
 ## License
 Copyright &copy; 2010 Ali Polatel &lt;[alip@exherbo.org](mailto:alip@exherbo.org)&gt;  
