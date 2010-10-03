@@ -5,6 +5,7 @@ title: Home
 
 * [About](#about)
 * [Overview](#overview)
+* [Current Status](#current_status)
 * [Documentation](#documentation)
 * [Bindings](#bindings)
 * [Compiling C Code](#compiling_c_code)
@@ -24,6 +25,12 @@ applications. It consists of the following parts:
 - Wrappers around different *ptrace()* requests.
 - An API for decoding arguments (strings, socket addresses, ...)
 - An **experimental** API for encoding arguments.
+
+**PinkTrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
+
+## Current Status
+Version {{ site.version }} has an unstable [API](http://en.wikipedia.org/wiki/Api) and
+[ABI](http://en.wikipedia.org/wiki/Application_binary_interface).
 
 ## Documentation
 An extensive API reference is [available]({{ site.url }}/api/c).
@@ -189,7 +196,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *Sun Oct 3 2010:*
 
 [Version 0.0.2](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.2.tar.bz2) released;
-Fixes compilation on ARM due to missing header
+fixes compilation on ARM due to missing header
 
 *Sun Oct 3 2010:*
 

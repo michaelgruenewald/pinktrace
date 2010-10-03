@@ -11,3 +11,4 @@ exclude: [ api, Makefile, Makefile.am, Makefile.in, css/screen.css.in ]
 title: "PinkTrace-##VERSION##"
 url: "##HOMEPAGE##"
 scm: "##SCM_URI##"
+version: "##VERSION##"
