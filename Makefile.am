@@ -23,6 +23,16 @@ pinktrace_include_HEADERS= \
 EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
 
+checksum: dist
+	@echo "SHA1 $(PACKAGE)-$(VERSION).tar.bz2"
+	sha1sum $(PACKAGE)-$(VERSION).tar.bz2 > $(PACKAGE)-$(VERSION).tar.bz2.sha1sum
+	@echo "SIGN $(PACKAGE)-$(VERSION).tar.bz2"
+	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
+
+upload-release:
+	@echo "UPLOAD $(PACKAGE)-$(VERSION).tar.bz2*"
+	scp $(PACKAGE)-$(VERSION).tar.bz2* bach.exherbo.org:public_html/pinktrace/release
+
 doxygen:
 	$(MAKE) -C doc $@
 
@@ -43,4 +53,4 @@ upload-www:
 
 upload: upload-doc upload-example upload-www
 
-.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www
+.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www upload-release
