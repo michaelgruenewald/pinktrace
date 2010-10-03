@@ -3,6 +3,17 @@ layout: default
 title: Home
 ---
 
+* [About](#about)
+* [Overview](#overview)
+* [Documentation](#documentation)
+* [Bindings](#bindings)
+* [Compiling C Code](#compiling_c_code)
+* [Examples](#examples)
+* [Contribute](#contribute)
+* [Supported Platforms](#supported_platforms)
+* [License](#license)
+* [News](#news)
+
 ## About
 **PinkTrace** is a *ptrace()* wrapper library.
 
@@ -13,12 +24,6 @@ applications. It consists of the following parts:
 - Wrappers around different *ptrace()* requests.
 - An API for decoding arguments (strings, socket addresses, ...)
 - An **experimental** API for encoding arguments.
-
-## News
-
-*Sun Oct 3 2010:*
-
-[Version 0.0.1](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.1.tar.bz2) released
 
 ## Documentation
 An extensive API reference is [available]({{ site.url }}/api/c).
@@ -178,5 +183,11 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+## News
+
+*Sun Oct 3 2010:*
+
+[Version 0.0.1](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.1.tar.bz2) released
 
 <!-- vim: set tw=120 ft=mkd spell spelllang=en sw=4 sts=4 et : -->
