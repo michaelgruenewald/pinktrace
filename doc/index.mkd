@@ -188,6 +188,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *Sun Oct 3 2010:*
 
+[Version 0.0.2](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.2.tar.bz2) released;
+Fixes compilation on ARM due to missing header
+
+*Sun Oct 3 2010:*
+
 [Version 0.0.1](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.1.tar.bz2) released
 
 <!-- vim: set tw=120 ft=mkd spell spelllang=en sw=4 sts=4 et : -->
