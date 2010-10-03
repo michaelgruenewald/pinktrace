@@ -69,7 +69,10 @@ class TestPinkEvent < Test::Unit::TestCase
     event = PinkTrace::Event.decide
     assert(event == PinkTrace::Event::EVENT_FORK, "Wrong event, expected: FORK got: #{event}")
 
-    begin PinkTrace::Trace.kill pid
+    begin
+      child = PinkTrace::Trace.geteventmsg pid
+      PinkTrace::Trace.kill child
+      PinkTrace::Trace.kill pid
     rescue Errno::ESRCH ;end
   end
 
