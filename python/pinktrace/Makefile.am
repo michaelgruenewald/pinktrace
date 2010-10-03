@@ -1,5 +1,14 @@
 CLEANFILES= *.so *.pyc
 SUBDIRS= .
+IF_PYTHON_FILES= \
+		 __init__.py.in \
+		 pink-python-bitness.c \
+		 pink-python-event.c \
+		 pink-python-socket.c \
+		 pink-python-string.c \
+		 pink-python-syscall.c \
+		 pink-python-trace.c
+EXTRA_DIST= $(IF_PYTHON_FILES)
 AM_CFLAGS= \
 	   -I. -I@PYTHON_INCLUDE_DIR@ \
 	   -I$(top_srcdir)/include \
@@ -8,6 +17,7 @@ BUILT_SOURCES=
 
 noinst_HEADERS= pink-python-hacks.h
 
+if ENABLE_PYTHON
 pythonlibdir= @PYTHON_INSTALL_DIR@/pinktrace
 pythonlib_LTLIBRARIES=
 
@@ -91,3 +101,5 @@ noinst_DATA= \
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(pythonlibdir)/*.la
+
+endif # ENABLE_PYTHON
