@@ -1,0 +1,4 @@
+## News for pinktrace
+
+This file lists the major changes between versions. For a more detailed list of
+every change, see git log.
