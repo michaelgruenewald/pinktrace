@@ -241,6 +241,9 @@ dnl }}}
 
 dnl {{{ Check headers
 REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
+if test x"$opsys" = x"linux" ; then
+	REQUIRED_HEADERS="${REQUIRED_HEADERS} linux/ptrace.h"
+fi
 for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
