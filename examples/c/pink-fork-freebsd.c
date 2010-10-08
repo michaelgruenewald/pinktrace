@@ -34,6 +34,8 @@ main(void)
 
 		/* Here's the point where you can do whatever the traced child
 		 * should do. */
+		printf("hello world\n");
+
 		_exit(EXIT_SUCCESS);
 	}
 	else {
@@ -44,6 +46,10 @@ main(void)
 		/* The child is ready for tracing, nothing interesting in this
 		 * example, let the child resume its execution. */
 		pink_trace_resume(pid, 0);
+
+		/* Wait for the child to exit. */
+		waitpid(pid, &status, 0);
+
 		return EXIT_SUCCESS;
 	}
 }
