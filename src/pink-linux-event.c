@@ -44,7 +44,7 @@ pink_event_decide(int status)
 			return PINK_EVENT_STOP;
 		case SIGTRAP | 0x80:
 			return PINK_EVENT_SYSCALL;
-		default:
+		case SIGTRAP:
 			event = (status >> 16) & 0xffff;
 			switch (event) {
 			case PTRACE_EVENT_FORK:
@@ -62,6 +62,8 @@ pink_event_decide(int status)
 			default:
 				return PINK_EVENT_GENUINE;
 			}
+		default:
+			return PINK_EVENT_GENUINE;
 		}
 	}
 	else if (WIFEXITED(status))
