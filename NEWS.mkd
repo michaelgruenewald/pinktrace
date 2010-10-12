@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* Fix pink\_util\_movestr\_persistent(), fixes #7
 * New function: pink\_bitness\_wordsize()
 
 ### 0.0.2

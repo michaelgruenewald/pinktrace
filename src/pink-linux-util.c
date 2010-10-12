@@ -224,7 +224,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 		addr &= -sizeof(long); /* residue */
 
 		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO || errno == EFAULT))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -240,7 +240,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 	}
 	while (len > 0) {
 		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO || errno == EFAULT))) {
 				/* Ran into end of memory */
 				return true;
 			}
@@ -260,7 +260,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 char *
 pink_util_movestr_persistent(pid_t pid, long addr)
 {
-	int n, m, sum;
+	int n, m, sum, save_errno;
 	bool started;
 	union {
 		long val;
@@ -275,6 +275,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		}			\
 	} while (0)
 
+	save_errno = errno;
 	started = false;
 	res = res_ptr = NULL;
 	sum = 0;
@@ -285,12 +286,16 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		addr &= -sizeof(long); /* residue */
 
 		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO || errno == EFAULT))) {
 				/* Ran into end of memory */
 				return res;
 			}
 			/* But if not started, we had a bogus address */
 			XFREE(res);
+			if (PINK_UNLIKELY(!started)) {
+				/* NULL */
+				errno = save_errno;
+			}
 			return NULL;
 		}
 		m = sizeof(long) - n;
@@ -307,12 +312,16 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 	}
 	for (;;) {
 		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
-			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO))) {
+			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO || errno == EFAULT))) {
 				/* Ran into end of memory */
 				return res;
 			}
 			/* But if not started, we had a bogus address */
 			XFREE(res);
+			if (PINK_UNLIKELY(!started)) {
+				/* NULL */
+				errno = save_errno;
+			}
 			return NULL;
 		}
 		m = sizeof(long);

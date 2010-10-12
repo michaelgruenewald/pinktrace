@@ -311,9 +311,11 @@ START_TEST(t_decode_string_persistent_null)
 		event = pink_event_decide(status);
 		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
 
+		errno = 0;
 		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
 		fail_if(buf != NULL, "NULL != `%s'", buf);
-		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
 		pink_trace_kill(pid);
 	}
