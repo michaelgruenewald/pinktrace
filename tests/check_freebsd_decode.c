@@ -282,9 +282,11 @@ START_TEST(t_decode_string_persistent_null)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
+		errno = 0;
 		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
 		fail_unless(buf == NULL, "NULL != `%s'", buf);
-		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
 		pink_trace_kill(pid);
 	}

@@ -95,7 +95,7 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len)
 	struct ptrace_io_desc ioreq;
 
 	ioreq.piod_op = PIOD_READ_D;
-	ioreq.piod_offs = (char *)addr;
+	ioreq.piod_offs = (void *)addr;
 	ioreq.piod_addr = dest;
 	ioreq.piod_len = len;
 
@@ -114,10 +114,11 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len)
 char *
 pink_util_movestr_persistent(pid_t pid, long addr)
 {
-	int diff;
+	int diff, save_errno;
 	size_t totalsize, size;
 	char *buf;
 
+	save_errno = errno;
 	diff = 0;
 	totalsize = size = BLOCKSIZE;
 	buf = malloc(sizeof(char) * totalsize);
@@ -126,7 +127,16 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 	for (;;) {
 		diff = totalsize - size;
 		if (PINK_UNLIKELY(!pink_util_moven(pid, addr + diff, buf + diff, size))) {
-			free(buf);
+			if (diff == 0 && (errno == EFAULT || errno == EIO)) {
+				/* NULL */
+				free(buf);
+				errno = save_errno;
+			}
+			else {
+				save_errno = errno;
+				free(buf);
+				errno = save_errno;
+			}
 			return NULL;
 		}
 		for (unsigned int i = 0; i < size; i++) {
