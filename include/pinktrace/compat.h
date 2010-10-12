@@ -27,62 +27,12 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PINKTRACE_GUARD_PINK_H
-#define PINKTRACE_GUARD_PINK_H 1
-
-/**
- * \mainpage pinktrace
- *
- * pinktrace - Pink's Tracing Library
- *
- * pinktrace is a wrapper around ptrace(2) system call.
- * It provides a robust API for tracing processes.
- *
- * Note this is a work in progress and the API is *not* stable.
- *
- * \author Ali Polatel <alip@exherbo.org>
- **/
-
-/**
- * \example pink-about.c
- * This is a simple example demonstrating how to use Pink's version macros.
- **/
-
-/**
- * \example pink-fork-freebsd.c
- * This is an example demonstrating how to fork and start tracing a process on FreeBSD.
- **/
-
-/**
- * \example pink-fork-linux.c
- * This is an example demonstrating how to fork and start tracing a process on Linux.
- **/
-
-/**
- * \example pink-simple-strace-freebsd.c
- * This is a simple strace like program example written with pinktrace for FreeBSD.
- **/
-
-/**
- * \example pink-simple-strace-linux.c
- * This is a simple strace like program example written with pinktrace for Linux.
- **/
+#ifndef PINKTRACE_GUARD_COMPAT_H
+#define PINKTRACE_GUARD_COMPAT_H
 
 /**
  * \file
- * A header file including all other header files part of pinktrace
+ * Pink's compatibility macros
  **/
 
-#include <pinktrace/compat.h>
-#include <pinktrace/gcc.h>
-#include <pinktrace/about.h>
-#include <pinktrace/bitness.h>
-#include <pinktrace/decode.h>
-#include <pinktrace/encode.h>
-#include <pinktrace/event.h>
-#include <pinktrace/name.h>
-#include <pinktrace/socket.h>
-#include <pinktrace/trace.h>
-#include <pinktrace/util.h>
-
-#endif /* !PINKTRACE_GUARD_PINK_H */
+#endif /* PINKTRACE_GUARD_COMPAT_H */

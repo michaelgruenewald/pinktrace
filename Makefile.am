@@ -10,6 +10,7 @@ pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
 			  include/pinktrace/about.h \
 			  include/pinktrace/bitness.h \
+			  include/pinktrace/compat.h \
 			  include/pinktrace/decode.h \
 			  include/pinktrace/encode.h \
 			  include/pinktrace/event.h \
