@@ -57,6 +57,19 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 #endif
 }
 
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+#if defined(POWERPC)
+	return 4;
+#elif defined(POWERPC64)
+	return 8;
+#else
+#error unsupported architecture
+#endif
+}
+
 bool
 pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {

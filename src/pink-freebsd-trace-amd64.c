@@ -73,6 +73,22 @@ pink_bitness_get(pid_t pid)
 	return PINK_BITNESS_UNKNOWN;
 }
 
+inline
+unsigned short
+pink_bitness_wordsize(pink_bitness_t bitness)
+{
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
+
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		return 4;
+	case PINK_BITNESS_64:
+		return 8;
+	default:
+		abort();
+	}
+}
+
 bool
 pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res)
 {

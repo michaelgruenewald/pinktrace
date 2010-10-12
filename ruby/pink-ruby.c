@@ -906,6 +906,29 @@ pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE bitv)
 }
 
 /*
+ * Document-method: PinkTrace::Bitness.wordsize
+ * call-seq: PinkTrace::Bitness.wordsize(bitness) => Fixnum
+ *
+ * Returns the word size of the given bitness.
+ */
+static VALUE
+pinkrb_bitness_wordsize(PINK_UNUSED VALUE mod, VALUE bitv)
+{
+	unsigned short wordsize;
+	unsigned bit;
+
+	if (FIXNUM_P(bitv)) {
+		bit = FIX2UINT(bitv);
+		check_bitness(bit);
+	}
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	wordsize = pink_bitness_wordsize(bit);
+	return FIX2INT(wordsize);
+}
+
+/*
  * Document-class: PinkTrace::Syscall
  *
  * This class defines utilities useful when tracing processes.
@@ -1931,6 +1954,7 @@ Init_PinkTrace(void)
 #endif /* PINKTRACE_BITNESS_64_SUPPORTED */
 	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
 	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
+	rb_define_module_function(bitness_mod, "wordsize", pinkrb_bitness_wordsize, 1);
 
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");

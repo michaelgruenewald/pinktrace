@@ -3,6 +3,8 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* New function: pink\_bitness\_wordsize()
+
 ### 0.0.2
 * Fix compilation on ARM due to missing header
 

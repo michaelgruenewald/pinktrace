@@ -61,6 +61,13 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 	return PINK_BITNESS_32;
 }
 
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+	return 4;
+}
+
 bool
 pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {

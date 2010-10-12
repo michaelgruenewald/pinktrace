@@ -35,4 +35,13 @@
  * Pink's compatibility macros
  **/
 
+/**
+ * Define for the availability of pink_bitness_wordsize() function.
+ *
+ * \see pink_bitness_wordsize
+ *
+ * \since 0.0.3
+ **/
+#define PINK_BITNESS_WORDSIZE_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

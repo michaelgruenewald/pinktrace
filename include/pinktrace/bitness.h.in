@@ -98,6 +98,19 @@ PINK_PURE
 const char *
 pink_bitness_name(pink_bitness_t bitness);
 
+/**
+ * Return the word size of the given bitness.
+ *
+ * \param bitness Bitness of the child
+ *
+ * \return Word size of the bitness
+ *
+ * \since 0.0.3
+ **/
+PINK_PURE
+unsigned short
+pink_bitness_wordsize(pink_bitness_t bitness);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
