@@ -9,10 +9,12 @@ IF_PYTHON_TESTS= \
 		 TEST_socket.py \
 		 TEST_syscall_freebsd.py \
 		 TEST_string_freebsd.py \
+		 TEST_strarray_freebsd.py \
 		 TEST_socket_freebsd.py \
 		 TEST_event.py \
 		 TEST_syscall_linux.py \
 		 TEST_string_linux.py \
+		 TEST_strarray_linux.py \
 		 TEST_socket_linux.py
 EXTRA_DIST= $(IF_PYTHON_TESTS)
 
@@ -29,6 +31,7 @@ if FREEBSD
 TESTS+= \
 	TEST_syscall_freebsd.py \
 	TEST_string_freebsd.py \
+	TEST_strarray_freebsd.py \
 	TEST_socket_freebsd.py
 endif # FREEBSD
 
@@ -37,6 +40,7 @@ TESTS+= \
 	TEST_event.py \
 	TEST_syscall_linux.py \
 	TEST_string_linux.py \
+	TEST_strarray_linux.py \
 	TEST_socket_linux.py
 endif # LINUX
 

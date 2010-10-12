@@ -21,6 +21,27 @@ def decode_open pid, bitness
   print "open(\"#{path}\", #{flags})"
 end
 
+def decode_execve pid, bitness
+  path = PinkTrace::String.decode pid, 0, -1, bitness
+  addr = PinkTrace::Syscall.get_arg pid, 1, bitness
+
+  print "execve(\"#{path}\", ["
+
+  i = 0
+  sep = ''
+  loop do
+    path = PinkTrace::StringArray.decode pid, addr, i
+    if path
+      print "#{sep}\"#{path}\""
+      i += 1
+      sep = ', '
+    else
+      print '], envp[]'
+      break
+    end
+  end
+end
+
 unless ARGV.size > 0
   puts "Usage: #{$0} program [arguments..]"
   exit 1
@@ -71,6 +92,8 @@ loop do
         print "#{scno}()"
       elsif scname == 'open'
         decode_open pid, bitness
+      elsif scname == 'execve'
+        decode_execve pid, bitness
       else
         print "#{scname}()"
       end

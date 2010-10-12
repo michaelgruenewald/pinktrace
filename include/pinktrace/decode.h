@@ -85,6 +85,45 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 char *
 pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
+/**
+ * Decode the requested member of a NULL-terminated string array.
+ *
+ * \param pid Process ID of the child
+ * \param bitness Bitness of the child
+ * \param addr The address of the argument, see pink_util_get_arg()
+ * \param ind The index of the string in the array
+ * \param dest Pointer to store the string
+ * \param len Length of the string
+ * \param nil If non-NULL, specifies the address of a boolean which can be
+ * used to determine whether the member at the requested index is NULL or not.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ *
+ * \since 0.0.3
+ **/
+PINK_NONNULL(5)
+bool
+pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind, char *dest, size_t len, bool *nil);
+
+/**
+ * Like pink_decode_string_array_member() but allocates the string itself.
+ *
+ * \param pid Process ID of the child
+ * \param bitness Bitness of the child
+ * \param arg The address of the argument, see pink_util_get_arg()
+ * \param ind The index of the string in teh array
+ *
+ * \return The string on success, NULL on failure and sets errno accordingly.
+ *
+ * \note If the array member is NULL, this function returns NULL but doesn't
+ * modify errno. Check errno after the call to distinguish between success and
+ * failure for a NULL return.
+ *
+ * \since 0.0.3
+ **/
+char *
+pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind);
+
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Decode the socket call and place it in call.

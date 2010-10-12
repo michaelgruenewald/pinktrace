@@ -89,6 +89,44 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 	fputc(')', stdout);
 }
 
+/* A very basic decoder for execve(2) system call. */
+static void
+decode_execve(pid_t pid, pink_bitness_t bitness)
+{
+	bool nil;
+	unsigned i;
+	long arg;
+	char buf[MAX_STRING_LEN];
+	const char *sep;
+
+	if (!pink_decode_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
+		perror("pink_decode_string");
+		return;
+	}
+	if (!pink_util_get_arg(pid, bitness, 1, &arg)) {
+		perror("pink_util_get_arg");
+		return;
+	}
+
+	printf("execve(\"%s\", [", buf);
+
+	for (i = 0, nil = false, sep = "";;sep = ", ") {
+		if (!pink_decode_string_array_member(pid, bitness, arg, ++i, buf, MAX_STRING_LEN, &nil)) {
+			perror("pink_decode_string_array_member");
+			return;
+		}
+		printf("%s", sep);
+		fputc('"', stdout);
+		printf("%s", buf);
+		fputc('"', stdout);
+
+		if (nil) {
+			printf("], envp[])");
+			break;
+		}
+	}
+}
+
 static void
 handle_sigtrap(struct child *son)
 {
@@ -139,6 +177,8 @@ handle_sigtrap(struct child *son)
 
 		if (!strcmp(scname, "open"))
 			decode_open(son->pid, son->bitness);
+		else if (!strcmp(scname, "execve"))
+			decode_execve(son->pid, son->bitness);
 		else
 			printf("%s()", scname);
 	}

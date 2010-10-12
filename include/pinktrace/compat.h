@@ -44,4 +44,22 @@
  **/
 #define PINK_BITNESS_WORDSIZE_AVAILABLE 1
 
+/**
+ * Define for the availability of pink_decode_string_array_member() function.
+ *
+ * \see pink_decode_string_array_member
+ *
+ * \since 0.0.3
+ **/
+#define PINK_DECODE_STRING_ARRAY_MEMBER_AVAILABLE 1
+
+/**
+ * Define for the availability of pink_decode_string_array_member_persistent() function.
+ *
+ * \see pink_decode_string_array_member_persistent
+ *
+ * \since 0.0.3
+ **/
+#define PINK_DECODE_STRING_ARRAY_MEMBER_PERSISTENT_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

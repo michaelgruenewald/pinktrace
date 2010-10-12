@@ -530,6 +530,210 @@ START_TEST(t_decode_string_persistent_fourth)
 }
 END_TEST
 
+START_TEST(t_decode_string_array_member_null)
+{
+	bool nil;
+	int status;
+	long arg;
+	char buf[1];
+	char *const myargv[] = { NULL };
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execvp("true", myargv);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0, buf, 1, &nil),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(nil, "Not NULL");
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member)
+{
+	bool nil;
+	int status;
+	long arg;
+	char buf[10];
+	char *const myargv[] = { "/dev/null", "/dev/zero", NULL };
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execvp("true", myargv);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0, buf, 10, NULL),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 1, buf, 10, NULL),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10), "/dev/zero != `%s'", buf);
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 2, buf, 10, &nil),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(nil, "Not NULL");
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member_persistent_null)
+{
+	int status;
+	long arg;
+	char *buf;
+	char *const myargv[] = { NULL };
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execvp("true", myargv);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		errno = 0;
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
+		fail_unless(buf == NULL, "`%s'", buf);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member_persistent)
+{
+	int status;
+	long arg;
+	char *buf;
+	char *const myargv[] = { "/dev/null", "/dev/zero", NULL };
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execvp("true", myargv);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
+		free(buf);
+
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 1);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10), "/dev/zero != `%s'", buf);
+		free(buf);
+
+		errno = 0;
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 2);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
+		fail_unless(buf == NULL, "`%s'", buf);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
 START_TEST(t_decode_socket_call)
 {
 	int status;
@@ -1444,6 +1648,11 @@ decode_suite_create(void)
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_second);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_third);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_fourth);
+
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_null);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_persistent_null);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_persistent);
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_call);
 	tcase_add_test(tc_pink_decode, t_decode_socket_fd);

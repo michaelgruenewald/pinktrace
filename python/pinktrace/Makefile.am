@@ -6,6 +6,7 @@ IF_PYTHON_FILES= \
 		 pink-python-event.c \
 		 pink-python-socket.c \
 		 pink-python-string.c \
+		 pink-python-strarray.c \
 		 pink-python-syscall.c \
 		 pink-python-trace.c
 EXTRA_DIST= $(IF_PYTHON_FILES)
@@ -73,6 +74,11 @@ string_la_SOURCES= pink-python-string.c
 string_la_LDFLAGS= -module -avoid-version -shared
 string_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
+pythonlib_LTLIBRARIES+= strarray.la
+strarray_la_SOURCES= pink-python-strarray.c
+strarray_la_LDFLAGS= -module -avoid-version -shared
+strarray_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
+
 pythonlib_LTLIBRARIES+= syscall.la
 syscall_la_SOURCES= pink-python-syscall.c
 syscall_la_LDFLAGS= -module -avoid-version -shared
@@ -93,6 +99,7 @@ noinst_DATA= \
 	     event.so \
 	     socket.so \
 	     string.so \
+	     strarray.so \
 	     syscall.so \
 	     trace.so
 

@@ -113,6 +113,7 @@ check_index(unsigned ind)
  * - PinkTrace::Bitness
  * - PinkTrace::Syscall
  * - PinkTrace::String
+ * - PinkTrace::StringArray
  * - PinkTrace::Socket
  *
  * == Constants
@@ -1432,6 +1433,106 @@ pinkrb_encode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	return Qnil;
 }
 
+ /*
+ * Document-class: PinkTrace::StringArray
+ *
+ * This class contains functions to decode NULL-terminated string array members.
+ */
+
+/*
+ * Document-method: PinkTrace::StringArray.decode
+ * call-seq: PinkTrace::StringArray.decode(pid, arg, index, [[maxlen=-1], [bitness=PinkTrace::Bitness::DEFAULT]]) => String or nil
+ *
+ * This function decodes the member of the string array pointed by the address
+ * +arg+. The +index+ argument specifies the index of the member in the string
+ * array.
+ *
+ * Note: If the string array member was NULL, this function returns nil.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ */
+static VALUE
+pinkrb_decode_strarray(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+{
+	bool nil;
+	pid_t pid;
+	unsigned bit, ind;
+	long arg;
+	int maxlen;
+	char *str;
+	VALUE ret;
+
+	if (argc < 3 || argc > 5)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2UINT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[1]))
+		arg = FIX2LONG(argv[1]);
+	else
+		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[2])) {
+		ind = FIX2UINT(argv[2]);
+		check_index(ind);
+	}
+	else
+		rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
+
+	if (argc > 3) {
+		if (FIXNUM_P(argv[3]))
+			maxlen = FIX2INT(argv[3]);
+		else
+			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
+	}
+	else
+		maxlen = -1;
+
+	if (argc > 4) {
+		if (FIXNUM_P(argv[4])) {
+			bit = FIX2UINT(argv[4]);
+			check_bitness(bit);
+		}
+		else
+			rb_raise(rb_eTypeError, "Fifth argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_BITNESS_DEFAULT;
+
+	if (maxlen < 0) {
+		/* Use pink_decode_string_array_member_persistent() */
+		errno = 0;
+		str = pink_decode_string_array_member_persistent(pid, bit, arg, ind);
+		if (!str) {
+			if (errno)
+				rb_sys_fail("pink_decode_string_array_member_persistent()");
+			return Qnil;
+		}
+
+		ret = rb_str_new2(str);
+		free(str);
+		return ret;
+	}
+
+	/* Use pink_decode_string_array_member() */
+	str = ALLOC_N(char, maxlen);
+	if (!pink_decode_string_array_member(pid, bit, arg, ind, str, maxlen, &nil))
+		rb_sys_fail("pink_decode_string_array_member()");
+	if (nil) {
+		free(str);
+		return Qnil;
+	}
+
+	ret = rb_str_new2(str);
+	if (str)
+		free(str);
+	return ret;
+}
+
 /*
  * Document-class: PinkTrace::Socket
  *
@@ -1868,6 +1969,7 @@ Init_PinkTrace(void)
 	VALUE bitness_mod;
 	VALUE event_mod;
 	VALUE string_mod;
+	VALUE strarray_mod;
 	VALUE socket_mod;
 	VALUE syscall_mod;
 	VALUE trace_mod;
@@ -1973,6 +2075,10 @@ Init_PinkTrace(void)
 	rb_define_module_function(string_mod, "decode", pinkrb_decode_string, -1);
 	rb_define_module_function(string_mod, "encode", pinkrb_encode_string_safe, -1);
 	rb_define_module_function(string_mod, "encode!", pinkrb_encode_string, -1);
+
+	/* decode.h (only string array decoding */
+	strarray_mod = rb_define_module_under(mod, "StringArray");
+	rb_define_module_function(strarray_mod, "decode", pinkrb_decode_strarray, -1);
 
 	/* decode.h && socket.h */
 	socket_mod = rb_define_module_under(mod, "Socket");

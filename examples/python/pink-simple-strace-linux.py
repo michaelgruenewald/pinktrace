@@ -12,6 +12,7 @@ import errno, os, signal, sys
 import pinktrace.bitness
 import pinktrace.event
 import pinktrace.string
+import pinktrace.strarray
 import pinktrace.syscall
 import pinktrace.trace
 
@@ -32,10 +33,25 @@ def decode_open(pid, bitness):
 
     print("open(\"%s\", %d)" % (path, flags) , end="")
 
-def decode_simple(bitness, scno):
-    """Decode a call simply."""
+def decode_execve(pid, bitness):
+    """Decode an execve() call"""
 
-    scname = pinktrace.syscall.name(scno, bitness)
+    path = pinktrace.string.decode(pid, 0, -1, bitness)
+    addr = pinktrace.syscall.get_arg(pid, 1, bitness)
+
+    print("execve(\"%s\", [" % path, end="")
+
+    i = 0
+    sep = ""
+    while True:
+        path = pinktrace.strarray.decode(pid, addr, i)
+        if path is not None:
+            print("%s\"%s\"" % (sep, path), end="")
+            i += 1
+            sep = ", "
+        else:
+            print("], envp[]", end="")
+            break
 
 if len(sys.argv) < 2:
     print("Usage: %s program [argument...]", file=sys.stderr)
@@ -87,6 +103,8 @@ while True:
                 print("%ld()" % scno, end="")
             elif scname == 'open':
                 decode_open(pid, bitness)
+            elif scname == 'execve':
+                decode_execve(pid, bitness)
             else:
                 print("%s()" % scname, end="")
         insyscall = not insyscall

@@ -5,10 +5,12 @@ IF_RUBY_TESTS= \
 	       TEST_bitness.rb \
 	       TEST_syscall_freebsd.rb \
 	       TEST_string_freebsd.rb \
+	       TEST_strarray_freebsd.rb \
 	       TEST_socket_address_freebsd.rb \
 	       TEST_event.rb \
 	       TEST_syscall_linux.rb \
 	       TEST_string_linux.rb \
+	       TEST_strarray_linux.rb \
 	       TEST_socket_linux.rb \
 	       TEST_socket_address_linux.rb
 EXTRA_DIST= $(IF_RUBY_FILES) $(IF_RUBY_TESTS)
@@ -36,6 +38,7 @@ TESTS_ENVIRONMENT= RUBY="$(RUBY)" ./ruby-test.sh
 TESTS+= \
 	TEST_syscall_freebsd.rb \
 	TEST_string_freebsd.rb \
+	TEST_strarray_freebsd.rb \
 	TEST_socket_address_freebsd.rb
 endif # FREEBSD
 
@@ -44,6 +47,7 @@ TESTS+= \
 	TEST_event.rb \
 	TEST_syscall_linux.rb \
 	TEST_string_linux.rb \
+	TEST_strarray_linux.rb \
 	TEST_socket_linux.rb \
 	TEST_socket_address_linux.rb
 endif # LINUX
