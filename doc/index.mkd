@@ -193,6 +193,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
 
+*Tue Oct 12 2010:*
+
+[Version 0.0.3](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.3.tar.bz2) released;
+fixes a few bugs and adds an [API](http://en.wikipedia.org/wiki/Api) to decode NULL-terminated string arrays.
+
 *Sun Oct 3 2010:*
 
 [Version 0.0.2](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.2.tar.bz2) released;
