@@ -193,6 +193,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
 
+*Sun Oct 17 2010:*
+
+[Version 0.0.4](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.4.tar.bz2) released;
+fixes socket decoding functions for PPC64.
+
 *Tue Oct 12 2010:*
 
 [Version 0.0.3](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.3.tar.bz2) released;

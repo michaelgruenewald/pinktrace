@@ -3,6 +3,9 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+### 0.0.4
+* Fix pink\_decode\_socket\_{address,fd} on ppc64
+
 ### 0.0.3
 * Add an API to decode NULL-terminated string array members
 * Fix pink\_util\_movestr\_persistent(), fixes #7
