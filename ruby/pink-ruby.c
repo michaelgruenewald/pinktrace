@@ -576,6 +576,114 @@ pinkrb_trace_syscall_exit(
 }
 
 /*
+ * Document-method: PinkTrace::Trace.sysemu
+ * call-seq: PinkTrace::Trace.sysemu(pid, [sig=0]) => nil
+ *
+ * Restarts the stopped child process and arranges it to be stopped after the
+ * entry of the next system call which will *not* be executed.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+PINK_NORETURN
+#endif
+static VALUE
+pinkrb_trace_sysemu(
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+#else
+	int argc, VALUE *argv,
+#endif
+	PINK_UNUSED VALUE mod)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	long sig;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc == 2) {
+		if (FIXNUM_P(argv[1]))
+			sig = FIX2LONG(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		sig = 0;
+
+	if (!pink_trace_sysemu(pid, sig))
+		rb_sys_fail("pink_trace_sysemu()");
+
+	return Qnil;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+/*
+ * Document-method: PinkTrace::Trace.sysemu_singlestep
+ * call-seq: PinkTrace::Trace.sysemu_singlestep(pid, [sig=0]) => nil
+ *
+ * Restarts the stopped child process PinkTrace::Trace.sysemu but also
+ * singlesteps if not a system call.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+PINK_NORETURN
+#endif
+static VALUE
+pinkrb_trace_sysemu_singlestep(
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+#else
+	int argc, VALUE *argv,
+#endif
+	PINK_UNUSED VALUE mod)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	long sig;
+
+	if (argc < 1 || argc > 2)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (argc == 2) {
+		if (FIXNUM_P(argv[1]))
+			sig = FIX2LONG(argv[1]);
+		else
+			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	}
+	else
+		sig = 0;
+
+	if (!pink_trace_sysemu_singlestep(pid, sig))
+		rb_sys_fail("pink_trace_sysemu_singlestep()");
+
+	return Qnil;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+/*
  * Document-method: PinkTrace::Trace.geteventmsg
  * call-seq: PinkTrace::Trace.geteventmsg(pid) => fixnum
  *
@@ -2015,6 +2123,8 @@ Init_PinkTrace(void)
 	rb_define_module_function(trace_mod, "syscall", pinkrb_trace_syscall, -1);
 	rb_define_module_function(trace_mod, "syscall_entry", pinkrb_trace_syscall_entry, -1);
 	rb_define_module_function(trace_mod, "syscall_exit", pinkrb_trace_syscall_exit, -1);
+	rb_define_module_function(trace_mod, "sysemu", pinkrb_trace_sysemu, -1);
+	rb_define_module_function(trace_mod, "sysemu_singlestep", pinkrb_trace_sysemu_singlestep, -1);
 	rb_define_module_function(trace_mod, "geteventmsg", pinkrb_trace_geteventmsg, 1);
 	rb_define_module_function(trace_mod, "setup", pinkrb_trace_setup, -1);
 	rb_define_module_function(trace_mod, "attach", pinkrb_trace_attach, 1);

@@ -3,6 +3,8 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* New functions pink\_trace\_sysemu() and pink\_trace\_sysemu\_singlestep()
+
 ### 0.0.4
 * Fix pink\_decode\_socket\_{address,fd} on ppc64
 

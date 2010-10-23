@@ -66,6 +66,28 @@ pink_trace_syscall(pid_t pid, int sig)
 }
 
 bool
+pink_trace_sysemu(pid_t pid, int sig)
+{
+#ifdef PTRACE_SYSEMU
+	return !(0 > ptrace(PTRACE_SYSEMU, pid, NULL, sig));
+#else
+	errno = ENOTSUP;
+	return false;
+#endif /* PTRACE_SYSEMU */
+}
+
+bool
+pink_trace_sysemu_singlestep(pid_t pid, int sig)
+{
+#ifdef PTRACE_SYSEMU_SINGLESTEP
+	return !(0 > ptrace(PTRACE_SYSEMU_SINGLESTEP, pid, NULL, sig));
+#else
+	errno = ENOTSUP;
+	return false;
+#endif /* PTRACE_SYSEMU_SINGLESTEP */
+}
+
+bool
 pink_trace_geteventmsg(pid_t pid, unsigned long *data)
 {
 	return !(0 > ptrace(PTRACE_GETEVENTMSG, pid, NULL, data));

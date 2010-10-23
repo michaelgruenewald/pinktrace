@@ -62,4 +62,22 @@
  **/
 #define PINK_DECODE_STRING_ARRAY_MEMBER_PERSISTENT_AVAILABLE 1
 
+/**
+ * Define for the availability of pink_trace_sysemu() function.
+ *
+ * \see pink_trace_sysemu()
+ *
+ * \since 0.0.5
+ **/
+#define PINK_TRACE_SYSEMU_AVAILABLE 1
+
+/**
+ * Define for the availability of pink_trace_sysemu_singlestep() function.
+ *
+ * \see pink_trace_sysemu_singlestep()
+ *
+ * \since 0.0.5
+ **/
+#define PINK_TRACE_SYSEMU_SINGLESTEP_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

@@ -270,6 +270,38 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
 bool
 pink_trace_setup(pid_t pid, int options);
 
+/**
+ * Restarts the stopped child process and arranges it to be stopped after
+ * the entry of the next system call which will *not* be executed.
+ *
+ * \note Availability: Linux (2.6.14 or newer)
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated same as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ *
+ * \since 0.0.5
+ **/
+bool
+pink_trace_sysemu(pid_t pid, int sig);
+
+/**
+ * Restarts the stopped child process like pink_trace_sysemu() but also
+ * singlesteps if not a system call.
+ *
+ * \note Availability: Linux (2.6.14 or newer)
+ *
+ * \param pid Process ID of the child to be restarted.
+ * \param sig Treated same as the signal argument of pink_trace_cont().
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ *
+ * \since 0.0.5
+ **/
+bool
+pink_trace_sysemu_singlestep(pid_t pid, int sig);
+
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
