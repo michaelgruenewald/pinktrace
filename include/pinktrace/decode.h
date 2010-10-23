@@ -90,7 +90,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  *
  * \param pid Process ID of the child
  * \param bitness Bitness of the child
- * \param addr The address of the argument, see pink_util_get_arg()
+ * \param arg The address of the argument, see pink_util_get_arg()
  * \param ind The index of the string in the array
  * \param dest Pointer to store the string
  * \param len Length of the string
