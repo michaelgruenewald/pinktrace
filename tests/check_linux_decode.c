@@ -1178,7 +1178,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 		addr.sin6_addr = in6addr_loopback;
 		addr.sin6_port = htons(23456);
 
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) < 0) {
 			fprintf(stderr, "socket: %s\n", strerror(errno));
 			_exit(EXIT_FAILURE);
 		}
@@ -1647,7 +1647,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 		addr.sin6_addr = in6addr_loopback;
 		addr.sin6_port = htons(23456);
 
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
 			_exit(EXIT_FAILURE);
 		}
