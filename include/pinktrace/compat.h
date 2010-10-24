@@ -80,4 +80,13 @@
  **/
 #define PINK_TRACE_SYSEMU_SINGLESTEP_AVAILABLE 1
 
+/**
+ * Define for the availability of nl member (netlink) of #pink_socket_address_t
+ *
+ * \see pink_socket_address_t
+ *
+ * \since 0.0.5
+ **/
+#define PINK_SOCKET_ADDRESS_T_NL_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

@@ -86,6 +86,8 @@ typedef struct {
 		 * Netlink socket address, only valid if family is AF_NETLINK.
 		 * Check with PINKTRACE_HAVE_NETLINK if this member is
 		 * available.
+		 *
+		 * \since 0.0.5
 		 **/
 		struct sockaddr_nl nl;
 #endif /* PINKTRACE_HAVE_NETLINK... */
