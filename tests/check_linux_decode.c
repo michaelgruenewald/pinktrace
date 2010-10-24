@@ -1237,6 +1237,85 @@ START_TEST(t_decode_socket_address_inet6_second)
 END_TEST
 #endif /* PINKTRACE_HAVE_IPV6 */
 
+#if PINKTRACE_HAVE_NETLINK
+START_TEST(t_decode_socket_address_netlink_second)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_socket_address_t res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %d(%s)", errno, strerror(errno));
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_nl addr;
+
+		close(pfd[0]);
+
+		addr.nl_family = AF_NETLINK;
+		addr.nl_pid = getpid();
+		addr.nl_groups = 0xdead;
+
+		if ((fd = socket(AF_NETLINK, SOCK_DGRAM, 0)) < 0) {
+			fprintf(stderr, "socket: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			fprintf(stderr, "pink_trace_me: %s\n", strerror(errno));
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child, until the connect() call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+
+		/* Get the file descriptor and compare */
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 1, &fd, &res),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_NETLINK, "%d != %d", AF_NETLINK, res.family);
+
+		fail_unless(res.u.nl.nl_family == AF_NETLINK, "%d != %d", AF_NETLINK, res.u.nl.nl_family);
+		fail_unless(res.u.nl.nl_pid == pid, "%d != %d", pid, res.u.nl.nl_pid);
+		fail_unless(res.u.nl.nl_groups == 0xdead, "0xdead != %#x", res.u.nl.nl_groups);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+#endif /* PINKTRACE_HAVE_NETLINK */
+
 START_TEST(t_decode_socket_address_null_fifth)
 {
 	int status;
@@ -1627,6 +1706,85 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 END_TEST
 #endif /* PINKTRACE_HAVE_IPV6 */
 
+#if PINKTRACE_HAVE_NETLINK
+START_TEST(t_decode_socket_address_netlink_fifth)
+{
+	int status;
+	long fd;
+	int pfd[2];
+	char strfd[16];
+	pid_t pid;
+	pink_socket_address_t res;
+
+	if (pipe(pfd) < 0)
+		fail("pipe: %d(%s)", errno, strerror(errno));
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		struct sockaddr_nl addr;
+
+		close(pfd[0]);
+
+		addr.nl_family = AF_NETLINK;
+		addr.nl_pid = getpid();
+		addr.nl_groups = 0xdead;
+
+		if ((fd = socket(AF_NETLINK, SOCK_DGRAM, 0)) < 0) {
+			perror("socket");
+			_exit(EXIT_FAILURE);
+		}
+
+		snprintf(strfd, 16, "%i", (int)fd);
+		write(pfd[1], strfd, 16);
+		close(pfd[1]);
+
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(EXIT_FAILURE);
+		}
+
+		kill(getpid(), SIGSTOP);
+		sendto(fd, NULL, 0, 0, (struct sockaddr *)&addr, sizeof(addr));
+	}
+	else { /* parent */
+		int realfd;
+
+		close(pfd[1]);
+
+		read(pfd[0], strfd, 16);
+		realfd = atoi(strfd);
+		close(pfd[0]);
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_if(WIFEXITED(status), "%#x", status);
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child, until the sendto() call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+
+		/* Get the file descriptor and compare */
+		fail_unless(pink_decode_socket_address(pid, PINKTRACE_BITNESS_DEFAULT, 4, &fd, &res),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(fd == realfd, "%d != %d", realfd, fd);
+		fail_unless(res.family == AF_NETLINK, "%d != %d", AF_NETLINK, res.family);
+
+		fail_unless(res.u.nl.nl_family == AF_NETLINK, "%d != %d", AF_NETLINK, res.u.nl.nl_family);
+		fail_unless(res.u.nl.nl_pid == pid, "%d != %d", pid, res.u.nl.nl_pid);
+		fail_unless(res.u.nl.nl_groups == 0xdead, "0xdead != %#x", res.u.nl.nl_groups);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+#endif /* PINKTRACE_HAVE_NETLINK */
+
 Suite *
 decode_suite_create(void)
 {
@@ -1664,6 +1822,9 @@ decode_suite_create(void)
 #if PINKTRACE_HAVE_IPV6
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_second);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_netlink_second);
+#endif /* PINKTRACE_HAVE_NETLINK */
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_fifth);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_fifth);
@@ -1672,6 +1833,9 @@ decode_suite_create(void)
 #if PINKTRACE_HAVE_IPV6
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_inet6_fifth);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	tcase_add_test(tc_pink_decode, t_decode_socket_address_netlink_fifth);
+#endif /* PINKTRACE_HAVE_NETLINK */
 
 	suite_add_tcase(s, tc_pink_decode);
 

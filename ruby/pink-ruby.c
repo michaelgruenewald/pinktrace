@@ -2033,6 +2033,12 @@ pinkrb_Address_to_s(VALUE self)
 		free(ip);
 		return ret;
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	case AF_NETLINK:
+		/* TODO: What kind of string representation would be best for a
+		 * netlink socket address? */
+		return rb_str_new2("");
+#endif /* PINKTRACE_HAVE_NETLINK */
 	default:
 		return rb_str_new2("UNKNOWN");
 	}
@@ -2070,6 +2076,58 @@ pinkrb_Address_is_abstract(VALUE self)
 	return Qfalse;
 }
 
+/*
+ * Document-method: pid
+ * call-seq: addr.pid => Fixnum
+ *
+ * Returns the process ID of the netlink socket address
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_pid(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family == AF_NETLINK)
+		return PIDTNUM(addr->u.nl.nl_pid);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	rb_raise(rb_eTypeError, "Invalid family");
+}
+
+/*
+ * Document-method: groups
+ * call-seq: addr.groups => Fixnum
+ *
+ * Returns the mcast groups mask of the netlink socket address
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_groups(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family == AF_NETLINK)
+		return LONG2NUM(addr->u.nl.nl_groups);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	rb_raise(rb_eTypeError, "Invalid family");
+}
+
 void
 Init_PinkTrace(void)
 {
@@ -2093,6 +2151,11 @@ Init_PinkTrace(void)
 #else
 	rb_define_const(mod, "HAVE_IPV6", Qfalse);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	rb_define_const(mod, "HAVE_NETLINK", Qtrue);
+#else
+	rb_define_const(mod, "HAVE_NETLINK", Qfalse);
+#endif /* PINKTRACE_HAVE_NETLINK */
 	/* about.h */
 	rb_define_const(mod, "PACKAGE", rb_str_new2(PINKTRACE_PACKAGE));
 	rb_define_const(mod, "VERSION", INT2FIX(PINKTRACE_VERSION));
@@ -2209,6 +2272,8 @@ Init_PinkTrace(void)
 	rb_define_method(pinkrb_cAddress, "to_s", pinkrb_Address_to_s, 0);
 	rb_define_method(pinkrb_cAddress, "unix?", pinkrb_Address_is_unix, 0);
 	rb_define_method(pinkrb_cAddress, "abstract?", pinkrb_Address_is_abstract, 0);
+	rb_define_method(pinkrb_cAddress, "pid", pinkrb_Address_pid, 0);
+	rb_define_method(pinkrb_cAddress, "groups", pinkrb_Address_groups, 0);
 
 	rb_define_module_function(socket_mod, "decode_address", pinkrb_decode_socket_address, -1);
 	rb_define_module_function(socket_mod, "decode_address_fd", pinkrb_decode_socket_address_fd, -1);

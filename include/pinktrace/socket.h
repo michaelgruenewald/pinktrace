@@ -42,6 +42,10 @@
 #include <netinet/in.h>
 #include <sys/un.h>
 
+#if PINKTRACE_HAVE_NETLINK || defined(DOXYGEN)
+#include <linux/netlink.h>
+#endif /* PINKTRACE_HAVE_NETLINK... */
+
 #include <pinktrace/gcc.h>
 
 /**
@@ -76,6 +80,15 @@ typedef struct {
 		 **/
 		struct sockaddr_in6 sa6;
 #endif /* PINKTRACE_HAVE_IPV6... */
+
+#if PINKTRACE_HAVE_NETLINK || defined(DOXYGEN)
+		/**
+		 * Netlink socket address, only valid if family is AF_NETLINK.
+		 * Check with PINKTRACE_HAVE_NETLINK if this member is
+		 * available.
+		 **/
+		struct sockaddr_nl nl;
+#endif /* PINKTRACE_HAVE_NETLINK... */
 	} u;
 } pink_socket_address_t;
 

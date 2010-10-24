@@ -295,6 +295,32 @@ else
 fi
 dnl }}}
 
+dnl {{{ Check for Netlink support
+AC_CHECK_HEADER([linux/netlink.h],
+				[AC_CHECK_TYPES([struct sockaddr_nl],
+								[WANT_NETLINK="yes"],
+								[WANT_NETLINK="no"],
+								[#include <stddef.h>
+								 #include <sys/socket.h>
+								 #include <asm/types.h>
+								 #include <linux/netlink.h>])],
+				[WANT_NETLINK="no"],
+				[#include <stddef.h>
+				 #include <sys/socket.h>
+				 #include <asm/types.h>
+				])
+AC_MSG_CHECKING([for Netlink support])
+AC_MSG_RESULT([$WANT_NETLINK])
+AM_CONDITIONAL(WANT_NETLINK, test x"$WANT_NETLINK" = x"yes")
+if test x"$WANT_NETLINK" = x"yes" ; then
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_WANT_NETLINK=1"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_WANT_NETLINK=1"
+else
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_WANT_NETLINK=0"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_WANT_NETLINK=0"
+fi
+dnl }}}
+
 dnl {{{ Extra CFLAGS
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
 for flag in $WANTED_CFLAGS ; do
@@ -481,6 +507,20 @@ if test x"$enable_python" = x"yes" ; then
 	fi
 	AC_MSG_RESULT([$PYTHON_INSTALL_DIR])
 	AC_SUBST([PYTHON_INSTALL_DIR])
+
+	if test x"$WANT_IPV6" = x"yes" ; then
+		PYTHON_HAVE_IPV6="True"
+	else
+		PYTNON_HAVE_IPV6="False"
+	fi
+	AC_SUBST([PYTHON_HAVE_IPV6])
+
+	if test x"$WANT_NETLINK" = x"yes" ; then
+		PYTHON_HAVE_NETLINK="True"
+	else
+		PYTHON_HAVE_NETLINK="False"
+	fi
+	AC_SUBST([PYTHON_HAVE_NETLINK])
 fi
 AM_CONDITIONAL([ENABLE_PYTHON], test x"$enable_python" = x"yes")
 dnl }}}

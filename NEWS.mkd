@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* Add support for decoding netlink socket addresses
 * New functions pink\_trace\_sysemu() and pink\_trace\_sysemu\_singlestep()
 
 ### 0.0.4
