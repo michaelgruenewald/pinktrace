@@ -288,7 +288,7 @@ Address_groups(
 	Address *addr = (Address *)self;
 
 	if (addr->addr.family == AF_NETLINK)
-		return PyLong_From_UnsignedLong(addr->addr.u.nl.nl_groups);
+		return PyLong_FromLong(addr->addr.u.nl.nl_groups);
 #endif /* PINKTRACE_HAVE_NETLINK */
 	PyErr_SetString(PyExc_TypeError, "Invalid family");
 	return NULL;

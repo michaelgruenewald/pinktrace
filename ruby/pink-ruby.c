@@ -2097,7 +2097,7 @@ pinkrb_Address_pid(
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	if (addr->family == AF_NETLINK)
-		return PIDTNUM(addr->u.nl.nl_pid);
+		return PIDT2NUM(addr->u.nl.nl_pid);
 #endif /* PINKTRACE_HAVE_NETLINK */
 	rb_raise(rb_eTypeError, "Invalid family");
 }
