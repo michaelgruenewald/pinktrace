@@ -248,6 +248,17 @@ Address_family(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
+Address_length(PyObject *self, PINK_UNUSED void *x)
+{
+	Address *addr = (Address *)self;
+#if PY_MAJOR_VERSION > 2
+	return PyLong_FromLong(addr->addr.length);
+#else
+	return PyInt_FromLong(addr->addr.length);
+#endif /* PY_MAJOR_VERSION > 2 */
+}
+
+static PyObject *
 Address_abstract(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
@@ -436,6 +447,7 @@ Address_str(PyObject *self)
 
 static struct PyGetSetDef Address_get_sets[] = {
 	{"family", Address_family, 0, 0, 0},
+	{"length", Address_length, 0, 0, 0},
 	{"abstract", Address_abstract, 0, 0, 0},
 	{"pid", Address_pid, 0, 0, 0},
 	{"groups", Address_groups, 0, 0, 0},
@@ -449,6 +461,8 @@ static char Address_doc[] = ""
 	"\n"
 	"- B{family}:\n"
 	"    - Returns the family of the Address (AF_UNIX, AF_INET, etc.)\n"
+	"- B{length}:\n"
+	"    - Returns the length of the Address\n"
 	"- B{abstract}:\n"
 	"    - Returns True if the Address represents an abstract UNIX socket, False otherwise\n"
 	"- B{pid}:\n"

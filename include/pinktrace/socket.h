@@ -56,6 +56,13 @@ typedef struct {
 	int family;
 
 	/**
+	 * Length of the socket address
+	 *
+	 * \since 0.0.5
+	 **/
+	socklen_t length;
+
+	/**
 	 * This union contains type-safe pointers to the real socket address.
 	 * Check the family before attempting to obtain the real object.
 	 **/

@@ -89,4 +89,13 @@
  **/
 #define PINK_SOCKET_ADDRESS_T_NL_AVAILABLE 1
 
+/**
+ * Define for the availability of length member of #pink_socket_address_t
+ *
+ * \see pink_socket_address_t
+ *
+ * \since 0.0.5
+ **/
+#define PINK_SOCKET_ADDRESS_T_LENGTH_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

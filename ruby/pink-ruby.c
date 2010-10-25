@@ -1994,6 +1994,22 @@ pinkrb_Address_family(VALUE self)
 }
 
 /*
+ * Document-method: length
+ * call-seq: addr.length => fixnum
+ *
+ * Returns the length of the address.
+ */
+static VALUE
+pinkrb_Address_length(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+
+	return INT2FIX(addr->length);
+}
+
+/*
  * Document-method: to_s
  * call-seq: addr.to_s => String
  *
@@ -2269,6 +2285,7 @@ Init_PinkTrace(void)
 
 	/* Address methods */
 	rb_define_method(pinkrb_cAddress, "family", pinkrb_Address_family, 0);
+	rb_define_method(pinkrb_cAddress, "length", pinkrb_Address_length, 0);
 	rb_define_method(pinkrb_cAddress, "to_s", pinkrb_Address_to_s, 0);
 	rb_define_method(pinkrb_cAddress, "unix?", pinkrb_Address_is_unix, 0);
 	rb_define_method(pinkrb_cAddress, "abstract?", pinkrb_Address_is_abstract, 0);
