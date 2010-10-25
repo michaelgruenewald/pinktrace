@@ -1142,13 +1142,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_in addr;
-
 		close(pfd[0]);
-
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		addr.sin_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
