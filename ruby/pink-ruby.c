@@ -55,9 +55,13 @@
 #define PIDT2NUM(p) LONG2NUM((p))
 #endif
 
+#ifdef PINKTRACE_LINUX
 #define IS_ABSTRACT(addr) \
 	((addr)->u.sa_un.sun_path[0] == '\0' \
 	 && (addr)->u.sa_un.sun_path[1] != '\0')
+#else
+#define IS_ABSTRACT(addr) 0
+#endif /* PINKTRACE_LINUX */
 
 void
 Init_PinkTrace(void);
@@ -2010,57 +2014,6 @@ pinkrb_Address_length(VALUE self)
 }
 
 /*
- * Document-method: to_s
- * call-seq: addr.to_s => String
- *
- * Returns the string representation of the address.
- * For UNIX addresses this is the path, for INET{,6} addresses this is the IP.
- */
-static VALUE
-pinkrb_Address_to_s(VALUE self)
-{
-	char *ip;
-	pink_socket_address_t *addr;
-	VALUE ret;
-
-	Data_Get_Struct(self, pink_socket_address_t, addr);
-	switch (addr->family) {
-	case -1:
-		return rb_str_new2("NULL");
-	case AF_UNIX:
-		if (IS_ABSTRACT(addr)) {
-			addr->u.sa_un.sun_path[0] = '@';
-			ret = rb_str_new2(addr->u.sa_un.sun_path);
-			addr->u.sa_un.sun_path[0] = '\0';
-			return ret;
-		}
-		return rb_str_new2(addr->u.sa_un.sun_path);
-	case AF_INET:
-		ip = ALLOC_N(char, INET_ADDRSTRLEN);
-		inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
-		ret = rb_str_new2(ip);
-		free(ip);
-		return ret;
-#if PINKTRACE_HAVE_IPV6
-	case AF_INET6:
-		ip = ALLOC_N(char, INET6_ADDRSTRLEN);
-		inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
-		ret = rb_str_new2(ip);
-		free(ip);
-		return ret;
-#endif /* PINKTRACE_HAVE_IPV6 */
-#if PINKTRACE_HAVE_NETLINK
-	case AF_NETLINK:
-		/* TODO: What kind of string representation would be best for a
-		 * netlink socket address? */
-		return rb_str_new2("");
-#endif /* PINKTRACE_HAVE_NETLINK */
-	default:
-		return rb_str_new2("UNKNOWN");
-	}
-}
-
-/*
  * Document-method: unix?
  * call-seq: addr.unix? => true or false
  *
@@ -2073,6 +2026,73 @@ pinkrb_Address_is_unix(VALUE self)
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	return (addr->family == AF_UNIX) ? Qtrue : Qfalse;
+}
+
+/*
+ * Document-method: inet?
+ * call-seq: addr.inet? => true or false
+ *
+ * Returns true if the address is of family +AF_INET+.
+ */
+static VALUE
+pinkrb_Address_is_inet(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_INET) ? Qtrue : Qfalse;
+}
+
+/*
+ * Document-method: inet6?
+ * call-seq: addr.inet6? => true or false
+ *
+ * Returns true if the address is of family +AF_INET6+.
+ */
+#if PINKTRACE_HAVE_IPV6 == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_IPV6 */
+static VALUE
+pinkrb_Address_is_inet6(
+#if PINKTRACE_HAVE_IPV6 == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_IPV6 */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_IPV6
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_INET6) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_IPV6 */
+}
+
+/*
+ * Document-method: netlink?
+ * call-seq: addr.netlink? => true or false
+ *
+ * Returns true if the address is of family +AF_NETLINK+.
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_is_netlink(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_NETLINK) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_NETLINK */
 }
 
 /*
@@ -2090,6 +2110,104 @@ pinkrb_Address_is_abstract(VALUE self)
 	if (addr->family == AF_UNIX && IS_ABSTRACT(addr))
 		return Qtrue;
 	return Qfalse;
+}
+
+/*
+ * Document-method: path
+ * call-seq: addr.path => String
+ *
+ * Returns the path of the UNIX socket address.
+ */
+static VALUE
+pinkrb_Address_path(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_UNIX)
+		rb_raise(rb_eTypeError, "Invalid family");
+	return rb_str_new2(addr->u.sa_un.sun_path + (IS_ABSTRACT(addr) ? 1 : 0));
+}
+
+/*
+ * Document-method: port
+ * call-seq: addr.port => Fixnum
+ *
+ * Returns the port of an Inet or Inet6 socket address
+ */
+static VALUE
+pinkrb_Address_port(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	switch (addr->family) {
+	case AF_INET:
+		return FIX2INT(ntohs(addr->u.sa_in.sin_port));
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		return FIX2INT(ntohs(addr->u.sa6.sin6_port));
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		rb_raise(rb_eTypeError, "Invalid family");
+	}
+}
+
+/*
+ * Document-method: ip
+ * call-seq: addr.ip => String
+ *
+ * Returns the address of an Inet socket address as a string
+ */
+static VALUE
+pinkrb_Address_ip(VALUE self)
+{
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ret;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET)
+		rb_raise(rb_eTypeError, "Invalid family");
+	ip = ALLOC_N(char, INET_ADDRSTRLEN);
+	inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
+	ret = rb_str_new2(ip);
+	free(ip);
+	return ret;
+}
+
+/*
+ * Document-method: ipv6
+ * call-seq: addr.ipv6 => String
+ *
+ * Returns the IPV6 address of an Inet6 socket address as string.
+ */
+#if PINKTRACE_HAVE_IPV6 == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_IPV6 */
+static VALUE
+pinkrb_Address_ipv6(
+#if PINKTRACE_HAVE_IPV6 == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_IPV6 */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_IPV6
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ret;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET6)
+		rb_raise(rb_eTypeError, "Invalid family");
+	ip = ALLOC_N(char, INET6_ADDRSTRLEN);
+	inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
+	ret = rb_str_new2(ip);
+	free(ip);
+	return ret;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_IPV6 */
 }
 
 /*
@@ -2115,7 +2233,7 @@ pinkrb_Address_pid(
 	if (addr->family == AF_NETLINK)
 		return PIDT2NUM(addr->u.nl.nl_pid);
 #endif /* PINKTRACE_HAVE_NETLINK */
-	rb_raise(rb_eTypeError, "Invalid family");
+	rb_raise(rb_eNotImpError, "Not implemented");
 }
 
 /*
@@ -2141,7 +2259,7 @@ pinkrb_Address_groups(
 	if (addr->family == AF_NETLINK)
 		return LONG2NUM(addr->u.nl.nl_groups);
 #endif /* PINKTRACE_HAVE_NETLINK */
-	rb_raise(rb_eTypeError, "Invalid family");
+	rb_raise(rb_eNotImpError, "Not implemented");
 }
 
 void
@@ -2286,9 +2404,15 @@ Init_PinkTrace(void)
 	/* Address methods */
 	rb_define_method(pinkrb_cAddress, "family", pinkrb_Address_family, 0);
 	rb_define_method(pinkrb_cAddress, "length", pinkrb_Address_length, 0);
-	rb_define_method(pinkrb_cAddress, "to_s", pinkrb_Address_to_s, 0);
 	rb_define_method(pinkrb_cAddress, "unix?", pinkrb_Address_is_unix, 0);
+	rb_define_method(pinkrb_cAddress, "inet?", pinkrb_Address_is_inet, 0);
+	rb_define_method(pinkrb_cAddress, "inet6?", pinkrb_Address_is_inet6, 0);
+	rb_define_method(pinkrb_cAddress, "netlink?", pinkrb_Address_is_netlink, 0);
 	rb_define_method(pinkrb_cAddress, "abstract?", pinkrb_Address_is_abstract, 0);
+	rb_define_method(pinkrb_cAddress, "path", pinkrb_Address_path, 0);
+	rb_define_method(pinkrb_cAddress, "port", pinkrb_Address_port, 0);
+	rb_define_method(pinkrb_cAddress, "ip", pinkrb_Address_ip, 0);
+	rb_define_method(pinkrb_cAddress, "ipv6", pinkrb_Address_ipv6, 0);
 	rb_define_method(pinkrb_cAddress, "pid", pinkrb_Address_pid, 0);
 	rb_define_method(pinkrb_cAddress, "groups", pinkrb_Address_groups, 0);
 
