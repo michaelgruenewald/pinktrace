@@ -1871,10 +1871,11 @@ pinkrb_decode_socket_fd(
 
 /*
  * Document-method: PinkTrace::Socket.decode_address
- * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr or nil
+ * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr
  *
  * Decodes the socket address at the given index.
- * If the system call's address argument was NULL, this function returns +nil+.
+ * If the system call's address argument was NULL, this function sets
+ * +addr.family+ to -1.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::Syscall::MAX_INDEX.
@@ -1926,11 +1927,11 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 
 /*
  * Document-method: PinkTrace::Socket.decode_address_fd
- * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr|nil, fd
+ * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr, fd
  *
  * Decodes the socket address at the given index and the file descriptor at index 0.
- * If the system call's address argument was NULL this function returns +nil+
- * and the file descriptor.
+ * If the system call's address argument was NULL this function sets
+ * +addr.family+ to -1.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::Syscall::MAX_INDEX.
