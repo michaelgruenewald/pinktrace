@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* New function pink\_util\_set\_arg()
 * Extend simple-strace examples to decode `bind()` and `connect()` calls
 * Extend bindings to cover all functionality and members of pink\_socket\_address\_t
 * New member length for pink\_socket\_address\_t

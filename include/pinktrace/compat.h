@@ -98,4 +98,13 @@
  **/
 #define PINK_SOCKET_ADDRESS_T_LENGTH_AVAILABLE 1
 
+/**
+ * Define for the availability of pink_util_set_arg() function.
+ *
+ * \see pink_util_set_arg()
+ *
+ * \since 0.0.5
+ **/
+#define PINK_UTIL_SET_ARG_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

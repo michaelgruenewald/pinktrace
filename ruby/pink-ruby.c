@@ -1323,6 +1323,62 @@ pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 }
 
 /*
+ * Document-method: PinkTrace::Syscall.set_arg
+ * call-seq: PinkTrace::Syscall.set_arg(pid, index, arg, [bitness=PinkTrace::Bitness::Default]) => nil
+ *
+ * Sets the system call argument at the specified index to the given value.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::Syscall::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ */
+static VALUE
+pinkrb_util_set_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+{
+	pid_t pid;
+	unsigned bit, ind;
+	long arg;
+
+	if (argc < 3 || argc > 4)
+		rb_raise(rb_eArgError, "Wrong number of arguments");
+
+	if (FIXNUM_P(argv[0]))
+		pid = FIX2INT(argv[0]);
+	else
+		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[1])) {
+		ind = FIX2UINT(argv[1]);
+		check_index(ind);
+	}
+	else
+		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+
+	if (FIXNUM_P(argv[2]))
+		arg = FIX2LONG(argv[2]);
+	else
+		rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
+
+	if (argc > 3) {
+		if (FIXNUM_P(argv[3])) {
+			bit = FIX2UINT(argv[3]);
+			check_bitness(bit);
+		}
+		else
+			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
+	}
+	else
+		bit = PINKTRACE_BITNESS_DEFAULT;
+
+	if (!pink_util_set_arg(pid, bit, ind, arg))
+		rb_sys_fail("pink_util_set_arg()");
+
+	return Qnil;
+}
+
+/*
  * Document-class: PinkTrace::String
  *
  * This class contains functions to decode/encode string arguments.
@@ -2377,6 +2433,7 @@ Init_PinkTrace(void)
 	rb_define_module_function(syscall_mod, "get_ret", pinkrb_util_get_return, 1);
 	rb_define_module_function(syscall_mod, "set_ret", pinkrb_util_set_return, 2);
 	rb_define_module_function(syscall_mod, "get_arg", pinkrb_util_get_arg, -1);
+	rb_define_module_function(syscall_mod, "set_arg", pinkrb_util_set_arg, -1);
 
 	/* decode.h && encode.h (only string {en,de}coding) */
 	string_mod = rb_define_module_under(mod, "String");

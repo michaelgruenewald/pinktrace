@@ -45,8 +45,9 @@
 
 #define ORIG_ACCUM	(PT_R15)
 
+PINK_NONNULL(3)
 static bool
-pink_util_peek_ia64(pid_t pid, int narg, long *res)
+pink_util_arg_setup_ia64(pid_t pid, int narg, unsigned long *state)
 {
 	unsigned long *out0, cfm, sof, sol;
 	long rbs_end;
@@ -60,7 +61,8 @@ pink_util_peek_ia64(pid_t pid, int narg, long *res)
 	sol = (cfm >> 7) & 0x7f;
 	out0 = ia64_rse_skip_regs((unsigned long *)rbs_end, -sof + sol);
 
-	return pink_util_moven(pid, (unsigned long)ia64_rse_skip_regs(out0, narg), (char *)res, sizeof(long));
+	*state = (unsigned long)ia64_rse_skip_regs(out0, narg);
+	return true;
 }
 
 pink_bitness_t
@@ -117,10 +119,22 @@ pink_util_set_return(pid_t pid, long ret)
 bool
 pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
 {
+	unsigned long state;
+
 	assert(ind < PINK_MAX_INDEX);
 	assert(res != NULL);
 
-	return pink_util_peek_ia64(pid, ind, res);
+	return pink_util_arg_setup_ia64(pid, ind, &state) && pink_util_moven(pid, state, (char *)res, sizeof(long));
+}
+
+bool
+pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+{
+	unsigned long state;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	return pink_util_arg_setup_ia64(pid, ind, &state) && pink_util_pokedata(pid, state, arg);
 }
 
 bool

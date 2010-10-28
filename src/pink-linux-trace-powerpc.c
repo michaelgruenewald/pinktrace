@@ -135,6 +135,14 @@ pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, l
 }
 
 bool
+pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+{
+	assert(ind < PINK_MAX_INDEX);
+
+	return pink_util_poke(pid, ARG_OFFSET(ind), arg);
+}
+
+bool
 pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len)
 {
 	long addr;

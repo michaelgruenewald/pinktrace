@@ -574,6 +574,258 @@ START_TEST(t_util_get_arg_sixth)
 }
 END_TEST
 
+START_TEST(t_util_set_arg_first)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap((void *)0, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 0, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 0, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_util_set_arg_second)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_util_set_arg_third)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 2, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 2, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_util_set_arg_fourth)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 3, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 3, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_util_set_arg_fifth)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 4, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 4, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_util_set_arg_sixth)
+{
+	int status;
+	long ret;
+	pid_t pid;
+	pink_event_t event;
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		mmap(NULL, 0, 0, 0, 0, 0);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+		fail_unless(pink_trace_setup(pid, PINK_TRACE_OPTION_SYSGOOD), "%d(%s)", errno, strerror(errno));
+
+		/* Resume the child and it will stop at the next system call */
+		fail_unless(pink_trace_syscall(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		/* Make sure we got the right event */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		event = pink_event_decide(status);
+		fail_unless(event == PINK_EVENT_SYSCALL, "%d != %d", PINK_EVENT_SYSCALL, event);
+
+		fail_unless(pink_util_set_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, 13), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 5, &ret), "%d(%s)",
+			errno, strerror(errno));
+		fail_unless(ret == 13, "13 != %ld", ret);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
 Suite *
 util_suite_create(void)
 {
@@ -605,6 +857,19 @@ util_suite_create(void)
 	 * We need a better testcase.
 	 */
 	tcase_add_test(tc_pink_util, t_util_get_arg_sixth);
+#endif /* __WORDSIZE == 64 */
+
+	tcase_add_test(tc_pink_util, t_util_set_arg_first);
+	tcase_add_test(tc_pink_util, t_util_set_arg_second);
+	tcase_add_test(tc_pink_util, t_util_set_arg_third);
+	tcase_add_test(tc_pink_util, t_util_set_arg_fourth);
+	tcase_add_test(tc_pink_util, t_util_set_arg_fifth);
+#if __WORDSIZE == 64
+	/*
+	 * FIXME: This testcase fails on 32bit architectures.
+	 * We need a better testcase.
+	 */
+	tcase_add_test(tc_pink_util, t_util_set_arg_sixth);
 #endif /* __WORDSIZE == 64 */
 
 	suite_add_tcase(s, tc_pink_util);

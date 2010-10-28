@@ -327,6 +327,21 @@ PINK_NONNULL(4)
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
 
+/**
+ * Set the given argument
+ *
+ * \param pid Process ID of the child whose argument is to be set.
+ * \param bitness Bitness of the child
+ * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
+ * \param arg The argument to be set
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ *
+ * \since 0.0.5
+ **/
+bool
+pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
