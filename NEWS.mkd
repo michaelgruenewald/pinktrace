@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* Extend bindings to cover all functionality and members of pink\_socket\_address\_t
 * New member length for pink\_socket\_address\_t
 * Add support for decoding netlink socket addresses
 * New functions pink\_trace\_sysemu() and pink\_trace\_sysemu\_singlestep()
