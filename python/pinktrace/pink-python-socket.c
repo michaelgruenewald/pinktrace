@@ -51,9 +51,13 @@
 #endif /* !INET6_ADDRSTRLEN */
 #endif
 
+#ifdef PINKTRACE_LINUX
 #define IS_ABSTRACT(addr) \
 	((addr).u.sa_un.sun_path[0] == '\0' \
 	 && (addr).u.sa_un.sun_path[1] != '\0')
+#else
+#define IS_ABSTRACT(addr) 0
+#endif /* PINKTRACE_LINUX */
 
 PyMODINIT_FUNC
 #if PY_MAJOR_VERSION > 2
@@ -248,6 +252,17 @@ Address_family(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
+Address_length(PyObject *self, PINK_UNUSED void *x)
+{
+	Address *addr = (Address *)self;
+#if PY_MAJOR_VERSION > 2
+	return PyLong_FromLong(addr->addr.length);
+#else
+	return PyInt_FromLong(addr->addr.length);
+#endif /* PY_MAJOR_VERSION > 2 */
+}
+
+static PyObject *
 Address_abstract(PyObject *self, PINK_UNUSED void *x)
 {
 	Address *addr = (Address *)self;
@@ -258,6 +273,123 @@ Address_abstract(PyObject *self, PINK_UNUSED void *x)
 	}
 	Py_INCREF(Py_False);
 	return Py_False;
+}
+
+static PyObject *
+Address_path(PyObject *self, PINK_UNUSED void *x)
+{
+	Address *addr = (Address *)self;
+
+	if (addr->addr.family == AF_UNIX)
+#if PY_MAJOR_VERSION > 2
+		return PyUnicode_FromString(addr->addr.u.sa_un.sun_path + (IS_ABSTRACT(addr->addr) ? 1 : 0));
+#else
+		return PyString_FromString(addr->addr.u.sa_un.sun_path + (IS_ABSTRACT(addr->addr) ? 1 : 0));
+#endif /* PY_MAJOR_VERSION > 2 */
+	PyErr_SetString(PyExc_TypeError, "Invalid family");
+	return NULL;
+}
+
+static PyObject *
+Address_ip(PyObject *self, PINK_UNUSED void *x)
+{
+	char *ip;
+	PyObject *ipObj;
+	Address *addr = (Address *)self;
+
+	if (addr->addr.family == AF_INET) {
+		ip = PyMem_New(char, INET_ADDRSTRLEN);
+		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
+#if PY_MAJOR_VERSION > 2
+		ipObj = PyUnicode_FromString(ip);
+#else
+		ipObj = PyString_FromString(ip);
+#endif /* PY_MAJOR_VERSION > 2 */
+		PyMem_Free(ip);
+		return ipObj;
+	}
+	PyErr_SetString(PyExc_TypeError, "Invalid family");
+	return NULL;
+}
+
+#if PINKTRACE_HAVE_IPV6
+static PyObject *
+Address_ipv6(PyObject *self, PINK_UNUSED void *x)
+{
+	char *ip;
+	PyObject *ipObj;
+	Address *addr = (Address *)self;
+
+	if (addr->addr.family == AF_INET6) {
+		ip = PyMem_New(char, INET6_ADDRSTRLEN);
+		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
+		ipObj = PyUnicode_FromString(ip);
+		PyMem_Free(ip);
+		return ipObj;
+	}
+	PyErr_SetString(PyExc_TypeError, "Invalid family");
+	return NULL;
+}
+#endif /* PINKTRACE_HAVE_IPV6 */
+
+static PyObject *
+Address_port(PyObject *self, PINK_UNUSED void *x)
+{
+	Address *addr = (Address *)self;
+
+	switch (addr->addr.family) {
+	case AF_INET:
+#if PY_MAJOR_VERSION > 2
+		return PyLong_FromLong(ntohs(addr->addr.u.sa_in.sin_port));
+#else
+		return PyInt_FromLong(ntohs(addr->addr.u.sa_in.sin_port));
+#endif /* PY_MAJOR_VERSION > 2 */
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+#if PY_MAJOR_VERSION > 2
+		return PyLong_FromLong(ntohs(addr->addr.u.sa6.sin6_port));
+#else
+		return PyInt_FromLong(ntohs(addr->addr.u.sa6.sin6_port));
+#endif /* PY_MAJOR_VERSION > 2 */
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		PyErr_SetString(PyExc_TypeError, "Invalid family");
+		return NULL;
+	}
+}
+
+static PyObject *
+Address_pid(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	PyObject *self, PINK_UNUSED void *x)
+{
+#if PINKTRACE_HAVE_NETLINK
+	Address *addr = (Address *)self;
+
+	if (addr->addr.family == AF_NETLINK)
+		return PyLong_FromPid(addr->addr.u.nl.nl_pid);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	PyErr_SetString(PyExc_TypeError, "Invalid family");
+	return NULL;
+}
+
+static PyObject *
+Address_groups(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	PyObject *self, PINK_UNUSED void *x)
+{
+#if PINKTRACE_HAVE_NETLINK
+	Address *addr = (Address *)self;
+
+	if (addr->addr.family == AF_NETLINK)
+		return PyLong_FromLong(addr->addr.u.nl.nl_groups);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	PyErr_SetString(PyExc_TypeError, "Invalid family");
+	return NULL;
 }
 
 static PyObject *
@@ -280,6 +412,11 @@ Address_repr(PyObject *self)
 		return PyUnicode_FromFormat("<Address family=AF_INET6, addr=%p>",
 			(void *)&addr->addr);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	case AF_NETLINK:
+		return PyUnicode_FromFormat("<Address family=AF_NETLINK, addr=%p>",
+			(void *)&addr->addr);
+#endif /* PINKTRACE_HAVE_NETLINK */
 	default:
 		return PyUnicode_FromFormat("<Address family=%d, addr=NULL>",
 			addr->addr.family);
@@ -303,6 +440,11 @@ Address_repr(PyObject *self)
 		return PyString_FromFormat("<Address family=AF_INET6, addr=%p>",
 			(void *)&addr->addr);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	case AF_NETLINK:
+		return PyString_FromFormat("<Address family=AF_NETLINK, addr=%p>",
+			(void *)&addr->addr);
+#endif /* PINKTRACE_HAVE_NETLINK */
 	default:
 		return PyString_FromFormat("<Address family=%d, addr=NULL>",
 			addr->addr.family);
@@ -310,77 +452,18 @@ Address_repr(PyObject *self)
 }
 #endif /* PY_MAJOR_VERSION > 2 */
 
-static PyObject *
-Address_str(PyObject *self)
-#if PY_MAJOR_VERSION > 2
-{
-	char *ip;
-	PyObject *ipObj;
-	Address *addr = (Address *)self;
-
-	switch (addr->addr.family) {
-	case -1:
-		return PyUnicode_FromString("NULL");
-	case AF_UNIX:
-		/* Check for abstract socket */
-		if (IS_ABSTRACT(addr->addr))
-			return PyUnicode_FromFormat("@%s", addr->addr.u.sa_un.sun_path + 1);
-		return PyUnicode_FromString(addr->addr.u.sa_un.sun_path);
-	case AF_INET:
-		ip = PyMem_New(char, INET_ADDRSTRLEN);
-		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
-		ipObj = PyUnicode_FromString(ip);
-		PyMem_Free(ip);
-		return ipObj;
-#if PINKTRACE_HAVE_IPV6
-	case AF_INET6:
-		ip = PyMem_New(char, INET6_ADDRSTRLEN);
-		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
-		ipObj = PyUnicode_FromString(ip);
-		PyMem_Free(ip);
-		return ipObj;
-#endif /* PINKTRACE_HAVE_IPV6 */
-	default:
-		return PyUnicode_FromFormat("Unknown address (family: %d)", addr->addr.family);
-	}
-}
-#else
-{
-	char *ip;
-	PyObject *ipObj;
-	Address *addr = (Address *)self;
-
-	switch (addr->addr.family) {
-	case -1:
-		return PyString_FromString("NULL");
-	case AF_UNIX:
-		/* Check for abstract socket */
-		if (IS_ABSTRACT(addr->addr))
-			return PyString_FromFormat("@%s", addr->addr.u.sa_un.sun_path + 1);
-		return PyString_FromString(addr->addr.u.sa_un.sun_path);
-	case AF_INET:
-		ip = PyMem_New(char, INET_ADDRSTRLEN);
-		inet_ntop(AF_INET, &addr->addr.u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
-		ipObj = PyString_FromString(ip);
-		PyMem_Free(ip);
-		return ipObj;
-#if PINKTRACE_HAVE_IPV6
-	case AF_INET6:
-		ip = PyMem_New(char, INET6_ADDRSTRLEN);
-		inet_ntop(AF_INET6, &addr->addr.u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
-		ipObj = PyString_FromString(ip);
-		PyMem_Free(ip);
-		return ipObj;
-#endif /* PINKTRACE_HAVE_IPV6 */
-	default:
-		return PyString_FromFormat("Unknown address (family: %d)", addr->addr.family);
-	}
-}
-#endif /* PY_MAJOR_VERSION > 2 */
-
 static struct PyGetSetDef Address_get_sets[] = {
 	{"family", Address_family, 0, 0, 0},
+	{"length", Address_length, 0, 0, 0},
 	{"abstract", Address_abstract, 0, 0, 0},
+	{"path", Address_path, 0, 0, 0},
+	{"ip", Address_ip, 0, 0, 0},
+#if PINKTRACE_HAVE_IPV6
+	{"ipv6", Address_ipv6, 0, 0, 0},
+#endif /* PINKTRACE_HAVE_IPV6 */
+	{"port", Address_port, 0, 0, 0},
+	{"pid", Address_pid, 0, 0, 0},
+	{"groups", Address_groups, 0, 0, 0},
 	{NULL, NULL, 0, 0, 0}
 };
 
@@ -391,8 +474,24 @@ static char Address_doc[] = ""
 	"\n"
 	"- B{family}:\n"
 	"    - Returns the family of the Address (AF_UNIX, AF_INET, etc.)\n"
+	"- B{length}:\n"
+	"    - Returns the length of the Address\n"
 	"- B{abstract}:\n"
-	"    - Returns True if the Address represents an abstract UNIX socket, False otherwise\n";
+	"    - Returns True if the Address represents an abstract UNIX socket, False otherwise\n"
+	"- B{path}:\n"
+	"    - Returns the path of the UNIX socket\n"
+	"- B{ip}:\n"
+	"    - Returns the ip address as a string\n"
+#if PINKTRACE_HAVE_IPV6
+	"- B{ipv6}:\n"
+	"    - Returns the ipv6 address as a string\n"
+#endif /* PINKTRACE_HAVE_IPV6 */
+	"- B{port}:\n"
+	"    - Returns the port\n"
+	"- B{pid}:\n"
+	"    - Returns the pid of the netlink socket Address\n"
+	"- B{groups}:\n"
+	"    - Returns the mcast groups mask of the netlink socket Address\n";
 static PyTypeObject Address_type = {
 #if PY_MAJOR_VERSION > 2
 	PyVarObject_HEAD_INIT(NULL, 0)
@@ -414,7 +513,7 @@ static PyTypeObject Address_type = {
 	0,						/* tp_as_mapping*/
 	0,						/* tp_hash */
 	0,						/* tp_call*/
-	(reprfunc)Address_str,				/* tp_str*/
+	0,						/* tp_str*/
 	0,						/* tp_getattro*/
 	0,						/* tp_setattro*/
 	0,						/* tp_as_buffer*/

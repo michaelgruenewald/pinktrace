@@ -61,6 +61,13 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 	return PINK_BITNESS_32;
 }
 
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+	return 4;
+}
+
 bool
 pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {
@@ -130,6 +137,19 @@ pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, l
 		return pink_util_peek(pid, ind * sizeof(long), res);
 
 	return pink_util_peek(pid, OFFSET_SP, &sp) && pink_util_peekdata(pid, sp + sizeof(long) * ind, res);
+}
+
+bool
+pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+{
+	long sp;
+
+	assert(ind < PINK_MAX_INDEX);
+
+	if (ind < 5)
+		return pink_util_poke(pid, ind * sizeof(long), arg);
+
+	return pink_util_peek(pid, OFFSET_SP, &sp) && pink_util_pokedata(pid, sp + sizeof(long) * ind, arg);
 }
 
 bool

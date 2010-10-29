@@ -42,6 +42,10 @@
 #include <netinet/in.h>
 #include <sys/un.h>
 
+#if PINKTRACE_HAVE_NETLINK || defined(DOXYGEN)
+#include <linux/netlink.h>
+#endif /* PINKTRACE_HAVE_NETLINK... */
+
 #include <pinktrace/gcc.h>
 
 /**
@@ -50,6 +54,13 @@
 typedef struct {
 	/** Family of the socket address **/
 	int family;
+
+	/**
+	 * Length of the socket address
+	 *
+	 * \since 0.0.5
+	 **/
+	socklen_t length;
 
 	/**
 	 * This union contains type-safe pointers to the real socket address.
@@ -76,6 +87,17 @@ typedef struct {
 		 **/
 		struct sockaddr_in6 sa6;
 #endif /* PINKTRACE_HAVE_IPV6... */
+
+#if PINKTRACE_HAVE_NETLINK || defined(DOXYGEN)
+		/**
+		 * Netlink socket address, only valid if family is AF_NETLINK.
+		 * Check with PINKTRACE_HAVE_NETLINK if this member is
+		 * available.
+		 *
+		 * \since 0.0.5
+		 **/
+		struct sockaddr_nl nl;
+#endif /* PINKTRACE_HAVE_NETLINK... */
 	} u;
 } pink_socket_address_t;
 

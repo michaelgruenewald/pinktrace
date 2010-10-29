@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include <pinktrace/pink.h>
 
@@ -30,8 +31,7 @@ print_ret(pid_t pid)
 	long ret;
 
 	if (!pink_util_get_return(pid, &ret)) {
-		fprintf(stderr, "pink_util_get_return: %s\n",
-				strerror(errno));
+		perror("pink_util_get_return");
 		return;
 	}
 
@@ -83,19 +83,121 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 	char buf[MAX_STRING_LEN];
 
 	if (!pink_decode_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
-		fprintf(stderr, "pink_decode_string: %s\n",
-				strerror(errno));
+		perror("pink_decode_string");
 		return;
 	}
 	if (!pink_util_get_arg(pid, bitness, 1, &flags)) {
-		fprintf(stderr, "pink_util_get_arg: %s\n",
-				strerror(errno));
+		perror("pink_util_get_arg");
 		return;
 	}
 
 	printf("open(\"%s\", ", buf);
 	print_open_flags(flags);
 	fputc(')', stdout);
+}
+
+/* A very basic decoder for execve(2) system call. */
+static void
+decode_execve(pid_t pid, pink_bitness_t bitness)
+{
+	bool nil;
+	unsigned i;
+	long arg;
+	char buf[MAX_STRING_LEN];
+	const char *sep;
+
+	if (!pink_decode_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
+		perror("pink_decode_string");
+		return;
+	}
+	if (!pink_util_get_arg(pid, bitness, 1, &arg)) {
+		perror("pink_util_get_arg");
+		return;
+	}
+
+	printf("execve(\"%s\", [", buf);
+
+	for (i = 0, nil = false, sep = "";;sep = ", ") {
+		if (!pink_decode_string_array_member(pid, bitness, arg, ++i, buf, MAX_STRING_LEN, &nil)) {
+			perror("pink_decode_string_array_member");
+			return;
+		}
+		printf("%s", sep);
+		fputc('"', stdout);
+		printf("%s", buf);
+		fputc('"', stdout);
+
+		if (nil) {
+			printf("], envp[])");
+			break;
+		}
+	}
+}
+
+/* A very basic decoder for bind() and connect() calls */
+static void
+decode_socketcall(pid_t pid, pink_bitness_t bitness, const char *scname)
+{
+	long fd, subcall;
+	const char *path, *subname;
+	char ip[100];
+	pink_socket_address_t addr;
+
+	subcall = -1;
+	if (pink_has_socketcall(bitness) && !pink_decode_socket_call(pid, bitness, &subcall)) {
+		perror("pink_decode_socket_call");
+		return;
+	}
+
+	if (subcall > 0) {
+		subname = pink_name_socket_subcall(subcall);
+		if (!(!strcmp(subname, "bind") || !strcmp(subname, "connect"))) {
+			/* Print the name only */
+			printf("%s()", subname);
+			return;
+		}
+	}
+
+	if (!pink_decode_socket_address(pid, bitness, 1, &fd, &addr)) {
+		perror("pink_decode_socket_address");
+		return;
+	}
+
+	printf("%s(%ld, ", (subcall > 0) ? subname : scname, fd);
+
+	switch (addr.family) {
+	case -1: /* NULL */
+		printf("NULL");
+		break;
+	case AF_UNIX:
+		printf("{sa_family=AF_UNIX, path=");
+		path = addr.u.sa_un.sun_path;
+		if (path[0] == '\0' && path[1] != '\0') /* Abstract UNIX socket */
+			printf("\"@%s\"}", ++path);
+		else
+			printf("\"%s\"}", path);
+		break;
+	case AF_INET:
+		inet_ntop(AF_INET, &addr.u.sa_in.sin_addr, ip, sizeof(ip));
+		printf("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa_in.sin_port), ip);
+		break;
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		inet_ntop(AF_INET6, &addr.u.sa6.sin6_addr, ip, sizeof(ip));
+		printf("{sa_family=AF_INET6, sin_port=htons(%d), sin6_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa6.sin6_port), ip);
+		break;
+#endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	case AF_NETLINK:
+		printf("{sa_family=AF_NETLINK, nl_pid=%d, nl_groups=%08x}", addr.u.nl.nl_pid, addr.u.nl.nl_groups);
+		break;
+#endif /* PINKTRACE_HAVE_NETLINK */
+	default: /* Unknown family */
+		printf("{sa_family=???}");
+		break;
+	}
+
+	printf(", %u)", addr.length);
 }
 
 static void
@@ -128,6 +230,10 @@ handle_syscall(struct child *son)
 			printf("%ld()", scno);
 		else if (!strcmp(scname, "open"))
 			decode_open(son->pid, son->bitness);
+		else if (!strcmp(scname, "execve"))
+			decode_execve(son->pid, son->bitness);
+		else if (!strcmp(scname, "socketcall") || !strcmp(scname, "bind") || !strcmp(scname, "connect"))
+			decode_socketcall(son->pid, son->bitness, scname);
 		else
 			printf("%s()", scname);
 	}

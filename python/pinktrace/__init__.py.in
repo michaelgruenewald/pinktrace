@@ -12,7 +12,7 @@ __author__ = "Ali Polatel <alip@exherbo.org>"
 __license__ = "BSD-3"
 __version__ = "#VERSION#"
 
-__all__ = ('bitness', 'event', 'socket', 'string', 'syscall', 'trace')
+__all__ = ('bitness', 'event', 'socket', 'string', 'strarray', 'syscall', 'trace')
 
 PACKAGE = "#PACKAGE#"
 VERSION = "#VERSION#"
@@ -23,3 +23,4 @@ VERSION_SUFFIX = "#VERSION_SUFFIX#"
 GIT_HEAD = "#GIT_HEAD#"
 PC_SLOT = "#PC_SLOT#"
 HAVE_IPV6 = #HAVE_IPV6#
+HAVE_NETLINK = #HAVE_NETLINK#

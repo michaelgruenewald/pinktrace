@@ -6,4 +6,5 @@ EXAMPLES= \
 	  pink-fork-linux.py \
 	  pink-simple-strace-freebsd.py \
 	  pink-simple-strace-linux.py
+EXTRA_DIST= $(EXAMPLES)
 noinst_SCRIPTS= $(EXAMPLES)

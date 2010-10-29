@@ -44,6 +44,13 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 	return PINK_BITNESS_32;
 }
 
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+	return 4;
+};
+
 bool
 pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 {
@@ -77,6 +84,15 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 	assert(ind < PINK_MAX_INDEX);
 
 	return pink_util_peek(pid, syscall_args[bitness][ind], res);
+}
+
+bool
+pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg)
+{
+	assert(bitness == PINK_BITNESS_32);
+	assert(ind < PINK_MAX_INDEX);
+
+	return pink_util_poke(pid, syscall_args[bitness][ind], arg);
 }
 
 bool
@@ -183,7 +199,7 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(paddr != NULL);
 
 	/* Decode socketcall(2) */
-	if (PINK_UNLIKELY(!pink_util_get_arg(pink, bitness, 1, &args)))
+	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
 	if (PINK_UNLIKELY(fd && !pink_util_move(pid, args, fd)))
 		return false;

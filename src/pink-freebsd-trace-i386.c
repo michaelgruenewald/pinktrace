@@ -38,10 +38,44 @@
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
 
+inline
+static unsigned
+pink_util_arg_offset_i386(struct reg r, unsigned ind)
+{
+	long off, scno;
+
+	/*
+	 * FreeBSD has two special kinds of system call redirections --
+	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
+	 * routine, basicly; the latter is for quad-aligned arguments.
+	 */
+	off = r.r_esp + sizeof(int);
+	scno = r.r_eax;
+	switch (scno) {
+	case SYS_syscall:
+		off += sizeof(int);
+		break;
+	case SYS___syscall:
+		off += sizeof(quad_t);
+		break;
+	default:
+		break;
+	}
+
+	return off + ind * sizeof(int);
+}
+
 pink_bitness_t
 pink_bitness_get(PINK_UNUSED pid_t pid)
 {
 	return PINK_BITNESS_32;
+}
+
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+	return 4;
 }
 
 bool
@@ -122,40 +156,22 @@ pink_util_set_return(pid_t pid, long ret)
 bool
 pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
 {
-	unsigned parm_offset;
-	long scno, arg;
 	struct reg r;
 
 	assert(ind < PINK_MAX_INDEX);
 	assert(res != NULL);
 
-	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
-		return false;
+	return pink_util_get_regs(pid, &r) && pink_util_peekdata(pid, pink_util_arg_offset_i386(r, ind), res);
+}
 
-	/*
-	 * FreeBSD has two special kinds of system call redirctions --
-	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
-	 * routine, basicly; the latter is for quad-aligned arguments.
-	 */
-	parm_offset = r.r_esp + sizeof(int);
-	scno = r.r_eax;
-	switch (scno) {
-	case SYS_syscall:
-		parm_offset += sizeof(int);
-		break;
-	case SYS___syscall:
-		parm_offset += sizeof(quad_t);
-		break;
-	default:
-		break;
-	}
+bool
+pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+{
+	struct reg r;
 
-	parm_offset += ind * sizeof(int);
-	if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, &arg)))
-		return false;
+	assert(ind < PINK_MAX_INDEX);
 
-	*res = arg;
-	return true;
+	return pink_util_get_regs(pid, &r) && pink_util_pokedata(pid, pink_util_arg_offset_i386(r, ind), arg);
 }
 
 bool

@@ -4,12 +4,13 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
 EXTRA_DIST= autogen.sh COPYRIGHT README.mkd TODO.mkd misc/generated-file.txt
-SUBDIRS= . src tests haskell python ruby doc pkg-config
+SUBDIRS= src tests haskell python ruby doc pkg-config
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
 			  include/pinktrace/about.h \
 			  include/pinktrace/bitness.h \
+			  include/pinktrace/compat.h \
 			  include/pinktrace/decode.h \
 			  include/pinktrace/encode.h \
 			  include/pinktrace/event.h \
@@ -40,6 +41,16 @@ Setup.lhs: Setup.lhs.in
 		< $(srcdir)/Setup.lhs.in > Setup.lhs
 	$(AM_V_at)chmod +x Setup.lhs
 
+checksum: dist
+	@echo "SHA1 $(PACKAGE)-$(VERSION).tar.bz2"
+	sha1sum $(PACKAGE)-$(VERSION).tar.bz2 > $(PACKAGE)-$(VERSION).tar.bz2.sha1sum
+	@echo "SIGN $(PACKAGE)-$(VERSION).tar.bz2"
+	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
+
+upload-release:
+	@echo "UPLOAD $(PACKAGE)-$(VERSION).tar.bz2*"
+	scp $(PACKAGE)-$(VERSION).tar.bz2* bach.exherbo.org:public_html/pinktrace/release
+
 doxygen:
 	$(MAKE) -C doc $@
 
@@ -60,4 +71,4 @@ upload-www:
 
 upload: upload-doc upload-example upload-www
 
-.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www
+.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www upload-release

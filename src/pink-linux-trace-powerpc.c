@@ -2,6 +2,14 @@
 
 /*
  * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Based in part upon strace which is:
+ *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
+ *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
+ *   Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
+ *   Copyright (c) 1996-1999 Wichert Akkerman <wichert@cistron.nl>
+ *   Copyright (c) 1999 IBM Deutschland Entwicklung GmbH, IBM Corporation
+ *                       Linux for s390 port by D.J. Barrow
+ *                      <barrow_dj@mail.yahoo.com,djbarrow@de.ibm.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +36,7 @@
  */
 
 #include <assert.h>
+#include <stdlib.h>
 
 #include <pinktrace/internal.h>
 #include <pinktrace/pink.h>
@@ -52,6 +61,19 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 	return PINK_BITNESS_32;
 #elif defined(POWERPC64)
 	return PINK_BITNESS_64;
+#else
+#error unsupported architecture
+#endif
+}
+
+inline
+unsigned short
+pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+{
+#if defined(POWERPC)
+	return sizeof(int);
+#elif defined(POWERPC64)
+	return sizeof(long);
 #else
 #error unsupported architecture
 #endif
@@ -110,6 +132,14 @@ pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, l
 	assert(ind < PINK_MAX_INDEX);
 
 	return pink_util_peek(pid, ARG_OFFSET(ind), res);
+}
+
+bool
+pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+{
+	assert(ind < PINK_MAX_INDEX);
+
+	return pink_util_poke(pid, ARG_OFFSET(ind), arg);
 }
 
 bool
@@ -185,6 +215,7 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall)
 bool
 pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 {
+	unsigned short size;
 	long args;
 
 	assert(ind < PINK_MAX_INDEX);
@@ -192,7 +223,18 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 	/* Decode socketcall(2) */
 	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
-	args += ind * sizeof(unsigned int);
+
+	size = pink_bitness_wordsize(bitness);
+	switch (size) {
+	case sizeof(int):
+		args += ind * sizeof(unsigned int);
+		break;
+	case sizeof(long):
+		args += ind * sizeof(unsigned long);
+		break;
+	default:
+		abort();
+	}
 
 	return pink_util_move(pid, args, fd);
 
@@ -201,7 +243,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 bool
 pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr)
 {
-	unsigned int iaddr, iaddrlen;
+	unsigned short size;
 	long addr, addrlen, args;
 
 	assert(ind < PINK_MAX_INDEX);
@@ -210,16 +252,36 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	/* Decode socketcall(2) */
 	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
-	if (PINK_UNLIKELY(fd && !pink_util_move(pid, args, fd)))
+	if (fd && PINK_UNLIKELY(!pink_util_move(pid, args, fd)))
 		return false;
-	args += ind * sizeof(unsigned int);
-	if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
-		return false;
-	args += sizeof(unsigned int);
-	if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
-		return false;
-	addr = iaddr;
-	addrlen = iaddrlen;
+
+	size = pink_bitness_wordsize(bitness);
+	if (size == sizeof(int)) {
+		unsigned int iaddr, iaddrlen;
+		args += ind * size;
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
+			return false;
+		args += size;
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
+			return false;
+
+		addr = iaddr;
+		addrlen = iaddrlen;
+	}
+	else if (size == sizeof(long)) {
+		unsigned long laddr, laddrlen;
+		args += ind * size;
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &laddr)))
+			return false;
+		args += size;
+		if (PINK_UNLIKELY(!pink_util_move(pid, args, &laddrlen)))
+			return false;
+
+		addr = laddr;
+		addrlen = laddrlen;
+	}
+	else
+		abort();
 
 	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
 }

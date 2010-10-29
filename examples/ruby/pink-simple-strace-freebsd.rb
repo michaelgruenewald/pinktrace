@@ -2,10 +2,14 @@
 # coding: utf-8
 # vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
 
+require 'socket'
 require 'PinkTrace'
 
 SIGSTOP = Signal.list['STOP']
 SIGTRAP = Signal.list['TRAP']
+
+PF_INET6   = (PinkTrace::HAVE_IPV6 and Socket.const_defined? 'AF_INET6') ? Socket::AF_INET6 : -999
+PF_NETLINK = (PinkTrace::HAVE_NETLINK and Socket.const_defined? 'AF_NETLINK') ? Socket::AF_NETLINK : -9999
 
 def print_ret ret
   if ret >= 0
@@ -20,6 +24,49 @@ def decode_open pid, bitness
   flags = PinkTrace::Syscall.get_arg pid, 1, bitness
 
   print "open(\"#{path}\", #{flags})"
+end
+
+def decode_execve pid, bitness
+  path = PinkTrace::String.decode pid, 0, -1, bitness
+  addr = PinkTrace::Syscall.get_arg pid, 1, bitness
+
+  print "execve(\"#{path}\", ["
+
+  i = 0
+  sep = ''
+  loop do
+    path = PinkTrace::StringArray.decode pid, addr, i
+    if path
+      print "#{sep}\"#{path}\""
+      i += 1
+      sep = ', '
+    else
+      print '], envp[]'
+      break
+    end
+  end
+end
+
+def decode_socketcall pid, bitness, scname
+  addr, fd = PinkTrace::Socket.decode_address_fd pid, 1, bitness
+  print scname + '(' + fd.to_s + ', '
+
+  case addr.family
+  when -1
+    print 'NULL'
+  when Socket::AF_UNIX
+    print '{sa_family=AF_UNIX, path=' + (addr.abstract? ? '@' + addr.path : addr.path) + '}'
+  when Socket::AF_INET
+    print '{sa_family=AF_INET, sin_port=htons(' + addr.port.to_s + '), sin_addr=inet("' + addr.ip + '")}'
+  when PF_INET6
+    print '{sa_family=AF_INET6, sin6_port=htons(' + addr.port.to_s + '), inet_pton(AF_INET6, "' + addr.ipv6 + ', &sin6_addr)}'
+  when PF_NETLINK
+    print '{sa_family=AF_NETLINK, pid=' + addr.port.to_s + ', groups=' + sprintf('%08x', addr.groups) + '}'
+  else
+    print '{sa_family=???}'
+  end
+
+  print ', ' + addr.length.to_s
 end
 
 unless ARGV.size > 0
@@ -82,12 +129,13 @@ loop do
         scno = PinkTrace::Syscall.get_no pid
         scname = PinkTrace::Syscall.name scno
         inexecve = true if scname == 'execve'
-        if not scname
-          print "#{scno}()"
-        elsif scname == 'open'
-          decode_open pid, bitness
-        else
-          print "#{scname}()"
+        case scname
+        when nil then print "#{scno}()"
+        when 'open' then decode_open pid, bitness
+        when 'execve' then decode_execve pid, bitness
+        when 'bind'
+        when 'connect' then decode_socketcall pid, bitness, scname
+        else print "#{scname}()"
         end
         insyscall = true
       end

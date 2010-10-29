@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
 #include <pinktrace/pink.h>
 
@@ -89,6 +90,84 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 	fputc(')', stdout);
 }
 
+/* A very basic decoder for execve(2) system call. */
+static void
+decode_execve(pid_t pid, pink_bitness_t bitness)
+{
+	bool nil;
+	unsigned i;
+	long arg;
+	char buf[MAX_STRING_LEN];
+	const char *sep;
+
+	if (!pink_decode_string(pid, bitness, 0, buf, MAX_STRING_LEN)) {
+		perror("pink_decode_string");
+		return;
+	}
+	if (!pink_util_get_arg(pid, bitness, 1, &arg)) {
+		perror("pink_util_get_arg");
+		return;
+	}
+
+	printf("execve(\"%s\", [", buf);
+
+	for (i = 0, nil = false, sep = "";;sep = ", ") {
+		if (!pink_decode_string_array_member(pid, bitness, arg, ++i, buf, MAX_STRING_LEN, &nil)) {
+			perror("pink_decode_string_array_member");
+			return;
+		}
+		printf("%s", sep);
+		fputc('"', stdout);
+		printf("%s", buf);
+		fputc('"', stdout);
+
+		if (nil) {
+			printf("], envp[])");
+			break;
+		}
+	}
+}
+
+/* A very basic decoder for bind() and connect() calls */
+static void
+decode_socketcall(pid_t pid, pink_bitness_t bitness, const char *scname)
+{
+	long fd;
+	char ip[100];
+	pink_socket_address_t addr;
+
+	if (!pink_decode_socket_address(pid, bitness, 1, &fd, &addr)) {
+		perror("pink_decode_socket_address");
+		return;
+	}
+
+	printf("%s(%ld, ", scname, fd);
+
+	switch (addr.family) {
+	case -1: /* NULL */
+		printf("NULL");
+		break;
+	case AF_UNIX:
+		printf("{sa_family=AF_UNIX, path=\"%s\"}", addr.u.sa_un.sun_path);
+		break;
+	case AF_INET:
+		inet_ntop(AF_INET, &addr.u.sa_in.sin_addr, ip, sizeof(ip));
+		printf("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa_in.sin_port), ip);
+		break;
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		inet_ntop(AF_INET6, &addr.u.sa6.sin6_addr, ip, sizeof(ip));
+		printf("{sa_family=AF_INET6, sin_port=htons(%d), sin6_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa6.sin6_port), ip);
+		break;
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default: /* Unknown family */
+		printf("{sa_family=???}");
+		break;
+	}
+
+	printf(", %u)", addr.length);
+}
+
 static void
 handle_sigtrap(struct child *son)
 {
@@ -139,6 +218,10 @@ handle_sigtrap(struct child *son)
 
 		if (!strcmp(scname, "open"))
 			decode_open(son->pid, son->bitness);
+		else if (!strcmp(scname, "execve"))
+			decode_execve(son->pid, son->bitness);
+		else if (!strcmp(scname, "bind") || !strcmp(scname, "connect"))
+			decode_socketcall(son->pid, son->bitness, scname);
 		else
 			printf("%s()", scname);
 	}

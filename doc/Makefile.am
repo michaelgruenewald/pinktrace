@@ -82,6 +82,7 @@ upload-doc:
 upload-www: site
 	rsync -avze ssh \
 		--delete --filter '- api' \
+		--delete --filter '- release' \
 		_site/* bach.exherbo.org:public_html/pinktrace/
 
 .PHONY: site site-check doxygen epydoc rdoc upload-doc

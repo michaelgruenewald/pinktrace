@@ -282,9 +282,11 @@ START_TEST(t_decode_string_persistent_null)
 		fail_unless(WIFSTOPPED(status), "%#x", status);
 		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
 
+		errno = 0;
 		buf = pink_decode_string_persistent(pid, PINKTRACE_BITNESS_DEFAULT, 0);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
 		fail_unless(buf == NULL, "NULL != `%s'", buf);
-		fail_unless(errno == EIO || errno == EFAULT, "%d (%s)", errno, strerror(errno));
 
 		pink_trace_kill(pid);
 	}
@@ -480,6 +482,200 @@ START_TEST(t_decode_string_persistent_fourth)
 }
 END_TEST
 
+START_TEST(t_decode_string_array_member_null)
+{
+	bool nil;
+	int status;
+	long arg;
+	pid_t pid;
+	char buf[1];
+	char *const myargv[] = { NULL };
+	char *const myenvp[] = { NULL };
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execve("/usr/bin/true", myargv, myenvp);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		/* Resume the child and it will stop at the entry of next system call */
+		fail_unless(pink_trace_syscall_entry(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0, buf, 1, &nil),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(nil, "Not NULL!");
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member)
+{
+	bool nil;
+	int status;
+	long arg;
+	pid_t pid;
+	char buf[10];
+	char *const myargv[] = { "/dev/null", "/dev/zero", NULL };
+	char *const myenvp[] = { NULL };
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execve("/usr/bin/true", myargv, myenvp);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		/* Resume the child and it will stop at the entry of next system call */
+		fail_unless(pink_trace_syscall_entry(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0, buf, 10, NULL),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 1, buf, 10, NULL),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10), "/dev/zero != `%s'", buf);
+
+		fail_unless(pink_decode_string_array_member(pid, PINKTRACE_BITNESS_DEFAULT, arg, 2, buf, 10, &nil),
+			"%d(%s)", errno, strerror(errno));
+		fail_unless(nil, "Not NULL!");
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member_persistent_null)
+{
+	int status;
+	long arg;
+	pid_t pid;
+	char *buf;
+	char *const myargv[] = { NULL };
+	char *const myenvp[] = { NULL };
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execve("/usr/bin/true", myargv, myenvp);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		/* Resume the child and it will stop at the entry of next system call */
+		fail_unless(pink_trace_syscall_entry(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		errno = 0;
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
+		fail_unless(buf == NULL, "`%s'", buf);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
+START_TEST(t_decode_string_array_member_persistent)
+{
+	int status;
+	long arg;
+	pid_t pid;
+	char *buf;
+	char *const myargv[] = { "/dev/null", "/dev/zero", NULL };
+	char *const myenvp[] = { NULL };
+
+	if ((pid = fork()) < 0)
+		fail("fork: %d(%s)", errno, strerror(errno));
+	else if (!pid) { /* child */
+		if (!pink_trace_me()) {
+			perror("pink_trace_me");
+			_exit(-1);
+		}
+		kill(getpid(), SIGSTOP);
+		execve("/usr/bin/true", myargv, myenvp);
+	}
+	else { /* parent */
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGSTOP, "%#x", status);
+
+		/* Resume the child and it will stop at the entry of next system call */
+		fail_unless(pink_trace_syscall_entry(pid, 0), "%d(%s)", errno, strerror(errno));
+
+		fail_if(waitpid(pid, &status, 0) < 0, "%d(%s)", errno, strerror(errno));
+		fail_unless(WIFSTOPPED(status), "%#x", status);
+		fail_unless(WSTOPSIG(status) == SIGTRAP, "%#x", status);
+
+		fail_unless(pink_util_get_arg(pid, PINKTRACE_BITNESS_DEFAULT, 1, &arg),
+			"%d(%s)", errno, strerror(errno));
+
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 0);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/null", 10), "/dev/null != `%s'", buf);
+		free(buf);
+
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 1);
+		fail_if(buf == NULL, "%d(%s)", errno, strerror(errno));
+		fail_unless(0 == strncmp(buf, "/dev/zero", 10), "/dev/zero != `%s'", buf);
+		free(buf);
+
+		errno = 0;
+		buf = pink_decode_string_array_member_persistent(pid, PINKTRACE_BITNESS_DEFAULT, arg, 2);
+		if (errno)
+			fail("%d(%s)", errno, strerror(errno));
+		fail_unless(buf == NULL, "`%s'", buf);
+
+		pink_trace_kill(pid);
+	}
+}
+END_TEST
+
 START_TEST(t_decode_socket_address_null_second)
 {
 	int status;
@@ -539,6 +735,7 @@ START_TEST(t_decode_socket_address_null_second)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
+		fail_unless(res.length == 0, "0 != %zu", res.length);
 
 		pink_trace_kill(pid);
 	}
@@ -553,6 +750,10 @@ START_TEST(t_decode_socket_address_unix_second)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_un addr;
+
+	addr.sun_family = AF_UNIX;
+	strcpy(addr.sun_path, "/dev/null");
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
@@ -560,12 +761,7 @@ START_TEST(t_decode_socket_address_unix_second)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_un addr;
-
 		close(pfd[0]);
-
-		addr.sun_family = AF_UNIX;
-		strcpy(addr.sun_path, "/dev/null");
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
@@ -609,6 +805,7 @@ START_TEST(t_decode_socket_address_unix_second)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
+		fail_unless(res.length == SUN_LEN(&addr), "%zu != %zu", SUN_LEN(&addr), res.length);
 
 		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
 		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
@@ -627,6 +824,11 @@ START_TEST(t_decode_socket_address_inet_second)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_in addr;
+
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	addr.sin_port = htons(23456);
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
@@ -634,13 +836,7 @@ START_TEST(t_decode_socket_address_inet_second)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_in addr;
-
 		close(pfd[0]);
-
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		addr.sin_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
@@ -685,6 +881,7 @@ START_TEST(t_decode_socket_address_inet_second)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
+		fail_unless(res.length == sizeof(addr), "%zu != %zu", sizeof(addr), res.length);
 
 		fail_unless(res.u.sa_in.sin_family == AF_INET, "%d != %d", AF_INET, res.u.sa_in.sin_family);
 #if 0
@@ -713,6 +910,11 @@ START_TEST(t_decode_socket_address_inet6_second)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_in6 addr;
+
+	addr.sin6_family = AF_INET6;
+	addr.sin6_addr = in6addr_loopback;
+	addr.sin6_port = htons(23456);
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
@@ -720,13 +922,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_in6 addr;
-
 		close(pfd[0]);
-
-		addr.sin6_family = AF_INET6;
-		addr.sin6_addr = in6addr_loopback;
-		addr.sin6_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			fprintf(stderr, "socket: %s\n", strerror(errno));
@@ -771,6 +967,7 @@ START_TEST(t_decode_socket_address_inet6_second)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
+		fail_unless(res.length == sizeof(addr), "%zu != %zu", sizeof(addr), res.length);
 
 		fail_unless(res.u.sa6.sin6_family == AF_INET6, "%d != %d", AF_INET6, res.u.sa6.sin6_family);
 		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
@@ -844,6 +1041,7 @@ START_TEST(t_decode_socket_address_null_fifth)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == -1, "-1 != %d", res.family);
+		fail_unless(res.length == 0, "0 != %zu", res.length);
 
 		pink_trace_kill(pid);
 	}
@@ -858,21 +1056,18 @@ START_TEST(t_decode_socket_address_unix_fifth)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_un addr;
+
+	addr.sun_family = AF_UNIX;
+	strcpy(addr.sun_path, "/dev/null");
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
 
-	/* We don't use pink_fork() for this test because the child needs to
-	 * write the file descriptor to a pipe. */
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_un addr;
-
 		close(pfd[0]);
-
-		addr.sun_family = AF_UNIX;
-		strcpy(addr.sun_path, "/dev/null");
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
@@ -916,6 +1111,7 @@ START_TEST(t_decode_socket_address_unix_fifth)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_UNIX, "%d != %d", AF_UNIX, res.family);
+		fail_unless(res.length == SUN_LEN(&addr), "%zu != %zu", SUN_LEN(&addr), res.length);
 
 		fail_unless(res.u.sa_un.sun_family == AF_UNIX, "%d != %d", AF_UNIX, res.u.sa_un.sun_family);
 		fail_unless(strncmp(res.u.sa_un.sun_path, "/dev/null", 10) == 0,
@@ -934,6 +1130,11 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_in addr;
+
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	addr.sin_port = htons(23456);
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
@@ -941,13 +1142,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_in addr;
-
 		close(pfd[0]);
-
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		addr.sin_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
@@ -992,6 +1187,7 @@ START_TEST(t_decode_socket_address_inet_fifth)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET, "%d != %d", AF_INET, res.family);
+		fail_unless(res.length == sizeof(addr), "%zu != %zu", sizeof(addr), res.length);
 
 		fail_unless(res.u.sa_in.sin_family == AF_INET, "%d != %d", AF_INET, res.u.sa_in.sin_family);
 #if 0
@@ -1020,6 +1216,11 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	char strfd[16];
 	pid_t pid;
 	pink_socket_address_t res;
+	struct sockaddr_in6 addr;
+
+	addr.sin6_family = AF_INET6;
+	addr.sin6_addr = in6addr_loopback;
+	addr.sin6_port = htons(23456);
 
 	if (pipe(pfd) < 0)
 		fail("pipe: %d(%s)", errno, strerror(errno));
@@ -1027,13 +1228,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 	if ((pid = fork()) < 0)
 		fail("fork: %d(%s)", errno, strerror(errno));
 	else if (!pid) { /* child */
-		struct sockaddr_in6 addr;
-
 		close(pfd[0]);
-
-		addr.sin6_family = AF_INET6;
-		addr.sin6_addr = in6addr_loopback;
-		addr.sin6_port = htons(23456);
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			perror("socket");
@@ -1078,6 +1273,7 @@ START_TEST(t_decode_socket_address_inet6_fifth)
 			"%d(%s)", errno, strerror(errno));
 		fail_unless(fd == realfd, "%d != %d", realfd, fd);
 		fail_unless(res.family == AF_INET6, "%d != %d", AF_INET6, res.family);
+		fail_unless(res.length == sizeof(addr), "%zu != %zu", sizeof(addr), res.length);
 
 		fail_unless(res.u.sa6.sin6_family == AF_INET6, "%d != %d", AF_INET6, res.u.sa6.sin6_family);
 		if (!IN6_LOOPBACK(res.u.sa6.sin6_addr.s6_addr)) {
@@ -1113,6 +1309,11 @@ decode_suite_create(void)
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_second);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_third);
 	tcase_add_test(tc_pink_decode, t_decode_string_persistent_fourth);
+
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_null);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_persistent_null);
+	tcase_add_test(tc_pink_decode, t_decode_string_array_member_persistent);
 
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_null_second);
 	tcase_add_test(tc_pink_decode, t_decode_socket_address_unix_second);

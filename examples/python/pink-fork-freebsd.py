@@ -28,4 +28,5 @@ else: # parent
 
     # Let the child resume its execution.
     pinktrace.trace.resume(pid)
+    # Wait for the child to exit.
     os.waitpid(pid, 0)

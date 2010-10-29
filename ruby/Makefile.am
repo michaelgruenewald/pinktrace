@@ -1,5 +1,19 @@
-IF_RUBY_SOURCES= pink-ruby.c
-EXTRA_DIST= $(IF_RUBY_SOURCES)
+IF_RUBY_FILES= pink-ruby.c
+IF_RUBY_TESTS= \
+	       ruby-test.sh \
+	       TEST_trace.rb \
+	       TEST_bitness.rb \
+	       TEST_syscall_freebsd.rb \
+	       TEST_string_freebsd.rb \
+	       TEST_strarray_freebsd.rb \
+	       TEST_socket_address_freebsd.rb \
+	       TEST_event.rb \
+	       TEST_syscall_linux.rb \
+	       TEST_string_linux.rb \
+	       TEST_strarray_linux.rb \
+	       TEST_socket_linux.rb \
+	       TEST_socket_address_linux.rb
+EXTRA_DIST= $(IF_RUBY_FILES) $(IF_RUBY_TESTS)
 CLEANFILES= TEST_UNIX_SOCKET
 
 if ENABLE_RUBY
@@ -11,7 +25,7 @@ AM_CFLAGS= \
 rubylibdir= @RUBY_INSTALL_DIR@
 rubylib_LTLIBRARIES= PinkTrace.la
 
-PinkTrace_la_SOURCES= $(IF_RUBY_SOURCES)
+PinkTrace_la_SOURCES= $(IF_RUBY_FILES)
 PinkTrace_la_LDFLAGS= -module -avoid-version -shared
 PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
@@ -20,9 +34,11 @@ TESTS= \
        TEST_bitness.rb
 
 if FREEBSD
+TESTS_ENVIRONMENT= RUBY="$(RUBY)" ./ruby-test.sh
 TESTS+= \
 	TEST_syscall_freebsd.rb \
 	TEST_string_freebsd.rb \
+	TEST_strarray_freebsd.rb \
 	TEST_socket_address_freebsd.rb
 endif # FREEBSD
 
@@ -31,6 +47,7 @@ TESTS+= \
 	TEST_event.rb \
 	TEST_syscall_linux.rb \
 	TEST_string_linux.rb \
+	TEST_strarray_linux.rb \
 	TEST_socket_linux.rb \
 	TEST_socket_address_linux.rb
 endif # LINUX

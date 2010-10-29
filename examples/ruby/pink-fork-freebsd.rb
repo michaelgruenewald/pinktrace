@@ -29,4 +29,5 @@ end
 
 # Let the child resume its execution.
 PinkTrace::Trace.resume pid
+# Wait for the child to exit.
 Process.wait

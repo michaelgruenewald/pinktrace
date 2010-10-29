@@ -8,10 +8,12 @@ A simple strace like program using pinktrace for Linux.
 
 from __future__ import print_function
 
-import errno, os, signal, sys
+import errno, os, signal, socket, sys
 import pinktrace.bitness
 import pinktrace.event
+import pinktrace.socket
 import pinktrace.string
+import pinktrace.strarray
 import pinktrace.syscall
 import pinktrace.trace
 
@@ -32,10 +34,63 @@ def decode_open(pid, bitness):
 
     print("open(\"%s\", %d)" % (path, flags) , end="")
 
-def decode_simple(bitness, scno):
-    """Decode a call simply."""
+def decode_execve(pid, bitness):
+    """Decode an execve() call"""
 
-    scname = pinktrace.syscall.name(scno, bitness)
+    path = pinktrace.string.decode(pid, 0, -1, bitness)
+    addr = pinktrace.syscall.get_arg(pid, 1, bitness)
+
+    print("execve(\"%s\", [" % path, end="")
+
+    i = 0
+    sep = ""
+    while True:
+        path = pinktrace.strarray.decode(pid, addr, i)
+        if path is not None:
+            print("%s\"%s\"" % (sep, path), end="")
+            i += 1
+            sep = ", "
+        else:
+            print("], envp[]", end="")
+            break
+
+def decode_socketcall(pid, bitness, scname):
+    """Decode a bind() or connect() call"""
+
+    subname = None
+    if pinktrace.socket.has_socketcall(bitness):
+        subcall = pinktrace.socket.decode_call(pid, bitness)
+        subname = pinktrace.socket.name(subcall)
+
+        if subname not in ("bind", "connect"):
+            print("%s()" % subname, end="")
+            return
+
+    addr, fd = pinktrace.socket.decode_address_fd(pid, 1, bitness)
+
+    if subname is not None:
+        print("%s(%ld, " % (subname, fd), end="")
+    else:
+        print("%s(%ld, " % (scname, fd), end="")
+
+    if addr.family == -1: # NULL
+        print("NULL", end="")
+    elif addr.family == socket.AF_UNIX:
+        if addr.abstract:
+            p = "@" + addr.path
+        else:
+            p = addr.path
+        print("{sa_family=AF_UNIX, path=%s}" % p, end="")
+    elif addr.family == socket.AF_INET:
+        print("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet(\"%s\")}" % (addr.port, addr.ip), end="")
+    elif pinktrace.HAVE_IPV6 and addr.family == socket.AF_INET6:
+        print("{sa_family=AF_INET6, sin6_port=htons(%d), inet_pton(AF_INET6, \"%s\", &sin6_addr)}" % (addr.port, addr.ipv6), end="")
+    elif pinktrace.HAVE_NETLINK and addr.family == socket.AF_NETLINK:
+        print("{sa_family=AF_NETLINK, pid=%d, groups=%08x}" % (addr.pid, addr.groups), end="")
+    else: # Unknown/unsupported family
+        print("{sa_family=???}", end="")
+
+    print(", %d)" % addr.length, end="")
 
 if len(sys.argv) < 2:
     print("Usage: %s program [argument...]", file=sys.stderr)
@@ -87,6 +142,10 @@ while True:
                 print("%ld()" % scno, end="")
             elif scname == 'open':
                 decode_open(pid, bitness)
+            elif scname == 'execve':
+                decode_execve(pid, bitness)
+            elif scname in ("socketcall", "bind", "connect"):
+                decode_socketcall(pid, bitness, scname)
             else:
                 print("%s()" % scname, end="")
         insyscall = not insyscall

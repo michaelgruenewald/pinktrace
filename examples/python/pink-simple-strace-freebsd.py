@@ -8,9 +8,10 @@ A simple strace like program using pinktrace for FreeBSD.
 
 from __future__ import print_function
 
-import errno, os, signal, sys
+import errno, os, signal, socket, sys
 import pinktrace.bitness
 import pinktrace.string
+import pinktrace.strarray
 import pinktrace.syscall
 import pinktrace.trace
 
@@ -30,10 +31,44 @@ def decode_open(pid, bitness):
 
     print("open(\"%s\", %d)" % (path, flags) , end="")
 
-def decode_simple(bitness, scno):
-    """Decode a call simply."""
+def decode_execve(pid, bitness):
+    """Decode an execve() call"""
 
-    scname = pinktrace.syscall.name(scno, bitness)
+    path = pinktrace.string.decode(pid, 0, -1, bitness)
+    addr = pinktrace.syscall.get_arg(pid, 1, bitness)
+
+    print("execve(\"%s\", [" % path, end="")
+
+    i = 0
+    sep = ""
+    while True:
+        path = pinktrace.strarray.decode(pid, addr, i)
+        if path is not None:
+            print("%s\"%s\"" % (sep, path), end="")
+            i += 1
+            sep = ", "
+        else:
+            print("], envp[]", end="")
+            break
+
+def decode_socketcall(pid, bitness, scname):
+    """Decode a bind() or connect() call"""
+
+    addr, fd = pinktrace.socket.decode_address_fd(pid, 1, bitness)
+
+    print("%s(%ld, " % (scname, fd), end="")
+    if addr.family == -1: # NULL
+        print("NULL", end="")
+    elif addr.family == socket.AF_UNIX:
+        print("{sa_family=AF_UNIX, path=%s}" % addr.path, end="")
+    elif addr.family == socket.AF_INET:
+        print("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet(\"%s\")}" % (addr.port, addr.ip), end="")
+    elif pinktrace.HAVE_IPV6 and addr.family == socket.AF_INET6:
+        print("{sa_family=AF_INET6, sin6_port=htons(%d), inet_pton(AF_INET6, \"%s\", &sin6_addr)}" % (addr.port, addr.ipv6), end="")
+    else: # Unknown/unsupported family
+        print("{sa_family=???}", end="")
+
+    print(", %d)" % addr.length, end="")
 
 if len(sys.argv) < 2:
     print("Usage: %s program [argument...]", file=sys.stderr)
@@ -97,6 +132,10 @@ while True:
                     print("%ld()" % scno, end="")
                 elif scname == 'open':
                     decode_open(pid, bitness)
+                elif scname == 'execve':
+                    decode_execve(pid, bitness)
+                elif scname in ("bind", "connect"):
+                    decode_socketcall(pid, bitness, scname)
                 else:
                     print("%s()" % scname, end="")
                 insyscall = True

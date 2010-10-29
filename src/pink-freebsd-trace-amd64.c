@@ -49,6 +49,43 @@ struct bitness_types {
 	{NULL, -1}
 };
 
+inline
+static unsigned
+pink_util_arg_offset_amd64(pink_bitness_t bitness, struct reg r, unsigned orig_ind, unsigned *ind)
+{
+	unsigned off;
+
+	/*
+	 * FreeBSD has two special kinds of system call redirctions --
+	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
+	 * routine, basicly; the latter is for quad-aligned arguments.
+	 */
+	off = r.r_rsp + (bitness == PINK_BITNESS_32 ? sizeof(int) : sizeof(register_t));
+	switch (r.r_rax) {
+	case SYS_syscall:
+		if (bitness == PINK_BITNESS_64)
+			++orig_ind;
+		else
+			off += sizeof(int);
+		break;
+	case SYS___syscall:
+		if (bitness == PINK_BITNESS_64)
+			++orig_ind;
+		else
+			off += sizeof(quad_t);
+		break;
+	default:
+		break;
+	}
+
+	if (bitness == PINK_BITNESS_32)
+		off += orig_ind * sizeof(int);
+
+	if (ind)
+		*ind = orig_ind;
+	return off;
+}
+
 pink_bitness_t
 pink_bitness_get(pid_t pid)
 {
@@ -71,6 +108,22 @@ pink_bitness_get(pid_t pid)
 	}
 
 	return PINK_BITNESS_UNKNOWN;
+}
+
+inline
+unsigned short
+pink_bitness_wordsize(pink_bitness_t bitness)
+{
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
+
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		return 4;
+	case PINK_BITNESS_64:
+		return 8;
+	default:
+		abort();
+	}
 }
 
 bool
@@ -160,7 +213,7 @@ pink_util_set_return(pid_t pid, long ret)
 bool
 pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 {
-	unsigned parm_offset;
+	unsigned off, nind;
 	struct reg r;
 
 	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
@@ -170,65 +223,92 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res)
 	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
-	/*
-	 * FreeBSD has two special kinds of system call redirctions --
-	 * SYS_syscall, and SYS___syscall.  The former is the old syscall()
-	 * routine, basicly; the latter is for quad-aligned arguments.
-	 */
-	parm_offset = r.r_rsp + (bitness == PINK_BITNESS_32 ? sizeof(int) : sizeof(register_t));
-	switch (r.r_rax) {
-	case SYS_syscall:
-		if (bitness == PINK_BITNESS_64)
-			++ind;
-		else
-			parm_offset += sizeof(int);
-		break;
-	case SYS___syscall:
-		if (bitness == PINK_BITNESS_64)
-			++ind;
-		else
-			parm_offset += sizeof(quad_t);
-		break;
-	default:
-		break;
-	}
-
-	if (bitness == PINK_BITNESS_32) {
-		parm_offset += ind * sizeof(int);
-		if (!pink_util_peekdata(pid, parm_offset, res))
-			return false;
-		return true;
-	}
-
-	switch (ind) {
-	case 0:
-		*res = r.r_rdi;
-		break;
-	case 1:
-		*res = r.r_rsi;
-		break;
-	case 2:
-		*res = r.r_rdx;
-		break;
-	case 3:
-		*res = r.r_rcx;
-		break;
-	case 4:
-		*res = r.r_r8;
-		break;
-	case 5:
-		*res = r.r_r9;
-		break;
-	case 6:
-		/* system call redirection */
-		if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, res)))
-			return false;
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		return pink_util_peekdata(pid, pink_util_arg_offset_amd64(bitness, r, ind, NULL), res);
+	case PINK_BITNESS_64:
+		off = pink_util_arg_offset_amd64(bitness, r, ind, &nind);
+		switch (nind) {
+		case 0:
+			*res = r.r_rdi;
+			break;
+		case 1:
+			*res = r.r_rsi;
+			break;
+		case 2:
+			*res = r.r_rdx;
+			break;
+		case 3:
+			*res = r.r_rcx;
+			break;
+		case 4:
+			*res = r.r_r8;
+			break;
+		case 5:
+			*res = r.r_r9;
+			break;
+		case 6:
+			/* system call redirection */
+			return pink_util_peekdata(pid, off, res);
+		default:
+			abort();
+		}
 		break;
 	default:
 		abort();
 	}
 
 	return true;
+}
+
+bool
+pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg)
+{
+	unsigned off, nind;
+	struct reg r;
+
+	assert(bitness == PINK_BITNESS_32 || bitness == PINK_BITNESS_64);
+	assert(ind < PINK_MAX_INDEX);
+
+	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
+		return false;
+
+	switch (bitness) {
+	case PINK_BITNESS_32:
+		return pink_util_pokedata(pid, pink_util_arg_offset_amd64(bitness, r, ind, NULL), arg);
+	case PINK_BITNESS_64:
+		off = pink_util_arg_offset_amd64(bitness, r, ind, &nind);
+		switch (nind) {
+		case 0:
+			r.r_rdi = arg;
+			break;
+		case 1:
+			r.r_rsi = arg;
+			break;
+		case 2:
+			r.r_rdx = arg;
+			break;
+		case 3:
+			r.r_rcx = arg;
+			break;
+		case 4:
+			r.r_r8 = arg;
+			break;
+		case 5:
+			r.r_r9 = arg;
+			break;
+		case 6:
+			/* system call redirection */
+			return pink_util_pokedata(pid, off, arg);
+		default:
+			abort();
+		}
+		break;
+	default:
+		abort();
+	}
+
+	return pink_util_set_regs(pid, &r);
 }
 
 bool

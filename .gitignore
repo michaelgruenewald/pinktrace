@@ -17,6 +17,7 @@ Makefile
 gmon.out
 gprof*
 
+/pinktrace-*
 /INSTALL
 /aclocal.m4
 /autom4te.cache
@@ -62,12 +63,13 @@ m4/lt*.m4
 
 pkg-config/pinktrace.pc
 
-python/TEST_*.py
 python/pinktrace/__init__.py
 python/pinktrace/*.so
 
 src/freebsd/amd64/fbsd32-syscalls.master
 src/freebsd/amd64/pink-syscallent32.h
+src/freebsd/init_sysent.c
+src/freebsd/syscalls.c
 src/freebsd/syscalls.master
 src/freebsd/pink-syscallent.h
 

@@ -255,6 +255,76 @@ pinkpy_trace_syscall_exit(PINK_UNUSED PyObject *self,
 #endif /* defined(PINKTRACE_FREEBSD) */
 }
 
+static char pinkpy_trace_sysemu_doc[] = ""
+	"Restarts the stopped child process and arranges it to be stopped after\n"
+	"the entry of the next system call which will *not* be executed.\n"
+	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
+	"@see: pinktrace.trace.cont";
+static PyObject *
+pinkpy_trace_sysemu(PINK_UNUSED PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	int sig;
+
+	sig = 0;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &sig))
+		return NULL;
+
+	if (!pink_trace_sysemu(pid, sig))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+static char pinkpy_trace_sysemu_singlestep_doc[] = ""
+	"Restarts the stopped child process like C{pinktrace.trace.sysemu()}\n"
+	"but also singlesteps if not a system call.\n"
+	"\n"
+	"@note: Availability: Linux\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param sig: Treated the same as the signal argument of C{pinktrace.trace.cont()}\n"
+	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
+	"@see: pinktrace.trace.cont";
+static PyObject *
+pinkpy_trace_sysemu_singlestep(PINK_UNUSED PyObject *self,
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED
+#endif
+	PyObject *args)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	int sig;
+
+	sig = 0;
+	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &sig))
+		return NULL;
+
+	if (!pink_trace_sysemu_singlestep(pid, sig))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+#else
+	PyErr_SetString(PyExc_NotImplementedError, "Not implemented");
+	return NULL;
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
 static char pinkpy_trace_geteventmsg_doc[] = ""
 	"Retrieve a message (as an I{unsigned long}) about the trace event that just\n"
 	"happened, placing it in the location given by the second argument. For B{EXIT}\n"
@@ -402,6 +472,8 @@ static PyMethodDef trace_methods[] = {
 	{"syscall", pinkpy_trace_syscall, METH_VARARGS, pinkpy_trace_syscall_doc},
 	{"syscall_entry", pinkpy_trace_syscall_entry, METH_VARARGS, pinkpy_trace_syscall_entry_doc},
 	{"syscall_exit", pinkpy_trace_syscall_exit, METH_VARARGS, pinkpy_trace_syscall_exit_doc},
+	{"sysemu", pinkpy_trace_sysemu, METH_VARARGS, pinkpy_trace_sysemu_doc},
+	{"sysemu_singlestep", pinkpy_trace_sysemu_singlestep, METH_VARARGS, pinkpy_trace_sysemu_singlestep_doc},
 	{"geteventmsg", pinkpy_trace_geteventmsg, METH_VARARGS, pinkpy_trace_geteventmsg_doc},
 	{"setup", pinkpy_trace_setup, METH_VARARGS, pinkpy_trace_setup_doc},
 	{"attach", pinkpy_trace_attach, METH_VARARGS, pinkpy_trace_attach_doc},

@@ -228,6 +228,38 @@ pinkpy_syscall_get_arg(PINK_UNUSED PyObject *self, PyObject *args)
 	return Py_BuildValue("l", arg);
 }
 
+static char pinkpy_syscall_set_arg_doc[] = ""
+	"Sets the system call argument at the specified index to the given value.\n"
+	"\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param index: The index of the argument\n"
+	"@param arg: The new value of the argument\n"
+	"@param bitness: The bitness of the traced child\n"
+	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
+	"@raise IndexError: Raised if the index is not smaller than C{MAX_INDEX}\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n";
+static PyObject *
+pinkpy_syscall_set_arg(PINK_UNUSED PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	unsigned ind;
+	pink_bitness_t bit;
+	long arg;
+
+	bit = PINKTRACE_BITNESS_DEFAULT;
+	if (!PyArg_ParseTuple(args, PARSE_PID"Il|I", &pid, &ind, &arg, &bit))
+		return NULL;
+
+	if (!check_bitness(bit) || !check_index(ind))
+		return NULL;
+
+	if (!pink_util_set_arg(pid, bit, ind, arg))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+}
+
 static void
 syscall_init(PyObject *mod)
 {
@@ -244,6 +276,7 @@ static PyMethodDef syscall_methods[] = {
 	{"get_ret", pinkpy_syscall_get_ret, METH_VARARGS, pinkpy_syscall_get_ret_doc},
 	{"set_ret", pinkpy_syscall_set_ret, METH_VARARGS, pinkpy_syscall_set_ret_doc},
 	{"get_arg", pinkpy_syscall_get_arg, METH_VARARGS, pinkpy_syscall_get_arg_doc},
+	{"set_arg", pinkpy_syscall_set_arg, METH_VARARGS, pinkpy_syscall_set_arg_doc},
 	{NULL, NULL, 0, NULL}
 };
 

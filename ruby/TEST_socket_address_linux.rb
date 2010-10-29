@@ -119,8 +119,9 @@ if PinkTrace::Syscall.name 0
           addr = PinkTrace::Socket.decode_address pid, 1
           assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
           assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
+          assert addr.unix?, "#{addr.family}"
           assert !addr.abstract?, "Expected non-abstract socket, got abstract"
-          assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
+          assert(addr.path == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.path}'")
           break
         end
       end
@@ -163,8 +164,9 @@ if PinkTrace::Syscall.name 0
           assert(fd.class == Fixnum, "#{fd.class}")
           assert(addr.class == PinkTrace::Socket::Address, "#{addr.class}")
           assert(addr.family == Socket::AF_UNIX, "Wrong family, expected: AF_UNIX got: #{addr.family}")
+          assert addr.unix?, "#{addr.family}"
           assert(!addr.abstract?, "Expected non-abstract socket, got abstract")
-          assert(addr.to_s == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.to_s}'")
+          assert(addr.path == TEST_UNIX_SOCKET, "Wrong path, expected: '#{TEST_UNIX_SOCKET}' got: '#{addr.path}'")
           break
         end
       end

@@ -1,4 +1,4 @@
-#!/usr/bin/env #PYTHON#
+#!/usr/bin/env python
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et tw=80 :
 
@@ -71,7 +71,10 @@ class TestEvent_02(unittest.TestCase):
             ev = event.decide(status)
             self.assertEqual(ev, event.EVENT_FORK)
 
-            try: trace.kill(pid)
+            try:
+                child = trace.geteventmsg(pid)
+                trace.kill(child)
+                trace.kill(pid)
             except OSError: pass
 
     def test_05_event_vfork(self):

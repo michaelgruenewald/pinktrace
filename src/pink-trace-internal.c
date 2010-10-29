@@ -42,6 +42,7 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_soc
 	if (addr == 0) {
 		/* NULL */
 		paddr->family = -1;
+		paddr->length = 0;
 		return true;
 	}
 	if (addrlen < 2 || (unsigned long)addrlen > sizeof(paddr->u))
@@ -53,5 +54,6 @@ pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_soc
 	paddr->u._pad[sizeof(paddr->u._pad) - 1] = '\0';
 
 	paddr->family = paddr->u._sa.sa_family;
+	paddr->length = addrlen;
 	return true;
 }

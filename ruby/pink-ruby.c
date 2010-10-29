@@ -51,13 +51,42 @@
 #endif /* !INET6_ADDRSTRLEN */
 #endif
 
+/*
+ * `pid_t' requires special attention as its size varies a lot between
+ * different architectures.
+ */
+#if !defined(SIZEOF_PID_T) || SIZEOF_PID_T == SIZEOF_INT
+#ifndef PIDT2NUM
+#define PIDT2NUM(p) INT2FIX((p))
+#endif /* !PIDT2NUM */
+#ifndef NUM2PIDT
+#define NUM2PIDT(p) NUM2INT((p))
+#endif /* !NUM2PIDT */
+#elif SIZEOF_PID_T == SIZEOF_LONG
 #ifndef PIDT2NUM
 #define PIDT2NUM(p) LONG2NUM((p))
-#endif
+#endif /* !PIDT2NUM */
+#ifndef NUM2PIDT
+#define NUM2PIDT(p) NUM2LONG((p))
+#endif /* !NUM2PIDT */
+#elif defined(SIZEOF_LONG_LONG) && SIZEOF_PID_T == SIZEOF_LONG_LONG
+#ifndef PIDT2NUM
+#define PIDT2NUM(p) LL2NUM((p))
+#endif /* !PIDT2NUM */
+#ifndef NUM2PIDT
+#define NUM2PIDT(p) NUM2LL((p))
+#endif /* !NUM2PIDT */
+#else
+#error "sizeof(pid_t) is neither sizeof(int), sizeof(long) or sizeof(long long)"
+#endif /* SIZEOF_PID_T */
 
+#ifdef PINKTRACE_LINUX
 #define IS_ABSTRACT(addr) \
 	((addr)->u.sa_un.sun_path[0] == '\0' \
 	 && (addr)->u.sa_un.sun_path[1] != '\0')
+#else
+#define IS_ABSTRACT(addr) 0
+#endif /* PINKTRACE_LINUX */
 
 void
 Init_PinkTrace(void);
@@ -72,12 +101,12 @@ check_bitness(unsigned bit)
 {
 	switch (bit) {
 	case PINK_BITNESS_64:
-#if defined(I386) || defined(POWERPC)
+#if PINKTRACE_BITNESS_64_SUPPORTED == 0
 		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
-#endif
+#endif /* !PINKTRACE_BITNESS_64_SUPPORTED */
 		break;
 	case PINK_BITNESS_32:
-#if defined(IA64) || defined(POWERPC64)
+#if PINKTRACE_BITNESS_32_SUPPORTED == 0
 		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
 #endif
 		break;
@@ -113,6 +142,7 @@ check_index(unsigned ind)
  * - PinkTrace::Bitness
  * - PinkTrace::Syscall
  * - PinkTrace::String
+ * - PinkTrace::StringArray
  * - PinkTrace::Socket
  *
  * == Constants
@@ -292,32 +322,25 @@ pinkrb_trace_cont(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig, addr;
+	VALUE vpid, vsig, vaddr;
 
-	if (argc < 1 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
-		sig = 0;
-
-	if (argc == 3) {
-		if (FIXNUM_P(argv[2]))
-			addr = FIX2LONG(argv[2]);
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "12", &vpid, &vsig, &vaddr)) {
+	case 1:
 		addr = 1;
+		sig = 0;
+		break;
+	case 2:
+		addr = 1;
+		sig = NUM2LONG(vsig);
+		break;
+	case 3:
+		addr = NUM2LONG(vaddr);
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_cont(pid, sig, (char *)addr))
 		rb_sys_fail("pink_trace_cont()");
@@ -342,23 +365,19 @@ pinkrb_trace_resume(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc > 1) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_resume(pid, sig))
 		rb_sys_fail("pink_trace_resume()");
@@ -373,15 +392,11 @@ pinkrb_trace_resume(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Kills the traced child process with SIGKILL.
  */
 static VALUE
-pinkrb_trace_kill(PINK_UNUSED VALUE mod, VALUE pidv)
+pinkrb_trace_kill(PINK_UNUSED VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
+	pid = NUM2PIDT(vpid);
 	if (!pink_trace_kill(pid))
 		rb_sys_fail("pink_trace_kill()");
 
@@ -403,23 +418,19 @@ pinkrb_trace_singlestep(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_singlestep(pid, sig))
 		rb_sys_fail("pink_trace_singlestep()");
@@ -442,23 +453,19 @@ pinkrb_trace_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_syscall(pid, sig))
 		rb_sys_fail("pink_trace_syscall()");
@@ -493,23 +500,19 @@ pinkrb_trace_syscall_entry(
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_syscall_entry(pid, sig))
 		rb_sys_fail("pink_trace_syscall_entry()");
@@ -547,23 +550,19 @@ pinkrb_trace_syscall_exit(
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_syscall_exit(pid, sig))
 		rb_sys_fail("pink_trace_syscall_exit()");
@@ -572,6 +571,106 @@ pinkrb_trace_syscall_exit(
 #else
 	rb_raise(rb_eNotImpError, "Not implemented");
 #endif /* defined(PINKTRACE_FREEBSD) */
+}
+
+/*
+ * Document-method: PinkTrace::Trace.sysemu
+ * call-seq: PinkTrace::Trace.sysemu(pid, [sig=0]) => nil
+ *
+ * Restarts the stopped child process and arranges it to be stopped after the
+ * entry of the next system call which will *not* be executed.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+PINK_NORETURN
+#endif
+static VALUE
+pinkrb_trace_sysemu(
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+#else
+	int argc, VALUE *argv,
+#endif
+	PINK_UNUSED VALUE mod)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	long sig;
+	VALUE vpid, vsig;
+
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
+		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+
+	if (!pink_trace_sysemu(pid, sig))
+		rb_sys_fail("pink_trace_sysemu()");
+
+	return Qnil;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
+}
+
+/*
+ * Document-method: PinkTrace::Trace.sysemu_singlestep
+ * call-seq: PinkTrace::Trace.sysemu_singlestep(pid, [sig=0]) => nil
+ *
+ * Restarts the stopped child process PinkTrace::Trace.sysemu but also
+ * singlesteps if not a system call.
+ *
+ * The +sig+ argument is treated as the same way as the +sig+ argument of
+ * PinkTrace::Trace.cont.
+ *
+ * Availability: Linux
+ */
+#if !defined(PINKTRACE_LINUX)
+PINK_NORETURN
+#endif
+static VALUE
+pinkrb_trace_sysemu_singlestep(
+#if !defined(PINKTRACE_LINUX)
+	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+#else
+	int argc, VALUE *argv,
+#endif
+	PINK_UNUSED VALUE mod)
+{
+#if defined(PINKTRACE_LINUX)
+	pid_t pid;
+	long sig;
+	VALUE vpid, vsig;
+
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
+		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+
+	if (!pink_trace_sysemu_singlestep(pid, sig))
+		rb_sys_fail("pink_trace_sysemu_singlestep()");
+
+	return Qnil;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* defined(PINKTRACE_LINUX) */
 }
 
 /*
@@ -593,17 +692,13 @@ pinkrb_trace_geteventmsg(PINK_UNUSED VALUE mod,
 #if !defined(PINKTRACE_LINUX)
 	PINK_UNUSED
 #endif
-	VALUE pidv)
+	VALUE vpid)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	unsigned long data;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "Process ID is not a Fixnum");
-
+	pid = NUM2PIDT(vpid);
 	if (!pink_trace_geteventmsg(pid, &data))
 		rb_sys_fail("pink_trace_geteventmsg()");
 
@@ -636,23 +731,19 @@ pinkrb_trace_setup(
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
 	int opts;
+	VALUE vpid, vopts;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			opts = FIX2INT(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vopts)) {
+	case 1:
 		opts = PINK_TRACE_OPTION_SYSGOOD;
+		break;
+	case 2:
+		opts = NUM2INT(vopts);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_setup(pid, opts))
 		rb_sys_fail("pink_trace_setup()");
@@ -674,15 +765,11 @@ pinkrb_trace_setup(
  * child to stop.
  */
 static VALUE
-pinkrb_trace_attach(PINK_UNUSED VALUE mod, VALUE pidv)
+pinkrb_trace_attach(PINK_UNUSED VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "Process ID is not a Fixnum");
-
+	pid = NUM2PIDT(vpid);
 	if (!pink_trace_attach(pid))
 		rb_sys_fail("pink_trace_attach()");
 
@@ -704,23 +791,19 @@ pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	pid_t pid;
 	long sig;
+	VALUE vpid, vsig;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1]))
-			sig = FIX2LONG(argv[1]);
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vsig)) {
+	case 1:
 		sig = 0;
+		break;
+	case 2:
+		sig = NUM2LONG(vsig);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_trace_detach(pid, sig))
 		rb_sys_fail("pink_trace_detach()");
@@ -802,25 +885,25 @@ pinkrb_event_decide(
 #if defined(PINKTRACE_LINUX)
 	unsigned int event;
 	int status;
+	VALUE vstatus, ls;
 
-	if (argc > 1)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-	else if (argc == 1) {
-		if (FIXNUM_P(argv[0]))
-			status = FIX2INT(argv[0]);
-		else
-			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-	}
-	else {
+	switch (rb_scan_args(argc, argv, "01", &vstatus)) {
+	case 0:
+		/* Use $?.status */
 #ifdef HAVE_RB_LAST_STATUS_GET /* ruby-1.9 */
-		status = FIX2INT(rb_iv_get(rb_last_status_get(), "status"));
+		ls = rb_last_status_get();
 #else /* ruby-1.8 */
-		VALUE ls = rb_gv_get("$?");
+		ls = rb_gv_get("$?");
+#endif /* HAVE_RB_LAST_STATUS_GET */
 		if (NIL_P(ls))
 			rb_raise(rb_eTypeError, "$? is nil");
-		else
-			status = FIX2INT(rb_iv_get(ls, "status"));
-#endif /* HAVE_RB_LAST_STATUS_GET */
+		status = FIX2INT(rb_iv_get(ls, "status"));
+		break;
+	case 1:
+		status = NUM2INT(vstatus);
+		break;
+	default:
+		abort();
 	}
 
 	event = pink_event_decide(status);
@@ -869,16 +952,12 @@ pinkrb_event_decide(
  * Returns the bitness of the traced child.
  */
 static VALUE
-pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE pidv)
+pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 	int bit;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
+	pid = NUM2PIDT(vpid);
 	bit = pink_bitness_get(pid);
 	if (bit == PINK_BITNESS_UNKNOWN)
 		rb_sys_fail("pink_bitness_get()");
@@ -893,16 +972,30 @@ pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE pidv)
  * Returns the name of the given bitness.
  */
 static VALUE
-pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE bitv)
+pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE vbit)
 {
 	pink_bitness_t bit;
 
-	if (FIXNUM_P(bitv))
-		bit = FIX2UINT(bitv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
+	bit = FIX2UINT(vbit);
 	return rb_str_new2(pink_bitness_name(bit));
+}
+
+/*
+ * Document-method: PinkTrace::Bitness.wordsize
+ * call-seq: PinkTrace::Bitness.wordsize(bitness) => Fixnum
+ *
+ * Returns the word size of the given bitness.
+ */
+static VALUE
+pinkrb_bitness_wordsize(PINK_UNUSED VALUE mod, VALUE vbit)
+{
+	unsigned short wordsize;
+	unsigned bit;
+
+	bit = FIX2UINT(vbit);
+	check_bitness(bit);
+	wordsize = pink_bitness_wordsize(bit);
+	return FIX2INT(wordsize);
 }
 
 /*
@@ -939,25 +1032,20 @@ pinkrb_name_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	unsigned bit;
 	long scno;
 	const char *scname;
+	VALUE vscno, vbit;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		scno = FIX2LONG(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1])) {
-			bit = FIX2UINT(argv[1]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vscno, &vbit)) {
+	case 1:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 2:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	scno = NUM2LONG(vscno);
 
 	scname = pink_name_syscall(scno, bit);
 	return scname ? rb_str_new2(scname) : Qnil;
@@ -978,27 +1066,25 @@ pinkrb_name_lookup(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
 	unsigned bit;
 	const char *name;
-
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
+	VALUE vname, vbit;
 
 #if !defined(RSTRING_PTR)
 #define RSTRING_PTR(v) (RSTRING((v))->ptr)
 #endif /* !defined(RSTRING_PTR) */
 
-	SafeStringValue(argv[0]);
-	name = RSTRING_PTR(argv[0]);
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1])) {
-			bit = FIX2UINT(argv[1]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vname, &vbit)) {
+	case 1:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 2:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	SafeStringValue(vname);
+	name = RSTRING_PTR(vname);
 
 	return LONG2NUM(pink_name_lookup(name, bit));
 }
@@ -1015,30 +1101,25 @@ pinkrb_util_get_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	pid_t pid;
 	unsigned bit;
 	long scno;
+	VALUE vpid, vbit;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2LONG(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc == 2) {
-		if (FIXNUM_P(argv[1])) {
-			bit = FIX2UINT(argv[1]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vbit)) {
+	case 1:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 2:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_util_get_syscall(pid, bit, &scno))
 		rb_sys_fail("pink_util_get_syscall()");
 
-	return LONG2FIX(scno);
+	return LONG2NUM(scno);
 }
 
 /*
@@ -1053,30 +1134,21 @@ pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	pid_t pid;
 	unsigned bit;
 	long scno;
+	VALUE vpid, vscno, vbit;
 
-	if (argc < 2 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1]))
-		scno = FIX2LONG(argv[1]);
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-
-	if (argc == 3) {
-		if (FIXNUM_P(argv[2])) {
-			bit = FIX2UINT(argv[2]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "21", &vpid, &vscno, &vbit)) {
+	case 2:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 3:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	scno = NUM2LONG(vscno);
 
 	if (!pink_util_set_syscall(pid, bit, scno))
 		rb_sys_fail("pink_util_set_syscall()");
@@ -1091,16 +1163,12 @@ pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Returns the return value of the last system call called by the traced child.
  */
 static VALUE
-pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE pidv)
+pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 	long ret;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
+	pid = NUM2PIDT(vpid);
 	if (!pink_util_get_return(pid, &ret))
 		rb_sys_fail("pink_util_get_return()");
 
@@ -1114,20 +1182,13 @@ pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE pidv)
  * Set the return value of the system call for the traced child.
  */
 static VALUE
-pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE pidv, VALUE retv)
+pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE vpid, VALUE vret)
 {
 	pid_t pid;
 	long ret;
 
-	if (FIXNUM_P(pidv))
-		pid = FIX2INT(pidv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(retv))
-		ret = FIX2LONG(retv);
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	pid = NUM2PIDT(vpid);
+	ret = NUM2LONG(vret);
 
 	if (!pink_util_set_return(pid, ret))
 		rb_sys_fail("pink_util_set_return()");
@@ -1153,37 +1214,69 @@ pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	pid_t pid;
 	unsigned bit, ind;
 	long arg;
+	VALUE vpid, vind, vbit;
 
-	if (argc < 2 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-
-	if (argc > 2) {
-		if (FIXNUM_P(argv[2])) {
-			bit = FIX2UINT(argv[2]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "21", &vpid, &vind, &vbit)) {
+	case 2:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 3:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
 
 	if (!pink_util_get_arg(pid, bit, ind, &arg))
 		rb_sys_fail("pink_util_get_arg()");
 
-	return LONG2FIX(arg);
+	return LONG2NUM(arg);
+}
+
+/*
+ * Document-method: PinkTrace::Syscall.set_arg
+ * call-seq: PinkTrace::Syscall.set_arg(pid, index, arg, [bitness=PinkTrace::Bitness::Default]) => nil
+ *
+ * Sets the system call argument at the specified index to the given value.
+ *
+ * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
+ * than PinkTrace::Syscall::MAX_INDEX.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ */
+static VALUE
+pinkrb_util_set_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+{
+	pid_t pid;
+	unsigned bit, ind;
+	long arg;
+	VALUE vpid, vind, varg, vbit;
+
+	switch (rb_scan_args(argc, argv, "31", &vpid, &vind, &varg, &vbit)) {
+	case 3:
+		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 4:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
+	arg = NUM2LONG(varg);
+
+	if (!pink_util_set_arg(pid, bit, ind, arg))
+		rb_sys_fail("pink_util_set_arg()");
+
+	return Qnil;
 }
 
 /*
@@ -1213,42 +1306,28 @@ pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	unsigned bit, ind;
 	int maxlen;
 	char *str;
-	VALUE ret;
+	VALUE vpid, vind, vmax, vbit, vret;
 
-	if (argc < 2 || argc > 4)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2UINT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-
-	if (argc > 2) {
-		if (FIXNUM_P(argv[2]))
-			maxlen = FIX2INT(argv[2]);
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "22", &vpid, &vind, &vmax, &vbit)) {
+	case 2:
 		maxlen = -1;
-
-	if (argc > 3) {
-		if (FIXNUM_P(argv[3])) {
-			bit = FIX2UINT(argv[3]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
-	}
-	else
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 3:
+		maxlen = NUM2INT(vmax);
+		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 4:
+		maxlen = NUM2INT(vmax);
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
 
 	if (maxlen < 0) {
 		/* Use pink_decode_string_persistent() */
@@ -1256,9 +1335,9 @@ pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 		if (!str)
 			rb_sys_fail("pink_decode_string_persistent()");
 
-		ret = rb_str_new2(str);
+		vret = rb_str_new2(str);
 		free(str);
-		return ret;
+		return vret;
 	}
 
 	/* Use pink_decode_string() */
@@ -1266,10 +1345,10 @@ pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	if (!pink_decode_string(pid, bit, ind, str, maxlen))
 		rb_sys_fail("pink_decode_string()");
 
-	ret = rb_str_new2(str);
+	vret = rb_str_new2(str);
 	if (str)
 		free(str);
-	return ret;
+	return vret;
 }
 
 /*
@@ -1303,41 +1382,31 @@ pinkrb_encode_string_safe(
 	unsigned bit, ind;
 	size_t len;
 	char *src;
-
-	if (argc < 3 || argc > 4)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2UINT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	VALUE vpid, vind, vsrc, vbit;
 
 #if !defined(RSTRING_LEN)
 #define RSTRING_LEN(v) (RSTRING((v))->len)
 #define RSTRING_PTR(v) (RSTRING((v))->ptr)
 #endif /* !defined(RSTRING_LEN) */
 
-	SafeStringValue(argv[2]);
-	src = RSTRING_PTR(argv[2]);
-	len = RSTRING_LEN(argv[2]);
-
-	if (argc > 3) {
-		if (FIXNUM_P(argv[3])) {
-			bit = FIX2UINT(argv[3]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "31", &vpid, &vind, &vsrc, &vbit)) {
+	case 3:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 4:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
+
+	SafeStringValue(vsrc);
+	src = RSTRING_PTR(vsrc);
+	len = RSTRING_LEN(vsrc);
 
 	if (!pink_encode_simple_safe(pid, bit, ind, src, ++len))
 		rb_sys_fail("pink_encode_simple_safe()");
@@ -1367,46 +1436,118 @@ pinkrb_encode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	unsigned bit, ind;
 	size_t len;
 	char *src;
-
-	if (argc < 3 || argc > 4)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2UINT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
+	VALUE vpid, vind, vsrc, vbit;
 
 #if !defined(RSTRING_LEN)
 #define RSTRING_LEN(v) (RSTRING((v))->len)
 #define RSTRING_PTR(v) (RSTRING((v))->ptr)
 #endif /* !defined(RSTRING_LEN) */
 
-	SafeStringValue(argv[2]);
-	src = RSTRING_PTR(argv[2]);
-	len = RSTRING_LEN(argv[2]);
-
-	if (argc > 3) {
-		if (FIXNUM_P(argv[3])) {
-			bit = FIX2UINT(argv[3]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Fourth argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "31", &vpid, &vind, &vsrc, &vbit)) {
+	case 3:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 4:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
+
+	SafeStringValue(vsrc);
+	src = RSTRING_PTR(vsrc);
+	len = RSTRING_LEN(vsrc);
 
 	if (!pink_encode_simple(pid, bit, ind, src, ++len))
 		rb_sys_fail("pink_encode_simple()");
 
 	return Qnil;
+}
+
+ /*
+ * Document-class: PinkTrace::StringArray
+ *
+ * This class contains functions to decode NULL-terminated string array members.
+ */
+
+/*
+ * Document-method: PinkTrace::StringArray.decode
+ * call-seq: PinkTrace::StringArray.decode(pid, arg, index, [[maxlen=-1], [bitness=PinkTrace::Bitness::DEFAULT]]) => String or nil
+ *
+ * This function decodes the member of the string array pointed by the address
+ * +arg+. The +index+ argument specifies the index of the member in the string
+ * array.
+ *
+ * Note: If the string array member was NULL, this function returns nil.
+ *
+ * Note: PinkTrace::BitnessError is raised if +bitness+ is either unsupported
+ * or undefined.
+ */
+static VALUE
+pinkrb_decode_strarray(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+{
+	bool nil;
+	pid_t pid;
+	unsigned bit, ind;
+	long arg;
+	int maxlen;
+	char *str;
+	VALUE vpid, varg, vind, vmax, vbit, vret;
+
+	switch (rb_scan_args(argc, argv, "32", &vpid, &varg, &vind, &vmax, &vbit)) {
+	case 3:
+		maxlen = -1;
+		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 4:
+		maxlen = NUM2INT(vmax);
+		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 5:
+		maxlen = NUM2INT(vmax);
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	arg = NUM2LONG(varg);
+	ind = FIX2UINT(vind);
+	check_index(vind);
+
+	if (maxlen < 0) {
+		/* Use pink_decode_string_array_member_persistent() */
+		errno = 0;
+		str = pink_decode_string_array_member_persistent(pid, bit, arg, ind);
+		if (!str) {
+			if (errno)
+				rb_sys_fail("pink_decode_string_array_member_persistent()");
+			return Qnil;
+		}
+
+		vret = rb_str_new2(str);
+		free(str);
+		return vret;
+	}
+
+	/* Use pink_decode_string_array_member() */
+	str = ALLOC_N(char, maxlen);
+	if (!pink_decode_string_array_member(pid, bit, arg, ind, str, maxlen, &nil))
+		rb_sys_fail("pink_decode_string_array_member()");
+	if (nil) {
+		free(str);
+		return Qnil;
+	}
+
+	vret = rb_str_new2(str);
+	if (str)
+		free(str);
+	return vret;
 }
 
 /*
@@ -1440,19 +1581,19 @@ pinkrb_has_socketcall(PINK_UNUSED VALUE mod,
 {
 #if defined(PINKTRACE_LINUX)
 	unsigned bit;
+	VALUE vbit;
 
-	if (argc > 1)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-	else if (argc > 0) {
-		if (FIXNUM_P(argv[0])) {
-			bit = FIX2UINT(argv[0]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "01", &vbit)) {
+	case 0:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 1:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
 
 	return pink_has_socketcall(bit) ? Qtrue : Qfalse;
 #else
@@ -1476,19 +1617,14 @@ pinkrb_name_socket_subcall(PINK_UNUSED VALUE mod,
 #if !defined(PINKTRACE_LINUX)
 	PINK_UNUSED
 #endif
-	VALUE subcallv)
+	VALUE vsubcall)
 {
 #if defined(PINKTRACE_LINUX)
 	unsigned subcall;
 	const char *subname;
 
-	if (FIXNUM_P(subcallv))
-		subcall = FIX2UINT(subcallv);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
+	subcall = FIX2UINT(vsubcall);
 	subname = pink_name_socket_subcall(subcall);
-
 	return subname ? rb_str_new2(subname) : Qnil;
 #else
 	rb_raise(rb_eNotImpError, "Not implemented");
@@ -1525,25 +1661,20 @@ pinkrb_decode_socket_call(
 	pid_t pid;
 	unsigned bit;
 	long subcall;
+	VALUE vpid, vbit;
 
-	if (argc < 1 || argc > 2)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc > 1) {
-		if (FIXNUM_P(argv[1])) {
-			bit = FIX2UINT(argv[1]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "11", &vpid, &vbit)) {
+	case 1:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 2:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_decode_socket_call(pid, bit, &subcall))
 		rb_sys_fail("pink_decode_socket_call()");
@@ -1587,36 +1718,28 @@ pinkrb_decode_socket_fd(
 	pid_t pid;
 	unsigned bit, ind;
 	long fd;
+	VALUE vpid, vind, vbit;
 
-	if (argc < 1 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (argc > 1) {
-		if (FIXNUM_P(argv[1])) {
-			ind = FIX2UINT(argv[1]);
-			check_index(ind);
-		}
-		else
-			rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-	}
-	else
-		ind = 0;
-
-	if (argc > 2) {
-		if (FIXNUM_P(argv[2])) {
-			bit = FIX2UINT(argv[2]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "12", &vpid, &vind, &vbit)) {
+	case 1:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		ind = 0;
+		break;
+	case 2:
+		bit = PINKTRACE_BITNESS_DEFAULT;
+		ind = FIX2UINT(vind);
+		check_index(ind);
+		break;
+	case 3:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		ind = FIX2UINT(vind);
+		check_index(ind);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
 
 	if (!pink_decode_socket_fd(pid, bit, ind, &fd))
 		rb_sys_fail("pink_decode_socket_fd()");
@@ -1635,10 +1758,11 @@ pinkrb_decode_socket_fd(
 
 /*
  * Document-method: PinkTrace::Socket.decode_address
- * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr or nil
+ * call-seq: PinkTrace::Socket.decode_address(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr
  *
  * Decodes the socket address at the given index.
- * If the system call's address argument was NULL, this function returns +nil+.
+ * If the system call's address argument was NULL, this function sets
+ * +addr.family+ to -1.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::Syscall::MAX_INDEX.
@@ -1652,33 +1776,23 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	pid_t pid;
 	unsigned bit, ind;
 	pink_socket_address_t *addr;
+	VALUE vpid, vind, vbit;
 	VALUE addrObj;
 
-	if (argc < 2 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-
-	if (argc > 2) {
-		if (FIXNUM_P(argv[2])) {
-			bit = FIX2UINT(argv[2]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "21", &vpid, &vind, &vbit)) {
+	case 2:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 3:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
 
 	addrObj = Data_Make_Struct(pinkrb_cAddress, pink_socket_address_t, NULL, free, addr);
 
@@ -1690,11 +1804,11 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 
 /*
  * Document-method: PinkTrace::Socket.decode_address_fd
- * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr|nil, fd
+ * call-seq: PinkTrace::Socket.decode_address_fd(pid, index, [bitness=PinkTrace::Bitness::DEFAULT]) => addr, fd
  *
  * Decodes the socket address at the given index and the file descriptor at index 0.
- * If the system call's address argument was NULL this function returns +nil+
- * and the file descriptor.
+ * If the system call's address argument was NULL this function sets
+ * +addr.family+ to -1.
  *
  * Note: PinkTrace::IndexError is raised if +index+ argument is not smaller
  * than PinkTrace::Syscall::MAX_INDEX.
@@ -1709,33 +1823,23 @@ pinkrb_decode_socket_address_fd(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 	unsigned bit, ind;
 	long fd;
 	pink_socket_address_t *addr;
+	VALUE vpid, vind, vbit;
 	VALUE addrObj;
 
-	if (argc < 2 || argc > 3)
-		rb_raise(rb_eArgError, "Wrong number of arguments");
-
-	if (FIXNUM_P(argv[0]))
-		pid = FIX2INT(argv[0]);
-	else
-		rb_raise(rb_eTypeError, "First argument is not a Fixnum");
-
-	if (FIXNUM_P(argv[1])) {
-		ind = FIX2UINT(argv[1]);
-		check_index(ind);
-	}
-	else
-		rb_raise(rb_eTypeError, "Second argument is not a Fixnum");
-
-	if (argc > 2) {
-		if (FIXNUM_P(argv[2])) {
-			bit = FIX2UINT(argv[2]);
-			check_bitness(bit);
-		}
-		else
-			rb_raise(rb_eTypeError, "Third argument is not a Fixnum");
-	}
-	else
+	switch (rb_scan_args(argc, argv, "21", &vpid, &vind, &vbit)) {
+	case 2:
 		bit = PINKTRACE_BITNESS_DEFAULT;
+		break;
+	case 3:
+		bit = FIX2UINT(vbit);
+		check_bitness(bit);
+		break;
+	default:
+		abort();
+	}
+	pid = NUM2PIDT(vpid);
+	ind = FIX2UINT(vind);
+	check_index(ind);
 
 	addrObj = Data_Make_Struct(pinkrb_cAddress, pink_socket_address_t, NULL, free, addr);
 
@@ -1762,48 +1866,19 @@ pinkrb_Address_family(VALUE self)
 }
 
 /*
- * Document-method: to_s
- * call-seq: addr.to_s => String
+ * Document-method: length
+ * call-seq: addr.length => fixnum
  *
- * Returns the string representation of the address.
- * For UNIX addresses this is the path, for INET{,6} addresses this is the IP.
+ * Returns the length of the address.
  */
 static VALUE
-pinkrb_Address_to_s(VALUE self)
+pinkrb_Address_length(VALUE self)
 {
-	char *ip;
 	pink_socket_address_t *addr;
-	VALUE ret;
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
-	switch (addr->family) {
-	case -1:
-		return rb_str_new2("NULL");
-	case AF_UNIX:
-		if (IS_ABSTRACT(addr)) {
-			addr->u.sa_un.sun_path[0] = '@';
-			ret = rb_str_new2(addr->u.sa_un.sun_path);
-			addr->u.sa_un.sun_path[0] = '\0';
-			return ret;
-		}
-		return rb_str_new2(addr->u.sa_un.sun_path);
-	case AF_INET:
-		ip = ALLOC_N(char, INET_ADDRSTRLEN);
-		inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
-		ret = rb_str_new2(ip);
-		free(ip);
-		return ret;
-#if PINKTRACE_HAVE_IPV6
-	case AF_INET6:
-		ip = ALLOC_N(char, INET6_ADDRSTRLEN);
-		inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
-		ret = rb_str_new2(ip);
-		free(ip);
-		return ret;
-#endif /* PINKTRACE_HAVE_IPV6 */
-	default:
-		return rb_str_new2("UNKNOWN");
-	}
+
+	return INT2FIX(addr->length);
 }
 
 /*
@@ -1819,6 +1894,73 @@ pinkrb_Address_is_unix(VALUE self)
 
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	return (addr->family == AF_UNIX) ? Qtrue : Qfalse;
+}
+
+/*
+ * Document-method: inet?
+ * call-seq: addr.inet? => true or false
+ *
+ * Returns true if the address is of family +AF_INET+.
+ */
+static VALUE
+pinkrb_Address_is_inet(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_INET) ? Qtrue : Qfalse;
+}
+
+/*
+ * Document-method: inet6?
+ * call-seq: addr.inet6? => true or false
+ *
+ * Returns true if the address is of family +AF_INET6+.
+ */
+#if PINKTRACE_HAVE_IPV6 == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_IPV6 */
+static VALUE
+pinkrb_Address_is_inet6(
+#if PINKTRACE_HAVE_IPV6 == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_IPV6 */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_IPV6
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_INET6) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_IPV6 */
+}
+
+/*
+ * Document-method: netlink?
+ * call-seq: addr.netlink? => true or false
+ *
+ * Returns true if the address is of family +AF_NETLINK+.
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_is_netlink(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	return (addr->family == AF_NETLINK) ? Qtrue : Qfalse;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_NETLINK */
 }
 
 /*
@@ -1838,6 +1980,156 @@ pinkrb_Address_is_abstract(VALUE self)
 	return Qfalse;
 }
 
+/*
+ * Document-method: path
+ * call-seq: addr.path => String
+ *
+ * Returns the path of the UNIX socket address.
+ */
+static VALUE
+pinkrb_Address_path(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_UNIX)
+		rb_raise(rb_eTypeError, "Invalid family");
+	return rb_str_new2(addr->u.sa_un.sun_path + (IS_ABSTRACT(addr) ? 1 : 0));
+}
+
+/*
+ * Document-method: port
+ * call-seq: addr.port => Fixnum
+ *
+ * Returns the port of an Inet or Inet6 socket address
+ */
+static VALUE
+pinkrb_Address_port(VALUE self)
+{
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	switch (addr->family) {
+	case AF_INET:
+		return FIX2INT(ntohs(addr->u.sa_in.sin_port));
+#if PINKTRACE_HAVE_IPV6
+	case AF_INET6:
+		return FIX2INT(ntohs(addr->u.sa6.sin6_port));
+#endif /* PINKTRACE_HAVE_IPV6 */
+	default:
+		rb_raise(rb_eTypeError, "Invalid family");
+	}
+}
+
+/*
+ * Document-method: ip
+ * call-seq: addr.ip => String
+ *
+ * Returns the address of an Inet socket address as a string
+ */
+static VALUE
+pinkrb_Address_ip(VALUE self)
+{
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ret;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET)
+		rb_raise(rb_eTypeError, "Invalid family");
+	ip = ALLOC_N(char, INET_ADDRSTRLEN);
+	inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, ip, INET_ADDRSTRLEN);
+	ret = rb_str_new2(ip);
+	free(ip);
+	return ret;
+}
+
+/*
+ * Document-method: ipv6
+ * call-seq: addr.ipv6 => String
+ *
+ * Returns the IPV6 address of an Inet6 socket address as string.
+ */
+#if PINKTRACE_HAVE_IPV6 == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_IPV6 */
+static VALUE
+pinkrb_Address_ipv6(
+#if PINKTRACE_HAVE_IPV6 == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_IPV6 */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_IPV6
+	char *ip;
+	pink_socket_address_t *addr;
+	VALUE ret;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family != AF_INET6)
+		rb_raise(rb_eTypeError, "Invalid family");
+	ip = ALLOC_N(char, INET6_ADDRSTRLEN);
+	inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, ip, INET6_ADDRSTRLEN);
+	ret = rb_str_new2(ip);
+	free(ip);
+	return ret;
+#else
+	rb_raise(rb_eNotImpError, "Not implemented");
+#endif /* PINKTRACE_HAVE_IPV6 */
+}
+
+/*
+ * Document-method: pid
+ * call-seq: addr.pid => Fixnum
+ *
+ * Returns the process ID of the netlink socket address
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_pid(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family == AF_NETLINK)
+		return PIDT2NUM(addr->u.nl.nl_pid);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	rb_raise(rb_eNotImpError, "Not implemented");
+}
+
+/*
+ * Document-method: groups
+ * call-seq: addr.groups => Fixnum
+ *
+ * Returns the mcast groups mask of the netlink socket address
+ */
+#if PINKTRACE_HAVE_NETLINK == 0
+PINK_NORETURN
+#endif /* !PINKTRACE_HAVE_NETLINK */
+static VALUE
+pinkrb_Address_groups(
+#if PINKTRACE_HAVE_NETLINK == 0
+	PINK_UNUSED
+#endif /* !PINKTRACE_HAVE_NETLINK */
+	VALUE self)
+{
+#if PINKTRACE_HAVE_NETLINK
+	pink_socket_address_t *addr;
+
+	Data_Get_Struct(self, pink_socket_address_t, addr);
+	if (addr->family == AF_NETLINK)
+		return LONG2NUM(addr->u.nl.nl_groups);
+#endif /* PINKTRACE_HAVE_NETLINK */
+	rb_raise(rb_eNotImpError, "Not implemented");
+}
+
 void
 Init_PinkTrace(void)
 {
@@ -1845,6 +2137,7 @@ Init_PinkTrace(void)
 	VALUE bitness_mod;
 	VALUE event_mod;
 	VALUE string_mod;
+	VALUE strarray_mod;
 	VALUE socket_mod;
 	VALUE syscall_mod;
 	VALUE trace_mod;
@@ -1860,6 +2153,11 @@ Init_PinkTrace(void)
 #else
 	rb_define_const(mod, "HAVE_IPV6", Qfalse);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+	rb_define_const(mod, "HAVE_NETLINK", Qtrue);
+#else
+	rb_define_const(mod, "HAVE_NETLINK", Qfalse);
+#endif /* PINKTRACE_HAVE_NETLINK */
 	/* about.h */
 	rb_define_const(mod, "PACKAGE", rb_str_new2(PINKTRACE_PACKAGE));
 	rb_define_const(mod, "VERSION", INT2FIX(PINKTRACE_VERSION));
@@ -1890,6 +2188,8 @@ Init_PinkTrace(void)
 	rb_define_module_function(trace_mod, "syscall", pinkrb_trace_syscall, -1);
 	rb_define_module_function(trace_mod, "syscall_entry", pinkrb_trace_syscall_entry, -1);
 	rb_define_module_function(trace_mod, "syscall_exit", pinkrb_trace_syscall_exit, -1);
+	rb_define_module_function(trace_mod, "sysemu", pinkrb_trace_sysemu, -1);
+	rb_define_module_function(trace_mod, "sysemu_singlestep", pinkrb_trace_sysemu_singlestep, -1);
 	rb_define_module_function(trace_mod, "geteventmsg", pinkrb_trace_geteventmsg, 1);
 	rb_define_module_function(trace_mod, "setup", pinkrb_trace_setup, -1);
 	rb_define_module_function(trace_mod, "attach", pinkrb_trace_attach, 1);
@@ -1931,6 +2231,7 @@ Init_PinkTrace(void)
 #endif /* PINKTRACE_BITNESS_64_SUPPORTED */
 	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
 	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
+	rb_define_module_function(bitness_mod, "wordsize", pinkrb_bitness_wordsize, 1);
 
 	/* util.h && name.h */
 	syscall_mod = rb_define_module_under(mod, "Syscall");
@@ -1943,12 +2244,17 @@ Init_PinkTrace(void)
 	rb_define_module_function(syscall_mod, "get_ret", pinkrb_util_get_return, 1);
 	rb_define_module_function(syscall_mod, "set_ret", pinkrb_util_set_return, 2);
 	rb_define_module_function(syscall_mod, "get_arg", pinkrb_util_get_arg, -1);
+	rb_define_module_function(syscall_mod, "set_arg", pinkrb_util_set_arg, -1);
 
 	/* decode.h && encode.h (only string {en,de}coding) */
 	string_mod = rb_define_module_under(mod, "String");
 	rb_define_module_function(string_mod, "decode", pinkrb_decode_string, -1);
 	rb_define_module_function(string_mod, "encode", pinkrb_encode_string_safe, -1);
 	rb_define_module_function(string_mod, "encode!", pinkrb_encode_string, -1);
+
+	/* decode.h (only string array decoding */
+	strarray_mod = rb_define_module_under(mod, "StringArray");
+	rb_define_module_function(strarray_mod, "decode", pinkrb_decode_strarray, -1);
 
 	/* decode.h && socket.h */
 	socket_mod = rb_define_module_under(mod, "Socket");
@@ -1966,9 +2272,18 @@ Init_PinkTrace(void)
 
 	/* Address methods */
 	rb_define_method(pinkrb_cAddress, "family", pinkrb_Address_family, 0);
-	rb_define_method(pinkrb_cAddress, "to_s", pinkrb_Address_to_s, 0);
+	rb_define_method(pinkrb_cAddress, "length", pinkrb_Address_length, 0);
 	rb_define_method(pinkrb_cAddress, "unix?", pinkrb_Address_is_unix, 0);
+	rb_define_method(pinkrb_cAddress, "inet?", pinkrb_Address_is_inet, 0);
+	rb_define_method(pinkrb_cAddress, "inet6?", pinkrb_Address_is_inet6, 0);
+	rb_define_method(pinkrb_cAddress, "netlink?", pinkrb_Address_is_netlink, 0);
 	rb_define_method(pinkrb_cAddress, "abstract?", pinkrb_Address_is_abstract, 0);
+	rb_define_method(pinkrb_cAddress, "path", pinkrb_Address_path, 0);
+	rb_define_method(pinkrb_cAddress, "port", pinkrb_Address_port, 0);
+	rb_define_method(pinkrb_cAddress, "ip", pinkrb_Address_ip, 0);
+	rb_define_method(pinkrb_cAddress, "ipv6", pinkrb_Address_ipv6, 0);
+	rb_define_method(pinkrb_cAddress, "pid", pinkrb_Address_pid, 0);
+	rb_define_method(pinkrb_cAddress, "groups", pinkrb_Address_groups, 0);
 
 	rb_define_module_function(socket_mod, "decode_address", pinkrb_decode_socket_address, -1);
 	rb_define_module_function(socket_mod, "decode_address_fd", pinkrb_decode_socket_address_fd, -1);

@@ -7,7 +7,7 @@ AC_CANONICAL_HOST
 
 VERSION_MAJOR=0
 VERSION_MINOR=0
-VERSION_MICRO=1
+VERSION_MICRO=4
 VERSION_SUFFIX=
 VERSION_FULL="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_MICRO$VERSION_SUFFIX"
 VERSION="$VERSION_FULL"
@@ -62,7 +62,7 @@ AC_PROG_CC_C99
 if test x"$ac_cv_prog_cc_c99" = x"no"; then
 	AC_MSG_ERROR([pinktrace requires a C compiler that supports ISO C99!])
 fi
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
@@ -241,6 +241,9 @@ dnl }}}
 
 dnl {{{ Check headers
 REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
+if test x"$opsys" = x"linux" ; then
+	REQUIRED_HEADERS="${REQUIRED_HEADERS} linux/ptrace.h"
+fi
 for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
@@ -289,6 +292,32 @@ if test x"$WANT_IPV6" = x"yes" ; then
 else
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
+fi
+dnl }}}
+
+dnl {{{ Check for Netlink support
+AC_CHECK_HEADER([linux/netlink.h],
+				[AC_CHECK_TYPES([struct sockaddr_nl],
+								[WANT_NETLINK="yes"],
+								[WANT_NETLINK="no"],
+								[#include <stddef.h>
+								 #include <sys/socket.h>
+								 #include <asm/types.h>
+								 #include <linux/netlink.h>])],
+				[WANT_NETLINK="no"],
+				[#include <stddef.h>
+				 #include <sys/socket.h>
+				 #include <asm/types.h>
+				])
+AC_MSG_CHECKING([for Netlink support])
+AC_MSG_RESULT([$WANT_NETLINK])
+AM_CONDITIONAL(WANT_NETLINK, test x"$WANT_NETLINK" = x"yes")
+if test x"$WANT_NETLINK" = x"yes" ; then
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_NETLINK=1"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_NETLINK=1"
+else
+	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_NETLINK=0"
+	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_NETLINK=0"
 fi
 dnl }}}
 
@@ -496,6 +525,20 @@ if test x"$enable_python" = x"yes" ; then
 	fi
 	AC_MSG_RESULT([$PYTHON_INSTALL_DIR])
 	AC_SUBST([PYTHON_INSTALL_DIR])
+
+	if test x"$WANT_IPV6" = x"yes" ; then
+		PYTHON_HAVE_IPV6="True"
+	else
+		PYTNON_HAVE_IPV6="False"
+	fi
+	AC_SUBST([PYTHON_HAVE_IPV6])
+
+	if test x"$WANT_NETLINK" = x"yes" ; then
+		PYTHON_HAVE_NETLINK="True"
+	else
+		PYTHON_HAVE_NETLINK="False"
+	fi
+	AC_SUBST([PYTHON_HAVE_NETLINK])
 fi
 AM_CONDITIONAL([ENABLE_PYTHON], test x"$enable_python" = x"yes")
 dnl }}}

@@ -90,10 +90,34 @@ pinkpy_bitness_name(PINK_UNUSED PyObject *self, PyObject *args)
 #endif /* PY_MAJOR_VERSION > 2 */
 }
 
+static char pinkpy_bitness_wordsize_doc[] = ""
+	"Returns the word size of the given bitness.\n"
+	"\n"
+	"@param bitness: The bitness\n"
+	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n"
+	"@rtype: int\n"
+	"@return: The word size of the bitness";
+static PyObject *
+pinkpy_bitness_wordsize(PINK_UNUSED PyObject *self, PyObject *args)
+{
+	unsigned short wordsize;
+	pink_bitness_t bit;
+
+	if (!PyArg_ParseTuple(args, "i", &bit))
+		return NULL;
+	if (!check_bitness(bit))
+		return NULL;
+
+	wordsize = pink_bitness_wordsize(bit);
+
+	return Py_BuildValue("I", wordsize);
+}
+
 static char bitness_doc[] = "Pink's bitness modes";
 static PyMethodDef bitness_methods[] = {
 	{"get", pinkpy_bitness_get, METH_VARARGS, pinkpy_bitness_get_doc},
 	{"name", pinkpy_bitness_name, METH_VARARGS, pinkpy_bitness_name_doc},
+	{"wordsize", pinkpy_bitness_wordsize, METH_VARARGS, pinkpy_bitness_wordsize_doc},
 	{NULL, NULL, 0, NULL}
 };
 
