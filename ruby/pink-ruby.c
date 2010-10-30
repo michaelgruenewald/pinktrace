@@ -96,6 +96,7 @@ static VALUE pinkrb_eIndexError;
 
 static VALUE pinkrb_cAddress;
 
+inline
 static void
 check_bitness(unsigned bit)
 {
@@ -116,6 +117,7 @@ check_bitness(unsigned bit)
 	}
 }
 
+inline
 static void
 check_index(unsigned ind)
 {
@@ -897,7 +899,7 @@ pinkrb_event_decide(
 #endif /* HAVE_RB_LAST_STATUS_GET */
 		if (NIL_P(ls))
 			rb_raise(rb_eTypeError, "$? is nil");
-		status = FIX2INT(rb_iv_get(ls, "status"));
+		status = NUM2INT(rb_iv_get(ls, "status"));
 		break;
 	case 1:
 		status = NUM2INT(vstatus);
@@ -995,7 +997,7 @@ pinkrb_bitness_wordsize(PINK_UNUSED VALUE mod, VALUE vbit)
 	bit = FIX2UINT(vbit);
 	check_bitness(bit);
 	wordsize = pink_bitness_wordsize(bit);
-	return FIX2INT(wordsize);
+	return INT2FIX(wordsize);
 }
 
 /*
