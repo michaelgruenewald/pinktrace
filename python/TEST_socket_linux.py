@@ -104,7 +104,7 @@ class TestSocketLinux_01(unittest.TestCase):
                     scno = pinktrace.syscall.get_no(pid)
                     name = pinktrace.syscall.name(scno)
                     if name == 'socketcall':
-                        subno = pintrace.socket.decode_call(pid)
+                        subno = pinktrace.socket.decode_call(pid)
                         subname = pinktrace.socket.name(subno)
                         if subname == 'connect':
                             addr = pinktrace.socket.decode_address(pid, 1)
@@ -145,7 +145,7 @@ class TestSocketLinux_01(unittest.TestCase):
                     scno = pinktrace.syscall.get_no(pid)
                     name = pinktrace.syscall.name(scno)
                     if name == 'socketcall':
-                        subno = pintrace.socket.decode_call(pid)
+                        subno = pinktrace.socket.decode_call(pid)
                         subname = pinktrace.socket.name(subno)
                         if subname == 'connect':
                             addr = pinktrace.socket.decode_address(pid, 1)
@@ -188,7 +188,7 @@ class TestSocketLinux_01(unittest.TestCase):
                     scno = pinktrace.syscall.get_no(pid)
                     name = pinktrace.syscall.name(scno)
                     if name == 'socketcall':
-                        subno = pintrace.socket.decode_call(pid)
+                        subno = pinktrace.socket.decode_call(pid)
                         subname = pinktrace.socket.name(subno)
                         if subname == 'connect':
                             addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
@@ -231,7 +231,7 @@ class TestSocketLinux_01(unittest.TestCase):
                     scno = pinktrace.syscall.get_no(pid)
                     name = pinktrace.syscall.name(scno)
                     if name == 'socketcall':
-                        subno = pintrace.socket.decode_call(pid)
+                        subno = pinktrace.socket.decode_call(pid)
                         subname = pinktrace.socket.name(subno)
                         if subname == 'connect':
                             addr, fd = pinktrace.socket.decode_address_fd(pid, 1)
