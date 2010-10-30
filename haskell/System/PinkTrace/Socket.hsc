@@ -40,8 +40,9 @@
     Pink's socket decoding functions
 -}
 module System.PinkTrace.Socket
-    ( Address(..)
+    ( Address
     , SubCall(..)
+    , Family(..)
     , nameSocketSubCall
     , decodeSocketAddress
     , decodeSocketAddressFd
@@ -62,8 +63,6 @@ import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid, ProcessID)
 
-import Network.Socket        (Family(..))
-
 #ifdef PINKTRACE_LINUX
 import Foreign.C.String      (CString, peekCString)
 #endif
@@ -78,12 +77,47 @@ import System.PinkTrace.Bitness ( Bitness(..)
 #ifdef PINKTRACE_LINUX
 foreign import ccall pink_name_socket_subcall :: CInt -> CString
 #endif
-foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Ptr Address -> IO CInt
-foreign import ccall "__pinkhs_socket_family" c_socket_family :: Ptr Address -> CInt
+foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Address -> IO CInt
+foreign import ccall "__pinkhs_socket_family" c_socket_family :: Address -> CInt
 --}}}
 --{{{ Types
 -- |This type represents a decoded socket address.
-newtype Address = Address (ForeignPtr Address)
+newtype PinkSocketAddress = PinkSocketAddress (ForeignPtr PinkSocketAddress)
+type Address = Ptr PinkSocketAddress
+
+-- |Socket families
+data Family = AF_NULL -- ^ NULL
+    | AF_UNIX         -- ^ Unix
+    | AF_INET         -- ^ IPV4
+#if PINKTRACE_HAVE_IPV6
+    | AF_INET6        -- ^ IPV6
+#endif
+#if PINKTRACE_HAVE_NETLINK
+    | AF_NETLINK      -- ^ Netlink
+#endif
+    deriving (Eq,Show)
+instance Enum Family where
+    fromEnum AF_NULL    = -1
+    fromEnum AF_UNIX    = #{const AF_UNIX}
+    fromEnum AF_INET    = #{const AF_INET}
+#if PINKTRACE_HAVE_IPV6
+    fromEnum AF_INET6   = #{const AF_INET6}
+#endif
+#if PINKTRACE_HAVE_NETLINK
+    fromEnum AF_NETLINK = #{const AF_NETLINK}
+#endif
+
+    toEnum (-1)                = AF_NULL
+    toEnum #{const AF_UNIX}    = AF_UNIX
+    toEnum #{const AF_INET}    = AF_INET
+#if PINKTRACE_HAVE_IPV6
+    toEnum #{const AF_INET6}   = AF_INET6
+#endif
+#if PINKTRACE_HAVE_NETLINK
+    toEnum #{const AF_NETLINK} = AF_NETLINK
+#endif
+    toEnum unmatched           = error $ "SubCall.toEnum: Cannot match " ++ show unmatched
+
 -- |Socket subcalls
 data SubCall = Socket -- ^ socket() subcall
     | Bind            -- ^ bind() subcall
@@ -174,10 +208,10 @@ nameSocketSubCall _ = error "nameSocketSubCall: not implemented"
     * Note: This function decodes the @socketcall(2)@ system call on some
       architectures.
 -}
-decodeSocketAddress :: Index            -- ^ The index of the argument
-                    -> Bitness          -- ^ The bitness of the traced child
-                    -> ProcessID        -- ^ Process ID of the traced child
-                    -> IO (Ptr Address) -- ^ The decoded socket address
+decodeSocketAddress :: Index      -- ^ The index of the argument
+                    -> Bitness    -- ^ The bitness of the traced child
+                    -> ProcessID  -- ^ Process ID of the traced child
+                    -> IO Address -- ^ The decoded socket address
 decodeSocketAddress index bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddress: unsupported bitness " ++ show bit
@@ -200,10 +234,10 @@ decodeSocketAddress index bit pid
     * Note: This function decodes the @socketcall(2)@ system call on some
       architectures.
 -}
-decodeSocketAddressFd :: Index                  -- ^ The index of the argument
-                      -> Bitness                -- ^ The bitness of the traced child
-                      -> ProcessID              -- ^ Process ID of the traced child
-                      -> IO (CInt, Ptr Address) -- ^ Decoded socket file descriptor and the socket address
+decodeSocketAddressFd :: Index              -- ^ The index of the argument
+                      -> Bitness            -- ^ The bitness of the traced child
+                      -> ProcessID          -- ^ Process ID of the traced child
+                      -> IO (CInt, Address) -- ^ Decoded socket file descriptor and the socket address
 decodeSocketAddressFd index bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "decodeSocketAddressFd: unsupported bitness " ++ show bit
@@ -223,31 +257,12 @@ decodeSocketAddressFd index bit pid
         index' = (fromIntegral . fromEnum) index
 
 -- |Free the block of memory allocated for 'Address'
-freeSocketAddress :: Ptr Address -> IO ()
+freeSocketAddress :: Address -> IO ()
 freeSocketAddress = free
 
-{-|
-    Returns the family of the decoded socket 'Address'.
-    If 'Address' is NULL, this function returns @AF_UNSPEC@.
--}
-familySocketAddress :: Ptr Address -> IO Family
-familySocketAddress ptr = do
-    let f = c_socket_family ptr
-    if f < 0
-        then return AF_UNSPEC
-        else
-            if f == #{const AF_UNIX}
-                then return AF_UNIX
-            else
-                if f == #{const AF_INET}
-                        then return AF_INET
-#if PINKTRACE_HAVE_IPV6
-                        else
-                            if f == #{const AF_INET6}
-                                then return AF_INET6
-                                else error $ "familySocketAddress: unknown family " ++ show f
-#else
-                        else error $ "familySocketAddress: unknown family " ++ show f
-#endif
+-- |Returns the family of the decoded socket 'Address'.
+familySocketAddress :: Address -> Family
+familySocketAddress = toEnum . fromIntegral . c_socket_family
+
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
