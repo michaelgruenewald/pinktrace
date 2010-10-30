@@ -101,12 +101,12 @@ check_bitness(unsigned bit)
 {
 	switch (bit) {
 	case PINK_BITNESS_64:
-#if PINKTRACE_BITNESS_64_SUPPORTED == 0
+#if !PINKTRACE_BITNESS_64_SUPPORTED
 		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
 #endif /* !PINKTRACE_BITNESS_64_SUPPORTED */
 		break;
 	case PINK_BITNESS_32:
-#if PINKTRACE_BITNESS_32_SUPPORTED == 0
+#if !PINKTRACE_BITNESS_32_SUPPORTED
 		rb_raise(pinkrb_eBitnessError, "Unsupported bitness");
 #endif
 		break;
@@ -1917,12 +1917,12 @@ pinkrb_Address_is_inet(VALUE self)
  *
  * Returns true if the address is of family +AF_INET6+.
  */
-#if PINKTRACE_HAVE_IPV6 == 0
+#if !PINKTRACE_HAVE_IPV6
 PINK_NORETURN
 #endif /* !PINKTRACE_HAVE_IPV6 */
 static VALUE
 pinkrb_Address_is_inet6(
-#if PINKTRACE_HAVE_IPV6 == 0
+#if !PINKTRACE_HAVE_IPV6
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_IPV6 */
 	VALUE self)
@@ -1943,12 +1943,12 @@ pinkrb_Address_is_inet6(
  *
  * Returns true if the address is of family +AF_NETLINK+.
  */
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 PINK_NORETURN
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_is_netlink(
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
@@ -2050,12 +2050,12 @@ pinkrb_Address_ip(VALUE self)
  *
  * Returns the IPV6 address of an Inet6 socket address as string.
  */
-#if PINKTRACE_HAVE_IPV6 == 0
+#if !PINKTRACE_HAVE_IPV6
 PINK_NORETURN
 #endif /* !PINKTRACE_HAVE_IPV6 */
 static VALUE
 pinkrb_Address_ipv6(
-#if PINKTRACE_HAVE_IPV6 == 0
+#if !PINKTRACE_HAVE_IPV6
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_IPV6 */
 	VALUE self)
@@ -2084,12 +2084,12 @@ pinkrb_Address_ipv6(
  *
  * Returns the process ID of the netlink socket address
  */
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 PINK_NORETURN
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_pid(
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
@@ -2110,12 +2110,12 @@ pinkrb_Address_pid(
  *
  * Returns the mcast groups mask of the netlink socket address
  */
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 PINK_NORETURN
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_groups(
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
@@ -2148,16 +2148,8 @@ Init_PinkTrace(void)
 	pinkrb_eIndexError = rb_define_class_under(mod, "IndexError", rb_eIndexError);
 
 	/* Global Constants */
-#if PINKTRACE_HAVE_IPV6
-	rb_define_const(mod, "HAVE_IPV6", Qtrue);
-#else
-	rb_define_const(mod, "HAVE_IPV6", Qfalse);
-#endif /* PINKTRACE_HAVE_IPV6 */
-#if PINKTRACE_HAVE_NETLINK
-	rb_define_const(mod, "HAVE_NETLINK", Qtrue);
-#else
-	rb_define_const(mod, "HAVE_NETLINK", Qfalse);
-#endif /* PINKTRACE_HAVE_NETLINK */
+	rb_define_const(mod, "HAVE_IPV6", PINKTRACE_HAVE_IPV6 ? Qtrue : Qfalse);
+	rb_define_const(mod, "HAVE_NETLINK", PINKTRACE_HAVE_NETLINK ? Qtrue : Qfalse);
 	/* about.h */
 	rb_define_const(mod, "PACKAGE", rb_str_new2(PINKTRACE_PACKAGE));
 	rb_define_const(mod, "VERSION", INT2FIX(PINKTRACE_VERSION));
@@ -2219,16 +2211,8 @@ Init_PinkTrace(void)
 	rb_define_const(bitness_mod, "DEFAULT", INT2FIX(PINKTRACE_BITNESS_DEFAULT));
 	rb_define_const(bitness_mod, "BITNESS_32", INT2FIX(PINK_BITNESS_32));
 	rb_define_const(bitness_mod, "BITNESS_64", INT2FIX(PINK_BITNESS_64));
-#if PINKTRACE_BITNESS_32_SUPPORTED
-	rb_define_const(bitness_mod, "BITNESS_32_SUPPORTED", Qtrue);
-#else
-	rb_define_const(bitness_mod, "BITNESS_32_SUPPORTED", Qfalse);
-#endif /* PINKTRACE_BITNESS_32_SUPPORTED */
-#if PINKTRACE_BITNESS_64_SUPPORTED
-	rb_define_const(bitness_mod, "BITNESS_64_SUPPORTED", Qtrue);
-#else
-	rb_define_const(bitness_mod, "BITNESS_64_SUPPORTED", Qfalse);
-#endif /* PINKTRACE_BITNESS_64_SUPPORTED */
+	rb_define_const(bitness_mod, "BITNESS_32_SUPPORTED", PINKTRACE_BITNESS_32_SUPPORTED ? Qtrue : Qfalse);
+	rb_define_const(bitness_mod, "BITNESS_64_SUPPORTED", PINKTRACE_BITNESS_64_SUPPORTED ? Qtrue : Qfalse);
 	rb_define_module_function(bitness_mod, "get", pinkrb_bitness_get, 1);
 	rb_define_module_function(bitness_mod, "name", pinkrb_bitness_name, 1);
 	rb_define_module_function(bitness_mod, "wordsize", pinkrb_bitness_wordsize, 1);
