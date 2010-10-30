@@ -40,7 +40,7 @@ class TestSocketLinux_01(unittest.TestCase):
                     if name == 'socketcall':
                         # Decode the call to its subcall
                         subno = pinktrace.socket.decode_call(pid)
-                        subname = pinktrace.socket.name(subname)
+                        subname = pinktrace.socket.name(subno)
                         self.assertEqual(subname, 'socket')
                         break
                     elif name == 'socket':
