@@ -166,6 +166,7 @@ pinkpy_socket_decode_call(PINK_UNUSED PyObject *self,
 	pid_t pid;
 	pink_bitness_t bit;
 
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"|I", &pid, &bit))
 		return NULL;
 
