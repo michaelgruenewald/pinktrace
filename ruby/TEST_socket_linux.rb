@@ -8,33 +8,6 @@ $:.insert(0, '.libs')
 require 'PinkTrace'
 
 class TestPinkSocket < Test::Unit::TestCase
-  def test_socket_name_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Socket.name
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.name 1, 2
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.name 'pink'
-    end
-  end
-
-  def test_socket_decode_call_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_call
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_call 0, 1, 2
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_call 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_call 0, 'pink'
-    end
-  end
-
   def test_socket_decode_call_esrch
     assert_raise Errno::ESRCH do
       PinkTrace::Socket.decode_call 0
@@ -42,21 +15,6 @@ class TestPinkSocket < Test::Unit::TestCase
   end
 
   def test_socket_decode_fd_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_fd
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_fd 0, 1, 2, 3
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_fd 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_fd 0, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_fd 0, 1, 'pink'
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Socket.decode_fd 0, 1, 13
     end

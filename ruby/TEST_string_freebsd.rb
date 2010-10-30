@@ -9,27 +9,6 @@ require 'PinkTrace'
 
 class TestPinkString < Test::Unit::TestCase
   def test_string_decode_invalid
-    assert_raise ArgumentError do
-      PinkTrace::String.decode
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.decode 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.decode 0, 1, 2, 3, 4
-    end
-    assert_raise TypeError do
-      PinkTrace::String.decode 'pink', 0
-    end
-    assert_raise TypeError do
-      PinkTrace::String.decode 0, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.decode 0, 1, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.decode 0, 1, 2, 'pink'
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::String.decode 0, 1, 2, 13
     end
@@ -45,27 +24,6 @@ class TestPinkString < Test::Unit::TestCase
   end
 
   def test_string_encode_unsafe_invalid
-    assert_raise ArgumentError do
-      PinkTrace::String.encode!
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode! 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode! 0, 1
-    end
-    assert_raise ArgumentError do
-      PinkTrace::String.encode! 0, 1, 2, 3, 4
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode! 'pink', 1, 'floyd'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode! 0, 'pink', 'floyd'
-    end
-    assert_raise TypeError do
-      PinkTrace::String.encode! 0, 1, Object
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::String.encode! 0, 1, 'pink', 13
     end
