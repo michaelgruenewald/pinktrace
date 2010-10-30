@@ -193,23 +193,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
 
+*Sat Oct 30 2010:*
+
+[Version 0.0.5]({{ site.url }}/release/pinktrace-0.0.5.tar.bz2) released;
+changes include:
+- Add new function `pink_util_set_arg()`
+- Add new functions `pink_trace_sysemu()` and `pink_trace_sysemu_singlestep()`
+- Add support for decoding [Netlink](http://en.wikipedia.org/wiki/Netlink) socket addresses
+- Various enhancements for the [bindings](#bindings)
+
 *Sun Oct 17 2010:*
 
-[Version 0.0.4](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.4.tar.bz2) released;
+[Version 0.0.4]({{ site.url }}/release/pinktrace-0.0.4.tar.bz2) released;
 fixes socket decoding functions for PPC64.
 
 *Tue Oct 12 2010:*
 
-[Version 0.0.3](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.3.tar.bz2) released;
+[Version 0.0.3]({{ site.url }}/release/pinktrace-0.0.3.tar.bz2) released;
 fixes a few bugs and adds an [API](http://en.wikipedia.org/wiki/Api) to decode NULL-terminated string arrays.
 
 *Sun Oct 3 2010:*
 
-[Version 0.0.2](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.2.tar.bz2) released;
+[Version 0.0.2]({{ site.url }}/release/pinktrace-0.0.2.tar.bz2) released;
 fixes compilation on ARM due to missing header
 
 *Sun Oct 3 2010:*
 
-[Version 0.0.1](http://dev.exherbo.org/~alip/pinktrace/release/pinktrace-0.0.1.tar.bz2) released
+[Version 0.0.1]({{ site.url }}/release/pinktrace-0.0.1.tar.bz2) released
 
 <!-- vim: set tw=120 ft=mkd spell spelllang=en sw=4 sts=4 et : -->
