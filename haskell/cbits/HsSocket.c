@@ -29,4 +29,11 @@
 
 #include "HsSocket.h"
 
+#ifdef PINKTRACE_LINUX
+#define IS_ABSTRACT(addr) ((addr)->u.sa_un.sun_path[0] == '\0' && (addr)->u.sa_un.sun_path[1] != '\0')
+#else
+#define IS_ABSTRACT(addr) 0
+#endif /* PINKTRACE_LINUX */
+
 int __pinkhs_socket_family(pink_socket_address_t *addr) { return addr->family; }
+int __pinkhs_socket_isabstract(pink_socket_address_t *addr) { return (addr->family == AF_UNIX && IS_ABSTRACT(addr)); }
