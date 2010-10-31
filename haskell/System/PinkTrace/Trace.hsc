@@ -40,21 +40,23 @@
     Pink's low level wrappers around ptrace(2) internals
 -}
 module System.PinkTrace.Trace
-    ( Addr                  -- = CInt
-    , EventMessage          -- = CLong
+    ( Addr                           -- = CInt
+    , EventMessage                   -- = CLong
     , TraceOption(..)
-    , traceMe               -- :: IO ()
-    , traceContinue         -- :: Addr -> Signal -> ProcessID -> IO ()
-    , traceResume           -- :: Signal -> ProcessID -> IO ()
-    , traceKill             -- :: ProcessID -> IO ()
-    , traceSingleStep       -- :: Signal -> ProcessID -> IO ()
-    , traceSystemCall       -- :: Signal -> ProcessID -> IO ()
-    , traceSystemCallEntry  -- :: Signal -> ProcessID -> IO ()
-    , traceSystemCallExit   -- :: Signal -> ProcessID -> IO ()
-    , traceGetEventMessage  -- :: ProcessID -> IO Int
-    , traceSetup            -- :: TraceOption -> ProcessID -> IO ()
-    , traceAttach           -- :: ProcessID -> IO ()
-    , traceDetach           -- :: Signal -> ProcessID -> IO ()
+    , traceMe                        -- :: IO ()
+    , traceContinue                  -- :: Addr -> Signal -> ProcessID -> IO ()
+    , traceResume                    -- :: Signal -> ProcessID -> IO ()
+    , traceKill                      -- :: ProcessID -> IO ()
+    , traceSingleStep                -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCall                -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCallEntry           -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCallExit            -- :: Signal -> ProcessID -> IO ()
+    , traceSystemEmulation           -- :: Signal -> ProcessID -> IO ()
+    , traceSystemEmulationSingleStep -- :: Signal -> ProcessID -> IO ()
+    , traceGetEventMessage           -- :: ProcessID -> IO Int
+    , traceSetup                     -- :: TraceOption -> ProcessID -> IO ()
+    , traceAttach                    -- :: ProcessID -> IO ()
+    , traceDetach                    -- :: Signal -> ProcessID -> IO ()
     ) where
 --}}}
 --{{{ Includes
@@ -85,6 +87,8 @@ foreign import ccall pink_trace_syscall_entry :: CPid -> CInt -> IO CInt
 foreign import ccall pink_trace_syscall_exit :: CPid -> CInt -> IO CInt
 #endif
 #ifdef PINKTRACE_LINUX
+foreign import ccall pink_trace_sysemu :: CPid -> CInt -> IO CInt
+foreign import ccall pink_trace_sysemu_singlestep :: CPid -> CInt -> IO CInt
 foreign import ccall pink_trace_geteventmsg :: CPid -> Ptr CULong -> IO CInt
 foreign import ccall pink_trace_setup :: CPid -> CInt -> IO CInt
 #endif
@@ -251,6 +255,36 @@ traceSystemCallExit _ _ = error "traceSystemCallExit: not implemented"
 #endif
 
 #ifdef PINKTRACE_LINUX
+{-|
+    Restarts the stopped child process and arranges it to be stopped after
+    the entry of the next system call which will *not* be executed.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+
+    * Availability: Linux (2.6.14 or newer)
+-}
+traceSystemEmulation :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                     -> ProcessID -- ^ Process ID of the child to be restarted.
+                     -> IO ()
+traceSystemEmulation sig pid = do
+    ret <- pink_trace_sysemu pid sig
+    when (ret == 0) (throwErrno "pink_trace_sysemu")
+
+{-|
+    Restarts the stopped child process like 'traceSystemEmulation' but also
+    singlesteps if not a system call.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+
+    * Availability: Linux (2.6.14 or newer)
+-}
+traceSystemEmulationSingleStep :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
+                               -> ProcessID -- ^ Process ID of the child to be restarted.
+                               -> IO ()
+traceSystemEmulationSingleStep sig pid = do
+    ret <- pink_trace_sysemu_singlestep pid sig
+    when (ret == 0) (throwErrno "pink_trace_sysemu_singlestep")
+
 {-|
     Retrieve a message about the trace event that just happened.
 
