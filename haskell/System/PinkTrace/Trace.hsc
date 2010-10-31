@@ -44,17 +44,17 @@ module System.PinkTrace.Trace
     , EventMessage          -- = CLong
     , TraceOption(..)
     , traceMe               -- :: IO ()
-    , traceContinue         -- :: ProcessID -> Signal -> Addr -> IO ()
+    , traceContinue         -- :: Addr -> Signal -> ProcessID -> IO ()
     , traceResume           -- :: Signal -> ProcessID -> IO ()
     , traceKill             -- :: ProcessID -> IO ()
-    , traceSingleStep       -- :: ProcessID -> Signal -> IO ()
-    , traceSystemCall       -- :: ProcessID -> Signal -> IO ()
-    , traceSystemCallEntry  -- :: ProcessID -> Signal -> IO ()
-    , traceSystemCallExit   -- :: ProcessID -> Signal -> IO ()
+    , traceSingleStep       -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCall       -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCallEntry  -- :: Signal -> ProcessID -> IO ()
+    , traceSystemCallExit   -- :: Signal -> ProcessID -> IO ()
     , traceGetEventMessage  -- :: ProcessID -> IO Int
-    , traceSetup            -- :: ProcessID -> TraceOption -> IO ()
+    , traceSetup            -- :: TraceOption -> ProcessID -> IO ()
     , traceAttach           -- :: ProcessID -> IO ()
-    , traceDetach           -- :: ProcessID -> Signal -> IO ()
+    , traceDetach           -- :: Signal -> ProcessID -> IO ()
     ) where
 --}}}
 --{{{ Includes
