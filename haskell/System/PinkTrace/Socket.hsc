@@ -47,7 +47,7 @@ module System.PinkTrace.Socket
     , decodeSocketAddress
     , decodeSocketAddressFd
     , freeSocketAddress
-    , familySocketAddress
+    , familyOfSocketAddress
     , isAbstractUNIXSocketAddress
     ) where
 --}}}
@@ -263,8 +263,8 @@ freeSocketAddress :: Address -> IO ()
 freeSocketAddress = free
 
 -- |Returns the family of the decoded socket 'Address'
-familySocketAddress :: Address -> Family
-familySocketAddress = toEnum . fromIntegral . c_socket_family
+familyOfSocketAddress :: Address -> Family
+familyOfSocketAddress = toEnum . fromIntegral . c_socket_family
 
 -- |Returns True if the 'Address' is an abstract UNIX socket 'Address'
 isAbstractUNIXSocketAddress :: Address -> Bool
