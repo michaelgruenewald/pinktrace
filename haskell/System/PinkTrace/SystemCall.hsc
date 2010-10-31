@@ -48,6 +48,7 @@ module System.PinkTrace.SystemCall
     , getSystemCallReturn
     , setSystemCallReturn
     , getSystemCallArgument
+    , setSystemCallArgument
     ) where
 --}}}
 --{{{ Includes
@@ -77,6 +78,7 @@ foreign import ccall pink_util_set_syscall :: CPid -> CInt -> CLong -> IO CInt
 foreign import ccall pink_util_get_return :: CPid -> Ptr CLong -> IO CInt
 foreign import ccall pink_util_set_return :: CPid -> CLong -> IO CInt
 foreign import ccall pink_util_get_arg :: CPid -> CInt -> CUInt -> Ptr CLong -> IO CInt
+foreign import ccall pink_util_set_arg :: CPid -> CInt -> CUInt -> CLong -> IO CInt
 --}}}
 --{{{ Types
 type SystemCallReturn = CLong
@@ -195,6 +197,28 @@ getSystemCallArgument index bit pid
     | otherwise = alloca $ \ptr -> do
         ret <- pink_util_get_arg pid bit' index' ptr
         fmap fromIntegral $ if ret == 0 then throwErrno "pink_util_get_arg" else peek ptr
+    where
+        bit' :: CInt
+        bit' = (fromIntegral . fromEnum) bit
+        index' :: CUInt
+        index' = (fromIntegral . fromEnum) index
+
+{-|
+    Sets the system call argument at the specified index to the given value.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+-}
+setSystemCallArgument :: Index     -- ^ The index of the argument
+                      -> CLong     -- ^ The value of the argument
+                      -> Bitness   -- ^ The bitness of the traced child
+                      -> ProcessID -- ^ Process ID of the traced child
+                      -> IO ()
+setSystemCallArgument index val bit pid
+    | bit == Bitness32 && not bitness32Supported = error $ "setSystemCallArgument: unsupported bitness " ++ show bit
+    | bit == Bitness64 && not bitness64Supported = error $ "setSystemCallArgument: unsupported bitness " ++ show bit
+    | otherwise = do
+        ret <- pink_util_set_arg pid bit' index' val
+        when (ret == 0) (throwErrno "pink_util_set_arg")
     where
         bit' :: CInt
         bit' = (fromIntegral . fromEnum) bit
