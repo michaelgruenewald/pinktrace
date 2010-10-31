@@ -310,7 +310,7 @@ ipOfInetSocketAddress ptr
 
 #if PINKTRACE_HAVE_IPV6
 {-|
-    Returns teh IP address of the Inet6 socket 'Address' as a 'String'
+    Returns the IP address of the Inet6 socket 'Address' as a 'String'
 
     * Availability: Only available if PinkTrace was compiled with IPV6 support.
 -}
@@ -322,7 +322,7 @@ ipOfInet6SocketAddress ptr
         peekCString str'
 #else
 {-|
-    Returns teh IP address of the Inet6 socket 'Address' as a 'String'
+    Returns the IP address of the Inet6 socket 'Address' as a 'String'
 
     * Availability: Only available if PinkTrace was compiled with IPV6 support.
 -}
