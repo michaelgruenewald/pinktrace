@@ -26,11 +26,11 @@ main = do
                                         (putStrLn ("Wrong signal: " ++ show sig) >> exitFailure)
 
     -- Setup the child
-    traceSetup pid opt
+    traceSetup opt pid
 
     -- Nothing interesting in this example
     -- Let the child continue its execution.
-    traceContinue pid nullSignal 0
+    traceContinue 1 nullSignal pid
     where
         opt :: TraceOption
         opt = TraceOption { traceOptionSysGood   = True
