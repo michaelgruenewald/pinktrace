@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-
  - Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
  - All rights reserved.
@@ -47,6 +48,8 @@ module System.PinkTrace
     , pinkVersionSuffix -- :: String
     , pinkGitHead       -- :: String
     , pinkPcSlot        -- :: String
+    , pinkHaveIpv6      -- :: Bool
+    , pinkHaveNetlink   -- :: Bool
     ) where
 --}}}
 --{{{ Common Types
@@ -90,5 +93,26 @@ pinkGitHead = "@GITHEAD@"
 -- |The suffix used for so names (eg \"0.30\" or \"0.31_15ece615\")
 pinkPcSlot :: String
 pinkPcSlot = "@PINKTRACE_PC_SLOT@"
+
+#if PINKTRACE_HAVE_IPV6
+-- |Returns True if IPV6 support was compiled in, False otherwise
+pinkHaveIpv6 :: Bool
+pinkHaveIpv6 = True
+#else
+-- |Returns True if IPV6 support was compiled in, False otherwise
+pinkHaveIpv6 :: Bool
+pinkHaveIpv6 = False
+#endif
+
+#if PINKTRACE_HAVE_NETLINK
+-- |Returns True if Netlink support was compiled in, False otherwise
+pinkHaveNetlink :: Bool
+pinkHaveNetlink = True
+#else
+-- |Returns True if Netlink support was compiled in, False otherwise
+pinkHaveNetlink :: Bool
+pinkHaveNetlink = False
+#endif
+
 --}}}
 -- vim: set ft=haskell et ts=4 sts=4 sw=4 fdm=marker :

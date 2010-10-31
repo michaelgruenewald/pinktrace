@@ -35,5 +35,9 @@
 int __pinkhs_socket_family(pink_socket_address_t *addr);
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr);
 const char *__pinkhs_socket_path(pink_socket_address_t *addr);
+const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest);
+#if PINKTRACE_HAVE_IPV6
+const char *__pinkhs_socket_inet_ntop6(pink_socket_address_t *addr, char *dest);
+#endif /* PINKTRACE_HAVE_IPV6 */
 
 #endif /* PINKTRACE_GUARD_HS_SOCKET_H */

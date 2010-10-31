@@ -27,7 +27,19 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "HsSocket.h"
+
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif /* !INET_ADDRSTRLEN */
+
+#if PINKTRACE_HAVE_IPV6
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif /* !INET6_ADDRSTRLEN */
+#endif
 
 #ifdef PINKTRACE_LINUX
 #define IS_ABSTRACT(addr) ((addr)->u.sa_un.sun_path[0] == '\0' && (addr)->u.sa_un.sun_path[1] != '\0')
@@ -38,3 +50,7 @@
 int __pinkhs_socket_family(pink_socket_address_t *addr) { return addr->family; }
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr) { return (addr->family == AF_UNIX && IS_ABSTRACT(addr)); }
 const char *__pinkhs_socket_path(pink_socket_address_t *addr) { return addr->u.sa_un.sun_path + (IS_ABSTRACT(addr) ? 1 : 0); }
+const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest) { inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, dest, INET_ADDRSTRLEN); return dest; }
+#if PINKTRACE_HAVE_IPV6
+const char *__pinkhs_socket_inet_ntop6(pink_socket_address_t *addr, char *dest) { inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, dest, INET6_ADDRSTRLEN); return dest; }
+#endif /* PINKTRACE_HAVE_IPV6 */

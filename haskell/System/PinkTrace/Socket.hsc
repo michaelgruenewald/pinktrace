@@ -50,17 +50,31 @@ module System.PinkTrace.Socket
     , familyOfSocketAddress
     , isAbstractUNIXSocketAddress
     , pathOfUNIXSocketAddress
+    , ipOfInetSocketAddress
+    , ipOfInet6SocketAddress
     ) where
 --}}}
 --{{{ Includes
+#include <netinet/in.h>
 #include <pinktrace/pink.h>
 #include "HsSocket.h"
+
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
+
+#if PINKTRACE_HAVE_IPV6
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+#endif
+
 --}}}
 --{{{ Imports
 import Foreign.C.Error       (throwErrno)
 import Foreign.C.Types       (CInt, CUInt, CLong)
 import Foreign.ForeignPtr    (ForeignPtr)
-import Foreign.Marshal.Alloc (alloca, free, mallocBytes)
+import Foreign.Marshal.Alloc (alloca, allocaBytes, free, mallocBytes)
 import Foreign.Ptr           (Ptr, nullPtr)
 import Foreign.Storable      (peek)
 import System.Posix.Types    (CPid, ProcessID)
@@ -83,6 +97,10 @@ foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr 
 foreign import ccall "__pinkhs_socket_family" c_socket_family :: Address -> CInt
 foreign import ccall "__pinkhs_socket_isabstract" c_socket_isabstract :: Address -> CInt
 foreign import ccall "__pinkhs_socket_path" c_socket_path :: Address -> CString
+foreign import ccall "__pinkhs_socket_inet_ntop" c_socket_inet_ntop :: Address -> CString -> CString
+#if PINKTRACE_HAVE_IPV6
+foreign import ccall "__pinkhs_socket_inet_ntop6" c_socket_inet_ntop6 :: Address -> CString -> CString
+#endif
 --}}}
 --{{{ Types
 -- |This type represents a decoded socket address.
@@ -280,6 +298,37 @@ pathOfUNIXSocketAddress :: Address -> IO FilePath
 pathOfUNIXSocketAddress ptr
     | familyOfSocketAddress ptr /= AF_UNIX = error $ "pathOfUNIXSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
     | otherwise = (peekCString . c_socket_path) ptr
+
+-- |Returns the IP address of the Inet socket 'Address' as a 'String'
+ipOfInetSocketAddress :: Address -> IO String
+ipOfInetSocketAddress ptr
+    | familyOfSocketAddress ptr /= AF_INET = error $ "ipOfInetSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
+    | otherwise = allocaBytes (#{const INET_ADDRSTRLEN} * #{size char}) $ \str -> do
+        let str' = c_socket_inet_ntop ptr str
+        peekCString str'
+
+
+#if PINKTRACE_HAVE_IPV6
+{-|
+    Returns teh IP address of the Inet6 socket 'Address' as a 'String'
+
+    * Availability: Only available if PinkTrace was compiled with IPV6 support.
+-}
+ipOfInet6SocketAddress :: Address -> IO String
+ipOfInet6SocketAddress ptr
+    | familyOfSocketAddress ptr /= AF_INET6 = error $ "ipOfInet6SocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
+    | otherwise = allocaBytes (#{const INET6_ADDRSTRLEN} * #{size char}) $ \str -> do
+        let str' = c_socket_inet_ntop6 ptr str
+        peekCString str'
+#else
+{-|
+    Returns teh IP address of the Inet6 socket 'Address' as a 'String'
+
+    * Availability: Only available if PinkTrace was compiled with IPV6 support.
+-}
+ipOfInet6SocketAddress :: Address -> IO String
+ipOfInet6SocketAddress _ = error "ipOfInet6SocketAddress: not implemented"
+#endif
 
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
