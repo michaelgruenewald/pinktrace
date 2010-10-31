@@ -8,18 +8,6 @@ $:.insert(0, '.libs')
 require 'PinkTrace'
 
 class TestPinkBitness < Test::Unit::TestCase
-  def test_bitness_get_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Bitness.get
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Bitness.get 0, 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Bitness.get 'pink'
-    end
-  end
-
   def test_bitness_get
     pid = fork do
       PinkTrace::Trace.me

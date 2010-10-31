@@ -9,21 +9,6 @@ require 'PinkTrace'
 
 class TestPinkSyscall < Test::Unit::TestCase
   def test_syscall_get_arg_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.get_arg
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.get_arg 0, 1, 2, 3
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.get_arg 'pink', 0
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.get_arg 0, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.get_arg 0, 1, 'pink'
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Syscall.get_arg 0, 1, 13
     end
@@ -35,18 +20,6 @@ class TestPinkSyscall < Test::Unit::TestCase
   def test_syscall_get_arg_esrch
     assert_raise Errno::ESRCH do
       PinkTrace::Syscall.get_arg 0, 1
-    end
-  end
-
-  def test_syscall_get_no
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.get_no
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.get_no 0, 1, 2
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.get_no 'pink'
     end
   end
 
@@ -75,36 +48,12 @@ class TestPinkSyscall < Test::Unit::TestCase
   end
 
   def test_syscall_name_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.name
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.name 0, 1, 2
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.name 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.name 0, 'pink'
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Syscall.name 0, 13
     end
   end
 
   def test_syscall_set_no_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_no
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_no 0
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.set_no 'pink', 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.set_no 0, 'pink'
-    end
     assert_raise PinkTrace::BitnessError do
       PinkTrace::Syscall.set_no 0, 1, 123
     end
@@ -113,24 +62,6 @@ class TestPinkSyscall < Test::Unit::TestCase
   def test_syscall_set_no_esrch
     assert_raise Errno::ESRCH do
       PinkTrace::Syscall.set_no 0, 1
-    end
-  end
-
-  def test_syscall_set_ret_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_ret
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_ret 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Syscall.set_ret 0, 1, 2
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.set_ret 'pink', 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Syscall.set_ret 0, 'pink'
     end
   end
 

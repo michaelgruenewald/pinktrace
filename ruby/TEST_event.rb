@@ -8,15 +8,6 @@ $:.insert(0, '.libs')
 require 'PinkTrace'
 
 class TestPinkEvent < Test::Unit::TestCase
-  def test_event_decide_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Event.decide 0, 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Event.decide 'pink'
-    end
-  end
-
   def test_event_unknown
     event = PinkTrace::Event.decide -1
     assert(event == PinkTrace::Event::EVENT_UNKNOWN, "Wrong event, expected: UNKNOWN got: #{event}")

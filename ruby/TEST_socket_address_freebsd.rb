@@ -14,24 +14,6 @@ class TestPinkSocketAddress < Test::Unit::TestCase
   end
 
   def test_address_decode_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address 0, 1, 2, 3
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address 'pink', 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address 0, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address 0, 1, 'pink'
-    end
     assert_raise PinkTrace::IndexError do
       PinkTrace::Socket.decode_address 0, PinkTrace::Syscall::MAX_INDEX
     end
@@ -47,24 +29,6 @@ class TestPinkSocketAddress < Test::Unit::TestCase
   end
 
   def test_address_decode2_invalid
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address_fd
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address_fd 0
-    end
-    assert_raise ArgumentError do
-      PinkTrace::Socket.decode_address_fd 0, 1, 2, 3
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address_fd 'pink', 1
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address_fd 0, 'pink'
-    end
-    assert_raise TypeError do
-      PinkTrace::Socket.decode_address_fd 0, 1, 'pink'
-    end
     assert_raise PinkTrace::IndexError do
       PinkTrace::Socket.decode_address_fd 0, PinkTrace::Syscall::MAX_INDEX
     end

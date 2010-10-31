@@ -166,6 +166,7 @@ pinkpy_socket_decode_call(PINK_UNUSED PyObject *self,
 	pid_t pid;
 	pink_bitness_t bit;
 
+	bit = PINKTRACE_BITNESS_DEFAULT;
 	if (!PyArg_ParseTuple(args, PARSE_PID"|I", &pid, &bit))
 		return NULL;
 
@@ -360,7 +361,7 @@ Address_port(PyObject *self, PINK_UNUSED void *x)
 
 static PyObject *
 Address_pid(
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	PyObject *self, PINK_UNUSED void *x)
@@ -377,7 +378,7 @@ Address_pid(
 
 static PyObject *
 Address_groups(
-#if PINKTRACE_HAVE_NETLINK == 0
+#if !PINKTRACE_HAVE_NETLINK
 	PINK_UNUSED
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	PyObject *self, PINK_UNUSED void *x)
