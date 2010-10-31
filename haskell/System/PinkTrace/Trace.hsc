@@ -45,6 +45,7 @@ module System.PinkTrace.Trace
     , TraceOption(..)
     , traceMe               -- :: IO ()
     , traceContinue         -- :: ProcessID -> Signal -> Addr -> IO ()
+    , traceResume           -- :: Signal -> ProcessID -> IO ()
     , traceKill             -- :: ProcessID -> IO ()
     , traceSingleStep       -- :: ProcessID -> Signal -> IO ()
     , traceSystemCall       -- :: ProcessID -> Signal -> IO ()
@@ -141,6 +142,18 @@ traceContinue :: Addr      -- ^ On FreeBSD this argument is an address specifyin
 traceContinue addr sig pid = do
     ret <- pink_trace_cont pid sig addr
     when (ret == 0) (throwErrno "pink_trace_cont")
+
+{-|
+    Resumes the stopped child process.
+
+    * Note: This function calls 'throwErrno' in case of failure.
+-}
+traceResume :: Signal    -- ^ If this is non-zero and not 'sigSTOP',
+                         -- it is interpreted as the signal delivered to the child;
+                         -- otherwise, no signal is delivered.
+            -> ProcessID -- ^ Process ID of the child to be resumed.
+            -> IO ()
+traceResume = traceContinue 1
 
 {-|
     Kills the traced child process with SIGKILL.
