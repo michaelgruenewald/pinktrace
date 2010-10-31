@@ -34,5 +34,6 @@
 
 int __pinkhs_socket_family(pink_socket_address_t *addr);
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr);
+const char *__pinkhs_socket_path(pink_socket_address_t *addr);
 
 #endif /* PINKTRACE_GUARD_HS_SOCKET_H */

@@ -37,3 +37,4 @@
 
 int __pinkhs_socket_family(pink_socket_address_t *addr) { return addr->family; }
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr) { return (addr->family == AF_UNIX && IS_ABSTRACT(addr)); }
+const char *__pinkhs_socket_path(pink_socket_address_t *addr) { return addr->u.sa_un.sun_path + (IS_ABSTRACT(addr) ? 1 : 0); }

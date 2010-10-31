@@ -49,6 +49,7 @@ module System.PinkTrace.Socket
     , freeSocketAddress
     , familyOfSocketAddress
     , isAbstractUNIXSocketAddress
+    , pathOfUNIXSocketAddress
     ) where
 --}}}
 --{{{ Includes
@@ -81,6 +82,7 @@ foreign import ccall pink_name_socket_subcall :: CInt -> CString
 foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Address -> IO CInt
 foreign import ccall "__pinkhs_socket_family" c_socket_family :: Address -> CInt
 foreign import ccall "__pinkhs_socket_isabstract" c_socket_isabstract :: Address -> CInt
+foreign import ccall "__pinkhs_socket_path" c_socket_path :: Address -> CString
 --}}}
 --{{{ Types
 -- |This type represents a decoded socket address.
@@ -272,5 +274,12 @@ isAbstractUNIXSocketAddress ptr = ret /= 0
     where
         ret :: Int
         ret = (fromIntegral . c_socket_isabstract) ptr
+
+-- |Returns the path of the UNIX socket 'Address'
+pathOfUNIXSocketAddress :: Address -> IO FilePath
+pathOfUNIXSocketAddress ptr
+    | familyOfSocketAddress ptr /= AF_UNIX = error $ "pathOfUNIXSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
+    | otherwise = (peekCString . c_socket_path) ptr
+
 --}}}
 -- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :
