@@ -52,6 +52,8 @@ module System.PinkTrace.Socket
     , pathOfUNIXSocketAddress
     , ipOfInetSocketAddress
     , ipOfInet6SocketAddress
+    , pidOfNetlinkSocketAddress
+    , groupsOfNetlinkSocketAddress
     ) where
 --}}}
 --{{{ Includes
@@ -101,6 +103,10 @@ foreign import ccall "__pinkhs_socket_inet_ntop" c_socket_inet_ntop :: Address -
 #if PINKTRACE_HAVE_IPV6
 foreign import ccall "__pinkhs_socket_inet_ntop6" c_socket_inet_ntop6 :: Address -> CString -> CString
 #endif
+#if PINKTRACE_HAVE_NETLINK
+foreign import ccall "__pinkhs_socket_pid" c_socket_pid :: Address -> CPid
+foreign import ccall "__pinkhs_socket_groups" c_socket_groups :: Address -> CLong
+#endif
 --}}}
 --{{{ Types
 -- |This type represents a decoded socket address.
@@ -111,12 +117,8 @@ type Address = Ptr PinkSocketAddress
 data Family = AF_NULL -- ^ NULL
     | AF_UNIX         -- ^ Unix
     | AF_INET         -- ^ IPV4
-#if PINKTRACE_HAVE_IPV6
     | AF_INET6        -- ^ IPV6
-#endif
-#if PINKTRACE_HAVE_NETLINK
     | AF_NETLINK      -- ^ Netlink
-#endif
     deriving (Eq,Show)
 instance Enum Family where
     fromEnum AF_NULL    = -1
@@ -138,7 +140,7 @@ instance Enum Family where
 #if PINKTRACE_HAVE_NETLINK
     toEnum #{const AF_NETLINK} = AF_NETLINK
 #endif
-    toEnum unmatched           = error $ "SubCall.toEnum: Cannot match " ++ show unmatched
+    toEnum unmatched           = error $ "Family.toEnum: Cannot match " ++ show unmatched
 
 -- |Socket subcalls
 data SubCall = Socket -- ^ socket() subcall
@@ -307,7 +309,6 @@ ipOfInetSocketAddress ptr
         let str' = c_socket_inet_ntop ptr str
         peekCString str'
 
-
 #if PINKTRACE_HAVE_IPV6
 {-|
     Returns the IP address of the Inet6 socket 'Address' as a 'String'
@@ -328,6 +329,44 @@ ipOfInet6SocketAddress ptr
 -}
 ipOfInet6SocketAddress :: Address -> IO String
 ipOfInet6SocketAddress _ = error "ipOfInet6SocketAddress: not implemented"
+#endif
+
+#if PINKTRACE_HAVE_NETLINK
+{-|
+    Returns the PID of the Netlink socket 'Address'
+
+    * Availability: Only available if PinkTrace was compiled with Netlink support.
+-}
+pidOfNetlinkSocketAddress :: Address -> ProcessID
+pidOfNetlinkSocketAddress ptr
+    | familyOfSocketAddress ptr /= AF_NETLINK = error $ "pidOfNetlinkSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
+    | otherwise = c_socket_pid ptr
+
+{-|
+    Returns the mcast groups mask of the Netlink socket 'Address'
+
+    * Availability: Only available if PinkTrace was compiled with Netlink support.
+-}
+groupsOfNetlinkSocketAddress :: Address -> CLong
+groupsOfNetlinkSocketAddress ptr
+    | familyOfSocketAddress ptr /= AF_NETLINK = error $ "groupsOfNetlinkSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
+    | otherwise = c_socket_groups ptr
+#else
+{-|
+    Returns the PID of the Netlink socket 'Address'
+
+    * Availability: Only available if PinkTrace was compiled with Netlink support.
+-}
+pidOfNetlinkSocketAddress :: Address -> ProcessID
+pidOfNetlinkSocketAddress _ = error "pidOfNetlinkSocketAddress: not implemented"
+
+{-|
+    Returns the mcast groups mask of the Netlink socket 'Address'
+
+    * Availability: Only available if PinkTrace was compiled with Netlink support.
+-}
+groupsOfNetlinkSocketAddress :: Address -> CLong
+groupsOfNetlinkSocketAddress _ = error "groupsOfNetlinkSocketAddress: not implemented"
 #endif
 
 --}}}

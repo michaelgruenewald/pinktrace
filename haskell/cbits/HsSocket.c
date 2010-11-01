@@ -27,6 +27,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "HsSocket.h"
@@ -54,3 +55,7 @@ const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest) {
 #if PINKTRACE_HAVE_IPV6
 const char *__pinkhs_socket_inet_ntop6(pink_socket_address_t *addr, char *dest) { inet_ntop(AF_INET6, &addr->u.sa6.sin6_addr, dest, INET6_ADDRSTRLEN); return dest; }
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+pid_t __pinkhs_socket_pid(pink_socket_address_t *addr) { return addr->u.nl.nl_pid; }
+long __pinkhs_socket_groups(pink_socket_address_t *addr) { return addr->u.nl.nl_groups; }
+#endif /* PINKTRACE_HAVE_NETLINK */

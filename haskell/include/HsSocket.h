@@ -39,5 +39,9 @@ const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest);
 #if PINKTRACE_HAVE_IPV6
 const char *__pinkhs_socket_inet_ntop6(pink_socket_address_t *addr, char *dest);
 #endif /* PINKTRACE_HAVE_IPV6 */
+#if PINKTRACE_HAVE_NETLINK
+pid_t __pinkhs_socket_pid(pink_socket_address_t *addr);
+long __pinkhs_socket_groups(pink_socket_address_t *addr);
+#endif /* PINKTRACE_HAVE_NETLINK */
 
 #endif /* PINKTRACE_GUARD_HS_SOCKET_H */
