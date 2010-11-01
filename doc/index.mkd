@@ -38,6 +38,7 @@ An extensive API reference is [available]({{ site.url }}/api/c).
 ## Bindings
 Bindings are available for:
 
+- [Haskell]({{ site.url }}/api/haskell)
 - [Ruby]({{ site.url }}/api/ruby)
 - [Python]({{ site.url }}/api/python)
 

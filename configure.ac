@@ -652,5 +652,6 @@ else
 	echo "Ruby bindings: Disabled"
 fi
 echo "Now run make (or gmake on FreeBSD) to build PinkTrace"
+echo "To build the Haskell bindings, use cabal after make"
 echo "-----------------------------------------------------"
 dnl }}}
