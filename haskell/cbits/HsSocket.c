@@ -49,6 +49,7 @@
 #endif /* PINKTRACE_LINUX */
 
 int __pinkhs_socket_family(pink_socket_address_t *addr) { return addr->family; }
+socklen_t __pinkhs_socket_length(pink_socket_address_t *addr) { return addr->length; }
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr) { return (addr->family == AF_UNIX && IS_ABSTRACT(addr)); }
 const char *__pinkhs_socket_path(pink_socket_address_t *addr) { return addr->u.sa_un.sun_path + (IS_ABSTRACT(addr) ? 1 : 0); }
 const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest) { inet_ntop(AF_INET, &addr->u.sa_in.sin_addr, dest, INET_ADDRSTRLEN); return dest; }

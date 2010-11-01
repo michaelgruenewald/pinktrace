@@ -33,6 +33,7 @@
 #include <pinktrace/pink.h>
 
 int __pinkhs_socket_family(pink_socket_address_t *addr);
+socklen_t __pinkhs_socket_length(pink_socket_address_t *addr);
 int __pinkhs_socket_isabstract(pink_socket_address_t *addr);
 const char *__pinkhs_socket_path(pink_socket_address_t *addr);
 const char *__pinkhs_socket_inet_ntop(pink_socket_address_t *addr, char *dest);

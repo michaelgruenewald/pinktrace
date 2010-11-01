@@ -48,6 +48,7 @@ module System.PinkTrace.Socket
     , decodeSocketAddressFd
     , freeSocketAddress
     , familyOfSocketAddress
+    , lengthOfSocketAddress
     , isAbstractUNIXSocketAddress
     , pathOfUNIXSocketAddress
     , ipOfInetSocketAddress
@@ -97,6 +98,7 @@ foreign import ccall pink_name_socket_subcall :: CInt -> CString
 #endif
 foreign import ccall pink_decode_socket_address :: CPid -> CInt -> CUInt -> Ptr CLong -> Address -> IO CInt
 foreign import ccall "__pinkhs_socket_family" c_socket_family :: Address -> CInt
+foreign import ccall "__pinkhs_socket_length" c_socket_length :: Address -> CUInt
 foreign import ccall "__pinkhs_socket_isabstract" c_socket_isabstract :: Address -> CInt
 foreign import ccall "__pinkhs_socket_path" c_socket_path :: Address -> CString
 foreign import ccall "__pinkhs_socket_inet_ntop" c_socket_inet_ntop :: Address -> CString -> CString
@@ -287,6 +289,10 @@ freeSocketAddress = free
 -- |Returns the family of the decoded socket 'Address'
 familyOfSocketAddress :: Address -> Family
 familyOfSocketAddress = toEnum . fromIntegral . c_socket_family
+
+-- |Returns the length of the decoded socket 'Address'
+lengthOfSocketAddress :: Address -> CUInt
+lengthOfSocketAddress = c_socket_length
 
 -- |Returns True if the 'Address' is an abstract UNIX socket 'Address'
 isAbstractUNIXSocketAddress :: Address -> Bool
