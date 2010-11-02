@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+@GENERATED_FILE@
 {-
  - Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
  - All rights reserved.
