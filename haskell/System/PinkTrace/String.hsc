@@ -131,7 +131,6 @@ encodeString index src bit pid
         index' :: CUInt
         index' = (fromIntegral . fromEnum) index
 
-#ifdef PINKTRACE_LINUX
 {-|
     Encode a string into the argument of the given index with additional
     checking for writable areas.
@@ -147,6 +146,7 @@ encodeStringSafe :: Index     -- ^ The index of the argument
                  -> Bitness   -- ^ The bitness of the traced child
                  -> ProcessID -- ^ Process ID of the traced child
                  -> IO ()
+#ifdef PINKTRACE_LINUX
 encodeStringSafe index src bit pid
     | bit == Bitness32 && not bitness32Supported = error $ "encodeStringSafe: unsupported bitness " ++ show bit
     | bit == Bitness64 && not bitness64Supported = error $ "encodeStringSafe: unsupported bitness " ++ show bit
@@ -159,21 +159,6 @@ encodeStringSafe index src bit pid
         index' :: CUInt
         index' = (fromIntegral . fromEnum) index
 #else
-{-|
-    Encode a string into the argument of the given index with additional
-    checking for writable areas.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: Linux
-
-    * Warning: Care must be taken when using this function as unexpected things may happen.
--}
-encodeStringSafe :: Index     -- ^ The index of the argument
-                 -> String    -- ^ The string to be encoded
-                 -> Bitness   -- ^ The bitness of the traced child
-                 -> ProcessID -- ^ Process ID of the traced child
-                 -> IO ()
 encodeSafe _ _ _ _ = error "encodeStringSafe: not implemented"
 #endif
 --}}}

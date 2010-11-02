@@ -156,7 +156,6 @@ readWaitStatus wstatp = do
 #endif
 --}}}
 --{{{ Functions
-#ifdef PINKTRACE_LINUX
 {-|
     @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
     @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
@@ -172,6 +171,7 @@ readWaitStatus wstatp = do
     * Availability: Linux
 -}
 getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
+#ifdef PINKTRACE_LINUX
 getProcessStatus block stopped pid =
     alloca $ \wstatp -> do
         pid' <- throwErrnoIfMinus1Retry "getProcessStatus"
@@ -180,6 +180,9 @@ getProcessStatus block stopped pid =
             0 -> return Nothing
             _ -> do ps <- readWaitStatus wstatp
                     return (Just ps)
+#else
+getProcessStatus _ _ _ = error "getProcessStatus: not implemented"
+#endif
 
 {-|
     @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
@@ -197,6 +200,7 @@ getProcessStatus block stopped pid =
     * Availability: Linux
 -}
 getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
+#ifdef PINKTRACE_LINUX
 getGroupProcessStatus block stopped pgid =
     alloca $ \wstatp -> do
     pid <- throwErrnoIfMinus1Retry "getGroupProcessStatus"
@@ -205,6 +209,9 @@ getGroupProcessStatus block stopped pgid =
         0 -> return Nothing
         _ -> do ps <- readWaitStatus wstatp
                 return (Just (pid, ps))
+#else
+getGroupProcessStatus _ _ _ = error "getGroupProcessStatus: not implemented"
+#endif
 
 {-|
     @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
@@ -221,58 +228,9 @@ getGroupProcessStatus block stopped pgid =
     * Availability: Linux
 -}
 getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
+#ifdef PINKTRACE_LINUX
 getAnyProcessStatus block stopped = getGroupProcessStatus block stopped 1
 #else
-{-|
-    @'getProcessStatus' blk stopped pid@ calls @waitpid@, returning
-    @'Just' tc@, the 'ProcessStatus' for process @pid@ if it is
-    available, 'Nothing' otherwise.  If @blk@ is 'False', then
-    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
-    If @stopped@ is 'True', then @WUNTRACED@ is set in the
-    options for @waitpid@, otherwise not.
-
-    * Note: Because @getProcessStatus@ of 'System.Posix.Process' module doesn't
-      give information about @ptrace@ events, this is a re-implementation that
-      gives information about @ptrace@ events.
-
-    * Availability: Linux
--}
-getProcessStatus :: Bool -> Bool -> ProcessID -> IO (Maybe ProcessStatus)
-getProcessStatus _ _ _ = error "getProcessStatus: not implemented"
-
-{-|
-    @'getGroupProcessStatus' blk stopped pgid@ calls @waitpid@,
-    returning @'Just' (pid, tc)@, the 'ProcessID' and
-    'ProcessStatus' for any process in group @pgid@ if one is
-    available, 'Nothing' otherwise.  If @blk@ is 'False', then
-    @WNOHANG@ is set in the options for @waitpid@, otherwise not.
-    If @stopped@ is 'True', then @WUNTRACED@ is set in the
-    options for @waitpid@, otherwise not.
-
-    * Note: Because @getGroupProcessStatus@ of 'System.Posix.Process' module
-      doesn't give information about @ptrace@ events, this is a
-      re-implementation that gives information about @ptrace@ events.
-
-    * Availability: Linux
--}
-getGroupProcessStatus :: Bool -> Bool -> ProcessGroupID -> IO (Maybe (ProcessID, ProcessStatus))
-getGroupProcessStatus _ _ _ = error "getGroupProcessStatus: not implemented"
-
-{-|
-    @'getAnyProcessStatus' blk stopped@ calls @waitpid@, returning
-    @'Just' (pid, tc)@, the 'ProcessID' and 'ProcessStatus' for any
-    child process if one is available, 'Nothing' otherwise.  If
-    @blk@ is 'False', then @WNOHANG@ is set in the options for
-    @waitpid@, otherwise not.  If @stopped@ is 'True', then
-    @WUNTRACED@ is set in the options for @waitpid@, otherwise not.
-
-    * Note: Because @getAnyProcessStatus@ of 'System.Posix.Process' module
-      doesn't give information about @ptrace@ events, this is a
-      re-implementation that gives information about @ptrace@ events.
-
-    * Availability: Linux
--}
-getAnyProcessStatus :: Bool -> Bool -> IO (Maybe (ProcessID, ProcessStatus))
 getAnyProcessStatus _ _ = error "getAnyProcessStatus: not implemented"
 #endif
 --}}}

@@ -196,7 +196,6 @@ traceSystemCall sig pid = do
     ret <- pink_trace_syscall pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall")
 
-#ifdef PINKTRACE_FREEBSD
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
     entry of the next system call.
@@ -208,9 +207,13 @@ traceSystemCall sig pid = do
 traceSystemCallEntry :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
                      -> ProcessID -- ^ Process ID of the child to be restarted.
                      -> IO ()
+#ifdef PINKTRACE_FREEBSD
 traceSystemCallEntry sig pid = do
     ret <- pink_trace_syscall_entry pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_entry")
+#else
+traceSystemCallEntry _ _ = error "traceSystemCallEntry: not implemented"
+#endif
 
 {-|
     Restarts the stopped child process and arranges it to be stopped after the
@@ -223,38 +226,14 @@ traceSystemCallEntry sig pid = do
 traceSystemCallExit :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
                     -> ProcessID -- ^ Process ID of the child to be restarted.
                     -> IO ()
+#ifdef PINKTRACE_FREEBSD
 traceSystemCallExit sig pid = do
     ret <- pink_trace_syscall_exit pid sig
     when (ret == 0) (throwErrno "pink_trace_syscall_exit")
 #else
-{-|
-    Restarts the stopped child process and arranges it to be stopped after the
-    entry of the next system call.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: FreeBSD
--}
-traceSystemCallEntry :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                     -> ProcessID -- ^ Process ID of the child to be restarted.
-                     -> IO ()
-traceSystemCallEntry _ _ = error "traceSystemCallEntry: not implemented"
-
-{-|
-    Restarts the stopped child process and arranges it to be stopped after the
-    entry of the next system call.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: FreeBSD
--}
-traceSystemCallExit :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                    -> ProcessID -- ^ Process ID of the child to be restarted.
-                    -> IO ()
 traceSystemCallExit _ _ = error "traceSystemCallExit: not implemented"
 #endif
 
-#ifdef PINKTRACE_LINUX
 {-|
     Restarts the stopped child process and arranges it to be stopped after
     the entry of the next system call which will *not* be executed.
@@ -266,9 +245,13 @@ traceSystemCallExit _ _ = error "traceSystemCallExit: not implemented"
 traceSystemEmulation :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
                      -> ProcessID -- ^ Process ID of the child to be restarted.
                      -> IO ()
+#ifdef PINKTRACE_LINUX
 traceSystemEmulation sig pid = do
     ret <- pink_trace_sysemu pid sig
     when (ret == 0) (throwErrno "pink_trace_sysemu")
+#else
+traceSystemEmulation _ _ = error "traceSystemEmulation: not implemented"
+#endif
 
 {-|
     Restarts the stopped child process like 'traceSystemEmulation' but also
@@ -281,9 +264,13 @@ traceSystemEmulation sig pid = do
 traceSystemEmulationSingleStep :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
                                -> ProcessID -- ^ Process ID of the child to be restarted.
                                -> IO ()
+#ifdef PINKTRACE_LINUX
 traceSystemEmulationSingleStep sig pid = do
     ret <- pink_trace_sysemu_singlestep pid sig
     when (ret == 0) (throwErrno "pink_trace_sysemu_singlestep")
+#else
+traceSystemEmulationSingleStep _ _ = error "traceSystemEmulationSingleStep: not implemented"
+#endif
 
 {-|
     Retrieve a message about the trace event that just happened.
@@ -296,11 +283,15 @@ traceGetEventMessage :: ProcessID       -- ^ Process ID of the child whose event
                      -> IO EventMessage -- ^ The event message, for @Exit@ this is the child's exit status.
                                         --   For @Fork@, @VFork@, @Clone@, @VForkDone@
                                         --   this is the process ID of the new process.
+#ifdef PINKTRACE_LINUX
 traceGetEventMessage pid = alloca $ \ptr -> do
     ret <- pink_trace_geteventmsg pid ptr
     if ret == 0
         then throwErrno "pink_trace_geteventmsg"
         else peek ptr
+#else
+traceGetEventMessage _ = error "traceGetEventMessage: not implemented"
+#endif
 
 {-|
     Sets the tracing options.
@@ -312,6 +303,7 @@ traceGetEventMessage pid = alloca $ \ptr -> do
 traceSetup :: TraceOption -- ^ Tracing options
            -> ProcessID   -- ^ Process ID of the child to be setup.
            -> IO ()
+#if PINKTRACE_LINUX
 traceSetup opt pid = do
     ret <- pink_trace_setup pid o'''''''
     when (ret == 0) (throwErrno "pink_trace_setup")
@@ -326,55 +318,6 @@ traceSetup opt pid = do
         o''''''  = if traceOptionVForkDone opt then o'''''  .|. #{const PINK_TRACE_OPTION_VFORK_DONE} else o'''''
         o''''''' = if traceOptionExit opt      then o'''''' .|. #{const PINK_TRACE_OPTION_EXIT}       else o''''''
 #else
-{-|
-    Restarts the stopped child process and arranges it to be stopped after
-    the entry of the next system call which will *not* be executed.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: Linux (2.6.14 or newer)
--}
-traceSystemEmulation :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                     -> ProcessID -- ^ Process ID of the child to be restarted.
-                     -> IO ()
-traceSystemEmulation _ _ = error "traceSystemEmulation: not implemented"
-
-{-|
-    Restarts the stopped child process like 'traceSystemEmulation' but also
-    singlesteps if not a system call.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: Linux (2.6.14 or newer)
--}
-traceSystemEmulationSingleStep :: Signal    -- ^ Treated the same as the signal argument of 'traceContinue'.
-                               -> ProcessID -- ^ Process ID of the child to be restarted.
-                               -> IO ()
-traceSystemEmulationSingleStep _ _ = error "traceSystemEmulationSingleStep: not implemented"
-
-{-|
-    Retrieve a message about the trace event that just happened.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: Linux
--}
-traceGetEventMessage :: ProcessID       -- ^ Process ID of the child whose event is to be reported.
-                     -> IO EventMessage -- ^ The event message, for @Exit@ this is the child's exit status.
-                                        --   For @Fork@, @VFork@, @Clone@, @VForkDone@
-                                        --   this is the process ID of the new process.
-traceGetEventMessage _ = error "traceGetEventMessage: not implemented"
-
-{-|
-    Sets the tracing options.
-
-    * Note: This function calls 'throwErrno' in case of failure.
-
-    * Availability: Linux
--}
-traceSetup :: TraceOption -- ^ Tracing options
-           -> ProcessID   -- ^ Process ID of the child to be setup.
-           -> IO ()
 traceSetup _ _ = error "traceSetup: not implemented"
 #endif
 

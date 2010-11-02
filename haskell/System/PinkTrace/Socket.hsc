@@ -207,24 +207,18 @@ instance Enum SubCall where
 #endif
 --}}}
 --{{{ Functions
-#ifdef PINKTRACE_LINUX
 {-|
     Returns the name of the socket subcall.
 
     * Availability: Linux
 -}
 nameSocketSubCall :: SubCall -> IO String
+#ifdef PINKTRACE_LINUX
 nameSocketSubCall scall = peekCString $ pink_name_socket_subcall scall'
     where
         scall' :: CInt
         scall' = (fromIntegral . fromEnum) scall
 #else
-{-|
-    Returns the name of the socket subcall.
-
-    * Availability: Linux
--}
-nameSocketSubCall :: SubCall -> IO String
 nameSocketSubCall _ = error "nameSocketSubCall: not implemented"
 #endif
 
@@ -315,38 +309,35 @@ ipOfInetSocketAddress ptr
         let str' = c_socket_inet_ntop ptr str
         peekCString str'
 
-#if PINKTRACE_HAVE_IPV6
 {-|
     Returns the IP address of the Inet6 socket 'Address' as a 'String'
 
     * Availability: Only available if PinkTrace was compiled with IPV6 support.
 -}
 ipOfInet6SocketAddress :: Address -> IO String
+#if PINKTRACE_HAVE_IPV6
 ipOfInet6SocketAddress ptr
     | familyOfSocketAddress ptr /= AF_INET6 = error $ "ipOfInet6SocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
     | otherwise = allocaBytes (#{const INET6_ADDRSTRLEN} * #{size char}) $ \str -> do
         let str' = c_socket_inet_ntop6 ptr str
         peekCString str'
 #else
-{-|
-    Returns the IP address of the Inet6 socket 'Address' as a 'String'
-
-    * Availability: Only available if PinkTrace was compiled with IPV6 support.
--}
-ipOfInet6SocketAddress :: Address -> IO String
 ipOfInet6SocketAddress _ = error "ipOfInet6SocketAddress: not implemented"
 #endif
 
-#if PINKTRACE_HAVE_NETLINK
 {-|
     Returns the PID of the Netlink socket 'Address'
 
     * Availability: Only available if PinkTrace was compiled with Netlink support.
 -}
 pidOfNetlinkSocketAddress :: Address -> ProcessID
+#if PINKTRACE_HAVE_NETLINK
 pidOfNetlinkSocketAddress ptr
     | familyOfSocketAddress ptr /= AF_NETLINK = error $ "pidOfNetlinkSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
     | otherwise = c_socket_pid ptr
+#else
+pidOfNetlinkSocketAddress _ = error "pidOfNetlinkSocketAddress: not implemented"
+#endif
 
 {-|
     Returns the mcast groups mask of the Netlink socket 'Address'
@@ -354,24 +345,11 @@ pidOfNetlinkSocketAddress ptr
     * Availability: Only available if PinkTrace was compiled with Netlink support.
 -}
 groupsOfNetlinkSocketAddress :: Address -> CLong
+#if PINKTRACE_HAVE_NETLINK
 groupsOfNetlinkSocketAddress ptr
     | familyOfSocketAddress ptr /= AF_NETLINK = error $ "groupsOfNetlinkSocketAddress: invalid family" ++ show (familyOfSocketAddress ptr)
     | otherwise = c_socket_groups ptr
 #else
-{-|
-    Returns the PID of the Netlink socket 'Address'
-
-    * Availability: Only available if PinkTrace was compiled with Netlink support.
--}
-pidOfNetlinkSocketAddress :: Address -> ProcessID
-pidOfNetlinkSocketAddress _ = error "pidOfNetlinkSocketAddress: not implemented"
-
-{-|
-    Returns the mcast groups mask of the Netlink socket 'Address'
-
-    * Availability: Only available if PinkTrace was compiled with Netlink support.
--}
-groupsOfNetlinkSocketAddress :: Address -> CLong
 groupsOfNetlinkSocketAddress _ = error "groupsOfNetlinkSocketAddress: not implemented"
 #endif
 
