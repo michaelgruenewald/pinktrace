@@ -29,12 +29,12 @@ PinkTrace_la_SOURCES= $(IF_RUBY_FILES)
 PinkTrace_la_LDFLAGS= -module -avoid-version -shared
 PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
+TESTS_ENVIRONMENT= RUBY="$(RUBY)" ./ruby-test.sh
 TESTS= \
        TEST_trace.rb \
        TEST_bitness.rb
 
 if FREEBSD
-TESTS_ENVIRONMENT= RUBY="$(RUBY)" ./ruby-test.sh
 TESTS+= \
 	TEST_syscall_freebsd.rb \
 	TEST_string_freebsd.rb \
