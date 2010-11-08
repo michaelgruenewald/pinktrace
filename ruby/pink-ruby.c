@@ -2013,10 +2013,10 @@ pinkrb_Address_port(VALUE self)
 	Data_Get_Struct(self, pink_socket_address_t, addr);
 	switch (addr->family) {
 	case AF_INET:
-		return FIX2INT(ntohs(addr->u.sa_in.sin_port));
+		return INT2FIX(ntohs(addr->u.sa_in.sin_port));
 #if PINKTRACE_HAVE_IPV6
 	case AF_INET6:
-		return FIX2INT(ntohs(addr->u.sa6.sin6_port));
+		return INT2FIX(ntohs(addr->u.sa6.sin6_port));
 #endif /* PINKTRACE_HAVE_IPV6 */
 	default:
 		rb_raise(rb_eTypeError, "Invalid family");
