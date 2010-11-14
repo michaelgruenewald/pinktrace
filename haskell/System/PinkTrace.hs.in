@@ -95,23 +95,19 @@ pinkGitHead = "@GITHEAD@"
 pinkPcSlot :: String
 pinkPcSlot = "@PINKTRACE_PC_SLOT@"
 
-#if PINKTRACE_HAVE_IPV6
 -- |Returns True if IPV6 support was compiled in, False otherwise
 pinkHaveIpv6 :: Bool
+#if PINKTRACE_HAVE_IPV6
 pinkHaveIpv6 = True
 #else
--- |Returns True if IPV6 support was compiled in, False otherwise
-pinkHaveIpv6 :: Bool
 pinkHaveIpv6 = False
 #endif
 
-#if PINKTRACE_HAVE_NETLINK
 -- |Returns True if Netlink support was compiled in, False otherwise
 pinkHaveNetlink :: Bool
+#if PINKTRACE_HAVE_NETLINK
 pinkHaveNetlink = True
 #else
--- |Returns True if Netlink support was compiled in, False otherwise
-pinkHaveNetlink :: Bool
 pinkHaveNetlink = False
 #endif
 
