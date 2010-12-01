@@ -40,7 +40,7 @@ def decode_execve pid, bitness
       i += 1
       sep = ', '
     else
-      print '], envp[]'
+      print '], envp[])'
       break
     end
   end
