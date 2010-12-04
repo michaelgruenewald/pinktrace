@@ -16,7 +16,7 @@ install-data-local:
 	cp -R ruby $(DESTDIR)$(htmldir)/api
 
 upload-doc: rdoc
-	rsync -avze ssh --delete ruby bach.exherbo.org:public_html/pinktrace/api
+	rsync -avze ssh --delete --partial --progress ruby bach.exherbo.org:public_html/pinktrace/api
 
 .PHONY: rdoc upload-doc
 else

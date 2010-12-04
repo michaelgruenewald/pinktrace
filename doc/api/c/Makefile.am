@@ -17,7 +17,7 @@ install-data-local:
 	cp -R c $(DESTDIR)$(htmldir)/api
 
 upload-doc: doxygen
-	rsync -avze ssh --delete c bach.exherbo.org:public_html/pinktrace/api
+	rsync -avze ssh --delete --partial --progress c bach.exherbo.org:public_html/pinktrace/api
 
 else
 doxygen:
