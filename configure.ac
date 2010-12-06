@@ -55,6 +55,7 @@ AC_MSG_RESULT([$PINKTRACE_PC_SLOT])
 PINKTRACE_CFLAGS=
 PINKTRACE_PC_CFLAGS=
 PINKTRACE_PC_LIBS="-lpinktrace_${PINKTRACE_PC_SLOT}"
+PINKTRACE_EASY_PC_LIBS="-lpinktrace_easy_${PINKTRACE_PC_SLOT}"
 dnl }}}
 
 dnl {{{ Toolchain checks
@@ -129,6 +130,16 @@ linux*)
 esac
 AM_CONDITIONAL([FREEBSD], test x"$opsys" = x"freebsd")
 AM_CONDITIONAL([LINUX], test x"$opsys" = x"linux")
+
+AC_MSG_CHECKING([whether ptrace() can decide events])
+if test x"$opsys" = x"freebsd" ; then
+	WANT_EASY=0
+	AC_MSG_RESULT([no, pinktrace-easy will not be built])
+elif test x"$opsys" = x"linux" ; then
+	WANT_EASY=1
+	AC_MSG_RESULT([yes, pinktrace-easy will be built])
+fi
+AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"1")
 dnl }}}
 
 dnl {{{ Check for supported architecture
