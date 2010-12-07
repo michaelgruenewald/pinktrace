@@ -16,7 +16,7 @@
  *    derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LpIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
  * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
@@ -27,23 +27,40 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PINKTRACE_EASY_GUARD_PINK_H
-#define PINKTRACE_EASY_GUARD_PINK_H 1
+#ifndef PINKTRACE_EASY_GUARD_FUNC_H
+#define PINKTRACE_EASY_GUARD_FUNC_H 1
 
 /**
  * \file
- * A header file including all other header files part of pinktrace-easy
+ * Pink's useful function pointers
  **/
 
-#include <pinktrace/pink.h>
+struct pink_easy_process;
 
-#include <pinktrace/easy/call.h>
-#include <pinktrace/easy/callback.h>
-#include <pinktrace/easy/context.h>
-#include <pinktrace/easy/error.h>
-#include <pinktrace/easy/exec.h>
-#include <pinktrace/easy/func.h>
-#include <pinktrace/easy/loop.h>
-#include <pinktrace/easy/process.h>
+/**
+ * This type definition represents a generic free() function.
+ *
+ * \see pink_easy_context_new
+ * \see pink_easy_process_set_data
+ **/
+typedef void (*pink_easy_free_func_t) (void *data);
 
-#endif /* !PINKTRACE_EASY_GUARD_PINK_H */
+/**
+ * This type definition represents the process tree walk function.
+ * It takes a process entry and userdata as argument. If this function returns
+ * false, pink_easy_process_tree_walk() stops iterating through the process
+ * tree and returns immediately.
+ *
+ * \see pink_easy_process_tree_walk
+ **/
+typedef bool (*pink_easy_walk_func_t) (struct pink_easy_process *proc, void *userdata);
+
+/**
+ * This type definition represents a function to be executed by the child under
+ * tracing. Its return value is passed directly to _exit().
+ *
+ * \see pink_easy_call
+ **/
+typedef int (*pink_easy_child_func_t) (void *userdata);
+
+#endif /* !PINKTRACE_EASY_GUARD_FUNC_H */

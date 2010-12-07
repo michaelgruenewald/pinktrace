@@ -47,61 +47,58 @@ struct pink_easy_context;
 
 /** Table of callbacks **/
 typedef struct {
+	/** Callback for child birth aka process creation **/
+	void (*birth) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *parent);
+
+	/** Callback for child death aka process deletion **/
+	void (*death) (struct pink_easy_context *ctx, pink_easy_process_t *current);
+
 	/**
 	 * The count of the process tree dropped to zero, or waitpid()
 	 * returned -ECHILD; both of which mean tracing is done.
 	 * If this callback is NULL, pink_easy_loop() will just return with
 	 * success, which may not always be what you want.
 	 **/
-	void (*cb_done) (struct pink_easy_context *ctx);
-
-	/** Callback called when the tracing context is destroyed. **/
-	void (*cb_destroy) (void *data);
-
-	/** Callback for child birth aka process creation **/
-	void (*cb_birth) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *parent);
-
-	/** Callback for child death aka process deletion **/
-	void (*cb_death) (struct pink_easy_context *ctx, pink_easy_process_t *current);
+	void (*end) (struct pink_easy_context *ctx, bool echild);
 
 	/** Errback for errors in the spawned child. **/
-	int (*eb_child) (pink_easy_cerror_t e);
+	int (*cerror) (pink_easy_child_error_t e);
 
 	/** Errback for errors in the main process **/
-	void (*eb_main) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_error_t e);
+	void (*error) (struct pink_easy_context *ctx, pink_easy_process_t *current);
 
 	/** Callback for #PINK_EVENT_STOP **/
-	short (*cb_stop) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool suspended);
+	short (*ev_stop) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool suspended);
 
 	/** Callback for #PINK_EVENT_SYSCALL **/
-	short (*cb_syscall) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool entering);
+	short (*ev_syscall) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool entering);
 
 	/** Callback for #PINK_EVENT_FORK **/
-	short (*cb_fork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
+	short (*ev_fork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/** Callback for #PINK_EVENT_VFORK **/
-	short (*cb_vfork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
+	short (*ev_vfork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/** Callback for #PINK_EVENT_CLONE **/
-	short (*cb_clone) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
+	short (*ev_clone) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/**
 	 * Callback for #PINK_EVENT_EXEC
 	 * Note, the bitness of current is updated before this callback is called.
 	 **/
-	short (*cb_exec) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t orig_bitness);
+	short (*ev_exec) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t old_bitness);
 
 	/** Callback for #PINK_EVENT_EXIT **/
-	short (*cb_exit) (struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
+	short (*ev_exit) (struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
 
 	/** Callback for #PINK_EVENT_GENUINE **/
-	short (*cb_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
+	short (*ev_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
 
 	/** Callback for #PINK_EVENT_EXIT_GENUINE **/
-	short (*cb_exit_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int code);
+	short (*ev_exit_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int code);
 
 	/** Callback for #PINK_EVENT_EXIT_SIGNAL **/
-	short (*cb_exit_signal) (struct pink_easy_context *ctx, pink_easy_process_t *current, int sig);
+	short (*ev_exit_signal) (struct pink_easy_context *ctx, pink_easy_process_t *current, int sig);
 } pink_easy_callback_t;
 
 #endif /* !PINKTRACE_EASY_GUARD_CALLBACK_H */

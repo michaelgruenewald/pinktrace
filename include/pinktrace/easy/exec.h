@@ -31,7 +31,6 @@
 #define PINKTRACE_GUARD_EASY_EXEC_H 1
 
 #include <pinktrace/easy/context.h>
-#include <pinktrace/easy/error.h>
 
 /**
  * \file
@@ -39,9 +38,17 @@
  **/
 
 /**
- * Tracing execvp() wrapper
+ * This function calls vfork() to spawn a new child, does the necessary
+ * preparation for tracing and then calls execvp().
+ *
+ * \param ctx Tracing context
+ * \param file Name of the executable
+ * \param argv Arguments
+ *
+ * \return Depends on the callbacks
  **/
-pink_easy_error_t
+PINK_NONNULL(1)
+int
 pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[]);
 
 #endif /* !PINKTRACE_GUARD_EASY_EXEC_H */

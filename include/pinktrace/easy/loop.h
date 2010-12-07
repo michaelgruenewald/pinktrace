@@ -31,9 +31,9 @@
 #define PINKTRACE_EASY_GUARD_LOOP_H 1
 
 #include <pinktrace/easy/context.h>
-#include <pinktrace/easy/error.h>
 
-pink_easy_error_t
+PINK_NONNULL(1)
+int
 pink_easy_loop(pink_easy_context_t *ctx);
 
 #endif /* PINKTRACE_EASY_GUARD_LOOP_H */

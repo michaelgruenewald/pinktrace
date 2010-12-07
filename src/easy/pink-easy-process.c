@@ -42,7 +42,7 @@
 #define RB_BLK 0
 #define RB_RED 1
 
-static pink_easy_process_t _null = { 0, 0, PINK_BITNESS_UNKNOWN, NULL, RB_BLK, NULL, NULL, NULL };
+static pink_easy_process_t _null = { 0, 0, PINK_BITNESS_UNKNOWN, NULL, NULL, RB_BLK, NULL, NULL, NULL };
 #define RB_NULL &_null
 
 pid_t
@@ -64,9 +64,10 @@ pink_easy_process_get_data(const pink_easy_process_t *proc)
 }
 
 void
-pink_easy_process_set_data(pink_easy_process_t *proc, void *data)
+pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free_func_t func)
 {
 	proc->data = data;
+	proc->destroy = func;
 }
 
 unsigned
@@ -443,13 +444,13 @@ pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid)
 }
 
 unsigned
-pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata)
+pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, pink_easy_walk_func_t func, void *userdata)
 {
 	unsigned count;
 	pink_easy_process_t *node;
 
 	assert(tree != NULL);
-	assert(cb != NULL);
+	assert(func != NULL);
 
 	if (tree->root == RB_NULL)
 		return 0;
@@ -457,7 +458,7 @@ pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, bool (*cb) (pi
 	count = 0;
 	for (node = pink_easy_process_tree_node_min(tree->root); node != RB_NULL; node = pink_easy_process_tree_node_next(node)) {
 		++count;
-		if (!cb(node, userdata))
+		if (!func(node, userdata))
 			break;
 	}
 	return count;

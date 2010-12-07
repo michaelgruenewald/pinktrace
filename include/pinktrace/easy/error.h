@@ -37,38 +37,100 @@
 
 /** Child error codes **/
 typedef enum {
-	PINK_EASY_CERROR_SETUP,
-	PINK_EASY_CERROR_EXEC,
-} pink_easy_cerror_t;
+	/** Success **/
+	PINK_EASY_CHILD_ERROR_SUCCESS = 0,
+	/** Preparation for tracing failed. (e.g. pink_trace_me()) **/
+	PINK_EASY_CHILD_ERROR_SETUP,
+	/** execve() failed. **/
+	PINK_EASY_CHILD_ERROR_EXEC,
+	/** Maximum error number **/
+	PINK_EASY_CHILD_ERROR_MAX,
+} pink_easy_child_error_t;
 
 /** Error codes **/
 typedef enum {
+	/** Successful run **/
 	PINK_EASY_ERROR_SUCCESS = 0,
+
+	/** Operation aborted by a callback **/
 	PINK_EASY_ERROR_CALLBACK_ABORT,
-	PINK_EASY_ERROR_MALLOC_ELDEST,
+
+	/** Allocating memory for the eldest child failed **/
+	PINK_EASY_ERROR_ALLOC_ELDEST,
+	/** Allocating memory for a premature child failed **/
+	PINK_EASY_ERROR_ALLOC_PREMATURE,
+	/** Allocating memory for a new child failed **/
+	PINK_EASY_ERROR_ALLOC,
+
+	/** fork() failed **/
 	PINK_EASY_ERROR_FORK,
+	/** vfork() failed **/
 	PINK_EASY_ERROR_VFORK,
+
+	/** Failed to get the bitness of the eldest child **/
 	PINK_EASY_ERROR_BITNESS_ELDEST,
+	/** Failed to get the bitness of a premature child **/
+	PINK_EASY_ERROR_BITNESS_PREMATURE,
+	/** Failed to get the bitness of a child after successful execve() **/
+	PINK_EASY_ERROR_BITNESS,
+
+	/** Setting up ptrace() options for the eldest child failed **/
 	PINK_EASY_ERROR_SETUP_ELDEST,
+	/** Setting up ptrace() options for new child failed **/
+	PINK_EASY_ERROR_SETUP,
+
+	/** Initial step (e.g. pink_trace_syscall()) failed **/
 	PINK_EASY_ERROR_STEP_INITIAL,
-	PINK_EASY_ERROR_WAIT_ALL,
-	PINK_EASY_ERROR_WAIT,
-	PINK_EASY_ERROR_MALLOC_PREMATURE_CHILD,
-	PINK_EASY_ERROR_BITNESS_PREMATURE_CHILD,
-	PINK_EASY_ERROR_STEP_AFTER_STOP,
-	PINK_EASY_ERROR_STEP_AFTER_SYSCALL,
-	PINK_EASY_ERROR_STEP_AFTER_EXIT,
-	PINK_EASY_ERROR_GETEVENTMSG_FORK,
-	PINK_EASY_ERROR_MALLOC_NEW_CHILD,
-	PINK_EASY_ERROR_SETUP_NEW_CHILD,
+	/** Stepping after event #PINK_EVENT_STOP failed **/
+	PINK_EASY_ERROR_STEP_STOP,
+	/** Stepping after event #PINK_EVENT_SYSCALL failed **/
+	PINK_EASY_ERROR_STEP_SYSCALL,
+	/** Stepping after event #PINK_EVENT_EXIT failed **/
+	PINK_EASY_ERROR_STEP_EXIT,
+	/** Stepping after premature born child failed **/
 	PINK_EASY_ERROR_STEP_PREMATURE,
-	PINK_EASY_ERROR_STEP_AFTER_FORK,
-	PINK_EASY_ERROR_STEP_AFTER_EXEC,
-	PINK_EASY_ERROR_BITNESS_EXEC,
-	PINK_EASY_ERROR_STEP_AFTER_GENUINE,
+	/** Stepping after fork(), vfork() or clone() failed **/
+	PINK_EASY_ERROR_STEP_FORK,
+	/** Stepping after execve() failed **/
+	PINK_EASY_ERROR_STEP_EXEC,
+	/** Stepping after genuine signal failed **/
+	PINK_EASY_ERROR_STEP_GENUINE,
+
+	/** waitpid(-1, ...) failed **/
+	PINK_EASY_ERROR_WAIT_ALL,
+	/** waitpid(pid, ...) failed **/
+	PINK_EASY_ERROR_WAIT,
+
+	/** pink_trace_geteventmsg() failed after #PINK_EVENT_FORK **/
+	PINK_EASY_ERROR_GETEVENTMSG_FORK,
+	/** pink_trace_geteventmsg() failed after #PINK_EVENT_EXIT **/
 	PINK_EASY_ERROR_GETEVENTMSG_EXIT,
+
+	/** Received unknown event **/
 	PINK_EASY_ERROR_EVENT_UNKNOWN,
+
+	/** Maximum error number **/
 	PINK_EASY_ERROR_MAX,
 } pink_easy_error_t;
+
+/**
+ * Returns a string describing the child error.
+ *
+ * \param e The error
+ *
+ * \return A string describing the error
+ **/
+const char *
+pink_easy_child_strerror(pink_easy_child_error_t e);
+
+/**
+ * Returns a string describing the error.
+ *
+ * \param e The error
+ *
+ * \return A string describing the error
+ **/
+const char *
+pink_easy_strerror(pink_easy_error_t e);
 
 #endif /* !PINKTRACE_EASY_GUARD_ERROR_H */

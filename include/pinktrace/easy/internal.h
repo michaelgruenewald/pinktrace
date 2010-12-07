@@ -38,6 +38,7 @@
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/callback.h>
+#include <pinktrace/easy/error.h>
 
 /** We have just begun ptracing this process. **/
 #define PINK_EASY_PROCESS_STARTUP		00001
@@ -67,6 +68,9 @@ struct pink_easy_process {
 
 	/** Per-process user data **/
 	void *data;
+
+	/** Destructor for user data **/
+	pink_easy_free_func_t destroy;
 
 	/** Colour of the entry **/
 	unsigned colour:1;
@@ -103,6 +107,12 @@ struct pink_easy_context {
 
 	/** User data **/
 	void *data;
+
+	/** Destructor for the user data **/
+	pink_easy_free_func_t destroy;
+
+	/** Last error **/
+	pink_easy_error_t error;
 
 	/** Callbacks **/
 	const pink_easy_callback_t *cb;

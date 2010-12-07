@@ -31,7 +31,7 @@
 #define PINKTRACE_EASY_GUARD_CALL_H 1
 
 #include <pinktrace/easy/context.h>
-#include <pinktrace/easy/error.h>
+#include <pinktrace/easy/func.h>
 
 /**
  * \file
@@ -41,12 +41,16 @@
 /**
  * Call a simple function which will be traced.
  *
+ * \note This function uses fork() to spawn the initial child.
+ *
  * \param ctx Tracing context
  * \param func Function which will be executed under the tracing environment
- * \param data User data
+ * \param userdata User data to be passed to the child function
+ *
+ * \return Depends on the callbacks.
  **/
 PINK_NONNULL(1,2)
-pink_easy_error_t
-pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data);
+int
+pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata);
 
 #endif /* !PINKTRACE_EASY_GUARD_CALL_H */

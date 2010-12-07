@@ -62,23 +62,27 @@ START_TEST(t_loop_exit_genuine)
 {
 	int ret;
 	pink_easy_error_t e;
-	pink_easy_callback_t cb;
+	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	memset(&cb, 0, sizeof(pink_easy_callback_t));
-	cb.cb_exit_genuine = _cb_exit_genuine;
+	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
+		fail("%d(%s)", errno, strerror(errno));
+	cb->ev_exit_genuine = _cb_exit_genuine;
 
-	ctx = pink_easy_context_new(0, &cb, NULL);
+	ctx = pink_easy_context_new(0, cb, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	ret = 127;
-	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	pink_easy_call(ctx, _exit_immediately_func, &ret);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	ret = 128;
-	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	pink_easy_call(ctx, _exit_immediately_func, &ret);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
+	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
@@ -105,23 +109,27 @@ START_TEST(t_loop_exit_signal)
 {
 	int sig;
 	pink_easy_error_t e;
-	pink_easy_callback_t cb;
+	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	memset(&cb, 0, sizeof(pink_easy_callback_t));
-	cb.cb_exit_signal = _cb_exit_signal;
+	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
+		fail("%d(%s)", errno, strerror(errno));
+	cb->ev_exit_signal = _cb_exit_signal;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &cb, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, cb, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	sig = SIGTERM;
-	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	pink_easy_call(ctx, _signal_immediately_func, &sig);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	sig = SIGKILL;
-	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	pink_easy_call(ctx, _signal_immediately_func, &sig);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
+	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
@@ -140,23 +148,27 @@ START_TEST(t_loop_genuine)
 {
 	int sig;
 	pink_easy_error_t e;
-	pink_easy_callback_t cb;
+	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	memset(&cb, 0, sizeof(pink_easy_callback_t));
-	cb.cb_genuine = _cb_genuine;
+	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
+		fail("%d(%s)", errno, strerror(errno));
+	cb->ev_genuine = _cb_genuine;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &cb, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, cb, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	sig = SIGTTIN;
-	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	pink_easy_call(ctx, _signal_immediately_func, &sig);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	sig = SIGTTOU;
-	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	pink_easy_call(ctx, _signal_immediately_func, &sig);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
+	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
@@ -175,23 +187,27 @@ START_TEST(t_loop_exit)
 {
 	int ret;
 	pink_easy_error_t e;
-	pink_easy_callback_t cb;
+	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	memset(&cb, 0, sizeof(pink_easy_callback_t));
-	cb.cb_exit = _cb_exit;
+	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
+		fail("%d(%s)", errno, strerror(errno));
+	cb->ev_exit = _cb_exit;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, &cb, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, cb, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	ret = 127;
-	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	pink_easy_call(ctx, _exit_immediately_func, &ret);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	ret = 128;
-	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	pink_easy_call(ctx, _exit_immediately_func, &ret);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
+	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
@@ -215,19 +231,22 @@ _exec_true_func(PINK_UNUSED void *data)
 START_TEST(t_loop_exec)
 {
 	pink_easy_error_t e;
-	pink_easy_callback_t cb;
+	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	memset(&cb, 0, sizeof(pink_easy_callback_t));
-	cb.cb_exec = _cb_exec;
+	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
+		fail("%d(%s)", errno, strerror(errno));
+	cb->ev_exec = _cb_exec;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, &cb, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, cb, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
-	e = pink_easy_call(ctx, _exec_true_func, NULL);
+	pink_easy_call(ctx, _exec_true_func, NULL);
+	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 	fail_unless(_cb_exec_called, "wtf?");
 
+	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
@@ -263,6 +282,7 @@ easy_loop_suite_create(void)
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit);
 	tcase_add_test(tc_pink_easy_loop, t_loop_exec);
 	tcase_add_test(tc_pink_easy_loop, t_loop_fork);
+
 	tcase_add_test(tc_pink_easy_loop, t_loop_vfork);
 	tcase_add_test(tc_pink_easy_loop, t_loop_clone);
 

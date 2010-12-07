@@ -27,6 +27,7 @@ pinktrace_easy_DIST= \
 		     include/pinktrace/easy/context.h \
 		     include/pinktrace/easy/error.h \
 		     include/pinktrace/easy/exec.h \
+		     include/pinktrace/easy/func.h \
 		     include/pinktrace/easy/loop.h \
 		     include/pinktrace/easy/process.h \
 		     include/pinktrace/easy/pink.h

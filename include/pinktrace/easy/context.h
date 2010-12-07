@@ -30,11 +30,10 @@
 #ifndef PINKTRACE_EASY_GUARD_CONTEXT_H
 #define PINKTRACE_EASY_GUARD_CONTEXT_H 1
 
-#include <pinktrace/bitness.h>
-#include <pinktrace/event.h>
-
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/callback.h>
+#include <pinktrace/easy/error.h>
+#include <pinktrace/easy/func.h>
 #include <pinktrace/easy/process.h>
 
 /**
@@ -48,19 +47,30 @@ typedef struct pink_easy_context pink_easy_context_t;
 /**
  * Allocate a tracing context.
  *
+ * \note This function accepts a destructor function pointer which may be used
+ * to free the user data. You may pass NULL if you want to handle the
+ * destruction yourself or use the standard free() function from stdlib.h for
+ * basic destruction.
+ *
  * \param options Options for pink_trace_setup()
- * \param hook Table of hooks
- * \param data User data for hooks
+ * \param ctable Callback table
+ * \param data User data
+ * \param func The desctructor function for the user data
  *
  * \return The tracing context on success, NULL on failure and sets errno
  * accordingly.
  **/
 PINK_NONNULL(2)
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data);
+pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data, pink_easy_free_func_t func);
 
 /**
- * Destroy a tracing context.
+ * Destroy a tracing context; destroys the process tree and all the members of
+ * the tree. The user data of the processes are free'd if a destructor function
+ * was provided with pink_easy_process_set_data(). The user data of the context
+ * is free'd if a destructor function was provided with
+ * pink_easy_context_new(). If you need to do further cleanup, use the
+ * cb_destroy callback provided by #pink_easy_callback_t.
  *
  * \param ctx Tracing context
  **/
@@ -69,9 +79,32 @@ void
 pink_easy_context_destroy(pink_easy_context_t *ctx);
 
 /**
- * Returns the eldest process in the tree
+ * Returns the last error saved in the context.
  *
  * \param ctx Tracing context
+ *
+ * \return Error condition
+ **/
+PINK_NONNULL(1)
+pink_easy_error_t
+pink_easy_context_get_error(const pink_easy_context_t *ctx);
+
+/**
+ * Clears the error saved in the context.
+ *
+ * \param ctx Tracing context
+ **/
+PINK_NONNULL(1)
+void
+pink_easy_context_clear_error(pink_easy_context_t *ctx);
+
+/**
+ * Returns the eldest process in the tree. The eldest process is quite often
+ * useful when tracing (e.g. when determining the exit code) so pinktrace keeps
+ * a reference to this process entry.
+ *
+ * \param ctx Tracing context
+ *
  * \return The eldest process
  **/
 PINK_NONNULL(1)
@@ -83,21 +116,11 @@ pink_easy_context_get_eldest(const pink_easy_context_t *ctx);
  *
  * \param ctx Tracing context
  *
- * \return The user data
+ * \return User data
  **/
 PINK_NONNULL(1)
 void *
 pink_easy_context_get_data(const pink_easy_context_t *ctx);
-
-/**
- * Sets the user data of the tracing context
- *
- * \param ctx Tracing context
- * \param data User data
- **/
-PINK_NONNULL(1)
-void
-pink_easy_context_set_data(pink_easy_context_t *ctx, void *data);
 
 /**
  * Returns the process tree
@@ -107,7 +130,7 @@ pink_easy_context_set_data(pink_easy_context_t *ctx, void *data);
  * \return Process tree
  **/
 PINK_NONNULL(1)
-const pink_easy_process_tree_t *
+pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx);
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

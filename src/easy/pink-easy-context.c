@@ -37,19 +37,22 @@
 static bool
 pink_easy_process_tree_free_entry(pink_easy_process_t *proc, PINK_UNUSED void *userdata)
 {
-	if (proc)
+	if (proc) {
+		if (proc->destroy && proc->data)
+			proc->destroy(proc->data);
 		free(proc);
+	}
 	return true;
 }
 
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data)
+pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data, pink_easy_free_func_t func)
 {
 	pink_easy_context_t *ctx;
 
 	assert(cb != NULL);
 
-	ctx = malloc(sizeof(pink_easy_context_t));
+	ctx = calloc(1, sizeof(pink_easy_context_t));
 	if (!ctx)
 		return NULL;
 
@@ -61,10 +64,23 @@ pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data)
 
 	ctx->cb = cb;
 	ctx->data = data;
-	ctx->eldest = NULL;
+	ctx->error = PINK_EASY_ERROR_SUCCESS;
 	ctx->options = options;
+	ctx->destroy = func;
 
 	return ctx;
+}
+
+pink_easy_error_t
+pink_easy_context_get_error(const pink_easy_context_t *ctx)
+{
+	return ctx->error;
+}
+
+void
+pink_easy_context_clear_error(pink_easy_context_t *ctx)
+{
+	ctx->error = PINK_EASY_ERROR_SUCCESS;
 }
 
 void
@@ -77,8 +93,8 @@ pink_easy_context_destroy(pink_easy_context_t *ctx)
 		free(ctx->tree);
 	}
 
-	if (ctx->cb->cb_destroy)
-		ctx->cb->cb_destroy(ctx->data);
+	if (ctx->destroy && ctx->data)
+		ctx->destroy(ctx->data);
 
 	free(ctx);
 }
@@ -95,13 +111,7 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx)
 	return ctx->data;
 }
 
-void
-pink_easy_context_set_data(pink_easy_context_t *ctx, void *data)
-{
-	ctx->data = data;
-}
-
-const pink_easy_process_tree_t *
+pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx)
 {
 	return ctx->tree;

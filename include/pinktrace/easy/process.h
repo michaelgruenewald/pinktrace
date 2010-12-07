@@ -38,6 +38,7 @@
 #include <sys/types.h>
 
 #include <pinktrace/pink.h>
+#include <pinktrace/easy/func.h>
 
 /**
  * \file
@@ -51,29 +52,55 @@ typedef struct pink_easy_process pink_easy_process_t;
 typedef struct pink_easy_process_tree pink_easy_process_tree_t;
 
 /**
- * Returns the process ID of the entry
+ * Returns the process ID of the entry.
+ *
+ * \note There's no setter for pid_t member because pinktrace handles it
+ * internally.
  *
  * \param proc Process entry
  *
  * \return Process ID
  **/
+PINK_NONNULL(1)
 pid_t
 pink_easy_process_get_pid(const pink_easy_process_t *proc);
 
 /**
  * Returns the bitness of the entry
  *
+ * \note There's no setter for #pink_bitness_t member because pinktrace handles
+ * it internally.
+ *
  * \param proc Process entry
  *
  * \return Bitness
  **/
+PINK_NONNULL(1)
 pink_bitness_t
 pink_easy_process_get_bitness(const pink_easy_process_t *proc);
 
 /**
- * Returns the user data
+ * Set the user data of the process entry.
  *
- * \param proc Process
+ * \note This function accepts a destructor function pointer which may be used
+ * to free the user data. You may pass NULL if you want to handle the
+ * destruction yourself or use the standard free() function from stdlib.h for
+ * BASiC destruction.
+ *
+ * \param proc Process entry
+ * \param data User data
+ * \param func The destructor function of the user data
+ **/
+PINK_NONNULL(1)
+void
+pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free_func_t func);
+
+/**
+ * Get the user data of the process entry, previously set by
+ * pink_easy_process_set_data()
+ *
+ * \param proc Process entry
+ *
  * \return User data
  **/
 PINK_NONNULL(1)
@@ -81,39 +108,33 @@ void *
 pink_easy_process_get_data(const pink_easy_process_t *proc);
 
 /**
- * Sets the user data
+ * Returns the count of entries in the tree.
  *
- * \param proc Process
- * \param data User data
+ * \param tree Process tree
+ *
+ * \return Number of entries in the tree
  **/
-PINK_NONNULL(1)
-void
-pink_easy_process_set_data(pink_easy_process_t *proc, void *data);
+unsigned
+pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
 
 /**
  * Remove a process from the process tree.
  *
+ * \note pinktrace doesn't export an insertion function because insertions are
+ * handled internally by this library. You may, however, need to remove an
+ * entry due to problems (e.g. -ESRCH) caused by the process.
+ *
  * \param tree Process tree
  * \param pid Process ID
  *
- * \return true if the element was found and removed, false otherwise.
+ * \return true if process entry was found and removed, false otherwise
  **/
 PINK_NONNULL(1)
 bool
 pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
 
 /**
- * Returns the count of nodes in the tree
- *
- * \param tree Process tree
- *
- * \return Count of nodes
- **/
-unsigned
-pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
-
-/**
- * Search the process tree for the given pid.
+ * Search the process tree for the given process ID.
  *
  * \param tree The process tree
  * \param pid Process ID
@@ -128,13 +149,13 @@ pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
  * Walk the process tree.
  *
  * \param tree Process tree
- * \param cb Callback
- * \param userdata User data to pass to the callback
+ * \param func Walk function
+ * \param userdata User data to pass to the walk function
  *
- * \return Number of visited nodes
+ * \return Number of visited entries
  **/
 PINK_NONNULL(1,2)
 unsigned
-pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata);
+pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, pink_easy_walk_func_t func, void *userdata);
 
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

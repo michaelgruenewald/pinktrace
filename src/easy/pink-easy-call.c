@@ -37,8 +37,8 @@
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
-pink_easy_error_t
-pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
+int
+pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata)
 {
 	bool ret;
 	int status;
@@ -47,26 +47,28 @@ pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
 	assert(ctx->tree != NULL);
 	assert(func != NULL);
 
-	ctx->eldest = malloc(sizeof(pink_easy_process_t));
-	if (!ctx->eldest) {
-		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_MALLOC_ELDEST);
-		return PINK_EASY_ERROR_MALLOC_ELDEST;
-	}
+#define CALL_ERROR(p, v)				\
+	do {						\
+		ctx->error = (v);			\
+		if (ctx->cb->error)			\
+			ctx->cb->error(ctx, (p));	\
+		return -1;				\
+	} while (0)
+
+	ctx->eldest = calloc(1, sizeof(pink_easy_process_t));
+	if (!ctx->eldest)
+		CALL_ERROR(NULL, PINK_EASY_ERROR_ALLOC_ELDEST);
 
 	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
 	assert(ret);
 
-	if ((ctx->eldest->pid = fork()) < 0) {
-		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_FORK);
-		return PINK_EASY_ERROR_FORK;
-	}
+	if ((ctx->eldest->pid = fork()) < 0)
+		CALL_ERROR(NULL, PINK_EASY_ERROR_FORK);
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->cb->cerror ? ctx->cb->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		kill(getpid(), SIGSTOP);
-		_exit(func(data));
+		_exit(func(userdata));
 	}
 	/* parent */
 
@@ -75,22 +77,13 @@ pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
 	assert(WIFSTOPPED(status));
 	assert(WSTOPSIG(status) == SIGSTOP);
 
-	if (ctx->cb->cb_birth)
-		ctx->cb->cb_birth(ctx, ctx->eldest, NULL);
-
 	/* Figure out bitness */
-	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
-		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
-		return PINK_EASY_ERROR_BITNESS_ELDEST;
-	}
+	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN)
+		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
 
 	/* Set up tracing options */
-	if (!pink_trace_setup(ctx->eldest->pid, ctx->options)) {
-		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
-		return PINK_EASY_ERROR_SETUP_ELDEST;
-	}
+	if (!pink_trace_setup(ctx->eldest->pid, ctx->options))
+		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
 
 	/* Set up flags */
 	ctx->eldest->flags = 0;
@@ -100,5 +93,11 @@ pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
 			|| ctx->options & PINK_TRACE_OPTION_CLONE)
 		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
+	/* Happy birthday! */
+	if (ctx->cb->birth)
+		ctx->cb->birth(ctx, ctx->eldest, NULL);
+
 	return pink_easy_loop(ctx);
+
+#undef CALL_ERROR
 }

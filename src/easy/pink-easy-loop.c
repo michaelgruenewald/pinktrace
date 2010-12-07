@@ -39,7 +39,7 @@
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
-pink_easy_error_t
+int
 pink_easy_loop(pink_easy_context_t *ctx)
 {
 	bool followfork, ret;
@@ -47,7 +47,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	int status, wopt;
 	unsigned long code, npid;
 	pid_t pid, wpid;
-	pink_bitness_t orig_bitness;
+	pink_bitness_t old_bitness;
 	pink_event_t event;
 	pink_easy_process_t *proc, *nproc;
 	short (*cbfork) (pink_easy_context_t *, pink_easy_process_t *, pink_easy_process_t *, bool);
@@ -56,6 +56,14 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	assert(ctx->tree != NULL);
 	assert(ctx->eldest != NULL);
 	assert(ctx->eldest->flags & PINK_EASY_PROCESS_STARTUP);
+
+#define CALL_ERROR(p, v)				\
+	do {						\
+		ctx->error = (v);			\
+		if (ctx->cb->error)			\
+			ctx->cb->error(ctx, (p));	\
+		return -1;				\
+	} while (0)
 
 	followfork = ctx->eldest->flags & PINK_EASY_PROCESS_FOLLOWFORK;
 	pid = followfork ? -1 : ctx->eldest->pid;
@@ -66,11 +74,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 #endif /* __WALL */
 
 	/* Push the child to move! */
-	if (!pink_trace_syscall(ctx->eldest->pid, 0)) {
-		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_STEP_INITIAL);
-		return PINK_EASY_ERROR_STEP_INITIAL;
-	}
+	if (!pink_trace_syscall(ctx->eldest->pid, 0))
+		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_STEP_INITIAL);
 
 	/* Startup completed */
 	ctx->eldest->flags &= ~PINK_EASY_PROCESS_STARTUP;
@@ -79,21 +84,21 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	for (;;) {
 		/* Wait for children */
 		if ((wpid = waitpid(pid, &status, wopt)) < 0) {
-			if (errno == ECHILD && ctx->cb->cb_done)
-				ctx->cb->cb_done(ctx);
-			else if (!ctx->cb->eb_main)
-				return (pid < 0) ? PINK_EASY_ERROR_WAIT_ALL : PINK_EASY_ERROR_WAIT;
+			if (errno == ECHILD && ctx->cb->end)
+				ctx->cb->end(ctx, true);
+			else if (!ctx->cb->error) {
+				ctx->error = (pid < 0) ? PINK_EASY_ERROR_WAIT_ALL : PINK_EASY_ERROR_WAIT;
+				return -1;
+			}
 
 			if (pid < 0) {
 				/* Waiting for all process IDs */
-				ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_WAIT_ALL);
-				return PINK_EASY_ERROR_WAIT_ALL;
+				CALL_ERROR(NULL, PINK_EASY_ERROR_WAIT_ALL);
 			}
 			else {
 				/* Waiting for just one process ID */
 				proc = pink_easy_process_tree_search(ctx->tree, pid);
-				ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_WAIT);
-				return PINK_EASY_ERROR_WAIT;
+				CALL_ERROR(proc, PINK_EASY_ERROR_WAIT);
 			}
 		}
 
@@ -106,66 +111,56 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			if (!proc) {
 				/* Stupid child was born before
 				 * PTRACE_EVENT_FORK! */
-				proc = malloc(sizeof(pink_easy_process_t));
-				if (!proc) {
-					if (ctx->cb->eb_main)
-						ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_MALLOC_PREMATURE_CHILD);
-					return PINK_EASY_ERROR_MALLOC_PREMATURE_CHILD;
-				}
+				proc = calloc(1, sizeof(pink_easy_process_t));
+				if (!proc)
+					CALL_ERROR(NULL, PINK_EASY_ERROR_ALLOC_PREMATURE);
 
 				proc->pid = wpid;
 				if ((proc->bitness = pink_bitness_get(wpid)) == PINK_BITNESS_UNKNOWN) {
-					if (ctx->cb->eb_main)
-						ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_BITNESS_PREMATURE_CHILD);
+					if (proc->destroy && proc->data)
+						proc->destroy(proc->data);
 					free(proc);
-					return PINK_EASY_ERROR_BITNESS_PREMATURE_CHILD;
+					CALL_ERROR(NULL, PINK_EASY_ERROR_BITNESS_PREMATURE);
 				}
-				proc->flags = 0;
 				proc->flags |= PINK_EASY_PROCESS_SUSPENDED;
 				if (followfork)
 					proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
-				proc->data = NULL;
 
 				ret = pink_easy_process_tree_insert(ctx->tree, proc);
 				assert(ret);
-				/* Note: We don't call cb_birth here, because
-				 * we have no information about her parent.
+				/* Note: We don't call birth callback here,
+				 * because we have no information about her
+				 * parent.
 				 *
-				 * if (ctx->cb->cb_birth)
-				 *	ctx->cb->cb_birth(ctx, proc, WTF);
+				 * if (ctx->cb->birth)
+				 *	ctx->cb->birth(ctx, proc, WTF);
 				 */
 			}
 
-			if (ctx->cb->cb_stop) {
-				cbret = ctx->cb->cb_stop(ctx, proc, proc->flags & PINK_EASY_PROCESS_SUSPENDED);
+			if (ctx->cb->ev_stop) {
+				cbret = ctx->cb->ev_stop(ctx, proc, proc->flags & PINK_EASY_PROCESS_SUSPENDED);
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
-			if (!(proc->flags & PINK_EASY_PROCESS_SUSPENDED) && !pink_trace_syscall(proc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_STOP);
-				return PINK_EASY_ERROR_STEP_AFTER_STOP;
-			}
+			if (!(proc->flags & PINK_EASY_PROCESS_SUSPENDED) && !pink_trace_syscall(proc->pid, 0))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_STOP);
 
 			break;
 		case PINK_EVENT_SYSCALL:
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);
 			assert(proc != NULL);
 
-			if (ctx->cb->cb_syscall) {
-				cbret = ctx->cb->cb_syscall(ctx, proc, !(proc->flags & PINK_EASY_PROCESS_INSYSCALL));
+			if (ctx->cb->ev_syscall) {
+				cbret = ctx->cb->ev_syscall(ctx, proc, !(proc->flags & PINK_EASY_PROCESS_INSYSCALL));
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
 			proc->flags ^= PINK_EASY_PROCESS_INSYSCALL;
 
-			if (!pink_trace_syscall(proc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_SYSCALL);
-				return PINK_EASY_ERROR_STEP_AFTER_SYSCALL;
-			}
+			if (!pink_trace_syscall(proc->pid, 0))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_SYSCALL);
 
 			break;
 		case PINK_EVENT_FORK:
@@ -174,114 +169,88 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);
 			assert(proc != NULL);
 
-			if (!pink_trace_geteventmsg(proc->pid, &npid)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_GETEVENTMSG_FORK);
-				return PINK_EASY_ERROR_GETEVENTMSG_FORK;
-			}
+			if (!pink_trace_geteventmsg(proc->pid, &npid))
+				CALL_ERROR(proc, PINK_EASY_ERROR_GETEVENTMSG_FORK);
 
 			nproc = pink_easy_process_tree_search(ctx->tree, npid);
 			if (!nproc) {
 				/* Child was not born yet */
-				nproc = malloc(sizeof(pink_easy_process_t));
+				nproc = calloc(1, sizeof(pink_easy_process_t));
 				if (!nproc) {
-					if (ctx->cb->eb_main) {
-						/* TODO: Maybe we need a way to
-						 * pass npid to the errback? */
-						ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_MALLOC_NEW_CHILD);
-					}
-					return PINK_EASY_ERROR_MALLOC_NEW_CHILD;
+					/* TODO: Maybe we need a way to
+					 * pass npid to the errback? */
+					CALL_ERROR(NULL, PINK_EASY_ERROR_ALLOC);
 				}
 
 				nproc->pid = (pid_t)npid;
 				nproc->bitness = proc->bitness;
 				nproc->flags = proc->flags;
-				nproc->data = NULL;
 
 				ret = pink_easy_process_tree_insert(ctx->tree, nproc);
 				assert(ret);
-				if (ctx->cb->cb_birth)
-					ctx->cb->cb_birth(ctx, nproc, proc);
+				if (ctx->cb->birth)
+					ctx->cb->birth(ctx, nproc, proc);
 			}
 			else {
 				/* Child was born before PTRACE_EVENT_FORK but
 				 * the cb_birth callback was not called. */
-				if (ctx->cb->cb_birth)
-					ctx->cb->cb_birth(ctx, nproc, proc);
+				if (ctx->cb->birth)
+					ctx->cb->birth(ctx, nproc, proc);
 			}
 
 			cbfork = (event == PINK_EVENT_FORK)
-				? ctx->cb->cb_fork
+				? ctx->cb->ev_fork
 				: ((event == PINK_EVENT_VFORK)
-						? ctx->cb->cb_vfork
-						: ctx->cb->cb_clone);
-
+						? ctx->cb->ev_vfork
+						: ctx->cb->ev_clone);
 			if (cbfork) {
 				cbret = cbfork(ctx, proc, nproc, nproc->flags & PINK_EASY_PROCESS_SUSPENDED);
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
 			/* Resume child in case she was born prematurely. */
-			if (nproc->flags & PINK_EASY_PROCESS_SUSPENDED && !pink_trace_syscall(nproc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, nproc, PINK_EASY_ERROR_STEP_PREMATURE);
-				return PINK_EASY_ERROR_STEP_PREMATURE;
-			}
+			if (nproc->flags & PINK_EASY_PROCESS_SUSPENDED && !pink_trace_syscall(nproc->pid, 0))
+				CALL_ERROR(nproc, PINK_EASY_ERROR_STEP_PREMATURE);
 
 			/* Resume the parent as well */
-			if (!pink_trace_syscall(proc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_FORK);
-				return PINK_EASY_ERROR_STEP_AFTER_FORK;
-			}
+			if (!pink_trace_syscall(proc->pid, 0))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_FORK);
 
 			break;
 		case PINK_EVENT_EXEC:
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);
 			assert(proc != NULL);
 
-			orig_bitness = proc->bitness;
-			if ((proc->bitness = pink_bitness_get(proc->pid)) == PINK_BITNESS_UNKNOWN) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_BITNESS_EXEC);
-				return PINK_EASY_ERROR_BITNESS_EXEC;
-			}
+			old_bitness = proc->bitness;
+			if ((proc->bitness = pink_bitness_get(proc->pid)) == PINK_BITNESS_UNKNOWN)
+				CALL_ERROR(proc, PINK_EASY_ERROR_BITNESS);
 
-			if (ctx->cb->cb_exec) {
-				cbret = ctx->cb->cb_exec(ctx, proc, orig_bitness);
+			if (ctx->cb->ev_exec)  {
+				cbret = ctx->cb->ev_exec(ctx, proc, old_bitness);
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
-			if (!pink_trace_syscall(proc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_EXEC);
-				return PINK_EASY_ERROR_STEP_AFTER_EXEC;
-			}
+			if (!pink_trace_syscall(proc->pid, 0))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_EXEC);
 
 			break;
 		case PINK_EVENT_EXIT:
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);
 			assert(proc != NULL);
 
-			if (ctx->cb->cb_exit) {
-				if (!pink_trace_geteventmsg(proc->pid, &code)) {
-					if (ctx->cb->eb_main)
-						ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_GETEVENTMSG_EXIT);
-					return PINK_EASY_ERROR_GETEVENTMSG_EXIT;
-				}
+			if (ctx->cb->ev_exit) {
+				if (!pink_trace_geteventmsg(proc->pid, &code))
+					CALL_ERROR(proc, PINK_EASY_ERROR_GETEVENTMSG_EXIT);
 
-				cbret = ctx->cb->cb_exit(ctx, proc, code);
+				cbret = ctx->cb->ev_exit(ctx, proc, code);
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
-			if (!pink_trace_syscall(proc->pid, 0)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_EXIT);
-				return PINK_EASY_ERROR_STEP_AFTER_EXIT;
-			}
+			if (!pink_trace_syscall(proc->pid, 0))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_EXIT);
 
 			break;
 		case PINK_EVENT_EXIT_GENUINE:
@@ -290,20 +259,24 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			ret = pink_easy_process_tree_remove(ctx->tree, proc->pid);
 			assert(ret);
-			if (ctx->cb->cb_death)
-				ctx->cb->cb_death(ctx, proc);
 
-			if (ctx->cb->cb_exit_genuine) {
-				cbret = ctx->cb->cb_exit_genuine(ctx, proc, WEXITSTATUS(status));
+			if (ctx->cb->ev_exit_genuine) {
+				cbret = ctx->cb->ev_exit_genuine(ctx, proc, WEXITSTATUS(status));
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
+			/* R.I.P. */
+			if (ctx->cb->death)
+				ctx->cb->death(ctx, proc);
+
+			if (proc->destroy && proc->data)
+				proc->destroy(proc->data);
 			free(proc);
 
 			if (ctx->tree->count == 0) {
-				if (ctx->cb->cb_done)
-					ctx->cb->cb_done(ctx);
+				if (ctx->cb->end)
+					ctx->cb->end(ctx, false);
 				else
 					return PINK_EASY_ERROR_SUCCESS;
 			}
@@ -315,20 +288,24 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			ret = pink_easy_process_tree_remove(ctx->tree, proc->pid);
 			assert(ret);
-			if (ctx->cb->cb_death)
-				ctx->cb->cb_death(ctx, proc);
 
-			if (ctx->cb->cb_exit_signal) {
-				cbret = ctx->cb->cb_exit_signal(ctx, proc, WTERMSIG(status));
+			if (ctx->cb->ev_exit_signal) {
+				cbret = ctx->cb->ev_exit_signal(ctx, proc, WTERMSIG(status));
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
+			/* R.I.P. */
+			if (ctx->cb->death)
+				ctx->cb->death(ctx, proc);
+
+			if (proc->destroy && proc->data)
+				proc->destroy(proc->data);
 			free(proc);
 
 			if (ctx->tree->count == 0) {
-				if (ctx->cb->cb_done)
-					ctx->cb->cb_done(ctx);
+				if (ctx->cb->end)
+					ctx->cb->end(ctx, false);
 				else
 					return PINK_EASY_ERROR_SUCCESS;
 			}
@@ -339,23 +316,17 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);
 			assert(proc != NULL);
 
-			if (event == PINK_EVENT_UNKNOWN && !WIFSTOPPED(status)) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_EVENT_UNKNOWN);
-				return PINK_EASY_ERROR_EVENT_UNKNOWN;
-			}
+			if (event == PINK_EVENT_UNKNOWN && !WIFSTOPPED(status))
+				CALL_ERROR(proc, PINK_EASY_ERROR_EVENT_UNKNOWN);
 
-			if (ctx->cb->cb_genuine) {
-				cbret = ctx->cb->cb_genuine(ctx, proc, WSTOPSIG(status));
+			if (ctx->cb->ev_genuine) {
+				cbret = ctx->cb->ev_genuine(ctx, proc, WSTOPSIG(status));
 				if (cbret & PINK_EASY_CALLBACK_ABORT)
-					return PINK_EASY_ERROR_CALLBACK_ABORT;
+					CALL_ERROR(proc, PINK_EASY_ERROR_CALLBACK_ABORT);
 			}
 
-			if (!pink_trace_syscall(proc->pid, WSTOPSIG(status))) {
-				if (ctx->cb->eb_main)
-					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_GENUINE);
-				return PINK_EASY_ERROR_STEP_AFTER_GENUINE;
-			}
+			if (!pink_trace_syscall(proc->pid, WSTOPSIG(status)))
+				CALL_ERROR(proc, PINK_EASY_ERROR_STEP_GENUINE);
 
 			break;
 
