@@ -45,6 +45,18 @@
 static pink_easy_process_t _null = { 0, 0, PINK_BITNESS_UNKNOWN, NULL, RB_BLK, NULL, NULL, NULL };
 #define RB_NULL &_null
 
+void *
+pink_easy_process_get_data(const pink_easy_process_t *proc)
+{
+	return proc->data;
+}
+
+void
+pink_easy_process_set_data(pink_easy_process_t *proc, void *data)
+{
+	proc->data = data;
+}
+
 static pink_easy_process_t *
 pink_easy_process_tree_node_min(pink_easy_process_t *node)
 {

@@ -70,11 +70,25 @@ pink_easy_process_get_pid(const pink_easy_process_t *proc);
 pink_bitness_t
 pink_easy_process_get_bitness(const pink_easy_process_t *proc);
 
+/**
+ * Returns the user data
+ *
+ * \param proc Process
+ * \return User data
+ **/
+PINK_NONNULL(1)
 void *
 pink_easy_process_get_data(const pink_easy_process_t *proc);
 
+/**
+ * Sets the user data
+ *
+ * \param proc Process
+ * \param data User data
+ **/
+PINK_NONNULL(1)
 void
-pink_easy_process_set_data(pink_easy_process_t *proc);
+pink_easy_process_set_data(pink_easy_process_t *proc, void *data);
 
 /**
  * Remove a process from the process tree.
