@@ -77,6 +77,18 @@ void
 pink_easy_process_set_data(pink_easy_process_t *proc);
 
 /**
+ * Remove a process from the process tree.
+ *
+ * \param tree Process tree
+ * \param pid Process ID
+ *
+ * \return true if the element was found and removed, false otherwise.
+ **/
+PINK_NONNULL(1)
+bool
+pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
+
+/**
  * Returns the count of nodes in the tree
  *
  * \param tree Process tree

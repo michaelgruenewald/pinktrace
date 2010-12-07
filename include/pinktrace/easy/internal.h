@@ -127,8 +127,4 @@ PINK_NONNULL(1,2)
 bool
 pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
 
-PINK_NONNULL(1)
-bool
-pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
-
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */
