@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -78,7 +79,9 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	for (;;) {
 		/* Wait for children */
 		if ((wpid = waitpid(pid, &status, wopt)) < 0) {
-			if (!ctx->cb->eb_main)
+			if (errno == ECHILD && ctx->cb->cb_done)
+				ctx->cb->cb_done(ctx);
+			else if (!ctx->cb->eb_main)
 				return (pid < 0) ? PINK_EASY_ERROR_WAIT_ALL : PINK_EASY_ERROR_WAIT;
 
 			if (pid < 0) {
@@ -297,8 +300,12 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			free(proc);
 
-			if (ctx->tree->count == 0)
-				return PINK_EASY_ERROR_SUCCESS;
+			if (ctx->tree->count == 0) {
+				if (ctx->cb->cb_done)
+					ctx->cb->cb_done(ctx);
+				else
+					return PINK_EASY_ERROR_SUCCESS;
+			}
 
 			break;
 		case PINK_EVENT_EXIT_SIGNAL:
@@ -318,8 +325,12 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			free(proc);
 
-			if (ctx->tree->count == 0)
-				return PINK_EASY_ERROR_SUCCESS;
+			if (ctx->tree->count == 0) {
+				if (ctx->cb->cb_done)
+					ctx->cb->cb_done(ctx);
+				else
+					return PINK_EASY_ERROR_SUCCESS;
+			}
 
 			break;
 		case PINK_EVENT_GENUINE:

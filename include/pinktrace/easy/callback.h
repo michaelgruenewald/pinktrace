@@ -47,6 +47,14 @@ struct pink_easy_context;
 
 /** Table of callbacks **/
 typedef struct {
+	/**
+	 * The count of the process tree dropped to zero, or waitpid()
+	 * returned -ECHILD; both of which mean tracing is done.
+	 * If this callback is NULL, pink_easy_loop() will just return with
+	 * success, which may not always be what you want.
+	 **/
+	void (*cb_done) (struct pink_easy_context *ctx);
+
 	/** Callback called when the tracing context is destroyed. **/
 	void (*cb_destroy) (void *data);
 

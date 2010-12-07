@@ -56,8 +56,6 @@ pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
 
 	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
 	assert(ret);
-	if (ctx->cb->cb_birth)
-		ctx->cb->cb_birth(ctx, ctx->eldest, NULL);
 
 	if ((ctx->eldest->pid = fork()) < 0) {
 		if (ctx->cb->eb_main)
@@ -76,6 +74,9 @@ pink_easy_call(pink_easy_context_t *ctx, int (*func) (void *data), void *data)
 	waitpid(ctx->eldest->pid, &status, 0);
 	assert(WIFSTOPPED(status));
 	assert(WSTOPSIG(status) == SIGSTOP);
+
+	if (ctx->cb->cb_birth)
+		ctx->cb->cb_birth(ctx, ctx->eldest, NULL);
 
 	/* Figure out bitness */
 	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
