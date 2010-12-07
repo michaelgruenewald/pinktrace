@@ -125,6 +125,12 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 				ret = pink_easy_process_tree_insert(ctx->tree, proc);
 				assert(ret);
+				/* Note: We don't call cb_birth here, because
+				 * we have no information about her parent.
+				 *
+				 * if (ctx->cb->cb_birth)
+				 *	ctx->cb->cb_birth(ctx, proc, WTF);
+				 */
 			}
 
 			if (ctx->cb->cb_stop) {
@@ -190,6 +196,14 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 				ret = pink_easy_process_tree_insert(ctx->tree, nproc);
 				assert(ret);
+				if (ctx->cb->cb_birth)
+					ctx->cb->cb_birth(ctx, nproc, proc);
+			}
+			else {
+				/* Child was born before PTRACE_EVENT_FORK but
+				 * the cb_birth callback was not called. */
+				if (ctx->cb->cb_birth)
+					ctx->cb->cb_birth(ctx, nproc, proc);
 			}
 
 			cbfork = (event == PINK_EVENT_FORK)
@@ -272,6 +286,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			ret = pink_easy_process_tree_remove(ctx->tree, proc->pid);
 			assert(ret);
+			if (ctx->cb->cb_death)
+				ctx->cb->cb_death(ctx, proc);
 
 			if (ctx->cb->cb_exit_genuine) {
 				cbret = ctx->cb->cb_exit_genuine(ctx, proc, WEXITSTATUS(status));
@@ -291,6 +307,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 			ret = pink_easy_process_tree_remove(ctx->tree, proc->pid);
 			assert(ret);
+			if (ctx->cb->cb_death)
+				ctx->cb->cb_death(ctx, proc);
 
 			if (ctx->cb->cb_exit_signal) {
 				cbret = ctx->cb->cb_exit_signal(ctx, proc, WTERMSIG(status));

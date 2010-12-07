@@ -47,6 +47,12 @@ struct pink_easy_context;
 
 /** Table of callbacks **/
 typedef struct {
+	/** Callback for child birth aka process creation **/
+	void (*cb_birth) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *parent);
+
+	/** Callback for child death aka process deletion **/
+	void (*cb_death) (struct pink_easy_context *ctx, pink_easy_process_t *current);
+
 	/** Callback for #PINK_EVENT_STOP **/
 	short (*cb_stop) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool suspended);
 
