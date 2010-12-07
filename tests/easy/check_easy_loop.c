@@ -196,6 +196,42 @@ START_TEST(t_loop_exit)
 }
 END_TEST
 
+static bool _cb_exec_called = false;
+static short
+_cb_exec(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, PINK_UNUSED pink_bitness_t orig_bitness)
+{
+	_cb_exec_called = true;
+	return 0;
+}
+
+static int
+_exec_true_func(PINK_UNUSED void *data)
+{
+	char *const myargv[] = { "true", NULL };
+	execvp("true", myargv);
+	return 1;
+}
+
+START_TEST(t_loop_exec)
+{
+	pink_easy_error_t e;
+	pink_easy_callback_t cb;
+	pink_easy_context_t *ctx;
+
+	memset(&cb, 0, sizeof(pink_easy_callback_t));
+	cb.cb_exec = _cb_exec;
+
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, &cb, NULL);
+	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+
+	e = pink_easy_call(ctx, _exec_true_func, NULL);
+	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
+	fail_unless(_cb_exec_called, "wtf?");
+
+	pink_easy_context_destroy(ctx);
+}
+END_TEST
+
 Suite *
 easy_loop_suite_create(void)
 {
@@ -207,6 +243,7 @@ easy_loop_suite_create(void)
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit_signal);
 	tcase_add_test(tc_pink_easy_loop, t_loop_genuine);
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit);
+	tcase_add_test(tc_pink_easy_loop, t_loop_exec);
 
 	suite_add_tcase(s, tc_pink_easy_loop);
 
