@@ -69,6 +69,16 @@ void
 pink_easy_context_destroy(pink_easy_context_t *ctx);
 
 /**
+ * Returns the eldest process in the tree
+ *
+ * \param ctx Tracing context
+ * \return The eldest process
+ **/
+PINK_NONNULL(1)
+pink_easy_process_t *
+pink_easy_context_get_eldest(const pink_easy_context_t *ctx);
+
+/**
  * Returns the user data of the tracing context
  *
  * \param ctx Tracing context
