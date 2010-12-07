@@ -413,7 +413,7 @@ pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid)
 }
 
 unsigned
-pink_easy_process_tree_walk(pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata)
+pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata)
 {
 	unsigned count;
 	pink_easy_process_t *node;
