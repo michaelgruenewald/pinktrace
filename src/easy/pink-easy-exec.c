@@ -37,7 +37,7 @@
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
-int
+pink_easy_error_t
 pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 {
 	bool ret;
@@ -50,14 +50,17 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	if (!ctx->eldest) {
 		if (ctx->cb->eb_main)
 			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_MALLOC_ELDEST);
-		return -1;
+		return PINK_EASY_ERROR_MALLOC_ELDEST;
 	}
 
 	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
 	assert(ret);
 
-	if ((ctx->eldest->pid = vfork()) < 0)
-		return -1;
+	if ((ctx->eldest->pid = vfork()) < 0) {
+		if (ctx->cb->eb_main)
+			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_VFORK);
+		return PINK_EASY_ERROR_VFORK;
+	}
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
 			_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_SETUP) : EXIT_FAILURE);
@@ -75,14 +78,14 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
 		if (ctx->cb->eb_main)
 			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
-		return -1;
+		return PINK_EASY_ERROR_BITNESS_ELDEST;
 	}
 
 	/* Set up tracing options */
 	if (!pink_trace_setup(ctx->eldest->pid, ctx->options)) {
 		if (ctx->cb->eb_main)
 			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
-		return -1;
+		return PINK_EASY_ERROR_SETUP_ELDEST;
 	}
 
 	/* Set up flags */

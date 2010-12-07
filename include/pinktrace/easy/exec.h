@@ -31,6 +31,7 @@
 #define PINKTRACE_GUARD_EASY_EXEC_H 1
 
 #include <pinktrace/easy/context.h>
+#include <pinktrace/easy/error.h>
 
 /**
  * \file
@@ -40,7 +41,7 @@
 /**
  * Tracing execvp() wrapper
  **/
-int
+pink_easy_error_t
 pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[]);
 
 #endif /* !PINKTRACE_GUARD_EASY_EXEC_H */
