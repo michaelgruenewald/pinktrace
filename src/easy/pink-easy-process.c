@@ -45,6 +45,18 @@
 static pink_easy_process_t _null = { 0, 0, PINK_BITNESS_UNKNOWN, NULL, RB_BLK, NULL, NULL, NULL };
 #define RB_NULL &_null
 
+pid_t
+pink_easy_process_get_pid(const pink_easy_process_t *proc)
+{
+	return proc->pid;
+}
+
+pink_bitness_t
+pink_easy_process_get_bitness(const pink_easy_process_t *proc)
+{
+	return proc->bitness;
+}
+
 void *
 pink_easy_process_get_data(const pink_easy_process_t *proc)
 {
@@ -55,6 +67,12 @@ void
 pink_easy_process_set_data(pink_easy_process_t *proc, void *data)
 {
 	proc->data = data;
+}
+
+unsigned
+pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree)
+{
+	return tree->count;
 }
 
 static pink_easy_process_t *
