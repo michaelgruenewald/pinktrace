@@ -196,6 +196,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 				nproc->pid = (pid_t)npid;
 				nproc->bitness = proc->bitness;
 				nproc->flags = proc->flags;
+				nproc->data = NULL;
 
 				ret = pink_easy_process_tree_insert(ctx->tree, nproc);
 				assert(ret);

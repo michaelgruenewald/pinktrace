@@ -56,7 +56,7 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
 	assert(ret);
 
-	if ((ctx->eldest->pid = fork()) < 0) {
+	if ((ctx->eldest->pid = vfork()) < 0) {
 		if (ctx->cb->eb_main)
 			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_VFORK);
 		return PINK_EASY_ERROR_VFORK;
@@ -64,7 +64,6 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
 			_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_SETUP) : EXIT_FAILURE);
-		kill(getpid(), SIGSTOP);
 		execvp(file, argv);
 		_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_EXEC) : EXIT_FAILURE);
 	}
@@ -73,10 +72,7 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	/* Wait for the initial SIGTRAP */
 	waitpid(ctx->eldest->pid, &status, 0);
 	assert(WIFSTOPPED(status));
-	assert(WSTOPSIG(status) == SIGSTOP);
-
-	if (ctx->cb->cb_birth)
-		ctx->cb->cb_birth(ctx, ctx->eldest, NULL);
+	assert(WSTOPSIG(status) == SIGTRAP);
 
 	/* Figure out bitness */
 	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
@@ -99,6 +95,10 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 			|| ctx->options & PINK_TRACE_OPTION_VFORK
 			|| ctx->options & PINK_TRACE_OPTION_CLONE)
 		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+	ctx->eldest->data = NULL;
+
+	if (ctx->cb->cb_birth)
+		ctx->cb->cb_birth(ctx, ctx->eldest, NULL);
 
 	return pink_easy_loop(ctx);
 }
