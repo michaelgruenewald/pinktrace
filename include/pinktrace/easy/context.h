@@ -68,4 +68,15 @@ PINK_NONNULL(1)
 void
 pink_easy_context_destroy(pink_easy_context_t *ctx);
 
+/**
+ * Returns the process tree
+ *
+ * \param ctx Tracing context
+ *
+ * \return Process tree
+ **/
+PINK_NONNULL(1)
+const pink_easy_process_tree_t *
+pink_easy_context_get_tree(pink_easy_context_t *ctx);
+
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */
