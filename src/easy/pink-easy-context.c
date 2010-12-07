@@ -83,8 +83,20 @@ pink_easy_context_destroy(pink_easy_context_t *ctx)
 	free(ctx);
 }
 
+void *
+pink_easy_context_get_data(const pink_easy_context_t *ctx)
+{
+	return ctx->data;
+}
+
+void
+pink_easy_context_set_data(pink_easy_context_t *ctx, void *data)
+{
+	ctx->data = data;
+}
+
 const pink_easy_process_tree_t *
-pink_easy_context_get_tree(pink_easy_context_t *ctx)
+pink_easy_context_get_tree(const pink_easy_context_t *ctx)
 {
 	return ctx->tree;
 }

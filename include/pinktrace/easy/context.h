@@ -69,6 +69,27 @@ void
 pink_easy_context_destroy(pink_easy_context_t *ctx);
 
 /**
+ * Returns the user data of the tracing context
+ *
+ * \param ctx Tracing context
+ *
+ * \return The user data
+ **/
+PINK_NONNULL(1)
+void *
+pink_easy_context_get_data(const pink_easy_context_t *ctx);
+
+/**
+ * Sets the user data of the tracing context
+ *
+ * \param ctx Tracing context
+ * \param data User data
+ **/
+PINK_NONNULL(1)
+void
+pink_easy_context_set_data(pink_easy_context_t *ctx, void *data);
+
+/**
  * Returns the process tree
  *
  * \param ctx Tracing context
@@ -77,6 +98,6 @@ pink_easy_context_destroy(pink_easy_context_t *ctx);
  **/
 PINK_NONNULL(1)
 const pink_easy_process_tree_t *
-pink_easy_context_get_tree(pink_easy_context_t *ctx);
+pink_easy_context_get_tree(const pink_easy_context_t *ctx);
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */
