@@ -17,10 +17,10 @@ pinktrace.pc: pinktrace.pc.in Makefile
 	    < $(srcdir)/pinktrace.pc.in > pinktrace.pc
 
 if WANT_EASY
-CLEANFILES+= pinktrace-easy.pc
-pkgconfig_DATA+= pinktrace-easy.pc
+CLEANFILES+= pinktrace_easy.pc
+pkgconfig_DATA+= pinktrace_easy.pc
 
-pinktrace-easy.pc: pinktrace-easy.pc.in Makefile
+pinktrace_easy.pc: pinktrace_easy.pc.in Makefile
 	$(AM_V_GEN)
 	$(AM_V_at)$(SED) \
 	    -e "s,#PINKTRACE_PC_PREFIX#,$(prefix)," \
@@ -30,5 +30,5 @@ pinktrace-easy.pc: pinktrace-easy.pc.in Makefile
 	    -e "s,#PINKTRACE_PC_LIBS#,$(PINKTRACE_PC_LIBS)," \
 	    -e "s,#PINKTRACE_EASY_PC_LIBS#,$(PINKTRACE_EASY_PC_LIBS)," \
 	    -e "s,#PINKTRACE_PC_CFLAGS#,$(PINKTRACE_PC_CFLAGS)," \
-	    < $(srcdir)/pinktrace-easy.pc.in > pinktrace-easy.pc
+	    < $(srcdir)/pinktrace_easy.pc.in > pinktrace_easy.pc
 endif # WANT_EASY

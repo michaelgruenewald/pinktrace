@@ -62,7 +62,7 @@ m4/libtool.m4
 m4/lt*.m4
 
 pkg-config/pinktrace.pc
-pkg-config/pinktrace-easy.pc
+pkg-config/pinktrace_easy.pc
 
 python/pinktrace/__init__.py
 python/pinktrace/*.so
