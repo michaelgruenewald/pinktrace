@@ -232,6 +232,24 @@ START_TEST(t_loop_exec)
 }
 END_TEST
 
+START_TEST(t_loop_fork)
+{
+	/* TODO */
+}
+END_TEST
+
+START_TEST(t_loop_vfork)
+{
+	/* TODO */
+}
+END_TEST
+
+START_TEST(t_loop_clone)
+{
+	/* TODO */
+}
+END_TEST
+
 Suite *
 easy_loop_suite_create(void)
 {
@@ -244,6 +262,9 @@ easy_loop_suite_create(void)
 	tcase_add_test(tc_pink_easy_loop, t_loop_genuine);
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit);
 	tcase_add_test(tc_pink_easy_loop, t_loop_exec);
+	tcase_add_test(tc_pink_easy_loop, t_loop_fork);
+	tcase_add_test(tc_pink_easy_loop, t_loop_vfork);
+	tcase_add_test(tc_pink_easy_loop, t_loop_clone);
 
 	suite_add_tcase(s, tc_pink_easy_loop);
 
