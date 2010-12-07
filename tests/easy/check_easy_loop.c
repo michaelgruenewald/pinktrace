@@ -111,7 +111,7 @@ START_TEST(t_loop_exit_signal)
 	memset(&cb, 0, sizeof(pink_easy_callback_t));
 	cb.cb_exit_signal = _cb_exit_signal;
 
-	ctx = pink_easy_context_new(0, &cb, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &cb, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	sig = SIGTERM;

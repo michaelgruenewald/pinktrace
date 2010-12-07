@@ -49,7 +49,7 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	ctx->eldest = malloc(sizeof(pink_easy_process_t));
 	if (!ctx->eldest) {
 		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(NULL, PINK_EASY_ERROR_MALLOC_ELDEST, ctx->data);
+			ctx->cb->eb_main(ctx, NULL, PINK_EASY_ERROR_MALLOC_ELDEST);
 		return -1;
 	}
 
@@ -59,15 +59,10 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	if ((ctx->eldest->pid = vfork()) < 0)
 		return -1;
 	else if (!ctx->eldest->pid) { /* child */
-		if (!pink_trace_me()) {
-			if (ctx->cb->eb_child)
-				ctx->cb->eb_child(PINK_EASY_CERROR_SETUP, ctx->data);
-			_exit(EXIT_FAILURE);
-		}
+		if (!pink_trace_me())
+			_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_SETUP) : EXIT_FAILURE);
 		execvp(file, argv);
-		if (ctx->cb->eb_child)
-			ctx->cb->eb_child(PINK_EASY_CERROR_EXEC, ctx->data);
-		_exit(EXIT_FAILURE);
+		_exit(ctx->cb->eb_child ? ctx->cb->eb_child(PINK_EASY_CERROR_EXEC) : EXIT_FAILURE);
 	}
 	/* parent */
 
@@ -79,14 +74,14 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 	/* Figure out bitness */
 	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
 		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST, ctx->data);
+			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
 		return -1;
 	}
 
 	/* Set up tracing options */
 	if (!pink_trace_setup(ctx->eldest->pid, ctx->options)) {
 		if (ctx->cb->eb_main)
-			ctx->cb->eb_main(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST, ctx->data);
+			ctx->cb->eb_main(ctx, ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
 		return -1;
 	}
 

@@ -51,28 +51,28 @@ typedef struct {
 	short (*cb_stop) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool suspended);
 
 	/** Callback for #PINK_EVENT_SYSCALL **/
-	short (*cb_syscall) (pink_easy_process_t *current, bool entering, void *data);
+	short (*cb_syscall) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool entering);
 
 	/** Callback for #PINK_EVENT_FORK **/
-	short (*cb_fork) (pink_easy_process_t *current, pink_easy_process_t *child, bool alive, void *data);
+	short (*cb_fork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/** Callback for #PINK_EVENT_VFORK **/
-	short (*cb_vfork) (pink_easy_process_t *current, pink_easy_process_t *child, bool alive, void *data);
+	short (*cb_vfork) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/** Callback for #PINK_EVENT_CLONE **/
-	short (*cb_clone) (pink_easy_process_t *current, pink_easy_process_t *child, bool alive, void *data);
+	short (*cb_clone) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 	/**
 	 * Callback for #PINK_EVENT_EXEC
 	 * Note, the bitness of current is updated before this callback is called.
 	 **/
-	short (*cb_exec) (pink_easy_process_t *current, pink_bitness_t orig_bitness, void *data);
+	short (*cb_exec) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t orig_bitness);
 
 	/** Callback for #PINK_EVENT_EXIT **/
-	short (*cb_exit) (pink_easy_process_t *current, unsigned long code, void *data);
+	short (*cb_exit) (struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long code);
 
 	/** Callback for #PINK_EVENT_GENUINE **/
-	short (*cb_genuine) (pink_easy_process_t *current, int stopsig, void *data);
+	short (*cb_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
 
 	/** Callback for #PINK_EVENT_EXIT_GENUINE **/
 	short (*cb_exit_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int code);
@@ -81,10 +81,10 @@ typedef struct {
 	short (*cb_exit_signal) (struct pink_easy_context *ctx, pink_easy_process_t *current, int sig);
 
 	/** Errback for errors in the spawned child. **/
-	void (*eb_child) (pink_easy_cerror_t e, void *data);
+	int (*eb_child) (pink_easy_cerror_t e);
 
 	/** Errback for errors in the main process **/
-	void (*eb_main) (const pink_easy_process_t *current, pink_easy_error_t e, void *data);
+	void (*eb_main) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_error_t e);
 
 	/** Callback called when the tracing context is destroyed. **/
 	void (*cb_destroy) (void *data);
