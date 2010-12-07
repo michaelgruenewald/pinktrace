@@ -328,7 +328,7 @@ pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_
 }
 
 pink_easy_process_t *
-pink_easy_process_tree_search(pink_easy_process_tree_t *tree, pid_t pid)
+pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid)
 {
 	int cmp;
 	pink_easy_process_t *node;

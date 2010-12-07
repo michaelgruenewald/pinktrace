@@ -127,33 +127,8 @@ PINK_NONNULL(1,2)
 bool
 pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
 
-/**
- * Search the process tree for the given pid.
- *
- * \param tree The process tree
- * \param pid Process ID
- *
- * \return The process on success, NULL on failure.
- **/
-PINK_NONNULL(1)
-pink_easy_process_t *
-pink_easy_process_tree_search(pink_easy_process_tree_t *tree, pid_t pid);
-
 PINK_NONNULL(1)
 bool
 pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
-
-/**
- * Walk the process tree.
- *
- * \param tree Process tree
- * \param cb Callback
- * \param userdata User data to pass to the callback
- *
- * \return Number of visited nodes
- **/
-PINK_NONNULL(1,2)
-unsigned
-pink_easy_process_tree_walk(pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata);
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */

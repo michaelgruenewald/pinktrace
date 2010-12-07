@@ -86,4 +86,29 @@ pink_easy_process_set_data(pink_easy_process_t *proc);
 unsigned
 pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
 
+/**
+ * Search the process tree for the given pid.
+ *
+ * \param tree The process tree
+ * \param pid Process ID
+ *
+ * \return The process on successful lookup, NULL on failure.
+ **/
+PINK_NONNULL(1)
+pink_easy_process_t *
+pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
+
+/**
+ * Walk the process tree.
+ *
+ * \param tree Process tree
+ * \param cb Callback
+ * \param userdata User data to pass to the callback
+ *
+ * \return Number of visited nodes
+ **/
+PINK_NONNULL(1,2)
+unsigned
+pink_easy_process_tree_walk(pink_easy_process_tree_t *tree, bool (*cb) (pink_easy_process_t *proc, void *userdata), void *userdata);
+
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

@@ -47,11 +47,20 @@ struct pink_easy_context;
 
 /** Table of callbacks **/
 typedef struct {
+	/** Callback called when the tracing context is destroyed. **/
+	void (*cb_destroy) (void *data);
+
 	/** Callback for child birth aka process creation **/
 	void (*cb_birth) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *parent);
 
 	/** Callback for child death aka process deletion **/
 	void (*cb_death) (struct pink_easy_context *ctx, pink_easy_process_t *current);
+
+	/** Errback for errors in the spawned child. **/
+	int (*eb_child) (pink_easy_cerror_t e);
+
+	/** Errback for errors in the main process **/
+	void (*eb_main) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_error_t e);
 
 	/** Callback for #PINK_EVENT_STOP **/
 	short (*cb_stop) (struct pink_easy_context *ctx, pink_easy_process_t *current, bool suspended);
@@ -85,15 +94,6 @@ typedef struct {
 
 	/** Callback for #PINK_EVENT_EXIT_SIGNAL **/
 	short (*cb_exit_signal) (struct pink_easy_context *ctx, pink_easy_process_t *current, int sig);
-
-	/** Errback for errors in the spawned child. **/
-	int (*eb_child) (pink_easy_cerror_t e);
-
-	/** Errback for errors in the main process **/
-	void (*eb_main) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_error_t e);
-
-	/** Callback called when the tracing context is destroyed. **/
-	void (*cb_destroy) (void *data);
 } pink_easy_callback_t;
 
 #endif /* !PINKTRACE_EASY_GUARD_CALLBACK_H */
