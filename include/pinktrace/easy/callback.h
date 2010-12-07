@@ -69,7 +69,7 @@ typedef struct {
 	short (*cb_exec) (struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t orig_bitness);
 
 	/** Callback for #PINK_EVENT_EXIT **/
-	short (*cb_exit) (struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long code);
+	short (*cb_exit) (struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
 
 	/** Callback for #PINK_EVENT_GENUINE **/
 	short (*cb_genuine) (struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);

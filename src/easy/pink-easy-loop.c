@@ -259,6 +259,12 @@ pink_easy_loop(pink_easy_context_t *ctx)
 					return PINK_EASY_ERROR_CALLBACK_ABORT;
 			}
 
+			if (!pink_trace_syscall(proc->pid, 0)) {
+				if (ctx->cb->eb_main)
+					ctx->cb->eb_main(ctx, proc, PINK_EASY_ERROR_STEP_AFTER_EXIT);
+				return PINK_EASY_ERROR_STEP_AFTER_EXIT;
+			}
+
 			break;
 		case PINK_EVENT_EXIT_GENUINE:
 			proc = pink_easy_process_tree_search(ctx->tree, wpid);

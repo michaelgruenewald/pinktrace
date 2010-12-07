@@ -126,6 +126,76 @@ START_TEST(t_loop_exit_signal)
 }
 END_TEST
 
+static short
+_cb_genuine(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int sig)
+{
+	if (sig != SIGTTIN) {
+		printf("%s: SIGTTIN != %s\n", __func__, strsignal(sig));
+		return PINK_EASY_CALLBACK_ABORT;
+	}
+	return 0;
+}
+
+START_TEST(t_loop_genuine)
+{
+	int sig;
+	pink_easy_error_t e;
+	pink_easy_callback_t cb;
+	pink_easy_context_t *ctx;
+
+	memset(&cb, 0, sizeof(pink_easy_callback_t));
+	cb.cb_genuine = _cb_genuine;
+
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &cb, NULL);
+	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+
+	sig = SIGTTIN;
+	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
+
+	sig = SIGTTOU;
+	e = pink_easy_call(ctx, _signal_immediately_func, &sig);
+	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
+
+	pink_easy_context_destroy(ctx);
+}
+END_TEST
+
+static short
+_cb_exit(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, unsigned long status)
+{
+	if (WEXITSTATUS(status) != 127) {
+		printf("%s: 127 != %i\n", __func__, WEXITSTATUS(status));
+		return PINK_EASY_CALLBACK_ABORT;
+	}
+	return 0;
+}
+
+START_TEST(t_loop_exit)
+{
+	int ret;
+	pink_easy_error_t e;
+	pink_easy_callback_t cb;
+	pink_easy_context_t *ctx;
+
+	memset(&cb, 0, sizeof(pink_easy_callback_t));
+	cb.cb_exit = _cb_exit;
+
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, &cb, NULL);
+	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+
+	ret = 127;
+	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
+
+	ret = 128;
+	e = pink_easy_call(ctx, _exit_immediately_func, &ret);
+	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
+
+	pink_easy_context_destroy(ctx);
+}
+END_TEST
+
 Suite *
 easy_loop_suite_create(void)
 {
@@ -135,6 +205,8 @@ easy_loop_suite_create(void)
 
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit_genuine);
 	tcase_add_test(tc_pink_easy_loop, t_loop_exit_signal);
+	tcase_add_test(tc_pink_easy_loop, t_loop_genuine);
+	tcase_add_test(tc_pink_easy_loop, t_loop_exit);
 
 	suite_add_tcase(s, tc_pink_easy_loop);
 
