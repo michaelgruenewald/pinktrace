@@ -6,7 +6,7 @@ endif # FREEBSD
 if LINUX
 SUBDIRS+= linux
 endif # LINUX
-SUBDIRS+= .
+SUBDIRS+= . easy
 
 CLEANFILES=
 AM_CFLAGS= \

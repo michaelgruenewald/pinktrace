@@ -1,3 +1,4 @@
+SUBDIRS= . easy
 TESTS= check_pinktrace
 check_PROGRAMS= check_pinktrace
 noinst_HEADERS= check_pinktrace.h

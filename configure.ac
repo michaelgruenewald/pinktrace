@@ -345,6 +345,7 @@ AC_SUBST([PINKTRACE_PC_CFLAGS])
 AC_SUBST([PINKTRACE_PC_LIBS])
 AC_SUBST([PINKTRACE_PC_VERSION])
 AC_SUBST([PINKTRACE_PC_SLOT])
+AC_SUBST([PINKTRACE_EASY_PC_SLOT])
 dnl }}}
 
 dnl {{{ Library checks
@@ -617,6 +618,7 @@ AC_OUTPUT(
 		  ruby/Makefile
 		  pkg-config/Makefile
 		  src/Makefile
+		  src/easy/Makefile
 		  src/freebsd/Makefile
 		  src/freebsd/amd64/Makefile
 		  src/linux/Makefile
@@ -626,6 +628,7 @@ AC_OUTPUT(
 		  src/linux/powerpc/Makefile
 		  src/linux/arm/Makefile
 		  tests/Makefile
+		  tests/easy/Makefile
 	)
 dnl }}}
 
