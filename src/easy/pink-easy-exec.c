@@ -49,8 +49,8 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 #define CALL_ERROR(p, v)				\
 	do {						\
 		ctx->error = (v);			\
-		if (ctx->cb->error)			\
-			ctx->cb->error(ctx, (p)); 	\
+		if (ctx->cb_error)			\
+			ctx->cb_error(ctx, (p)); 	\
 		return -1;				\
 	} while (0)
 
@@ -65,10 +65,10 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 		CALL_ERROR(NULL, PINK_EASY_ERROR_VFORK);
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->cb->cerror ? ctx->cb->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->cb_cerror ? ctx->cb_cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		execvp(file, argv);
 		/* execvp() failed */
-		_exit(ctx->cb->cerror ? ctx->cb->cerror(PINK_EASY_CHILD_ERROR_EXEC) : EXIT_FAILURE);
+		_exit(ctx->cb_cerror ? ctx->cb_cerror(PINK_EASY_CHILD_ERROR_EXEC) : EXIT_FAILURE);
 	}
 	/* parent */
 
@@ -86,17 +86,15 @@ pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])
 		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
 
 	/* Set up flags */
-	ctx->eldest->flags = 0;
 	ctx->eldest->flags |= PINK_EASY_PROCESS_STARTUP;
 	if (ctx->options & PINK_TRACE_OPTION_FORK
 			|| ctx->options & PINK_TRACE_OPTION_VFORK
 			|| ctx->options & PINK_TRACE_OPTION_CLONE)
 		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
-	ctx->eldest->data = NULL;
 
 	/* Happy birthday! */
-	if (ctx->cb->birth)
-		ctx->cb->birth(ctx, ctx->eldest, NULL);
+	if (ctx->cb_birth)
+		ctx->cb_birth(ctx, ctx->eldest, NULL);
 
 	return pink_easy_loop(ctx);
 }

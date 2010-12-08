@@ -46,11 +46,9 @@ pink_easy_process_tree_free_entry(pink_easy_process_t *proc, PINK_UNUSED void *u
 }
 
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data, pink_easy_free_func_t func)
+pink_easy_context_new(int options, void *data, pink_easy_free_func_t func)
 {
 	pink_easy_context_t *ctx;
-
-	assert(cb != NULL);
 
 	ctx = calloc(1, sizeof(pink_easy_context_t));
 	if (!ctx)
@@ -62,7 +60,6 @@ pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data, p
 		return NULL;
 	}
 
-	ctx->cb = cb;
 	ctx->data = data;
 	ctx->error = PINK_EASY_ERROR_SUCCESS;
 	ctx->options = options;
@@ -115,4 +112,94 @@ pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx)
 {
 	return ctx->tree;
+}
+
+void
+pink_easy_context_set_callback_birth(pink_easy_context_t *ctx, pink_easy_callback_birth_t func)
+{
+	ctx->cb_birth = func;
+}
+
+void
+pink_easy_context_set_callback_death(pink_easy_context_t *ctx, pink_easy_callback_death_t func)
+{
+	ctx->cb_death = func;
+}
+
+void
+pink_easy_context_set_callback_end(pink_easy_context_t *ctx, pink_easy_callback_end_t func)
+{
+	ctx->cb_end = func;
+}
+
+void
+pink_easy_context_set_callback_error(pink_easy_context_t *ctx, pink_easy_callback_error_t func)
+{
+	ctx->cb_error = func;
+}
+
+void
+pink_easy_context_set_callback_cerror(pink_easy_context_t *ctx, pink_easy_callback_cerror_t func)
+{
+	ctx->cb_cerror = func;
+}
+
+void
+pink_easy_context_set_callback_event_stop(pink_easy_context_t *ctx, pink_easy_callback_event_stop_t func)
+{
+	ctx->cb_event_stop = func;
+}
+
+void
+pink_easy_context_set_callback_event_syscall(pink_easy_context_t *ctx, pink_easy_callback_event_syscall_t func)
+{
+	ctx->cb_event_syscall = func;
+}
+
+void
+pink_easy_context_set_callback_event_fork(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func)
+{
+	ctx->cb_event_fork = func;
+}
+
+void
+pink_easy_context_set_callback_event_vfork(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func)
+{
+	ctx->cb_event_vfork = func;
+}
+
+void
+pink_easy_context_set_callback_event_clone(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func)
+{
+	ctx->cb_event_clone = func;
+}
+
+void
+pink_easy_context_set_callback_event_exec(pink_easy_context_t *ctx, pink_easy_callback_event_exec_t func)
+{
+	ctx->cb_event_exec = func;
+}
+
+void
+pink_easy_context_set_callback_event_exit(pink_easy_context_t *ctx, pink_easy_callback_event_exit_t func)
+{
+	ctx->cb_event_exit = func;
+}
+
+void
+pink_easy_context_set_callback_event_genuine(pink_easy_context_t *ctx, pink_easy_callback_event_genuine_t func)
+{
+	ctx->cb_event_genuine = func;
+}
+
+void
+pink_easy_context_set_callback_exit(pink_easy_context_t *ctx, pink_easy_callback_exit_t func)
+{
+	ctx->cb_exit = func;
+}
+
+void
+pink_easy_context_set_callback_exit_signal(pink_easy_context_t *ctx, pink_easy_callback_exit_t func)
+{
+	ctx->cb_exit_signal = func;
 }

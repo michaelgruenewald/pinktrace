@@ -115,7 +115,21 @@ struct pink_easy_context {
 	pink_easy_error_t error;
 
 	/** Callbacks **/
-	const pink_easy_callback_t *cb;
+	pink_easy_callback_birth_t cb_birth;
+	pink_easy_callback_death_t cb_death;
+	pink_easy_callback_end_t cb_end;
+	pink_easy_callback_error_t cb_error;
+	pink_easy_callback_cerror_t cb_cerror;
+	pink_easy_callback_event_stop_t cb_event_stop;
+	pink_easy_callback_event_syscall_t cb_event_syscall;
+	pink_easy_callback_event_fork_t cb_event_fork;
+	pink_easy_callback_event_fork_t cb_event_vfork;
+	pink_easy_callback_event_fork_t cb_event_clone;
+	pink_easy_callback_event_exec_t cb_event_exec;
+	pink_easy_callback_event_exit_t cb_event_exit;
+	pink_easy_callback_event_genuine_t cb_event_genuine;
+	pink_easy_callback_exit_t cb_exit;
+	pink_easy_callback_exit_t cb_exit_signal;
 };
 
 /**

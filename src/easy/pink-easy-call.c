@@ -50,8 +50,8 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 #define CALL_ERROR(p, v)				\
 	do {						\
 		ctx->error = (v);			\
-		if (ctx->cb->error)			\
-			ctx->cb->error(ctx, (p));	\
+		if (ctx->cb_error)			\
+			ctx->cb_error(ctx, (p));	\
 		return -1;				\
 	} while (0)
 
@@ -66,7 +66,7 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 		CALL_ERROR(NULL, PINK_EASY_ERROR_FORK);
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->cb->cerror ? ctx->cb->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->cb_cerror ? ctx->cb_cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		kill(getpid(), SIGSTOP);
 		_exit(func(userdata));
 	}
@@ -86,7 +86,6 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
 
 	/* Set up flags */
-	ctx->eldest->flags = 0;
 	ctx->eldest->flags |= PINK_EASY_PROCESS_STARTUP;
 	if (ctx->options & PINK_TRACE_OPTION_FORK
 			|| ctx->options & PINK_TRACE_OPTION_VFORK
@@ -94,8 +93,8 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
 	/* Happy birthday! */
-	if (ctx->cb->birth)
-		ctx->cb->birth(ctx, ctx->eldest, NULL);
+	if (ctx->cb_birth)
+		ctx->cb_birth(ctx, ctx->eldest, NULL);
 
 	return pink_easy_loop(ctx);
 

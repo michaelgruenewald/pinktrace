@@ -41,7 +41,13 @@
  * Pink's easy tracing context
  **/
 
-/** Opaque structure which represents a tracing context. **/
+/**
+ * \struct pink_easy_context_t
+ *
+ * Opaque structure which represents a tracing context.
+ * Use pink_easy_context_new() to create one and pink_easy_context_destroy() to
+ * free all allocated resources.
+ **/
 typedef struct pink_easy_context pink_easy_context_t;
 
 /**
@@ -53,16 +59,14 @@ typedef struct pink_easy_context pink_easy_context_t;
  * basic destruction.
  *
  * \param options Options for pink_trace_setup()
- * \param ctable Callback table
  * \param data User data
  * \param func The desctructor function for the user data
  *
  * \return The tracing context on success, NULL on failure and sets errno
  * accordingly.
  **/
-PINK_NONNULL(2)
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_t *cb, void *data, pink_easy_free_func_t func);
+pink_easy_context_new(int options, void *data, pink_easy_free_func_t func);
 
 /**
  * Destroy a tracing context; destroys the process tree and all the members of
@@ -132,5 +136,140 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx);
 PINK_NONNULL(1)
 pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx);
+
+/**
+ * Set "birth" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_birth(pink_easy_context_t *ctx, pink_easy_callback_birth_t func);
+
+/**
+ * Set "death" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_death(pink_easy_context_t *ctx, pink_easy_callback_death_t func);
+
+/**
+ * Set "end" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_end(pink_easy_context_t *ctx, pink_easy_callback_end_t func);
+
+/**
+ * Set "error" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_error(pink_easy_context_t *ctx, pink_easy_callback_error_t func);
+
+/**
+ * Set "cerror" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_cerror(pink_easy_context_t *ctx, pink_easy_callback_cerror_t func);
+
+/**
+ * Set "event_stop" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_stop(pink_easy_context_t *ctx, pink_easy_callback_event_stop_t func);
+
+/**
+ * Set "event_syscall" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_syscall(pink_easy_context_t *ctx, pink_easy_callback_event_syscall_t func);
+
+/**
+ * Set "event_fork" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_fork(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func);
+
+/**
+ * Set "event_vfork" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_vfork(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func);
+
+/**
+ * Set "event_clone" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_clone(pink_easy_context_t *ctx, pink_easy_callback_event_fork_t func);
+
+/**
+ * Set "event_exec" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_exec(pink_easy_context_t *ctx, pink_easy_callback_event_exec_t func);
+
+/**
+ * Set "event_exit" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_exit(pink_easy_context_t *ctx, pink_easy_callback_event_exit_t func);
+
+/**
+ * Set "event_genuine" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_event_genuine(pink_easy_context_t *ctx, pink_easy_callback_event_genuine_t func);
+
+/**
+ * Set "exit" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_exit(pink_easy_context_t *ctx, pink_easy_callback_exit_t func);
+
+/**
+ * Set "exit_signal" callback
+ *
+ * \param ctx Tracing context
+ * \param func Callback
+ **/
+void
+pink_easy_context_set_callback_exit_signal(pink_easy_context_t *ctx, pink_easy_callback_exit_t func);
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

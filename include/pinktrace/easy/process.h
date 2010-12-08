@@ -45,10 +45,20 @@
  * Pink's easy process representation
  **/
 
-/** Opaque structure which represents a process entry. **/
+/**
+ * \struct pink_easy_process_t
+ *
+ * Opaque structure which represents a process entry.
+ * This entries are allocated internally by the tracing context.
+ **/
 typedef struct pink_easy_process pink_easy_process_t;
 
-/** Opaque structure which represents a process tree. **/
+/**
+ * \struct pink_easy_process_tree_t
+ *
+ * Opaque structure which represents a process tree.
+ * This tree is allocated internally by the tracing context.
+ **/
 typedef struct pink_easy_process_tree pink_easy_process_tree_t;
 
 /**
@@ -85,7 +95,7 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc);
  * \note This function accepts a destructor function pointer which may be used
  * to free the user data. You may pass NULL if you want to handle the
  * destruction yourself or use the standard free() function from stdlib.h for
- * BASiC destruction.
+ * basic destruction.
  *
  * \param proc Process entry
  * \param data User data

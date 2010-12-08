@@ -42,7 +42,7 @@
 #include <pinktrace/easy/pink.h>
 
 static short
-_cb_exit_genuine(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int code)
+_cb_exit_genuine(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int code)
 {
 	if (code != 127) {
 		printf("%s: 127 != %i\n", __func__, code);
@@ -62,15 +62,11 @@ START_TEST(t_loop_exit_genuine)
 {
 	int ret;
 	pink_easy_error_t e;
-	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
-		fail("%d(%s)", errno, strerror(errno));
-	cb->ev_exit_genuine = _cb_exit_genuine;
-
-	ctx = pink_easy_context_new(0, cb, NULL, NULL);
+	ctx = pink_easy_context_new(0, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+	pink_easy_context_set_callback_exit(ctx, _cb_exit_genuine);
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
@@ -82,13 +78,12 @@ START_TEST(t_loop_exit_genuine)
 	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
-	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
 
 static short
-_cb_exit_signal(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int sig)
+_cb_exit_signal(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int sig)
 {
 	if (sig != SIGTERM) {
 		printf("%s: SIGTERM != %s\n", __func__, strsignal(sig));
@@ -109,15 +104,11 @@ START_TEST(t_loop_exit_signal)
 {
 	int sig;
 	pink_easy_error_t e;
-	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
-		fail("%d(%s)", errno, strerror(errno));
-	cb->ev_exit_signal = _cb_exit_signal;
-
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, cb, NULL, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+	pink_easy_context_set_callback_exit_signal(ctx, _cb_exit_signal);
 
 	sig = SIGTERM;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
@@ -129,13 +120,12 @@ START_TEST(t_loop_exit_signal)
 	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
-	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
 
 static short
-_cb_genuine(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int sig)
+_cb_genuine(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, int sig)
 {
 	if (sig != SIGTTIN) {
 		printf("%s: SIGTTIN != %s\n", __func__, strsignal(sig));
@@ -148,15 +138,11 @@ START_TEST(t_loop_genuine)
 {
 	int sig;
 	pink_easy_error_t e;
-	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
-		fail("%d(%s)", errno, strerror(errno));
-	cb->ev_genuine = _cb_genuine;
-
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, cb, NULL, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+	pink_easy_context_set_callback_event_genuine(ctx, _cb_genuine);
 
 	sig = SIGTTIN;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
@@ -168,13 +154,12 @@ START_TEST(t_loop_genuine)
 	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
-	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
 
 static short
-_cb_exit(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, unsigned long status)
+_cb_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, unsigned long status)
 {
 	if (WEXITSTATUS(status) != 127) {
 		printf("%s: 127 != %i\n", __func__, WEXITSTATUS(status));
@@ -187,15 +172,11 @@ START_TEST(t_loop_exit)
 {
 	int ret;
 	pink_easy_error_t e;
-	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
-		fail("%d(%s)", errno, strerror(errno));
-	cb->ev_exit = _cb_exit;
-
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, cb, NULL, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+	pink_easy_context_set_callback_event_exit(ctx, _cb_exit);
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
@@ -207,14 +188,13 @@ START_TEST(t_loop_exit)
 	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
-	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
 
 static bool _cb_exec_called = false;
 static short
-_cb_exec(PINK_UNUSED pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, PINK_UNUSED pink_bitness_t orig_bitness)
+_cb_exec(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *proc, PINK_UNUSED pink_bitness_t orig_bitness)
 {
 	_cb_exec_called = true;
 	return 0;
@@ -231,22 +211,17 @@ _exec_true_func(PINK_UNUSED void *data)
 START_TEST(t_loop_exec)
 {
 	pink_easy_error_t e;
-	pink_easy_callback_t *cb;
 	pink_easy_context_t *ctx;
 
-	if ((cb = calloc(1, sizeof(pink_easy_callback_t))) == NULL)
-		fail("%d(%s)", errno, strerror(errno));
-	cb->ev_exec = _cb_exec;
-
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, cb, NULL, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
+	pink_easy_context_set_callback_event_exec(ctx, _cb_exec);
 
 	pink_easy_call(ctx, _exec_true_func, NULL);
 	e = pink_easy_context_get_error(ctx);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 	fail_unless(_cb_exec_called, "wtf?");
 
-	free(cb);
 	pink_easy_context_destroy(ctx);
 }
 END_TEST
