@@ -120,6 +120,7 @@ typedef enum {
  *
  * \return A string describing the error
  **/
+PINK_PURE
 const char *
 pink_easy_child_strerror(pink_easy_child_error_t e);
 
@@ -130,6 +131,7 @@ pink_easy_child_strerror(pink_easy_child_error_t e);
  *
  * \return A string describing the error
  **/
+PINK_PURE
 const char *
 pink_easy_strerror(pink_easy_error_t e);
 
