@@ -186,4 +186,38 @@ typedef short (*pink_easy_callback_event_genuine_t) (const struct pink_easy_cont
  **/
 typedef short (*pink_easy_callback_exit_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, int cs);
 
+/** This structure represents a callback table **/
+typedef struct pink_easy_callback_table {
+	/** "birth" callback **/
+	pink_easy_callback_birth_t cb_birth;
+	/** "death" callback **/
+	pink_easy_callback_death_t cb_death;
+	/** "end" callback **/
+	pink_easy_callback_end_t cb_end;
+	/** "error" callback **/
+	pink_easy_callback_error_t cb_error;
+	/** "cerror" callback **/
+	pink_easy_callback_cerror_t cb_cerror;
+	/** "event_stop" callback **/
+	pink_easy_callback_event_stop_t cb_event_stop;
+	/** "event_syscall" callback **/
+	pink_easy_callback_event_syscall_t cb_event_syscall;
+	/** "event_fork" callback **/
+	pink_easy_callback_event_fork_t cb_event_fork;
+	/** "event_vfork" callback **/
+	pink_easy_callback_event_fork_t cb_event_vfork;
+	/** "event_clone" callback **/
+	pink_easy_callback_event_fork_t cb_event_clone;
+	/** "event_exec" callback **/
+	pink_easy_callback_event_exec_t cb_event_exec;
+	/** "event_exit" callback **/
+	pink_easy_callback_event_exit_t cb_event_exit;
+	/** "event_genuine" callback **/
+	pink_easy_callback_event_genuine_t cb_event_genuine;
+	/** "exit" callback **/
+	pink_easy_callback_exit_t cb_exit;
+	/** "exit_signal" callback **/
+	pink_easy_callback_exit_t cb_exit_signal;
+} pink_easy_callback_table_t;
+
 #endif /* !PINKTRACE_EASY_GUARD_CALLBACK_H */

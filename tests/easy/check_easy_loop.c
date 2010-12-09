@@ -62,11 +62,13 @@ START_TEST(t_loop_exit_genuine)
 {
 	int ret;
 	pink_easy_error_t e;
+	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
-	ctx = pink_easy_context_new(0, NULL, NULL);
+	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
+	tbl.cb_exit = _cb_exit_genuine;
+	ctx = pink_easy_context_new(0, &tbl, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
-	pink_easy_context_set_callback_exit(ctx, _cb_exit_genuine);
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
@@ -104,11 +106,13 @@ START_TEST(t_loop_exit_signal)
 {
 	int sig;
 	pink_easy_error_t e;
+	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, NULL, NULL);
+	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
+	tbl.cb_exit_signal = _cb_exit_signal;
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &tbl, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
-	pink_easy_context_set_callback_exit_signal(ctx, _cb_exit_signal);
 
 	sig = SIGTERM;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
@@ -138,11 +142,13 @@ START_TEST(t_loop_genuine)
 {
 	int sig;
 	pink_easy_error_t e;
+	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, NULL, NULL);
+	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
+	tbl.cb_event_genuine = _cb_genuine;
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &tbl, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
-	pink_easy_context_set_callback_event_genuine(ctx, _cb_genuine);
 
 	sig = SIGTTIN;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
@@ -172,11 +178,13 @@ START_TEST(t_loop_exit)
 {
 	int ret;
 	pink_easy_error_t e;
+	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, NULL, NULL);
+	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
+	tbl.cb_event_exit = _cb_exit;
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, &tbl, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
-	pink_easy_context_set_callback_event_exit(ctx, _cb_exit);
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
@@ -211,11 +219,13 @@ _exec_true_func(PINK_UNUSED void *data)
 START_TEST(t_loop_exec)
 {
 	pink_easy_error_t e;
+	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, NULL, NULL);
+	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
+	tbl.cb_event_exec = _cb_exec;
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXEC, &tbl, NULL, NULL);
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
-	pink_easy_context_set_callback_event_exec(ctx, _cb_exec);
 
 	pink_easy_call(ctx, _exec_true_func, NULL);
 	e = pink_easy_context_get_error(ctx);
