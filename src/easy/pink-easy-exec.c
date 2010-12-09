@@ -28,14 +28,19 @@
  */
 
 #include <assert.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <alloca.h>
+#include <errno.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
+
+extern char **environ;
 
 enum {
 	PINK_INTERNAL_FUNC_EXECVE,
@@ -120,6 +125,39 @@ int
 pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const argv[], char *const envp[])
 {
 	return pink_easy_exec_helper(ctx, PINK_INTERNAL_FUNC_EXECVE, filename, argv, envp);
+}
+
+int
+pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...)
+{
+	unsigned int narg;
+	char *foo;
+	char **argv;
+	va_list ap, orig_ap;
+
+	/* Initialize variable arguments */
+	va_start(ap, arg);
+	va_copy(orig_ap, ap);
+
+	/* Count the arguments */
+	narg = 0;
+	while ((foo = va_arg(ap, char *)) != NULL)
+		++narg;
+	va_end(ap);
+
+	/* Copy the arguments to argv array */
+	argv = (char **)alloca(narg * sizeof(char *));
+	if (argv) {
+		for (unsigned int i = 0; i < narg; i++)
+			argv[i] = va_arg(orig_ap, char *);
+		va_end(orig_ap);
+		return pink_easy_exec_helper(ctx, PINK_INTERNAL_FUNC_EXECVE, file, argv, environ);
+	}
+
+	/* OOM */
+	va_end(orig_ap);
+	errno = ENOMEM;
+	return -1;
 }
 
 int
