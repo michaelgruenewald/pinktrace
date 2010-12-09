@@ -37,14 +37,20 @@
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
 
+#define PINK_MALLOC __attribute__((malloc))
 #define PINK_NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
 #define PINK_NORETURN __attribute__((noreturn))
 #define PINK_PURE __attribute__((pure))
+#define PINK_SENTINEL(x) __attribute__((sentinel((x))))
 #define PINK_UNUSED __attribute__((unused))
 #define PINK_LIKELY(x) __builtin_expect(!!(x), 1)
 #define PINK_UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 #else
+/**
+ * GCC malloc attribute
+ **/
+#define PINK_MALLOC
 /**
  * GCC nonnull attribute
  **/
@@ -57,6 +63,10 @@
  * GCC pure attribute
  **/
 #define PINK_PURE
+/**
+ * GCC sentinel attribute
+ **/
+#define PINK_SENTINEL(x)
 /**
  * GCC unused attribute
  **/
