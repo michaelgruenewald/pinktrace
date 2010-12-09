@@ -32,6 +32,24 @@
 
 #include <pinktrace/easy/context.h>
 
+/**
+ * \file
+ * Pink's easy event loop
+ **/
+
+/**
+ * The main event loop
+ *
+ * \note Mainly for internal use, use high level functions like
+ * pink_easy_call() or pink_easy_execvp() where possible.
+ *
+ * \param ctx Tracing context
+ *
+ * \return In case of success, if the "cb_end" callback exists this function
+ * calls it and returns what that callback returns; otherwise this function
+ * returns zero. In case of any error condition, this callback calls the
+ * "cb_error" callback and returns the error condition negated.
+ **/
 PINK_NONNULL(1)
 int
 pink_easy_loop(pink_easy_context_t *ctx);
