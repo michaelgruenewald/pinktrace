@@ -1,11 +1,15 @@
 SUBDIRS= c haskell python ruby .
-RSYNC= rsync -avze ssh --delete \
+RSYNC= rsync \
+       -avze ssh \
+       --delete \
+       --partial \
+       --progress \
        --filter '+ c/' \
        --filter '+ haskell/' \
        --filter '+ python/' \
        --filter '+ ruby/' \
-       --filter '+ haskell/*.hs' \
        --filter '+ c/*.c' \
+       --filter '+ haskell/*.hs' \
        --filter '+ python/*.py' \
        --filter '+ ruby/*.rb' \
        --filter '- *'

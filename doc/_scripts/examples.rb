@@ -12,6 +12,8 @@ ARGV.each do |example|
   case ext
   when /\.c$/
     lang = "c"
+  when /\.hs$/
+    lang = "haskell"
   when /\.py$/
     lang = "python"
   when /\.rb$/

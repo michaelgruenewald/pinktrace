@@ -94,6 +94,7 @@ There are examples how to use the various parts of the library.
     <tr>
         <th>Example</th>
         <th>C</th>
+        <th>Haskell</th>
         <th>Python</th>
         <th>Ruby</th>
         <th>Description</th>
@@ -103,6 +104,10 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.url }}/c-pink-about.html">about.c</a>
             (<a href="{{ site.url }}/examples/c/pink-about.c">raw</a>)
+        </td>
+        <td>
+            <a href="{{ site.url }}/hs-pink-about.html">about.hs</a>
+            (<a href="{{ site.url }}/examples/haskell/pink-about.hs">raw</a>)
         </td>
         <td>
             <a href="{{ site.url }}/py-pink-about.html">about.py</a>
@@ -121,6 +126,10 @@ There are examples how to use the various parts of the library.
             (<a href="{{ site.url }}/examples/c/pink-fork-freebsd.c">raw</a>)
         </td>
         <td>
+            <a href="{{ site.url }}/hs-pink-fork-freebsd.html">fork-freebsd.hs</a>
+            (<a href="{{ site.url }}/examples/haskell/pink-fork-freebsd.hs">raw</a>)
+        </td>
+        <td>
             <a href="{{ site.url }}/py-pink-fork-freebsd.html">fork-freebsd.py</a>
             (<a href="{{ site.url }}/examples/python/pink-fork-freebsd.py">raw</a>)
         </td>
@@ -135,6 +144,10 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.url }}/c-pink-fork-linux.html">fork-linux.c</a>
             (<a href="{{ site.url }}/examples/c/pink-fork-linux.c">raw</a>)
+        </td>
+        <td>
+            <a href="{{ site.url }}/hs-pink-fork-linux.html">fork-linux.hs</a>
+            (<a href="{{ site.url }}/examples/haskell/pink-fork-linux.hs">raw</a>)
         </td>
         <td>
             <a href="{{ site.url }}/py-pink-fork-linux.html">fork-linux.py</a>
@@ -153,6 +166,9 @@ There are examples how to use the various parts of the library.
             (<a href="{{ site.url }}/examples/c/pink-simple-strace-freebsd.c">raw</a>)
         </td>
         <td>
+            simple-strace-freebsd.hs (TODO)
+        </td>
+        <td>
             <a href="{{ site.url }}/py-pink-simple-strace-freebsd.html">simple-strace-freebsd.py</a>
             (<a href="{{ site.url }}/examples/python/pink-simple-strace-freebsd.py">raw</a>)
         </td>
@@ -167,6 +183,9 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.url }}/c-pink-simple-strace-linux.html">simple-strace-linux.c</a>
             (<a href="{{ site.url }}/examples/c/pink-simple-strace-linux.c">raw</a>)
+        </td>
+        <td>
+            simple-strace-linux.hs (TODO)
         </td>
         <td>
             <a href="{{ site.url }}/py-pink-simple-strace-linux.html">simple-strace-linux.py</a>

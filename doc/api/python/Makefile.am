@@ -24,7 +24,7 @@ install-data-local:
 	cp -R python $(DESTDIR)$(htmldir)/api
 
 upload-doc: epydoc
-	rsync -avze ssh --delete python bach.exherbo.org:public_html/pinktrace/api
+	rsync -avze ssh --delete --partial --progress python bach.exherbo.org:public_html/pinktrace/api
 
 .PHONY: epydoc symlinks upload-doc
 else
