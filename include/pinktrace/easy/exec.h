@@ -39,6 +39,23 @@
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
+ * preparation for tracing and then calls execve().
+ *
+ * \param ctx Tracing context
+ * \param filename Path of the executable
+ * \param argv Arguments
+ * \param envp An array of strings, which are passed as environment to the new
+ * program
+ *
+ * \return Depends on the callbacks, see pink_easy_loop()
+ **/
+PINK_NONNULL(1)
+int
+pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const argv[], char *const envp[]);
+
+
+/**
+ * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing and then calls execv().
  *
  * \param ctx Tracing context

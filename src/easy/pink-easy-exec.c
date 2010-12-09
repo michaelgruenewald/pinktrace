@@ -38,6 +38,70 @@
 #include <pinktrace/easy/pink.h>
 
 int
+pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const argv[], char *const envp[])
+{
+	bool ret;
+	int status;
+
+	assert(ctx != NULL);
+	assert(ctx->tree != NULL);
+
+#define CALL_ERROR(p, v)				\
+	do {						\
+		ctx->error = (v);			\
+		if (ctx->tbl->cb_error)			\
+			ctx->tbl->cb_error(ctx, (p)); 	\
+		return -(v);				\
+	} while (0)
+
+	ctx->eldest = calloc(1, sizeof(pink_easy_process_t));
+	if (!ctx->eldest)
+		CALL_ERROR(NULL, PINK_EASY_ERROR_ALLOC_ELDEST);
+
+	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
+	assert(ret);
+
+	if ((ctx->eldest->pid = vfork()) < 0)
+		CALL_ERROR(NULL, PINK_EASY_ERROR_VFORK);
+	else if (!ctx->eldest->pid) { /* child */
+		if (!pink_trace_me())
+			_exit(ctx->tbl->cb_cerror ? ctx->tbl->cb_cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+		execve(filename, argv, envp);
+		/* execve() failed */
+		_exit(ctx->tbl->cb_cerror ? ctx->tbl->cb_cerror(PINK_EASY_CHILD_ERROR_EXEC) : EXIT_FAILURE);
+	}
+	/* parent */
+
+	/* Wait for the initial SIGTRAP */
+	waitpid(ctx->eldest->pid, &status, 0);
+	assert(WIFSTOPPED(status));
+	assert(WSTOPSIG(status) == SIGTRAP);
+
+	/* Figure out bitness */
+	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN)
+		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
+
+	/* Set up tracing options */
+	if (!pink_trace_setup(ctx->eldest->pid, ctx->options))
+		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
+
+	/* Set up flags */
+	ctx->eldest->flags |= PINK_EASY_PROCESS_STARTUP;
+	if (ctx->options & PINK_TRACE_OPTION_FORK
+			|| ctx->options & PINK_TRACE_OPTION_VFORK
+			|| ctx->options & PINK_TRACE_OPTION_CLONE)
+		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+
+	/* Happy birthday! */
+	if (ctx->tbl->cb_birth)
+		ctx->tbl->cb_birth(ctx, ctx->eldest, NULL);
+
+	return pink_easy_loop(ctx);
+
+#undef CALL_ERROR
+}
+
+int
 pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[])
 {
 	bool ret;
