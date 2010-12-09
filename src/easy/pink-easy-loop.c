@@ -274,12 +274,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 				proc->destroy(proc->data);
 			free(proc);
 
-			if (ctx->tree->count == 0) {
-				if (ctx->tbl->cb_end)
-					ctx->tbl->cb_end(ctx, false);
-				else
-					return 0;
-			}
+			if (!ctx->tree->count)
+				return ctx->tbl->cb_end ? ctx->tbl->cb_end(ctx, false) : 0;
 
 			break;
 		case PINK_EVENT_EXIT_SIGNAL:
@@ -303,12 +299,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 				proc->destroy(proc->data);
 			free(proc);
 
-			if (ctx->tree->count == 0) {
-				if (ctx->tbl->cb_end)
-					ctx->tbl->cb_end(ctx, false);
-				else
-					return 0;
-			}
+			if (!ctx->tree->count)
+				return ctx->tbl->cb_end ? ctx->tbl->cb_end(ctx, false) : 0;
 
 			break;
 		case PINK_EVENT_GENUINE:
