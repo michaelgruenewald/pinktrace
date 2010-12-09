@@ -70,6 +70,21 @@ pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
+ * preparation for tracing, handles the arguments and calls execvp().
+ *
+ * \param ctx Tracing context
+ * \param file Filename of the executable
+ * \param arg Initial argument, filename of the executable
+ * \param ... Variable arguments which must be terminated by a NULL pointer
+ *
+ * \return Depends on the callbacks, see pink_easy_loop()
+ **/
+PINK_NONNULL(1)
+int
+pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ...);
+
+/**
+ * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing and then calls execv().
  *
  * \param ctx Tracing context

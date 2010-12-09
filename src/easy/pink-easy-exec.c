@@ -161,6 +161,39 @@ pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...
 }
 
 int
+pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ...)
+{
+	unsigned int narg;
+	char *foo;
+	char **argv;
+	va_list ap, orig_ap;
+
+	/* Initialize variable arguments */
+	va_start(ap, arg);
+	va_copy(orig_ap, ap);
+
+	/* Count the arguments */
+	narg = 0;
+	while ((foo = va_arg(ap, char *)) != NULL)
+		++narg;
+	va_end(ap);
+
+	/* Copy the arguments to argv array */
+	argv = (char **)alloca(narg * sizeof(char *));
+	if (argv) {
+		for (unsigned int i = 0; i < narg; i++)
+			argv[i] = va_arg(orig_ap, char *);
+		va_end(orig_ap);
+		return pink_easy_exec_helper(ctx, PINK_INTERNAL_FUNC_EXECVP, file, argv, NULL);
+	}
+
+	/* OOM */
+	va_end(orig_ap);
+	errno = ENOMEM;
+	return -1;
+}
+
+int
 pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[])
 {
 	return pink_easy_exec_helper(ctx, PINK_INTERNAL_FUNC_EXECV, path, argv, NULL);
