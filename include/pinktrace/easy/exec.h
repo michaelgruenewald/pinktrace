@@ -65,6 +65,7 @@ pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const arg
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
 PINK_NONNULL(1)
+PINK_SENTINEL(0)
 int
 pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...);
 
@@ -80,6 +81,7 @@ pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
 PINK_NONNULL(1)
+PINK_SENTINEL(0)
 int
 pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ...);
 

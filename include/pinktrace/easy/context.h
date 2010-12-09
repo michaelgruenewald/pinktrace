@@ -66,6 +66,7 @@ typedef struct pink_easy_context pink_easy_context_t;
  * \return The tracing context on success, NULL on failure and sets errno
  * accordingly.
  **/
+PINK_MALLOC
 PINK_NONNULL(2)
 pink_easy_context_t *
 pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *data, pink_easy_free_func_t func);
