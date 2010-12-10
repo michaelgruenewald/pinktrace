@@ -255,11 +255,20 @@ REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
 if test x"$opsys" = x"linux" ; then
 	REQUIRED_HEADERS="${REQUIRED_HEADERS} linux/ptrace.h"
 fi
+if test x"$WANT_EASY" = x"1" ; then
+	REQUIRED_HEADERS="${REQUIRED_HEADERS} alloca.h"
+fi
 for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
 done
 AC_CHECK_HEADERS([machine/reg.h machine/psl.h sys/reg.h], [], [])
+dnl }}}
+
+dnl {{{ Check functions
+if test x"$WANT_EASY" = x"1" ; then
+	AC_FUNC_ALLOCA
+fi
 dnl }}}
 
 dnl {{{ Check types
