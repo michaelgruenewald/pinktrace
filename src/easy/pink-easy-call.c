@@ -40,50 +40,73 @@
 int
 pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata)
 {
-	bool ret;
+	bool dummy;
 	int status;
+	pink_easy_errback_return_t ret;
 
 	assert(ctx != NULL);
 	assert(ctx->tree != NULL);
 	assert(func != NULL);
 
-#define CALL_ERROR(p, v)				\
-	do {						\
-		ctx->error = (v);			\
-		if (ctx->tbl->cb_error)			\
-			ctx->tbl->cb_error(ctx, (p));	\
-		return -(v);				\
-	} while (0)
-
 	ctx->eldest = calloc(1, sizeof(pink_easy_process_t));
-	if (!ctx->eldest)
-		CALL_ERROR(NULL, PINK_EASY_ERROR_ALLOC_ELDEST);
+	if (!ctx->eldest) {
+		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx);
+		return -ctx->error;
+	}
 
-	ret = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
-	assert(ret);
+	dummy = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
+	assert(dummy);
 
-	if ((ctx->eldest->pid = fork()) < 0)
-		CALL_ERROR(NULL, PINK_EASY_ERROR_FORK);
+	if ((ctx->eldest->pid = fork()) < 0) {
+		ctx->error = PINK_EASY_ERROR_FORK, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx);
+		return -ctx->error;
+	}
 	else if (!ctx->eldest->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->tbl->cb_cerror ? ctx->tbl->cb_cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->tbl->eb_child ? ctx->tbl->eb_child(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		kill(getpid(), SIGSTOP);
 		_exit(func(userdata));
 	}
 	/* parent */
 
 	/* Wait for the initial SIGSTOP */
-	waitpid(ctx->eldest->pid, &status, 0);
-	assert(WIFSTOPPED(status));
-	assert(WSTOPSIG(status) == SIGSTOP);
-
-	/* Figure out bitness */
-	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN)
-		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_BITNESS_ELDEST);
+	if (pink_easy_internal_waitpid(ctx->eldest->pid, &status, 0) < 0) {
+		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx, ctx->eldest->pid);
+		return -ctx->error;
+	}
+	if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGSTOP) {
+		ctx->error = PINK_EASY_ERROR_SIGNAL_INITIAL, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx, ctx->eldest->pid, status);
+		return -ctx->error;
+	}
 
 	/* Set up tracing options */
-	if (!pink_trace_setup(ctx->eldest->pid, ctx->options))
-		CALL_ERROR(ctx->eldest, PINK_EASY_ERROR_SETUP_ELDEST);
+	if (!pink_trace_setup(ctx->eldest->pid, ctx->options)) {
+		ctx->error = PINK_EASY_ERROR_SETUP_ELDEST, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx, ctx->eldest->pid);
+		return -ctx->error;
+	}
+
+	/* Figure out bitness */
+	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
+		ctx->error = PINK_EASY_ERROR_BITNESS_ELDEST, ctx->fatal = false;
+		if (!ctx->tbl->eb_main)
+			return -ctx->error;
+		ret = ctx->tbl->eb_main(ctx, ctx->eldest->pid, ctx->eldest->pid);
+		if (ret != PINK_EASY_ERRBACK_IGNORE)
+			return -ctx->error;
+		/* Killing eldest child and resuming is not possible,
+		 * so we ignore PINK_EASY_ERRBACK_KILL.
+		 */
+	}
 
 	/* Set up flags */
 	ctx->eldest->flags |= PINK_EASY_PROCESS_STARTUP;
@@ -97,6 +120,4 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 		ctx->tbl->cb_birth(ctx, ctx->eldest, NULL);
 
 	return pink_easy_loop(ctx);
-
-#undef CALL_ERROR
 }

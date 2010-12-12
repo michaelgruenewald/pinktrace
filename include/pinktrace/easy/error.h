@@ -60,12 +60,20 @@ typedef enum {
 	/** Allocating memory for a premature child failed **/
 	PINK_EASY_ERROR_ALLOC_PREMATURE,
 	/** Allocating memory for a new child failed **/
-	PINK_EASY_ERROR_ALLOC,
+	PINK_EASY_ERROR_ALLOC_FORK,
 
 	/** fork() failed **/
 	PINK_EASY_ERROR_FORK,
 	/** vfork() failed **/
 	PINK_EASY_ERROR_VFORK,
+
+	/** Incorrect initial signal **/
+	PINK_EASY_ERROR_SIGNAL_INITIAL,
+
+	/** Setting up ptrace() options for the eldest child failed **/
+	PINK_EASY_ERROR_SETUP_ELDEST,
+	/** Setting up ptrace() options for new child failed **/
+	PINK_EASY_ERROR_SETUP,
 
 	/** Failed to get the bitness of the eldest child **/
 	PINK_EASY_ERROR_BITNESS_ELDEST,
@@ -73,11 +81,6 @@ typedef enum {
 	PINK_EASY_ERROR_BITNESS_PREMATURE,
 	/** Failed to get the bitness of a child after successful execve() **/
 	PINK_EASY_ERROR_BITNESS,
-
-	/** Setting up ptrace() options for the eldest child failed **/
-	PINK_EASY_ERROR_SETUP_ELDEST,
-	/** Setting up ptrace() options for new child failed **/
-	PINK_EASY_ERROR_SETUP,
 
 	/** Initial step (e.g. pink_trace_syscall()) failed **/
 	PINK_EASY_ERROR_STEP_INITIAL,
@@ -100,6 +103,8 @@ typedef enum {
 	PINK_EASY_ERROR_WAIT_ALL,
 	/** waitpid(pid, ...) failed **/
 	PINK_EASY_ERROR_WAIT,
+	/** Initial waitpid() failed **/
+	PINK_EASY_ERROR_WAIT_ELDEST,
 
 	/** pink_trace_geteventmsg() failed after #PINK_EVENT_FORK **/
 	PINK_EASY_ERROR_GETEVENTMSG_FORK,

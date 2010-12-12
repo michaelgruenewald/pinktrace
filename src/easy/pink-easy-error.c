@@ -58,22 +58,24 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Allocating memory for eldest child failed";
 	case PINK_EASY_ERROR_ALLOC_PREMATURE:
 		return "Allocating memory for premature child failed";
-	case PINK_EASY_ERROR_ALLOC:
-		return "Allocating memory for child failed";
+	case PINK_EASY_ERROR_ALLOC_FORK:
+		return "Allocating memory for new child failed";
 	case PINK_EASY_ERROR_FORK:
 		return "fork() failed";
 	case PINK_EASY_ERROR_VFORK:
 		return "vfork() failed";
+	case PINK_EASY_ERROR_SIGNAL_INITIAL:
+		return "Incorrect initial signal";
+	case PINK_EASY_ERROR_SETUP_ELDEST:
+		return "Failed to set up eldest child";
+	case PINK_EASY_ERROR_SETUP:
+		return "Failed to set up child";
 	case PINK_EASY_ERROR_BITNESS_ELDEST:
 		return "Failed to update bitness of eldest child";
 	case PINK_EASY_ERROR_BITNESS_PREMATURE:
 		return "Failed to update bitness of premature child";
 	case PINK_EASY_ERROR_BITNESS:
 		return "Failed to update bitness after successful execve()";
-	case PINK_EASY_ERROR_SETUP_ELDEST:
-		return "Failed to set up eldest child";
-	case PINK_EASY_ERROR_SETUP:
-		return "Failed to set up child";
 	case PINK_EASY_ERROR_STEP_INITIAL:
 		return "Initial step failed";
 	case PINK_EASY_ERROR_STEP_STOP:
@@ -94,6 +96,8 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Failed to wait() for all children";
 	case PINK_EASY_ERROR_WAIT:
 		return "Failed to wait() for child";
+	case PINK_EASY_ERROR_WAIT_ELDEST:
+		return "Failed to wait() for eldest child";
 	case PINK_EASY_ERROR_GETEVENTMSG_FORK:
 		return "Failed to get event message after fork()";
 	case PINK_EASY_ERROR_GETEVENTMSG_EXIT:

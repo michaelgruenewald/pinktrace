@@ -85,6 +85,12 @@ pink_easy_context_get_error(const pink_easy_context_t *ctx)
 	return ctx->error;
 }
 
+bool
+pink_easy_context_get_error_fatal(const pink_easy_context_t *ctx)
+{
+	return ctx->fatal;
+}
+
 void
 pink_easy_context_clear_error(pink_easy_context_t *ctx)
 {

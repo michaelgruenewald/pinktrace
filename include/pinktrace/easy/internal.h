@@ -34,7 +34,12 @@
 #ifndef PINKTRACE_EASY_GUARD_INTERNAL_H
 #define PINKTRACE_EASY_GUARD_INTERNAL_H 1
 
+#include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/callback.h>
@@ -114,6 +119,9 @@ struct pink_easy_context {
 	/** Last error **/
 	pink_easy_error_t error;
 
+	/** Was the error fatal? **/
+	bool fatal;
+
 	/** Callback table **/
 	pink_easy_callback_table_t *tbl;
 };
@@ -136,5 +144,19 @@ pink_easy_process_tree_new(void);
 PINK_NONNULL(1,2)
 bool
 pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
+
+/** Simple waitpid() wrapper which handles EINTR **/
+inline
+static pid_t
+pink_easy_internal_waitpid(pid_t pid, int *status, int options)
+{
+	pid_t ret;
+
+begin:
+	ret = waitpid(pid, status, options);
+	if (ret < 0 && errno == EINTR)
+		goto begin;
+	return ret;
+}
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */
