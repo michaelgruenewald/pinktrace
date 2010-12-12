@@ -42,13 +42,19 @@
 #define RB_BLK 0
 #define RB_RED 1
 
-static pink_easy_process_t _null = { 0, 0, PINK_BITNESS_UNKNOWN, NULL, NULL, RB_BLK, NULL, NULL, NULL };
+static pink_easy_process_t _null = { 0, 0, 0, PINK_BITNESS_UNKNOWN, NULL, NULL, RB_BLK, NULL, NULL, NULL };
 #define RB_NULL &_null
 
 pid_t
 pink_easy_process_get_pid(const pink_easy_process_t *proc)
 {
 	return proc->pid;
+}
+
+pid_t
+pink_easy_process_get_ppid(const pink_easy_process_t *proc)
+{
+	return proc->ppid;
 }
 
 pink_bitness_t

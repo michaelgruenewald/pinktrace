@@ -70,9 +70,6 @@ typedef struct pink_easy_process_tree pink_easy_process_tree_t;
 /**
  * Returns the process ID of the entry.
  *
- * \attention There's no setter for pid_t member because pinktrace handles it
- * internally.
- *
  * \param proc Process entry
  *
  * \return Process ID
@@ -82,10 +79,18 @@ pid_t
 pink_easy_process_get_pid(const pink_easy_process_t *proc);
 
 /**
- * Returns the bitness of the entry
+ * Returns the process ID of this entry's parent or -1 for the eldest entries.
  *
- * \attention There's no setter for #pink_bitness_t member because pinktrace
- * handles it internally.
+ * \param Process entry
+ *
+ * \return Parent Process ID or -1
+ **/
+PINK_NONNULL(1)
+pid_t
+pink_easy_process_get_ppid(const pink_easy_process_t *proc);
+
+/**
+ * Returns the bitness of the entry
  *
  * \param proc Process entry
  *

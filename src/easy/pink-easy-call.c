@@ -116,6 +116,7 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 
 	/* Insert the process into the tree */
 	proc->pid = pid;
+	proc->ppid = -1;
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
 

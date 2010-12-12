@@ -80,7 +80,7 @@ struct pink_easy_context;
  * - If the error is not fatal the return value of this callback specifies the
  *   decision.
  *
- * Here's a list of possible error conditions
+ * Here's a list of possible error conditions:
  *
  * \verbatim
      -------------------------------------------------------------------------------
@@ -91,10 +91,11 @@ struct pink_easy_context;
      - ALLOC_FORK        true     +      pink_easy_process_t *current, pid_t cpid  -
      - FORK              true     +      -                                         -
      - VFORK             true     +      -                                         -
+     - SIGNAL_INITIAL    true     -      pid_t pid, int status                     -
+     - SETUP_ELDEST      true     +      pid_t pid                                 -
+     - SETUP             false    -      pink_easy_process_t *current              -
      - WAIT              true     +      -                                         -
      - WAIT_ELDEST       true     +      pid_t pid                                 -
-     - SIGNAL_ELDEST     true     -      pid_t pid, int status                     -
-     - SETUP_ELDEST      true     +      pid_t pid                                 -
      - BITNESS_ELDEST    false    +      pid_t pid                                 -
      - BITNESS_PREMATURE false    +      pid_t pid                                 -
      - BITNESS           false    +      pink_easy_process_t *current              -

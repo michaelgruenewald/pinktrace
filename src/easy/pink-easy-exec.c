@@ -139,6 +139,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 
 	/* Insert the process into the tree */
 	proc->pid = pid;
+	proc->ppid = -1;
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
 

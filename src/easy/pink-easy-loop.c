@@ -72,15 +72,14 @@ pink_easy_loop_handle_stop(pink_easy_context_t *ctx, pid_t pid)
 	short val;
 	pink_easy_tribool_t trb;
 	pink_easy_errback_return_t ret;
-	pink_easy_process_t *proc;
+	pink_easy_process_t *proc, *pproc;
 
 	/* Step 1: Check if the process is born prematurely and add it to the
 	 * process tree if required.
 	 */
 	proc = pink_easy_process_tree_search(ctx->tree, pid);
 	if (!proc) {
-		/* Stupid child was born before
-		 * PTRACE_EVENT_FORK! */
+		/* Stupid child was born before PTRACE_EVENT_FORK! */
 		proc = calloc(1, sizeof(pink_easy_process_t));
 		if (!proc) {
 			ctx->error = PINK_EASY_ERROR_ALLOC_PREMATURE, ctx->fatal = true;
@@ -106,12 +105,45 @@ pink_easy_loop_handle_stop(pink_easy_context_t *ctx, pid_t pid)
 
 		dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 		assert(dummy);
+
+		if (!pink_trace_setup(proc->pid, ctx->options)) {
+			ctx->error = PINK_EASY_ERROR_SETUP, ctx->fatal = false;
+			if (!ctx->tbl->eb_main)
+				return -ctx->error;
+			ret = ctx->tbl->eb_main(ctx, proc);
+			switch (ret) {
+			case PINK_EASY_ERRBACK_ABORT:
+				return false;
+			case PINK_EASY_ERRBACK_KILL:
+				dummy = pink_easy_process_tree_remove(ctx->tree, proc->pid);
+				assert(dummy);
+				/* R.I.P. */
+				if (ctx->tbl->cb_death)
+					ctx->tbl->cb_death(ctx, proc);
+				if (proc->destroy && proc->data)
+					proc->destroy(proc->data);
+				free(proc);
+				return true;
+			case PINK_EASY_ERRBACK_IGNORE:
+				break;
+			default:
+				abort();
+			}
+		}
+
 		/* Note: We don't call birth callback here, because we have no
 		 * information about her parent.
 		 *
 		 * if (ctx->tbl->cb_birth)
 		 *	ctx->tbl->cb_birth(ctx, proc, WTF);
 		 */
+	}
+	else {
+		pproc = pink_easy_process_tree_search(ctx->tree, proc->ppid);
+		assert(pproc != NULL);
+
+		if (ctx->tbl->cb_birth)
+			ctx->tbl->cb_birth(ctx, proc, pproc);
 	}
 
 	/* Step 2: Call the "event_stop" callback and abort if requested. */
@@ -256,19 +288,16 @@ pink_easy_loop_handle_fork(pink_easy_context_t *ctx, pid_t pid, pink_event_t eve
 		}
 
 		cproc->pid = (pid_t)cpid;
+		cproc->ppid = proc->pid;
 		cproc->bitness = proc->bitness;
 		cproc->flags = proc->flags;
 
 		dummy = pink_easy_process_tree_insert(ctx->tree, cproc);
 		assert(dummy);
-
-		/* Happy birthday! */
-		if (ctx->tbl->cb_birth)
-			ctx->tbl->cb_birth(ctx, cproc, proc);
 	}
 	else {
-		/* Child was born before PTRACE_EVENT_FORK but
-		 * the tbl->cb_birth callback was not called. */
+		/* Child was born before PTRACE_EVENT_FORK */
+		cproc->ppid = proc->pid;
 		if (ctx->tbl->cb_birth)
 			ctx->tbl->cb_birth(ctx, cproc, proc);
 	}

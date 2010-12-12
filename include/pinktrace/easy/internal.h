@@ -74,6 +74,9 @@ struct pink_easy_process {
 	/** Process Id of this entry **/
 	pid_t pid;
 
+	/** Parent of this process **/
+	pid_t ppid;
+
 	/** Bitness (e.g. 32bit, 64bit) of this process **/
 	pink_bitness_t bitness;
 
