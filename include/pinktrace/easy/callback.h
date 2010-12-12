@@ -37,7 +37,13 @@
 
 /**
  * \file
- * Pink's easy ptrace() event callbacks
+ * \brief Pink's easy \c ptrace(2) event callbacks
+ **/
+
+/**
+ * \defgroup callback Pink's easy \c ptrace(2) event callbacks
+ * \ingroup easy
+ * \{
  **/
 
 /** Valid return values from #pink_easy_errback_main_t **/
@@ -85,6 +91,7 @@ struct pink_easy_context;
      - ALLOC_FORK        true     +      pink_easy_process_t *current, pid_t cpid  -
      - FORK              true     +      -                                         -
      - VFORK             true     +      -                                         -
+     - WAIT              true     +      -                                         -
      - WAIT_ELDEST       true     +      pid_t pid                                 -
      - SIGNAL_ELDEST     true     -      pid_t pid, int status                     -
      - SETUP_ELDEST      true     +      pid_t pid                                 -
@@ -99,8 +106,6 @@ struct pink_easy_context;
      - STEP_EXEC         false    +      pink_easy_process_t *current              -
      - STEP_EXIT         false    +      pink_easy_process_t *current              -
      - STEP_GENUINE      false    +      pink_easy_process_t *current, int status  -
-     - WAIT              true     +      pink_easy_process_t *current              -
-     - WAIT_ALL          true     +      -                                         -
      - GETEVENTMSG_FORK  false    +      pink_easy_process_t *current              -
      - GETEVENTMSG_EXIT  false    +      pink_easy_process_t *current              -
      - EVENT_UNKNOWN     false    -      pink_easy_process_t *current, int status  -
@@ -246,7 +251,9 @@ typedef short (*pink_easy_callback_event_genuine_t) (const struct pink_easy_cont
  **/
 typedef short (*pink_easy_callback_exit_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, int cs);
 
-/** This structure represents a callback table **/
+/**
+ * \brief Structure which represents a callback table
+ **/
 typedef struct pink_easy_callback_table {
 	/** "main" errback **/
 	pink_easy_errback_main_t eb_main;
@@ -282,5 +289,9 @@ typedef struct pink_easy_callback_table {
 	/** "exit_signal" callback **/
 	pink_easy_callback_exit_t cb_exit_signal;
 } pink_easy_callback_table_t;
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CALLBACK_H */

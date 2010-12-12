@@ -34,7 +34,13 @@
 
 /**
  * \file
- * Pink's easy execve() wrappers
+ * \brief Pink's easy execve() wrappers
+ **/
+
+/**
+ * \defgroup exec Pink's easy exec wrappers
+ * \ingroup easy
+ * \{
  **/
 
 /**
@@ -112,5 +118,9 @@ pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]);
 PINK_NONNULL(1)
 int
 pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[]);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_EASY_EXEC_H */

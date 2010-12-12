@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Low level wrapper around ptrace internals
+ * \brief Pink's low level wrappers around \c ptrace(2) internals
+ **/
+
+/**
+ * \defgroup trace Pink's low level wrappers around \c ptrace(2) internals
+ * \ingroup core
+ * \{
  **/
 
 #include <stdbool.h>
@@ -333,5 +339,9 @@ pink_trace_detach(pid_t pid, int sig);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_TRACE_H */

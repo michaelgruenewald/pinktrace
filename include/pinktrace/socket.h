@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's socket related data structures and functions
+ * \brief Pink's socket related data structures and functions
+ **/
+
+/**
+ * \defgroup socket Pink's socket related data structures and functions
+ * \ingroup core
+ * \{
  **/
 
 #if defined(PINKTRACE_FREEBSD) || defined(DOXYGEN)
@@ -49,7 +55,7 @@
 #include <pinktrace/gcc.h>
 
 /**
- * This struct defines a decoded socket address.
+ * \brief Structure which defines a decoded socket address.
  **/
 typedef struct {
 	/** Family of the socket address **/
@@ -185,5 +191,9 @@ pink_name_socket_subcall(pink_socket_subcall_t subcall);
 #endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */

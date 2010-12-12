@@ -32,9 +32,14 @@
 
 /**
  * \file
- * Pink's useful function pointers
+ * \brief Pink's easy function pointers
  **/
 
+/**
+ * \defgroup func Pink's easy function pointers
+ * \ingroup easy
+ * \{
+ **/
 struct pink_easy_process;
 
 /**
@@ -62,5 +67,9 @@ typedef bool (*pink_easy_walk_func_t) (struct pink_easy_process *proc, void *use
  * \see pink_easy_call
  **/
 typedef int (*pink_easy_child_func_t) (void *userdata);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_FUNC_H */

@@ -38,13 +38,19 @@
 
 /**
  * \file
- * Pink's easy tracing context
+ * \brief Pink's easy tracing context
+ **/
+
+/**
+ * \defgroup context Pink's easy tracing context
+ * \ingroup easy
+ * \{
  **/
 
 /**
  * \struct pink_easy_context_t
+ * \brief Opaque structure which represents a tracing context.
  *
- * Opaque structure which represents a tracing context.
  * Use pink_easy_context_new() to create one and pink_easy_context_destroy() to
  * free all allocated resources.
  **/
@@ -150,5 +156,9 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx);
 PINK_NONNULL(1)
 pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

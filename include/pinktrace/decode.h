@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's system call decoders
+ * \brief Pink's system call decoders
+ **/
+
+/**
+ * \defgroup decode Pink's system call decoders
+ * \ingroup core
+ * \{
  **/
 
 #include <stdbool.h>
@@ -191,5 +197,9 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's system call encoders
+ * \brief Pink's system call encoders
+ **/
+
+/**
+ * \defgroup encode Pink's system call encoders
+ * \ingroup core
+ * \{
  **/
 
 #include <stdbool.h>
@@ -79,5 +85,9 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */

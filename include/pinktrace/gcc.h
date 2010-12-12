@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's GCC macros
+ * \brief Pink's GCC macros
+ **/
+
+/**
+ * \defgroup gcc Pink's GCC macros
+ * \ingroup core
+ * \{
  **/
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
@@ -81,5 +87,9 @@
 #define PINK_UNLIKELY(x) (x)
 
 #endif /* !defined(SPARSE) ... */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_GCC_H */

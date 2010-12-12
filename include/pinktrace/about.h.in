@@ -33,7 +33,13 @@
 
 /**
  * \file
- * Pink's version and build constants
+ * \brief Pink's version and build constants
+ **/
+
+/**
+ * \defgroup about Pink's version and build constants
+ * \ingroup core
+ * \{
  **/
 
 /**
@@ -76,5 +82,9 @@
  * The suffix used for so names (eg "0.30" or "0.31_15ece615")
  **/
 #define PINKTRACE_PC_SLOT "@PINKTRACE_PC_SLOT@"
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

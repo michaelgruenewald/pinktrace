@@ -92,8 +92,6 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Failed to step after execve()";
 	case PINK_EASY_ERROR_STEP_GENUINE:
 		return "Failed to step after genuine signal";
-	case PINK_EASY_ERROR_WAIT_ALL:
-		return "Failed to wait() for all children";
 	case PINK_EASY_ERROR_WAIT:
 		return "Failed to wait() for child";
 	case PINK_EASY_ERROR_WAIT_ELDEST:

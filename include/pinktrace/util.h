@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's trace utility functions
+ * \brief Pink's trace utility functions
+ **/
+
+/**
+ * \defgroup util Pink's trace utility functions
+ * \ingroup core
+ * \{
  **/
 
 #include <stdbool.h>
@@ -345,5 +351,9 @@ pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */

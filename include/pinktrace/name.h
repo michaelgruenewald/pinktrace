@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's system call naming
+ * \brief Pink's system call naming
+ **/
+
+/**
+ * \defgroup name Pink's system call naming
+ * \ingroup core
+ * \{
  **/
 
 #include <pinktrace/bitness.h>
@@ -74,5 +80,9 @@ pink_name_lookup(const char *name, pink_bitness_t bitness);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_NAME_H */

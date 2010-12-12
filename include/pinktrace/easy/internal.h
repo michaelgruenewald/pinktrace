@@ -108,7 +108,7 @@ struct pink_easy_process_tree {
 /** Tracing context **/
 struct pink_easy_context {
 	/** Eldest child **/
-	const struct pink_easy_process *eldest;
+	struct pink_easy_process *eldest;
 
 	/** Process table **/
 	struct pink_easy_process_tree *tree;
@@ -154,12 +154,16 @@ pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_
 /** Simple waitpid() wrapper which handles EINTR **/
 inline
 static pid_t
-pink_easy_internal_waitpid(pid_t pid, int *status, int options)
+pink_easy_internal_wait(int *status)
 {
 	pid_t ret;
 
 begin:
-	ret = waitpid(pid, status, options);
+#ifdef __WALL
+	ret = waitpid(-1, status, __WALL);
+#else
+	ret = waitpid(-1, status, 0);
+#endif /* __WALL */
 	if (ret < 0 && errno == EINTR)
 		goto begin;
 	return ret;

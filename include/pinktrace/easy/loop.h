@@ -34,7 +34,13 @@
 
 /**
  * \file
- * Pink's easy event loop
+ * \brief Pink's easy event loop
+ **/
+
+/**
+ * \defgroup loop Pink's easy event loop
+ * \ingroup easy
+ * \{
  **/
 
 /**
@@ -53,5 +59,9 @@
 PINK_NONNULL(1)
 int
 pink_easy_loop(pink_easy_context_t *ctx);
+
+/**
+ * \}
+ **/
 
 #endif /* PINKTRACE_EASY_GUARD_LOOP_H */

@@ -35,7 +35,13 @@
 
 /**
  * \file
- * Pink's easy tracing function call
+ * \brief Pink's easy tracing function call
+ **/
+
+/**
+ * \defgroup call Pink's easy tracing function call
+ * \ingroup easy
+ * \{
  **/
 
 /**
@@ -52,5 +58,9 @@
 PINK_NONNULL(1,2)
 int
 pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CALL_H */

@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's compatibility macros
+ * \brief Pink's compatibility macros
+ **/
+
+/**
+ * \defgroup compat Pink's compatibility macros
+ * \ingroup core
+ * \{
  **/
 
 /**
@@ -106,5 +112,9 @@
  * \since 0.0.5
  **/
 #define PINK_UTIL_SET_ARG_AVAILABLE 1
+
+/**
+ * \}
+ **/
 
 #endif /* PINKTRACE_GUARD_COMPAT_H */

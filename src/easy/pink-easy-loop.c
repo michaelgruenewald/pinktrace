@@ -661,24 +661,14 @@ next:
 int
 pink_easy_loop(pink_easy_context_t *ctx)
 {
-	bool followfork;
-	int status, wopt;
-	pid_t pid, wpid;
+	int status;
+	pid_t wpid;
 	pink_event_t event;
-	pink_easy_process_t *proc;
 
 	assert(ctx != NULL);
 	assert(ctx->tree != NULL);
 	assert(ctx->eldest != NULL);
 	assert(ctx->eldest->flags & PINK_EASY_PROCESS_STARTUP);
-
-	followfork = ctx->eldest->flags & PINK_EASY_PROCESS_FOLLOWFORK;
-	pid = followfork ? -1 : ctx->eldest->pid;
-#ifdef __WALL
-	wopt = followfork ? __WALL : 0;
-#else
-	wopt = 0;
-#endif /* __WALL */
 
 	/* Push the child to move! */
 	if (!pink_trace_syscall(ctx->eldest->pid, 0)) {
@@ -694,25 +684,13 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	/* Enter the event loop */
 	for (;;) {
 		/* Wait for children */
-		if ((wpid = pink_easy_internal_waitpid(pid, &status, wopt)) < 0) {
+		if ((wpid = pink_easy_internal_wait(&status)) < 0) {
 			if (errno == ECHILD && ctx->tbl->cb_end)
 				return ctx->tbl->cb_end(ctx, true);
-			else if (!ctx->tbl->eb_main) {
-				ctx->error = (pid < 0) ? PINK_EASY_ERROR_WAIT_ALL : PINK_EASY_ERROR_WAIT;
-				return -ctx->error;
-			}
 
-			ctx->fatal = true;
-			if (pid < 0) {
-				/* Waiting for all process IDs */
-				ctx->error = PINK_EASY_ERROR_WAIT_ALL;
-				proc = NULL;
-			}
-			else {
-				/* Waiting for just one process ID */
-				ctx->error = PINK_EASY_ERROR_WAIT;
-				proc = pink_easy_process_tree_search(ctx->tree, pid);
-			}
+			ctx->error = PINK_EASY_ERROR_WAIT;
+			if (!ctx->tbl->eb_main)
+				return -ctx->error;
 
 			if (ctx->tbl->eb_main)
 				ctx->tbl->eb_main(ctx);

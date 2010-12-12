@@ -42,21 +42,27 @@
 
 /**
  * \file
- * Pink's easy process representation
+ * \brief Pink's easy process representation
+ **/
+
+/**
+ * \defgroup process Pink's easy process representation
+ * \ingroup easy
+ * \{
  **/
 
 /**
  * \struct pink_easy_process_t
+ * \brief Opaque structure which represents a process entry.
  *
- * Opaque structure which represents a process entry.
  * This entries are allocated internally by the tracing context.
  **/
 typedef struct pink_easy_process pink_easy_process_t;
 
 /**
  * \struct pink_easy_process_tree_t
+ * \brief Opaque structure which represents a process tree.
  *
- * Opaque structure which represents a process tree.
  * This tree is allocated internally by the tracing context.
  **/
 typedef struct pink_easy_process_tree pink_easy_process_tree_t;
@@ -64,7 +70,7 @@ typedef struct pink_easy_process_tree pink_easy_process_tree_t;
 /**
  * Returns the process ID of the entry.
  *
- * \note There's no setter for pid_t member because pinktrace handles it
+ * \attention There's no setter for pid_t member because pinktrace handles it
  * internally.
  *
  * \param proc Process entry
@@ -78,8 +84,8 @@ pink_easy_process_get_pid(const pink_easy_process_t *proc);
 /**
  * Returns the bitness of the entry
  *
- * \note There's no setter for #pink_bitness_t member because pinktrace handles
- * it internally.
+ * \attention There's no setter for #pink_bitness_t member because pinktrace
+ * handles it internally.
  *
  * \param proc Process entry
  *
@@ -167,5 +173,9 @@ pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
 PINK_NONNULL(1,2)
 unsigned
 pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, pink_easy_walk_func_t func, void *userdata);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

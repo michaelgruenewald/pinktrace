@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's event handling
+ * \brief Pink's event handling
+ **/
+
+/**
+ * \defgroup event Pink's event handling
+ * \ingroup core
+ * \{
  **/
 
 #include <stdbool.h>
@@ -111,5 +117,9 @@ pink_event_name(pink_event_t event);
 #endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */

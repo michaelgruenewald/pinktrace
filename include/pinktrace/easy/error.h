@@ -32,7 +32,13 @@
 
 /**
  * \file
- * Pink's easy error codes
+ * \brief Pink's easy error codes
+ **/
+
+/**
+ * \defgroup error Pink's easy error codes
+ * \ingroup easy
+ * \{
  **/
 
 /** Child error codes **/
@@ -99,11 +105,9 @@ typedef enum {
 	/** Stepping after genuine signal failed **/
 	PINK_EASY_ERROR_STEP_GENUINE,
 
-	/** waitpid(-1, ...) failed **/
-	PINK_EASY_ERROR_WAIT_ALL,
-	/** waitpid(pid, ...) failed **/
+	/** wait(2) failed **/
 	PINK_EASY_ERROR_WAIT,
-	/** Initial waitpid() failed **/
+	/** Initial wait(2) failed **/
 	PINK_EASY_ERROR_WAIT_ELDEST,
 
 	/** pink_trace_geteventmsg() failed after #PINK_EVENT_FORK **/
@@ -139,5 +143,9 @@ pink_easy_child_strerror(pink_easy_child_error_t e);
 PINK_PURE
 const char *
 pink_easy_strerror(pink_easy_error_t e);
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_EASY_GUARD_ERROR_H */

@@ -96,7 +96,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	/* parent */
 
 	/* Wait for the initial SIGTRAP */
-	if (pink_easy_internal_waitpid(pid, &status, 0) < 0) {
+	if (pink_easy_internal_wait(&status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
 			ctx->tbl->eb_main(ctx, pid);
@@ -138,7 +138,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 		proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
 	/* Insert the process into the tree */
-	proc->pid = ctx->eldest = pid;
+	proc->pid = pid;
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
 

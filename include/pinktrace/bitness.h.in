@@ -33,7 +33,13 @@
 
 /**
  * \file
- * Pink's bitness modes
+ * \brief Pink's bitness modes
+ **/
+
+/**
+ * \defgroup bitness Pink's bitness modes
+ * \ingroup core
+ * \{
  **/
 
 #include <sys/types.h>
@@ -113,5 +119,9 @@ pink_bitness_wordsize(pink_bitness_t bitness);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+/**
+ * \}
+ **/
 
 #endif /* !PINKTRACE_GUARD_BITNESS_H */

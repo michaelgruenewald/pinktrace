@@ -35,12 +35,27 @@
  *
  * pinktrace - Pink's Tracing Library
  *
- * pinktrace is a wrapper around ptrace(2) system call.
+ * \section overview Overview
+ *
+ * pinktrace is a wrapper around \c ptrace(2) system call.
  * It provides a robust API for tracing processes.
  *
- * Note this is a work in progress and the API is *not* stable.
+ * \attention This is a work in progress and the API is \b not stable.
+ *
+ * \section parts Parts
+ *
+ * This library is divided into two parts:
+ * - \ref core
+ * - \ref easy
  *
  * \author Ali Polatel <alip@exherbo.org>
+ **/
+
+/**
+ * \defgroup core Core library (pinktrace)
+ *
+ * This is a low-level library implementing thin wrappers around \c ptrace(2)
+ * system call.
  **/
 
 /**
@@ -70,7 +85,7 @@
 
 /**
  * \file
- * A header file including all other header files part of pinktrace
+ * \brief A header file including all other header files part of pinktrace
  **/
 
 #include <pinktrace/compat.h>

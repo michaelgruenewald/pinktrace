@@ -73,7 +73,7 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 	/* parent */
 
 	/* Wait for the initial SIGSTOP */
-	if (pink_easy_internal_waitpid(pid, &status, 0) < 0) {
+	if (pink_easy_internal_wait(&status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
 			ctx->tbl->eb_main(ctx, pid);
