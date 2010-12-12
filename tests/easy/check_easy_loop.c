@@ -72,12 +72,12 @@ START_TEST(t_loop_exit_genuine)
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	ret = 128;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
 	pink_easy_context_destroy(ctx);
@@ -116,12 +116,12 @@ START_TEST(t_loop_exit_signal)
 
 	sig = SIGTERM;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	sig = SIGKILL;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
 	pink_easy_context_destroy(ctx);
@@ -152,12 +152,12 @@ START_TEST(t_loop_genuine)
 
 	sig = SIGTTIN;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	sig = SIGTTOU;
 	pink_easy_call(ctx, _signal_immediately_func, &sig);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
 	pink_easy_context_destroy(ctx);
@@ -188,12 +188,12 @@ START_TEST(t_loop_exit)
 
 	ret = 127;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 
 	ret = 128;
 	pink_easy_call(ctx, _exit_immediately_func, &ret);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_CALLBACK_ABORT, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_CALLBACK_ABORT, errno, strerror(errno));
 
 	pink_easy_context_destroy(ctx);
@@ -228,7 +228,7 @@ START_TEST(t_loop_exec)
 	fail_unless(ctx != NULL, "%d(%s)", errno, strerror(errno));
 
 	pink_easy_call(ctx, _exec_true_func, NULL);
-	e = pink_easy_context_get_error(ctx);
+	e = pink_easy_context_get_error(ctx, NULL);
 	fail_unless(e == PINK_EASY_ERROR_SUCCESS, "%i != %i -> %d(%s)", e, PINK_EASY_ERROR_SUCCESS, errno, strerror(errno));
 	fail_unless(_cb_exec_called, "wtf?");
 
