@@ -70,7 +70,6 @@ struct pink_easy_context;
 /**
  * Errback for errors in the main process.
  * - Use pink_easy_context_get_error() to get the error code.
- * - Use pink_easy_context_get_error_fatal() to get whether error is fatal.
  *
  * There are a few important points about this callback:
  * - The variable arguments give extra information about the error condition
