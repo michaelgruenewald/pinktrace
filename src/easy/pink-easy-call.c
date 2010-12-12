@@ -117,15 +117,21 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 	/* Insert the process into the tree */
 	proc->pid = pid;
 	proc->ppid = -1;
+	proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
-
-	/* Keep a reference of the eldest child */
-	ctx->eldest = proc;
 
 	/* Happy birthday! */
 	if (ctx->tbl->cb_birth)
 		ctx->tbl->cb_birth(ctx, proc, NULL);
+
+	/* Push the child to move! */
+	if (!pink_trace_syscall(proc->pid, 0)) {
+		ctx->error = PINK_EASY_ERROR_STEP_INITIAL, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx, proc);
+		return -ctx->error;
+	}
 
 	return pink_easy_loop(ctx);
 fail:

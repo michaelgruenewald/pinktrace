@@ -41,7 +41,7 @@
  **/
 
 /**
- * \defgroup callback Pink's easy \c ptrace(2) event callbacks
+ * \defgroup callback Pink's easy ptrace(2) event callbacks
  * \ingroup easy
  * \{
  **/

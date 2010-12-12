@@ -112,12 +112,6 @@ pink_easy_context_destroy(pink_easy_context_t *ctx)
 	free(ctx);
 }
 
-const pink_easy_process_t *
-pink_easy_context_get_eldest(const pink_easy_context_t *ctx)
-{
-	return ctx->eldest;
-}
-
 void *
 pink_easy_context_get_data(const pink_easy_context_t *ctx)
 {

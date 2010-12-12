@@ -84,7 +84,7 @@ pink_easy_loop_handle_stop(pink_easy_context_t *ctx, pid_t pid)
 		if (!proc) {
 			ctx->error = PINK_EASY_ERROR_ALLOC_PREMATURE, ctx->fatal = true;
 			if (ctx->tbl->eb_main)
-				ctx->tbl->eb_main(ctx, ctx->eldest->pid);
+				ctx->tbl->eb_main(ctx, pid);
 			return false;
 		}
 
@@ -696,19 +696,6 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 	assert(ctx != NULL);
 	assert(ctx->tree != NULL);
-	assert(ctx->eldest != NULL);
-	assert(ctx->eldest->flags & PINK_EASY_PROCESS_STARTUP);
-
-	/* Push the child to move! */
-	if (!pink_trace_syscall(ctx->eldest->pid, 0)) {
-		ctx->error = PINK_EASY_ERROR_STEP_INITIAL, ctx->fatal = true;
-		if (ctx->tbl->eb_main)
-			ctx->tbl->eb_main(ctx, ctx->eldest);
-		return -ctx->error;
-	}
-
-	/* Startup completed */
-	ctx->eldest->flags &= ~PINK_EASY_PROCESS_STARTUP;
 
 	/* Enter the event loop */
 	for (;;) {

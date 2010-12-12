@@ -140,11 +140,17 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	/* Insert the process into the tree */
 	proc->pid = pid;
 	proc->ppid = -1;
+	proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
 
-	/* Keep a reference of the eldest child */
-	ctx->eldest = proc;
+	/* Push the child to move! */
+	if (!pink_trace_syscall(proc->pid, 0)) {
+		ctx->error = PINK_EASY_ERROR_STEP_INITIAL, ctx->fatal = true;
+		if (ctx->tbl->eb_main)
+			ctx->tbl->eb_main(ctx, proc);
+		return -ctx->error;
+	}
 
 	/* Happy birthday! */
 	if (ctx->tbl->cb_birth)
