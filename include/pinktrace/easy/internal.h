@@ -108,7 +108,7 @@ struct pink_easy_process_tree {
 /** Tracing context **/
 struct pink_easy_context {
 	/** Eldest child **/
-	struct pink_easy_process *eldest;
+	const struct pink_easy_process *eldest;
 
 	/** Process table **/
 	struct pink_easy_process_tree *tree;

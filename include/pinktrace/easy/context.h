@@ -126,7 +126,7 @@ pink_easy_context_clear_error(pink_easy_context_t *ctx);
  * \return The eldest process
  **/
 PINK_NONNULL(1)
-pink_easy_process_t *
+const pink_easy_process_t *
 pink_easy_context_get_eldest(const pink_easy_context_t *ctx);
 
 /**

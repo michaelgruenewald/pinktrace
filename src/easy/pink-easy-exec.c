@@ -53,29 +53,28 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 {
 	bool dummy;
 	int status;
+	pid_t pid;
 	pink_easy_errback_return_t ret;
+	pink_easy_process_t *proc;
 
 	assert(ctx != NULL);
 	assert(ctx->tree != NULL);
 
-	ctx->eldest = calloc(1, sizeof(pink_easy_process_t));
-	if (!ctx->eldest) {
+	proc = calloc(1, sizeof(pink_easy_process_t));
+	if (!proc) {
 		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
 			ctx->tbl->eb_main(ctx);
 		return -ctx->error;
 	}
 
-	dummy = pink_easy_process_tree_insert(ctx->tree, ctx->eldest);
-	assert(dummy);
-
-	if ((ctx->eldest->pid = vfork()) < 0) {
+	if ((pid = vfork()) < 0) {
 		ctx->error = PINK_EASY_ERROR_VFORK, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
 			ctx->tbl->eb_main(ctx);
-		return -ctx->error;
+		goto fail;
 	}
-	else if (!ctx->eldest->pid) { /* child */
+	else if (!pid) { /* child */
 		if (!pink_trace_me())
 			_exit(ctx->tbl->eb_child ? ctx->tbl->eb_child(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		switch (type) {
@@ -97,52 +96,63 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	/* parent */
 
 	/* Wait for the initial SIGTRAP */
-	if (pink_easy_internal_waitpid(ctx->eldest->pid, &status, 0) < 0) {
+	if (pink_easy_internal_waitpid(pid, &status, 0) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
-			ctx->tbl->eb_main(ctx, ctx->eldest->pid);
-		return -ctx->error;
+			ctx->tbl->eb_main(ctx, pid);
+		goto fail;
 	}
 	if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
 		ctx->error = PINK_EASY_ERROR_SIGNAL_INITIAL, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
-			ctx->tbl->eb_main(ctx, ctx->eldest->pid, status);
-		return -ctx->error;
+			ctx->tbl->eb_main(ctx, pid, status);
+		goto fail;
 	}
 
 	/* Set up tracing options */
-	if (!pink_trace_setup(ctx->eldest->pid, ctx->options)) {
+	if (!pink_trace_setup(pid, ctx->options)) {
 		ctx->error = PINK_EASY_ERROR_SETUP_ELDEST, ctx->fatal = true;
 		if (ctx->tbl->eb_main)
-			ctx->tbl->eb_main(ctx, ctx->eldest->pid);
-		return -ctx->error;
+			ctx->tbl->eb_main(ctx, pid);
+		goto fail;
 	}
 
 	/* Figure out bitness */
-	if ((ctx->eldest->bitness = pink_bitness_get(ctx->eldest->pid)) == PINK_BITNESS_UNKNOWN) {
+	if ((proc->bitness = pink_bitness_get(pid)) == PINK_BITNESS_UNKNOWN) {
 		ctx->error = PINK_EASY_ERROR_BITNESS_ELDEST, ctx->fatal = false;
 		if (!ctx->tbl->eb_main)
 			return -ctx->error;
-		ret = ctx->tbl->eb_main(ctx, ctx->eldest->pid, ctx->eldest->pid);
+		ret = ctx->tbl->eb_main(ctx, pid);
 		if (ret != PINK_EASY_ERRBACK_IGNORE)
-			return -ctx->error;
+			goto fail;
 		/* Killing eldest child and resuming is not possible,
 		 * so we ignore PINK_EASY_ERRBACK_KILL.
 		 */
 	}
 
 	/* Set up flags */
-	ctx->eldest->flags |= PINK_EASY_PROCESS_STARTUP;
+	proc->flags |= PINK_EASY_PROCESS_STARTUP;
 	if (ctx->options & PINK_TRACE_OPTION_FORK
 			|| ctx->options & PINK_TRACE_OPTION_VFORK
 			|| ctx->options & PINK_TRACE_OPTION_CLONE)
-		ctx->eldest->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+		proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+
+	/* Insert the process into the tree */
+	proc->pid = ctx->eldest = pid;
+	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
+	assert(dummy);
+
+	/* Keep a reference of the eldest child */
+	ctx->eldest = proc;
 
 	/* Happy birthday! */
 	if (ctx->tbl->cb_birth)
-		ctx->tbl->cb_birth(ctx, ctx->eldest, NULL);
+		ctx->tbl->cb_birth(ctx, proc, NULL);
 
 	return pink_easy_loop(ctx);
+fail:
+	free(proc);
+	return -ctx->error;
 }
 
 int
