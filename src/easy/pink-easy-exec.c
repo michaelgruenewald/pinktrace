@@ -81,10 +81,13 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 		switch (type) {
 		case PINK_INTERNAL_FUNC_EXECVE:
 			execve(filename, argv, envp);
+			break;
 		case PINK_INTERNAL_FUNC_EXECV:
 			execv(filename, argv);
+			break;
 		case PINK_INTERNAL_FUNC_EXECVP:
 			execvp(filename, argv);
+			break;
 		default:
 			abort();
 		}
