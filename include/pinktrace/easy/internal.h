@@ -60,6 +60,12 @@
 /** Process should have forks followed **/
 #define PINK_EASY_PROCESS_FOLLOWFORK		00100
 
+typedef enum {
+	PINK_EASY_TRIBOOL_FALSE = 0,
+	PINK_EASY_TRIBOOL_TRUE,
+	PINK_EASY_TRIBOOL_NONE,
+} pink_easy_tribool_t;
+
 /** Process entry **/
 struct pink_easy_process {
 	/** PINK_EASY_PROCESS_* flags **/

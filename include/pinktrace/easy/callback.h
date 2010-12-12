@@ -52,8 +52,12 @@ typedef enum {
 	PINK_EASY_ERRBACK_KILL,
 } pink_easy_errback_return_t;
 
-/** Abort the event loop **/
-#define PINK_EASY_CALLBACK_ABORT  00001
+/** Abort the loop **/
+#define PINK_EASY_CALLBACK_ABORT	00001
+/** Callback received ESRCH **/
+#define PINK_EASY_CALLBACK_ESRCH	00002
+/** Callback received ESRCH from the new-born child **/
+#define PINK_EASY_CALLBACK_ESRCH_CHILD	00003
 
 struct pink_easy_context;
 
