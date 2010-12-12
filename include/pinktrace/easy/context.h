@@ -95,23 +95,13 @@ pink_easy_context_destroy(pink_easy_context_t *ctx);
  * Returns the last error saved in the context.
  *
  * \param ctx Tracing context
+ * \param fatal If non-NULL, specifies a pointer to save if the error is fatal.
  *
  * \return Error condition
  **/
 PINK_NONNULL(1)
 pink_easy_error_t
-pink_easy_context_get_error(const pink_easy_context_t *ctx);
-
-/**
- * Check if the last error saved in the context is fatal.
- *
- * \param ctx Tracing context
- *
- * \return true if the error is fatal, false otherwise.
- **/
-PINK_NONNULL(1)
-bool
-pink_easy_context_get_error_fatal(const pink_easy_context_t *ctx);
+pink_easy_context_get_error(const pink_easy_context_t *ctx, bool *fatal);
 
 /**
  * Clears the error saved in the context.
