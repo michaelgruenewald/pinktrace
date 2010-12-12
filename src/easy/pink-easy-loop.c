@@ -636,10 +636,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	for (;;) {
 		/* Wait for children */
 		if ((wpid = pink_easy_internal_waitpid(pid, &status, wopt)) < 0) {
-			if (errno == ECHILD && ctx->tbl->cb_end) {
-				/* TODO: Maybe we should get a return value? */
-				ctx->tbl->cb_end(ctx, true);
-			}
+			if (errno == ECHILD && ctx->tbl->cb_end)
+				return ctx->tbl->cb_end(ctx, true);
 			else if (!ctx->tbl->eb_main) {
 				ctx->error = (pid < 0) ? PINK_EASY_ERROR_WAIT_ALL : PINK_EASY_ERROR_WAIT;
 				return -ctx->error;
