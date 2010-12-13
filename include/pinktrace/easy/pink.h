@@ -46,6 +46,7 @@
 
 #include <pinktrace/pink.h>
 
+#include <pinktrace/easy/attach.h>
 #include <pinktrace/easy/call.h>
 #include <pinktrace/easy/callback.h>
 #include <pinktrace/easy/context.h>

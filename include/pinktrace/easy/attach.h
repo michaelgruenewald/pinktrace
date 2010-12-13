@@ -27,50 +27,39 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#ifndef PINKTRACE_EASY_GUARD_ATTACH_H
+#define PINKTRACE_EASY_GUARD_ATTACH_H 1
+
+/**
+ * \file
+ * \brief Pink's easy process attaching
+ **/
+
+/**
+ * \defgroup attach Pink's easy process attach
+ * \ingroup easy
+ * \{
+ **/
+
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <unistd.h>
 
-#include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
-#include <pinktrace/easy/pink.h>
+#include <pinktrace/easy/context.h>
 
+/**
+ * Attach to processes for tracing
+ *
+ * \param ctx Tracing context
+ * \param count Number of processes to attach
+ * \param ... Process ID's of the processes to attach, the number of arguments
+ * must not exceed the count argument.
+ *
+ * \return Depends on the callbacks.
+ **/
 int
-pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata)
-{
-	pink_easy_process_t *proc;
+pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...);
 
-	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
-	assert(func != NULL);
+/**
+ * \}
+ **/
 
-	proc = calloc(1, sizeof(pink_easy_process_t));
-	if (!proc) {
-		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
-		return -ctx->error;
-	}
-
-	if ((proc->pid = fork()) < 0) {
-		ctx->error = PINK_EASY_ERROR_FORK;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
-		goto fail;
-	}
-	else if (!proc->pid) { /* child */
-		if (!pink_trace_me())
-			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
-		kill(getpid(), SIGSTOP);
-		_exit(func(userdata));
-	}
-	/* parent */
-
-	if (!pink_easy_internal_init(ctx, proc, SIGSTOP))
-		return pink_easy_loop(ctx);
-fail:
-	free(proc);
-	return -ctx->error;
-}
+#endif /* !PINKTRACE_EASY_GUARD_ATTACH_H */

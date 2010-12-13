@@ -6,10 +6,12 @@ AM_CFLAGS= \
 	   @PINKTRACE_CFLAGS@
 
 easy_SRCS= \
+	   pink-easy-attach.c \
 	   pink-easy-call.c \
 	   pink-easy-context.c \
 	   pink-easy-exec.c \
 	   pink-easy-error.c \
+	   pink-easy-internal.c \
 	   pink-easy-loop.c \
 	   pink-easy-process.c
 EXTRA_DIST= $(easy_SRCS)

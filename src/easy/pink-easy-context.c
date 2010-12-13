@@ -80,10 +80,8 @@ pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *
 }
 
 pink_easy_error_t
-pink_easy_context_get_error(const pink_easy_context_t *ctx, bool *fatal)
+pink_easy_context_get_error(const pink_easy_context_t *ctx)
 {
-	if (fatal)
-		*fatal = ctx->fatal;
 	return ctx->error;
 }
 

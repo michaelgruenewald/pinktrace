@@ -54,11 +54,11 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Success";
 	case PINK_EASY_ERROR_CALLBACK_ABORT:
 		return "Operation aborted by callback";
+	case PINK_EASY_ERROR_ATTACH:
+		return "Attaching to the child failed";
 	case PINK_EASY_ERROR_ALLOC_ELDEST:
 		return "Allocating memory for eldest child failed";
-	case PINK_EASY_ERROR_ALLOC_PREMATURE:
-		return "Allocating memory for premature child failed";
-	case PINK_EASY_ERROR_ALLOC_FORK:
+	case PINK_EASY_ERROR_ALLOC:
 		return "Allocating memory for new child failed";
 	case PINK_EASY_ERROR_FORK:
 		return "fork() failed";
@@ -72,8 +72,6 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Failed to set up child";
 	case PINK_EASY_ERROR_BITNESS_ELDEST:
 		return "Failed to update bitness of eldest child";
-	case PINK_EASY_ERROR_BITNESS_PREMATURE:
-		return "Failed to update bitness of premature child";
 	case PINK_EASY_ERROR_BITNESS:
 		return "Failed to update bitness after successful execve()";
 	case PINK_EASY_ERROR_STEP_INITIAL:
@@ -84,13 +82,11 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Failed to step after event syscall";
 	case PINK_EASY_ERROR_STEP_EXIT:
 		return "Failed to setp after event exit";
-	case PINK_EASY_ERROR_STEP_PREMATURE:
-		return "Failed to step after birth of premature child";
 	case PINK_EASY_ERROR_STEP_FORK:
 		return "Failed to step after fork()";
 	case PINK_EASY_ERROR_STEP_EXEC:
 		return "Failed to step after execve()";
-	case PINK_EASY_ERROR_STEP_GENUINE:
+	case PINK_EASY_ERROR_STEP_SIGNAL:
 		return "Failed to step after genuine signal";
 	case PINK_EASY_ERROR_WAIT:
 		return "Failed to wait() for child";

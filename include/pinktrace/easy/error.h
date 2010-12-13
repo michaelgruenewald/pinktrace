@@ -63,15 +63,21 @@ typedef enum {
 
 	/** Allocating memory for the eldest child failed **/
 	PINK_EASY_ERROR_ALLOC_ELDEST,
-	/** Allocating memory for a premature child failed **/
-	PINK_EASY_ERROR_ALLOC_PREMATURE,
 	/** Allocating memory for a new child failed **/
-	PINK_EASY_ERROR_ALLOC_FORK,
+	PINK_EASY_ERROR_ALLOC,
+
+	/** Attaching to the child failed **/
+	PINK_EASY_ERROR_ATTACH,
 
 	/** fork() failed **/
 	PINK_EASY_ERROR_FORK,
 	/** vfork() failed **/
 	PINK_EASY_ERROR_VFORK,
+
+	/** Initial wait(2) failed **/
+	PINK_EASY_ERROR_WAIT_ELDEST,
+	/** wait(2) failed **/
+	PINK_EASY_ERROR_WAIT,
 
 	/** Incorrect initial signal **/
 	PINK_EASY_ERROR_SIGNAL_INITIAL,
@@ -83,8 +89,6 @@ typedef enum {
 
 	/** Failed to get the bitness of the eldest child **/
 	PINK_EASY_ERROR_BITNESS_ELDEST,
-	/** Failed to get the bitness of a premature child **/
-	PINK_EASY_ERROR_BITNESS_PREMATURE,
 	/** Failed to get the bitness of a child after successful execve() **/
 	PINK_EASY_ERROR_BITNESS,
 
@@ -96,19 +100,12 @@ typedef enum {
 	PINK_EASY_ERROR_STEP_SYSCALL,
 	/** Stepping after event #PINK_EVENT_EXIT failed **/
 	PINK_EASY_ERROR_STEP_EXIT,
-	/** Stepping after premature born child failed **/
-	PINK_EASY_ERROR_STEP_PREMATURE,
 	/** Stepping after fork(), vfork() or clone() failed **/
 	PINK_EASY_ERROR_STEP_FORK,
 	/** Stepping after execve() failed **/
 	PINK_EASY_ERROR_STEP_EXEC,
 	/** Stepping after genuine signal failed **/
-	PINK_EASY_ERROR_STEP_GENUINE,
-
-	/** wait(2) failed **/
-	PINK_EASY_ERROR_WAIT,
-	/** Initial wait(2) failed **/
-	PINK_EASY_ERROR_WAIT_ELDEST,
+	PINK_EASY_ERROR_STEP_SIGNAL,
 
 	/** pink_trace_geteventmsg() failed after #PINK_EVENT_FORK **/
 	PINK_EASY_ERROR_GETEVENTMSG_FORK,

@@ -151,6 +151,10 @@ PINK_NONNULL(1,2)
 bool
 pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
 
+/** Initialize tracing **/
+int
+pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc, int sig);
+
 /** Simple waitpid() wrapper which handles EINTR **/
 inline
 static pid_t

@@ -27,26 +27,63 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "check_pinktrace_easy.h"
-
+#include <assert.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdarg.h>
 #include <stdlib.h>
-#include <check.h>
+#include <unistd.h>
+
+#include <pinktrace/pink.h>
+#include <pinktrace/easy/internal.h>
+#include <pinktrace/easy/pink.h>
+
+static int
+pink_easy_attach_one(pink_easy_context_t *ctx, pid_t pid)
+{
+	int ret;
+	pink_easy_process_t *proc;
+
+	assert(ctx != NULL);
+	assert(ctx->tree != NULL);
+
+	proc = calloc(1, sizeof(pink_easy_process_t));
+	if (!proc) {
+		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
+		if (ctx->tbl->error)
+			ctx->tbl->error(ctx);
+		return -ctx->error;
+	}
+	proc->pid = pid;
+
+	if (!pink_trace_attach(proc->pid)) {
+		ctx->error = PINK_EASY_ERROR_ATTACH;
+		if (ctx->tbl->error)
+			ctx->tbl->error(ctx, proc->pid);
+		return -ctx->error;
+	}
+
+	if ((ret = pink_easy_internal_init(ctx, proc, SIGSTOP)) < 0)
+		return ret;
+
+	proc->flags |= PINK_EASY_PROCESS_ATTACHED;
+	return 0;
+}
 
 int
-main(void)
+pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...)
 {
-	int number_failed;
-	SRunner *sr;
+	int ret;
+	pid_t pid;
+	va_list ap;
 
-	/* Add suites */
-	sr = srunner_create(easy_process_suite_create());
-	srunner_add_suite(sr, easy_loop_suite_create());
-
-	/* Run and grab the results */
-	srunner_run_all(sr, CK_VERBOSE);
-	number_failed = srunner_ntests_failed(sr);
-
-	/* Cleanup and exit */
-	srunner_free(sr);
-	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+	ret = 0;
+	va_start(ap, count);
+	for (unsigned int i = 0; i < count; i++) {
+		pid = va_arg(ap, pid_t);
+		if ((ret = pink_easy_attach_one(ctx, pid)) < 0)
+			break;
+	}
+	va_end(ap);
+	return (ret < 0) ? ret : pink_easy_loop(ctx);
 }

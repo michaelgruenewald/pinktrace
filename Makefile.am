@@ -22,6 +22,7 @@ pinktrace_include_HEADERS= \
 			  include/pinktrace/pink.h
 
 pinktrace_easy_DIST= \
+		     include/pinktrace/easy/attach.h \
 		     include/pinktrace/easy/call.h \
 		     include/pinktrace/easy/callback.h \
 		     include/pinktrace/easy/context.h \

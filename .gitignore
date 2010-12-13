@@ -76,3 +76,4 @@ src/freebsd/pink-syscallent.h
 
 tests/check_pinktrace
 tests/easy/check_pinktrace_easy
+tests/easy/t[0-9][0-9]_*

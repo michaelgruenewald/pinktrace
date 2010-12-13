@@ -27,50 +27,25 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "check_pinktrace_easy.h"
 
-#include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
-#include <pinktrace/easy/pink.h>
+#include <stdlib.h>
+#include <check.h>
 
 int
-pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata)
+main(void)
 {
-	pink_easy_process_t *proc;
+	int number_failed;
+	SRunner *sr;
 
-	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
-	assert(func != NULL);
+	/* Add suites */
+	sr = srunner_create(easy_process_suite_create());
 
-	proc = calloc(1, sizeof(pink_easy_process_t));
-	if (!proc) {
-		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
-		return -ctx->error;
-	}
+	/* Run and grab the results */
+	srunner_run_all(sr, CK_VERBOSE);
+	number_failed = srunner_ntests_failed(sr);
 
-	if ((proc->pid = fork()) < 0) {
-		ctx->error = PINK_EASY_ERROR_FORK;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
-		goto fail;
-	}
-	else if (!proc->pid) { /* child */
-		if (!pink_trace_me())
-			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
-		kill(getpid(), SIGSTOP);
-		_exit(func(userdata));
-	}
-	/* parent */
-
-	if (!pink_easy_internal_init(ctx, proc, SIGSTOP))
-		return pink_easy_loop(ctx);
-fail:
-	free(proc);
-	return -ctx->error;
+	/* Cleanup and exit */
+	srunner_free(sr);
+	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

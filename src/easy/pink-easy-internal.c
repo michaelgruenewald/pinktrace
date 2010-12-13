@@ -27,50 +27,75 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
+/** Initialize tracing **/
 int
-pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata)
+pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig)
 {
-	pink_easy_process_t *proc;
+	bool dummy;
+	int status;
 
-	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
-	assert(func != NULL);
-
-	proc = calloc(1, sizeof(pink_easy_process_t));
-	if (!proc) {
-		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
+	/* Wait for the initial sig */
+	if (pink_easy_internal_wait(&status) < 0) {
+		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST;
 		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+			ctx->tbl->error(ctx, proc->pid);
+		return -ctx->error;
+	}
+	if (!WIFSTOPPED(status) || WSTOPSIG(status) != sig) {
+		ctx->error = PINK_EASY_ERROR_SIGNAL_INITIAL;
+		if (ctx->tbl->error)
+			ctx->tbl->error(ctx, proc->pid, status);
 		return -ctx->error;
 	}
 
-	if ((proc->pid = fork()) < 0) {
-		ctx->error = PINK_EASY_ERROR_FORK;
+	/* Set up tracing options */
+	if (!pink_trace_setup(proc->pid, ctx->options)) {
+		ctx->error = PINK_EASY_ERROR_SETUP_ELDEST;
 		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
-		goto fail;
+			ctx->tbl->error(ctx, proc->pid);
+		return -ctx->error;
 	}
-	else if (!proc->pid) { /* child */
-		if (!pink_trace_me())
-			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
-		kill(getpid(), SIGSTOP);
-		_exit(func(userdata));
-	}
-	/* parent */
 
-	if (!pink_easy_internal_init(ctx, proc, SIGSTOP))
-		return pink_easy_loop(ctx);
-fail:
-	free(proc);
-	return -ctx->error;
+	/* Figure out bitness */
+	if ((proc->bitness = pink_bitness_get(proc->pid)) == PINK_BITNESS_UNKNOWN) {
+		ctx->error = PINK_EASY_ERROR_BITNESS_ELDEST;
+		if (ctx->tbl->error)
+			ctx->tbl->error(ctx, proc->pid);
+		return -ctx->error;
+	}
+
+	/* Set up flags */
+	proc->flags |= PINK_EASY_PROCESS_STARTUP;
+	if (ctx->options & PINK_TRACE_OPTION_FORK
+			|| ctx->options & PINK_TRACE_OPTION_VFORK
+			|| ctx->options & PINK_TRACE_OPTION_CLONE)
+		proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+
+	/* Insert the process into the tree */
+	proc->ppid = -1;
+	proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
+	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
+	assert(dummy);
+
+	/* Happy birthday! */
+	if (ctx->tbl->birth)
+		ctx->tbl->birth(ctx, proc, NULL);
+
+	/* Push the child to move! */
+	if (!pink_trace_syscall(proc->pid, 0)) {
+		ctx->error = PINK_EASY_ERROR_STEP_INITIAL;
+		if (ctx->tbl->error)
+			ctx->tbl->error(ctx, proc);
+		return -ctx->error;
+	}
+
+	return 0;
 }
