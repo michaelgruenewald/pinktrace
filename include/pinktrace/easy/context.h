@@ -112,19 +112,6 @@ void
 pink_easy_context_clear_error(pink_easy_context_t *ctx);
 
 /**
- * Returns the eldest process in the tree. The eldest process is quite often
- * useful when tracing (e.g. when determining the exit code) so pinktrace keeps
- * a reference to this process entry.
- *
- * \param ctx Tracing context
- *
- * \return The eldest process
- **/
-PINK_NONNULL(1)
-const pink_easy_process_t *
-pink_easy_context_get_eldest(const pink_easy_context_t *ctx);
-
-/**
  * Returns the user data of the tracing context
  *
  * \param ctx Tracing context
