@@ -102,11 +102,11 @@ handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_ea
 }
 
 static bool
-handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t event)
+handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig, pink_event_t event)
 {
 	assert(proc != NULL);
 
-	if (pink_trace_syscall(proc->pid, 0))
+	if (pink_trace_syscall(proc->pid, sig))
 		return true;
 	return handle_ptrace_error(ctx, proc, error_step(event));
 }
@@ -477,7 +477,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				if (nproc && !(nproc->flags & PINK_EASY_PROCESS_SUSPENDED)) {
 					/* Push the process to move! */
-					ret = handle_step(ctx, nproc, event);
+					ret = handle_step(ctx, nproc, 0, event);
 					if (ret == PINK_EASY_TRIBOOL_FALSE)
 						return -ctx->error;
 				}
@@ -495,7 +495,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			ret = handle_syscall(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, event);
+				ret = handle_step(ctx, proc, 0, event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 			}
@@ -512,7 +512,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			ret = handle_exec(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, event);
+				ret = handle_step(ctx, proc, 0, event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 			}
@@ -529,7 +529,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			ret = handle_pre_exit(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, event);
+				ret = handle_step(ctx, proc, 0, event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 			}
@@ -549,12 +549,12 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			ret = handle_fork(ctx, proc, event, &nproc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* Step the parent first */
-				ret = handle_step(ctx, proc, event);
+				ret = handle_step(ctx, proc, 0, event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 				/* And then the child */
 				if (nproc) {
-					ret = handle_step(ctx, proc, event);
+					ret = handle_step(ctx, proc, 0, event);
 					if (ret == PINK_EASY_TRIBOOL_FALSE)
 						return -ctx->error;
 				}
@@ -573,7 +573,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			ret = handle_signal(ctx, proc, status, event == PINK_EVENT_UNKNOWN);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, event);
+				ret = handle_step(ctx, proc, WSTOPSIG(status), event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 			}
