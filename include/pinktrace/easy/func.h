@@ -33,17 +33,16 @@
 /**
  * \file
  * \brief Pink's easy function pointers
+ *
+ * \ingroup g_easy_func
  **/
 
-/**
- * \defgroup func Pink's easy function pointers
- * \ingroup easy
- * \{
- **/
 struct pink_easy_process;
 
 /**
  * This type definition represents a generic free() function.
+ *
+ * \ingroup g_easy_func
  *
  * \see pink_easy_context_new
  * \see pink_easy_process_set_data
@@ -56,6 +55,8 @@ typedef void (*pink_easy_free_func_t) (void *data);
  * false, pink_easy_process_tree_walk() stops iterating through the process
  * tree and returns immediately.
  *
+ * \ingroup g_easy_func
+ *
  * \see pink_easy_process_tree_walk
  **/
 typedef bool (*pink_easy_walk_func_t) (struct pink_easy_process *proc, void *userdata);
@@ -64,12 +65,10 @@ typedef bool (*pink_easy_walk_func_t) (struct pink_easy_process *proc, void *use
  * This type definition represents a function to be executed by the child under
  * tracing. Its return value is passed directly to _exit().
  *
+ * \ingroup g_easy_func
+ *
  * \see pink_easy_call
  **/
 typedef int (*pink_easy_child_func_t) (void *userdata);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_FUNC_H */

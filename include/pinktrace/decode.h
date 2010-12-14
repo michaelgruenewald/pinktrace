@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's system call decoders
- **/
-
-/**
- * \defgroup decode Pink's system call decoders
- * \ingroup core
- * \{
+ *
+ * \ingroup g_decode
  **/
 
 #include <stdbool.h>
@@ -55,6 +51,8 @@ extern "C" {
 /**
  * Get the data in argument arg and place it in dest.
  *
+ * \ingroup g_decode
+ *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
  * \param ind The index of the argument (0-5, see #PINK_MAX_INDEX)
@@ -68,7 +66,9 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
 /**
  * Get the string argument and place it in dest.
  *
- * \note On FreeBSD this function is equivalent to pink_decode_simple().
+ * \ingroup g_decode
+ *
+ * \attention On FreeBSD this function is equivalent to pink_decode_simple().
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
@@ -85,6 +85,8 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
 /**
  * Like pink_decode_string() but allocates the string itself.
  *
+ * \ingroup g_decode
+ *
  * \return The path on success, NULL on failure and sets errno
  * accordingly.
  **/
@@ -93,6 +95,8 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
 /**
  * Decode the requested member of a NULL-terminated string array.
+ *
+ * \ingroup g_decode
  *
  * \param pid Process ID of the child
  * \param bitness Bitness of the child
@@ -114,16 +118,18 @@ pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, uns
 /**
  * Like pink_decode_string_array_member() but allocates the string itself.
  *
+ * \ingroup g_decode
+ *
+ * \attention If the array member is NULL, this function returns NULL but doesn't
+ * modify errno. Check errno after the call to distinguish between success and
+ * failure for a NULL return.
+ *
  * \param pid Process ID of the child
  * \param bitness Bitness of the child
  * \param arg The address of the argument, see pink_util_get_arg()
  * \param ind The index of the string in teh array
  *
  * \return The string on success, NULL on failure and sets errno accordingly.
- *
- * \note If the array member is NULL, this function returns NULL but doesn't
- * modify errno. Check errno after the call to distinguish between success and
- * failure for a NULL return.
  *
  * \since 0.0.3
  **/
@@ -133,6 +139,8 @@ pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, lo
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Decode the socket call and place it in call.
+ *
+ * \ingroup g_decode
  *
  * \note Availability: Linux
  * \note This function decodes the socketcall(2) system call on some
@@ -153,6 +161,8 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
 /**
  * Get the socket file descriptor in argument arg and place it in fd.
  *
+ * \ingroup g_decode
+ *
  * \note Availability: Linux
  * \note This function decodes the socketcall(2) system call on some
  * architectures.
@@ -170,7 +180,9 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
- * Get the socket address and place it in addr_r.
+ * Get the socket address and place it in paddr.
+ *
+ * \ingroup g_decode
  *
  * \note This function decodes the socketcall(2) system call on some
  * architectures.
@@ -197,9 +209,5 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_DECODE_H */

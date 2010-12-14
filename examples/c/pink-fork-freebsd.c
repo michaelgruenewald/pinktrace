@@ -1,5 +1,17 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
+/**
+ * \file
+ *
+ * Example \ref pink-fork-freebsd.c "pink-fork-freebsd.c" .
+ **/
+
+/**
+ * \example pink-fork-freebsd.c
+ *
+ * Example demonstrating how to fork and start tracing a process on FreeBSD.
+ **/
+
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>

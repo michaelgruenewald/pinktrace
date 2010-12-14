@@ -35,17 +35,15 @@
 /**
  * \file
  * \brief Pink's easy execve() wrappers
- **/
-
-/**
- * \defgroup exec Pink's easy exec wrappers
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_exec
  **/
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing and then calls execve().
+ *
+ * \ingroup g_easy_exec
  *
  * \param ctx Tracing context
  * \param filename Path of the executable
@@ -63,6 +61,8 @@ pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const arg
  * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing, handles the arguments and calls execve().
  *
+ * \ingroup g_easy_exec
+ *
  * \param ctx Tracing context
  * \param file Filename of the executable
  * \param arg Initial argument, filename of the executable
@@ -78,6 +78,8 @@ pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...
 /**
  * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing, handles the arguments and calls execvp().
+ *
+ * \ingroup g_easy_exec
  *
  * \param ctx Tracing context
  * \param file Filename of the executable
@@ -95,6 +97,8 @@ pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ..
  * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing and then calls execv().
  *
+ * \ingroup g_easy_exec
+ *
  * \param ctx Tracing context
  * \param path Path of the executable
  * \param argv Arguments
@@ -109,6 +113,8 @@ pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]);
  * This function calls vfork() to spawn a new child, does the necessary
  * preparation for tracing and then calls execvp().
  *
+ * \ingroup g_easy_exec
+ *
  * \param ctx Tracing context
  * \param file Name of the executable
  * \param argv Arguments
@@ -118,9 +124,5 @@ pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]);
 PINK_NONNULL(1)
 int
 pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[]);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_EASY_EXEC_H */

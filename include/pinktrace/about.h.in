@@ -34,57 +34,65 @@
 /**
  * \file
  * \brief Pink's version and build constants
- **/
-
-/**
- * \defgroup about Pink's version and build constants
- * \ingroup core
- * \{
+ *
+ * \ingroup g_about
  **/
 
 /**
  * The package name (eg pinktrace)
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_PACKAGE "@PACKAGE@"
 
 /**
  * The major version (eg 0.4.1 -> 0)
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_VERSION_MAJOR @VERSION_MAJOR@
 
 /**
  * The minor version (eg 0.4.1 -> 4)
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_VERSION_MINOR @VERSION_MINOR@
 
 /**
  * The micro version (eg 0.4.1 -> 1)
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_VERSION_MICRO @VERSION_MICRO@
 
 /**
  * The version suffix (eg "_alpha1"), often an empty string
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_VERSION_SUFFIX "@VERSION_SUFFIX@"
 
 /**
  * The version, two digits per part (eg 1.3.5 -> 10305)
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_VERSION ((100 * 100 * PINKTRACE_VERSION_MAJOR) \
 		+ (100 * PINKTRACE_VERSION_MINOR) + PINKTRACE_VERSION_MICRO)
 
 /**
  * The Git head used to build this binary, if applicable (eg "deadbeef" or "1.0.0-40-f00-dirty" or "")
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_GIT_HEAD "@GITHEAD@"
 
 /**
  * The suffix used for so names (eg "0.30" or "0.31_15ece615")
+ *
+ * \ingroup g_about
  **/
 #define PINKTRACE_PC_SLOT "@PINKTRACE_PC_SLOT@"
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_ABOUT_H */

@@ -1,0 +1,22 @@
+/* vim: ft=cpp sw=8 ts=8 sts=0 noet fdm=syntax : */
+
+/**
+ * \mainpage pinktrace
+ *
+ * pinktrace - Pink's Tracing Library
+ *
+ * \section overview Overview
+ *
+ * pinktrace is a wrapper around \c ptrace(2) system call.
+ * It provides a robust API for tracing processes.
+ *
+ * \attention This is a work in progress and the API is \b not stable.
+ *
+ * \section parts Parts
+ *
+ * This library is divided into two parts:
+ * - \ref g_core "Core library (pinktrace)"
+ * - \ref g_easy "Easy library (pinktrace-easy)"
+ *
+ * \author Ali Polatel <alip@exherbo.org>
+ **/

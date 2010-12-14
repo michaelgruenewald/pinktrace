@@ -1,5 +1,17 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
+/**
+ * \file
+ *
+ * Example \ref pink-about.c "pink-about.c" .
+ **/
+
+/**
+ * \example pink-about.c
+ *
+ * A simple example demonstrating how to use Pink's version macros.
+ **/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

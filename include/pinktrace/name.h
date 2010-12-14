@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's system call naming
- **/
-
-/**
- * \defgroup name Pink's system call naming
- * \ingroup core
- * \{
+ *
+ * \ingroup g_name
  **/
 
 #include <pinktrace/bitness.h>
@@ -50,6 +46,8 @@ extern "C" {
 
 /**
  * Return the name of the given system call.
+ *
+ * \ingroup g_name
  *
  * \note On ARM architecture, this function considers the system call
  * architecture specific if scno is smaller than zero.
@@ -68,6 +66,8 @@ pink_name_syscall(long scno, pink_bitness_t bitness);
 /**
  * Look up the number of the given system call name.
  *
+ * \ingroup g_name
+ *
  * \param name Name of the system call
  * \param bitness Bitness of the child
  *
@@ -80,9 +80,5 @@ pink_name_lookup(const char *name, pink_bitness_t bitness);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_NAME_H */

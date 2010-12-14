@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's low level wrappers around \c ptrace(2) internals
- **/
-
-/**
- * \defgroup trace Pink's low level wrappers around \c ptrace(2) internals
- * \ingroup core
- * \{
+ *
+ * \ingroup g_trace
  **/
 
 #include <stdbool.h>
@@ -53,6 +49,8 @@
  * between normal traps and those caused by a syscall. This option may not work
  * on all architectures.
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_SYSGOOD   (1 << 0)
@@ -63,6 +61,8 @@
  * automatically start tracing the newly forked process, which will start with
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux
  **/
@@ -75,6 +75,8 @@
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_VFORK     (1 << 2)
@@ -86,6 +88,8 @@
  * a SIGSTOP. The PID for the new process can be retrieved with
  * pink_trace_geteventmsg().
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_CLONE     (1 << 3)
@@ -93,6 +97,8 @@
  * This define represents the trace option EXEC.
  * If this flag is set in the options argument of pink_trace_setup(), stop the
  * child at the next execve(2) call with (SIGTRAP | PTRACE_EVENT_EXEC << 8)
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux
  **/
@@ -102,6 +108,8 @@
  * If this flag is set in the options argument of pink_trace_setup(), stop the
  * child at the completion of the next vfork(2) call with
  * (SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8)
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux
  **/
@@ -117,12 +125,16 @@
  * context is available, the tracer cannot prevent the exit from happening at
  * this point.
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  **/
 #define PINK_TRACE_OPTION_EXIT      (1 << 6)
 
 /**
  * All trace options OR'ed together.
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux
  **/
@@ -148,6 +160,8 @@ extern "C" {
  * by this process will cause a SIGTRAP to be sent to it, giving the parent a
  * chance to gain control before the new program begins execution.
  *
+ * \ingroup g_trace
+ *
  * \note This function is used only by the child process; the rest are used
  * only by the parent.
  *
@@ -158,6 +172,8 @@ pink_trace_me(void);
 
 /**
  * Restarts the stopped child process.
+ *
+ * \ingroup g_trace
  *
  * \param pid Process ID of the child to be restarted.
  * \param sig If this is non-zero and not SIGSTOP, it is interpreted as the
@@ -177,12 +193,16 @@ pink_trace_cont(pid_t pid, int sig, char *addr);
 /**
  * Convenience macro to resume the stopped child process.
  *
+ * \ingroup g_trace
+ *
  * \see pink_trace_cont
  **/
 #define pink_trace_resume(pid, sig) pink_trace_cont((pid), (sig), (char *)1)
 
 /**
  * Kills the traced child process with SIGKILL.
+ *
+ * \ingroup g_trace
  *
  * \param pid Process ID of the child to be killed.
  *
@@ -195,6 +215,8 @@ pink_trace_kill(pid_t pid);
  * Restarts the stopped child process and arranges it to be stopped after
  * execution of a single instruction.
  *
+ * \ingroup g_trace
+ *
  * \param pid Process ID of the child to be restarted.
  * \param sig Treated the same as the signal argument of pink_trace_cont().
  *
@@ -206,6 +228,8 @@ pink_trace_singlestep(pid_t pid, int sig);
 /**
  * Restarts the stopped child process and arranges it to be stopped after
  * the entry or exit of the next system call.
+ *
+ * \ingroup g_trace
  *
  * \param pid Process ID of the child to be restarted.
  * \param sig Treated the same was as the signal argument of pink_trace_cont().
@@ -220,6 +244,8 @@ pink_trace_syscall(pid_t pid, int sig);
  * Restarts the stopped child process and arranges it to be stopped after
  * the entry of the next system call.
  *
+ * \ingroup g_trace
+ *
  * \note Availability: FreeBSD
  *
  * \param pid Process ID of the child to be restarted.
@@ -233,6 +259,8 @@ pink_trace_syscall_entry(pid_t pid, int sig);
 /**
  * Restarts the stopped child process and arranges it to be stopped after
  * the exit of the next system call.
+ *
+ * \ingroup g_trace
  *
  * \note Availability: FreeBSD
  *
@@ -252,6 +280,8 @@ pink_trace_syscall_exit(pid_t pid, int sig);
  * EXIT event this is the child's exit status. For FORK, VFORK, CLONE and
  * VFORK_DONE events this is the process ID of the new process.
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  *
  * \param pid Process ID of the child whose event is to be reported.
@@ -266,6 +296,8 @@ pink_trace_geteventmsg(pid_t pid, unsigned long *data);
 /**
  * Sets the tracing options.
  *
+ * \ingroup g_trace
+ *
  * \note Availability: Linux
  *
  * \param pid Process ID of the child to be setup.
@@ -279,6 +311,8 @@ pink_trace_setup(pid_t pid, int options);
 /**
  * Restarts the stopped child process and arranges it to be stopped after
  * the entry of the next system call which will *not* be executed.
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux (2.6.14 or newer)
  *
@@ -295,6 +329,8 @@ pink_trace_sysemu(pid_t pid, int sig);
 /**
  * Restarts the stopped child process like pink_trace_sysemu() but also
  * singlesteps if not a system call.
+ *
+ * \ingroup g_trace
  *
  * \note Availability: Linux (2.6.14 or newer)
  *
@@ -317,6 +353,8 @@ pink_trace_sysemu_singlestep(pid_t pid, int sig);
  * stopped by the completion of this call; use wait(2) to wait for the child to
  * stop.
  *
+ * \ingroup g_trace
+ *
  * \param pid Process ID of the child to be attached.
  *
  * \return true on success, false on failure and sets errno accordingly.
@@ -327,6 +365,8 @@ pink_trace_attach(pid_t pid);
 /**
  * Restarts the stopped child as for pink_trace_cont(), but first detaches from
  * the process, undoing the reparenting effect of pink_trace_attach().
+ *
+ * \ingroup g_trace
  *
  * \param pid Process ID of the child to be detached.
  * \param sig Check the second argument of pink_trace_cont().
@@ -339,9 +379,5 @@ pink_trace_detach(pid_t pid, int sig);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_TRACE_H */

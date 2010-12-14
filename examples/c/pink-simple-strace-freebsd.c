@@ -1,5 +1,17 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
+/**
+ * \file
+ *
+ * Example \ref pink-simple-strace-freebsd.c "pink-simple-strace-freebsd.c" .
+ **/
+
+/**
+ * \example pink-simple-strace-freebsd.c
+ *
+ * Simple strace like program example written with pinktrace for FreeBSD.
+ **/
+
 #include <assert.h>
 #include <err.h>
 #include <errno.h>

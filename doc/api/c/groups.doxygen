@@ -1,0 +1,175 @@
+/* vim: ft=cpp sw=8 ts=8 sts=0 noet fdm=syntax : */
+
+/**
+ * \defgroup g_core Core
+ *
+ * pinktrace public API
+ **/
+
+/**
+ * \defgroup g_easy Easy
+ *
+ * pinktrace easy API
+ *
+ * \note Availability: Linux
+ **/
+
+/**
+ * \defgroup g_about About
+ *
+ * \ingroup g_core
+ *
+ * Pink's version and build constants
+ **/
+
+/**
+ * \defgroup g_bitness Bitness
+ *
+ * \ingroup g_core
+ *
+ * Pink's bitness modes
+ **/
+
+/**
+ * \defgroup g_compat Compat
+ *
+ * \ingroup g_core
+ *
+ * Pink's compatibility macros
+ **/
+
+/**
+ * \defgroup g_decode Decode
+ *
+ * \ingroup g_core
+ *
+ *  Pink's system call decoders
+ **/
+
+/**
+ * \defgroup g_encode Encode
+ *
+ * \ingroup g_core
+ *
+ * Pink's system call encoders
+ **/
+
+/**
+ * \defgroup g_event Event
+ *
+ * \ingroup g_core
+ *
+ * Pink's event handling
+ **/
+
+/**
+ * \defgroup g_gcc GCC
+ *
+ * \ingroup g_core
+ *
+ * Pink's GCC macros
+ **/
+
+/**
+ * \defgroup g_name Name
+ *
+ * \ingroup g_core
+ *
+ * Pink's system call naming
+ **/
+
+/**
+ * \defgroup g_socket Socket
+ *
+ * \ingroup g_core
+ *
+ * Pink's socket related data structures and functions
+ **/
+
+/**
+ * \defgroup g_trace Trace
+ *
+ * \ingroup g_core
+ *
+ * Pink's low level wrappers around \c ptrace(2) internals
+ **/
+
+/**
+ * \defgroup g_util Util
+ *
+ * \ingroup g_core
+ *
+ * Pink's trace utility functions
+ **/
+
+/**
+ * \defgroup g_easy_attach Easy-Attach
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy process attach
+ **/
+
+/**
+ * \defgroup g_easy_call Easy-Call
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy tracing function call
+ **/
+
+/**
+ * \defgroup g_easy_callback Easy-Callback
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy \c ptrace(2) event callbacks
+ **/
+
+/**
+ * \defgroup g_easy_context Easy-Context
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy tracing context
+ **/
+
+/**
+ * \defgroup g_easy_error Easy-Error
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy error codes
+ **/
+
+/**
+ * \defgroup g_easy_exec Easy-Exec
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy exec wrappers
+ **/
+
+/**
+ * \defgroup g_easy_func Easy-Func
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy function pointers
+ **/
+
+/**
+ * \defgroup g_easy_loop Easy-Loop
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy event loop
+ **/
+
+/**
+ * \defgroup g_easy_process Easy-Process
+ *
+ * \ingroup g_easy
+ *
+ * Pink's easy process representation
+ **/

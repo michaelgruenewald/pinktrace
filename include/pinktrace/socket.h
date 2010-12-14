@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's socket related data structures and functions
- **/
-
-/**
- * \defgroup socket Pink's socket related data structures and functions
- * \ingroup core
- * \{
+ *
+ * \ingroup g_socket
  **/
 
 #if defined(PINKTRACE_FREEBSD) || defined(DOXYGEN)
@@ -56,6 +52,8 @@
 
 /**
  * \brief Structure which defines a decoded socket address.
+ *
+ * \ingroup g_socket
  **/
 typedef struct {
 	/** Family of the socket address **/
@@ -111,6 +109,8 @@ typedef struct {
 /**
  * Decoded socket subcalls
  *
+ * \ingroup g_socket
+ *
  * \note Availability: Linux
  **/
 typedef enum {
@@ -162,6 +162,8 @@ extern "C" {
  * bind etc. - are implemented as separate system calls. On others these calls
  * are subcalls of the socketcall() system call.
  *
+ * \ingroup g_socket
+ *
  * \note Availability: Linux
  *
  * \see pink_socket_subcall_t
@@ -175,6 +177,8 @@ pink_has_socketcall(pink_bitness_t bitness);
 
 /**
  * Name the given socket subcall
+ *
+ * \ingroup g_socket
  *
  * \note Availability: Linux
  *
@@ -191,9 +195,5 @@ pink_name_socket_subcall(pink_socket_subcall_t subcall);
 #endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_SOCKET_H */

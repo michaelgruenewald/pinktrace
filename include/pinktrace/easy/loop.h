@@ -35,18 +35,16 @@
 /**
  * \file
  * \brief Pink's easy event loop
- **/
-
-/**
- * \defgroup loop Pink's easy event loop
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_loop
  **/
 
 /**
  * The main event loop
  *
- * \note Mainly for internal use, use high level functions like
+ * \ingroup g_easy_loop
+ *
+ * \warning Mainly for internal use, use high level functions like
  * pink_easy_call() or pink_easy_execvp() where possible.
  *
  * \param ctx Tracing context
@@ -59,9 +57,5 @@
 PINK_NONNULL(1)
 int
 pink_easy_loop(pink_easy_context_t *ctx);
-
-/**
- * \}
- **/
 
 #endif /* PINKTRACE_EASY_GUARD_LOOP_H */

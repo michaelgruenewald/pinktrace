@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's trace utility functions
- **/
-
-/**
- * \defgroup util Pink's trace utility functions
- * \ingroup core
- * \{
+ *
+ * \ingroup g_util
  **/
 
 #include <stdbool.h>
@@ -46,6 +42,8 @@
 
 /**
  * The index arguments should be smaller than this define.
+ *
+ * \ingroup g_util
  *
  * \see pink_util_get_arg
  * \see pink_decode_simple
@@ -69,7 +67,9 @@ extern "C" {
  * On Linux this reads a word at the given offset in the child's USER area, and
  * places it in res, aka PTRACE_PEEKUSER.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
  * \param off Offset
@@ -87,7 +87,9 @@ pink_util_peek(pid_t pid, long off, long *res);
  * On Linux this reads a word at the given offset in the child's memory, and
  * places it in res, aka PTRACE_PEEKDATA.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child whose USER area is to be read.
  * \param off Offset
@@ -105,7 +107,9 @@ pink_util_peekdata(pid_t pid, long off, long *res);
  * On Linux this copies the word val to the given offset in the child's USER
  * area, aka PTRACE_POKEUSER.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
  * \param off Offset
@@ -123,7 +127,9 @@ pink_util_poke(pid_t pid, long off, long val);
  * On Linux this copies the word val to location addr in the child's memory,
  * aka PTRACE_PEEKDATA.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
  * \param off Offset
@@ -136,6 +142,8 @@ pink_util_pokedata(pid_t pid, long off, long val);
 
 /**
  * Copy the child's general purpose registers to the given location.
+ *
+ * \ingroup g_util
  *
  * \param pid Process ID of the child.
  * \param regs Pointer to the structure of registers. On FreeBSD this is
@@ -150,6 +158,8 @@ pink_util_get_regs(pid_t pid, void *regs);
 /**
  * Set the child's general purpose registers.
  *
+ * \ingroup g_util
+ *
  * \param pid Process ID of the child.
  * \param regs Same as pink_util_get_regs()
  *
@@ -162,7 +172,9 @@ pink_util_set_regs(pid_t pid, const void *regs);
  * Move len bytes of data of process pid, at address addr, to our address space
  * dest.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child.
  * \param addr Address where the data is to be moved from.
@@ -177,7 +189,9 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
 /**
  * Convenience macro to read an object
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_moven
  **/
@@ -188,6 +202,8 @@ pink_util_moven(pid_t pid, long addr, char *dest, size_t len);
  * Like pink_util_moven() but make the additional effort of looking for a
  * terminating zero-byte.
  *
+ * \ingroup g_util
+ *
  * \note On FreeBSD this function is equivalent to pink_util_moven().
  * \note Mostly for internal use, use higher level functions where possible.
  **/
@@ -197,7 +213,9 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
 /**
  * Like pink_util_movestr() but allocates the string itself.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \return The string on success and NULL on failure and sets errno
  * accordingly.
@@ -209,7 +227,9 @@ pink_util_movestr_persistent(pid_t pid, long addr);
  * Copy len bytes of data to process pid, at address addr, from our address space
  * src.
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
  * \param addr Address where the data is to be copied to
@@ -224,7 +244,9 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
 /**
  * Convenience macro to write an object
  *
- * \note Mostly for internal use, use higher level functions where possible.
+ * \ingroup g_util
+ *
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_putn
  **/
@@ -236,8 +258,10 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len);
  * Like pink_util_putn() but make the additional effort not to overwrite
  * unreadable addresses. Use this e.g. to write strings safely.
  *
+ * \ingroup g_util
+ *
  * \note Availability: Linux
- * \note Mostly for internal use, use higher level functions where possible.
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \param pid Process ID of the child being traced
  * \param addr Address where the data is to be copied to
@@ -252,8 +276,10 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 /**
  * Convenience macro to write an object safely
  *
+ * \ingroup g_util
+ *
  * \note Availability: Linux
- * \note Mostly for internal use, use higher level functions where possible.
+ * \warning Mostly for internal use, use higher level functions where possible.
  *
  * \see pink_util_putn_safe
  **/
@@ -264,6 +290,8 @@ pink_util_putn_safe(pid_t pid, long addr, const char *src, size_t len);
 
 /**
  * Gets the last system call called by child with the given process ID.
+ *
+ * \ingroup g_util
  *
  * \note Architecture specific system calls on ARM architecture are negated so
  * that the user can distinguish between normal system calls and architecture
@@ -281,6 +309,8 @@ pink_util_get_syscall(pid_t pid, pink_bitness_t bitness, long *res);
 /**
  * Sets the system call to the given value.
  *
+ * \ingroup g_util
+ *
  * \note On ARM architecture, this only works for EABI system calls.
  *
  * \param pid Process ID of the child whose system call is to be set.
@@ -296,6 +326,8 @@ pink_util_set_syscall(pid_t pid, pink_bitness_t bitness, long scno);
  * Gets the return value of the last system call called by child with the given
  * process ID.
  *
+ * \ingroup g_util
+ *
  * \param pid Process ID of the child whose system call return value is to be
  * returned.
  * \param res Pointer to store the result.
@@ -310,6 +342,8 @@ pink_util_get_return(pid_t pid, long *res);
  * Sets the return value of the last system call called by child with the given
  * process ID.
  *
+ * \ingroup g_util
+ *
  * \param pid Process ID of the child whose system call return value is to be
  * modified.
  * \param ret Return value to set.
@@ -321,6 +355,8 @@ pink_util_set_return(pid_t pid, long ret);
 
 /**
  * Get the given argument and place it in res.
+ *
+ * \ingroup g_util
  *
  * \param pid Process ID of the child whose argument is to be received.
  * \param bitness Bitness of the child
@@ -335,6 +371,8 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
 
 /**
  * Set the given argument
+ *
+ * \ingroup g_util
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
@@ -351,9 +389,5 @@ pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_UTIL_H */

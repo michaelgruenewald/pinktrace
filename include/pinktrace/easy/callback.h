@@ -38,27 +38,29 @@
 /**
  * \file
  * \brief Pink's easy \c ptrace(2) event callbacks
- **/
-
-/**
- * \defgroup callback Pink's easy ptrace(2) event callbacks
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_callback
  **/
 
 /**
  * Implies that the loop should be aborted immediately.
+ *
+ * \ingroup g_easy_callback
  **/
 #define PINK_EASY_CFLAG_ABORT		00001
 /**
  * Implies that the current process has exited and should be removed from the
  * process tree. Useful for handling -ESRCH in callbacks.
+ *
+ * \ingroup g_easy_callback
  **/
 #define PINK_EASY_CFLAG_DEAD		00002
 /**
  * Implies that the child of the current process has exited and should be
  * removed from the process tree. Useful for handling -ESRCH.
  * Only makes sense for fork,vfork and clone callbacks.
+ *
+ * \ingroup g_easy_callback
  **/
 #define PINK_EASY_CFLAG_CHILD_DEAD	00003
 
@@ -105,6 +107,8 @@ struct pink_easy_context;
      ----------------------------------------------------------------------
    \endverbatim
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param ... Variable arguments give extra information about the error.
  **/
@@ -112,6 +116,8 @@ typedef void (*pink_easy_errback_t) (const struct pink_easy_context *ctx, ...);
 
 /**
  * Errback for errors in the spawned child.
+ *
+ * \ingroup g_easy_callback
  *
  * \param e Error code
  *
@@ -123,6 +129,8 @@ typedef int (*pink_easy_errback_child_t) (pink_easy_child_error_t e);
  * Callback for child birth.
  *
  * This is called when a new process is created.
+ *
+ * \ingroup g_easy_callback
  *
  * \param ctx Tracing context
  * \param current New born child
@@ -138,6 +146,8 @@ typedef void (*pink_easy_callback_birth_t) (const struct pink_easy_context *ctx,
  * In this case, the process is removed from the process tree.
  * This is the last callback that is called before the child is freed.
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param current Dead child
  **/
@@ -149,6 +159,8 @@ typedef void (*pink_easy_callback_death_t) (const struct pink_easy_context *ctx,
  * This is called when the count of the process tree dropped to zero, or
  * waitpid() returned -ECHILD. If this callback is NULL, pink_easy_loop() will
  * just return with success, which may not always be what you want.
+ *
+ * \ingroup g_easy_callback
  *
  * \see pink_easy_loop
  *
@@ -163,6 +175,8 @@ typedef int (*pink_easy_callback_end_t) (const struct pink_easy_context *ctx, bo
 /**
  * Callback for #PINK_EVENT_SYSCALL
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param current Current child
  * \param entering true if the child is entering the system call, false
@@ -175,6 +189,8 @@ typedef short (*pink_easy_callback_syscall_t) (const struct pink_easy_context *c
 /**
  * Callback for #PINK_EVENT_FORK, #PINK_EVENT_VFORK and #PINK_EVENT_CLONE
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param current Current child
  * \param alive true if the child was born and suspended before, false
@@ -186,6 +202,8 @@ typedef short (*pink_easy_callback_fork_t) (const struct pink_easy_context *ctx,
 
 /**
  * Callback for #PINK_EVENT_EXEC
+ *
+ * \ingroup g_easy_callback
  *
  * \note The bitness of the child is updated before this callback is called.
  *
@@ -200,6 +218,8 @@ typedef short (*pink_easy_callback_exec_t) (const struct pink_easy_context *ctx,
 /**
  * Callback for #PINK_EVENT_EXIT
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param current Current child
  * \param status Exit status
@@ -210,6 +230,8 @@ typedef short (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *
 
 /**
  * Callback for #PINK_EVENT_GENUINE
+ *
+ * \ingroup g_easy_callback
  *
  * \param ctx Tracing context
  * \param current Current process
@@ -222,6 +244,8 @@ typedef short (*pink_easy_callback_signal_t) (const struct pink_easy_context *ct
 /**
  * Callback for #PINK_EVENT_EXIT and #PINK_EVENT_EXIT_SIGNAL
  *
+ * \ingroup g_easy_callback
+ *
  * \param ctx Tracing context
  * \param pid Process ID of the child
  * \param cs Exit code for #PINK_EVENT_EXIT, termination signal for
@@ -233,6 +257,8 @@ typedef short (*pink_easy_callback_exit_t) (const struct pink_easy_context *ctx,
 
 /**
  * \brief Structure which represents a callback table
+ *
+ * \ingroup g_easy_callback
  **/
 typedef struct pink_easy_callback_table {
 	/** "error" errback **/
@@ -267,9 +293,5 @@ typedef struct pink_easy_callback_table {
 	/** "exit_signal" callback **/
 	pink_easy_callback_exit_t exit_signal;
 } pink_easy_callback_table_t;
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CALLBACK_H */

@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's event handling
- **/
-
-/**
- * \defgroup event Pink's event handling
- * \ingroup core
- * \{
+ *
+ * \ingroup g_event
  **/
 
 #include <stdbool.h>
@@ -49,6 +45,8 @@
 
 /**
  * Event constants
+ *
+ * \ingroup g_event
  *
  * \note Availability: Linux
  **/
@@ -86,6 +84,8 @@ extern "C" {
 /**
  * Return the last event made by child.
  *
+ * \ingroup g_event
+ *
  * \note Availability: Linux
  *
  * \note This function expects #PINK_TRACE_OPTION_SYSGOOD has been passed to
@@ -102,6 +102,8 @@ pink_event_decide(int status);
 /**
  * Return a string representation of the event.
  *
+ * \ingroup g_event
+ *
  * \note Availability: Linux
  *
  * \param event The event to be stringified.
@@ -117,9 +119,5 @@ pink_event_name(pink_event_t event);
 #endif /* __cplusplus */
 
 #endif /* defined(PINKTRACE_LINUX)... */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */

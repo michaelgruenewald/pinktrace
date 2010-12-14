@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's easy process attaching
- **/
-
-/**
- * \defgroup attach Pink's easy process attach
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_attach
  **/
 
 #include <sys/types.h>
@@ -47,6 +43,8 @@
 
 /**
  * Attach to processes for tracing
+ *
+ * \ingroup g_easy_attach
  *
  * \param ctx Tracing context
  * \param count Number of processes to attach
@@ -57,9 +55,5 @@
  **/
 int
 pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_ATTACH_H */

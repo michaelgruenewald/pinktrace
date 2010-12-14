@@ -2,10 +2,6 @@
 
 /*
  * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
- * Based in part upon strace which is:
- *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
- *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
- *   Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,17 +39,15 @@
 /**
  * \file
  * \brief Pink's easy process representation
- **/
-
-/**
- * \defgroup process Pink's easy process representation
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_process
  **/
 
 /**
  * \struct pink_easy_process_t
  * \brief Opaque structure which represents a process entry.
+ *
+ * \ingroup g_easy_process
  *
  * This entries are allocated internally by the tracing context.
  **/
@@ -63,12 +57,16 @@ typedef struct pink_easy_process pink_easy_process_t;
  * \struct pink_easy_process_tree_t
  * \brief Opaque structure which represents a process tree.
  *
+ * \ingroup g_easy_process
+ *
  * This tree is allocated internally by the tracing context.
  **/
 typedef struct pink_easy_process_tree pink_easy_process_tree_t;
 
 /**
  * Returns the process ID of the entry.
+ *
+ * \ingroup g_easy_process
  *
  * \param proc Process entry
  *
@@ -81,7 +79,9 @@ pink_easy_process_get_pid(const pink_easy_process_t *proc);
 /**
  * Returns the process ID of this entry's parent or -1 for the eldest entries.
  *
- * \param Process entry
+ * \ingroup g_easy_process
+ *
+ * \param proc Process entry
  *
  * \return Parent Process ID or -1
  **/
@@ -91,6 +91,8 @@ pink_easy_process_get_ppid(const pink_easy_process_t *proc);
 
 /**
  * Returns the bitness of the entry
+ *
+ * \ingroup g_easy_process
  *
  * \param proc Process entry
  *
@@ -102,6 +104,8 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc);
 
 /**
  * Set the user data of the process entry.
+ *
+ * \ingroup g_easy_process
  *
  * \note This function accepts a destructor function pointer which may be used
  * to free the user data. You may pass NULL if you want to handle the
@@ -120,6 +124,8 @@ pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free
  * Get the user data of the process entry, previously set by
  * pink_easy_process_set_data()
  *
+ * \ingroup g_easy_process
+ *
  * \param proc Process entry
  *
  * \return User data
@@ -131,6 +137,8 @@ pink_easy_process_get_data(const pink_easy_process_t *proc);
 /**
  * Returns the count of entries in the tree.
  *
+ * \ingroup g_easy_process
+ *
  * \param tree Process tree
  *
  * \return Number of entries in the tree
@@ -140,6 +148,8 @@ pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
 
 /**
  * Remove a process from the process tree.
+ *
+ * \ingroup g_easy_process
  *
  * \note pinktrace doesn't export an insertion function because insertions are
  * handled internally by this library. You may, however, need to remove an
@@ -157,6 +167,8 @@ pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
 /**
  * Search the process tree for the given process ID.
  *
+ * \ingroup g_easy_process
+ *
  * \param tree The process tree
  * \param pid Process ID
  *
@@ -169,6 +181,8 @@ pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
 /**
  * Walk the process tree.
  *
+ * \ingroup g_easy_process
+ *
  * \param tree Process tree
  * \param func Walk function
  * \param userdata User data to pass to the walk function
@@ -178,9 +192,5 @@ pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
 PINK_NONNULL(1,2)
 unsigned
 pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, pink_easy_walk_func_t func, void *userdata);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

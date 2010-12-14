@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's GCC macros
- **/
-
-/**
- * \defgroup gcc Pink's GCC macros
- * \ingroup core
- * \{
+ *
+ * \ingroup g_gcc
  **/
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
@@ -55,41 +51,53 @@
 #else
 /**
  * GCC malloc attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_MALLOC
 /**
  * GCC nonnull attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_NONNULL(...)
 /**
  * GCC noreturn attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_NORETURN
 /**
  * GCC pure attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_PURE
 /**
  * GCC sentinel attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_SENTINEL(x)
 /**
  * GCC unused attribute
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_UNUSED
 /**
  * GCC builtin_expect macro
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_LIKELY(x) (x)
 /**
  * GCC builtin_expect macro
+ *
+ * \ingroup g_gcc
  **/
 #define PINK_UNLIKELY(x) (x)
 
 #endif /* !defined(SPARSE) ... */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_GCC_H */

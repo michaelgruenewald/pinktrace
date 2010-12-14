@@ -33,16 +33,14 @@
 /**
  * \file
  * \brief Pink's compatibility macros
- **/
-
-/**
- * \defgroup compat Pink's compatibility macros
- * \ingroup core
- * \{
+ *
+ * \ingroup g_compat
  **/
 
 /**
  * Define for the availability of pink_bitness_wordsize() function.
+ *
+ * \ingroup g_compat
  *
  * \see pink_bitness_wordsize
  *
@@ -53,6 +51,8 @@
 /**
  * Define for the availability of pink_decode_string_array_member() function.
  *
+ * \ingroup g_compat
+ *
  * \see pink_decode_string_array_member
  *
  * \since 0.0.3
@@ -61,6 +61,8 @@
 
 /**
  * Define for the availability of pink_decode_string_array_member_persistent() function.
+ *
+ * \ingroup g_compat
  *
  * \see pink_decode_string_array_member_persistent
  *
@@ -71,6 +73,8 @@
 /**
  * Define for the availability of pink_trace_sysemu() function.
  *
+ * \ingroup g_compat
+ *
  * \see pink_trace_sysemu()
  *
  * \since 0.0.5
@@ -79,6 +83,8 @@
 
 /**
  * Define for the availability of pink_trace_sysemu_singlestep() function.
+ *
+ * \ingroup g_compat
  *
  * \see pink_trace_sysemu_singlestep()
  *
@@ -89,6 +95,8 @@
 /**
  * Define for the availability of nl member (netlink) of #pink_socket_address_t
  *
+ * \ingroup g_compat
+ *
  * \see pink_socket_address_t
  *
  * \since 0.0.5
@@ -97,6 +105,8 @@
 
 /**
  * Define for the availability of length member of #pink_socket_address_t
+ *
+ * \ingroup g_compat
  *
  * \see pink_socket_address_t
  *
@@ -107,14 +117,12 @@
 /**
  * Define for the availability of pink_util_set_arg() function.
  *
+ * \ingroup g_compat
+ *
  * \see pink_util_set_arg()
  *
  * \since 0.0.5
  **/
 #define PINK_UTIL_SET_ARG_AVAILABLE 1
-
-/**
- * \}
- **/
 
 #endif /* PINKTRACE_GUARD_COMPAT_H */

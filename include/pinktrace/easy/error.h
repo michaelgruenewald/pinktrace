@@ -33,15 +33,15 @@
 /**
  * \file
  * \brief Pink's easy error codes
+ *
+ * \ingroup g_easy_error
  **/
 
 /**
- * \defgroup error Pink's easy error codes
- * \ingroup easy
- * \{
+ * Child error codes
+ *
+ * \ingroup g_easy_error
  **/
-
-/** Child error codes **/
 typedef enum {
 	/** Success **/
 	PINK_EASY_CHILD_ERROR_SUCCESS = 0,
@@ -53,7 +53,11 @@ typedef enum {
 	PINK_EASY_CHILD_ERROR_MAX,
 } pink_easy_child_error_t;
 
-/** Error codes **/
+/**
+ * Error codes
+ *
+ * \ingroup g_easy_error
+ **/
 typedef enum {
 	/** Successful run **/
 	PINK_EASY_ERROR_SUCCESS = 0,
@@ -122,6 +126,8 @@ typedef enum {
 /**
  * Returns a string describing the child error.
  *
+ * \ingroup g_easy_error
+ *
  * \param e The error
  *
  * \return A string describing the error
@@ -133,6 +139,8 @@ pink_easy_child_strerror(pink_easy_child_error_t e);
 /**
  * Returns a string describing the error.
  *
+ * \ingroup g_easy_error
+ *
  * \param e The error
  *
  * \return A string describing the error
@@ -140,9 +148,5 @@ pink_easy_child_strerror(pink_easy_child_error_t e);
 PINK_PURE
 const char *
 pink_easy_strerror(pink_easy_error_t e);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_ERROR_H */

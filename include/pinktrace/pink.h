@@ -31,61 +31,10 @@
 #define PINKTRACE_GUARD_PINK_H 1
 
 /**
- * \mainpage pinktrace
- *
- * pinktrace - Pink's Tracing Library
- *
- * \section overview Overview
- *
- * pinktrace is a wrapper around \c ptrace(2) system call.
- * It provides a robust API for tracing processes.
- *
- * \attention This is a work in progress and the API is \b not stable.
- *
- * \section parts Parts
- *
- * This library is divided into two parts:
- * - \ref core
- * - \ref easy
- *
- * \author Ali Polatel <alip@exherbo.org>
- **/
-
-/**
- * \defgroup core Core library (pinktrace)
- *
- * This is a low-level library implementing thin wrappers around \c ptrace(2)
- * system call.
- **/
-
-/**
- * \example pink-about.c
- * This is a simple example demonstrating how to use Pink's version macros.
- **/
-
-/**
- * \example pink-fork-freebsd.c
- * This is an example demonstrating how to fork and start tracing a process on FreeBSD.
- **/
-
-/**
- * \example pink-fork-linux.c
- * This is an example demonstrating how to fork and start tracing a process on Linux.
- **/
-
-/**
- * \example pink-simple-strace-freebsd.c
- * This is a simple strace like program example written with pinktrace for FreeBSD.
- **/
-
-/**
- * \example pink-simple-strace-linux.c
- * This is a simple strace like program example written with pinktrace for Linux.
- **/
-
-/**
  * \file
  * \brief A header file including all other header files part of pinktrace
+ *
+ * \ingroup g_core
  **/
 
 #include <pinktrace/compat.h>

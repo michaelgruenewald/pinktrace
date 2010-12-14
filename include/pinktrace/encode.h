@@ -33,12 +33,8 @@
 /**
  * \file
  * \brief Pink's system call encoders
- **/
-
-/**
- * \defgroup encode Pink's system call encoders
- * \ingroup core
- * \{
+ *
+ * \ingroup g_encode
  **/
 
 #include <stdbool.h>
@@ -52,6 +48,8 @@ extern "C" {
 
 /**
  * Write the given data argument src to the address of the argument arg.
+ *
+ * \ingroup g_encode
  *
  * \param pid Process ID of the child whose argument is to be set.
  * \param bitness Bitness of the child
@@ -67,6 +65,8 @@ pink_encode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, const void *
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
  * Write the given data argument src to the address of the argument arg safely.
+ *
+ * \ingroup g_encode
  *
  * \note Availability: Linux
  *
@@ -85,9 +85,5 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_ENCODE_H */

@@ -39,12 +39,8 @@
 /**
  * \file
  * \brief Pink's easy tracing context
- **/
-
-/**
- * \defgroup context Pink's easy tracing context
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_context
  **/
 
 /**
@@ -53,11 +49,15 @@
  *
  * Use pink_easy_context_new() to create one and pink_easy_context_destroy() to
  * free all allocated resources.
+ *
+ * \ingroup g_easy_context
  **/
 typedef struct pink_easy_context pink_easy_context_t;
 
 /**
  * Allocate a tracing context.
+ *
+ * \ingroup g_easy_context
  *
  * \note This function accepts a destructor function pointer which may be used
  * to free the user data. You may pass NULL if you want to handle the
@@ -85,6 +85,8 @@ pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *
  * pink_easy_context_new(). If you need to do further cleanup, use the
  * cb_destroy callback provided by #pink_easy_callback_t.
  *
+ * \ingroup g_easy_context
+ *
  * \param ctx Tracing context
  **/
 PINK_NONNULL(1)
@@ -93,6 +95,8 @@ pink_easy_context_destroy(pink_easy_context_t *ctx);
 
 /**
  * Returns the last error saved in the context.
+ *
+ * \ingroup g_easy_context
  *
  * \param ctx Tracing context
  *
@@ -104,6 +108,8 @@ pink_easy_context_get_error(const pink_easy_context_t *ctx);
 
 /**
  * Clears the error saved in the context.
+ *
+ * \ingroup g_easy_context
  *
  * \param ctx Tracing context
  **/
@@ -125,6 +131,8 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx);
 /**
  * Returns the process tree
  *
+ * \ingroup g_easy_context
+ *
  * \param ctx Tracing context
  *
  * \return Process tree
@@ -132,9 +140,5 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx);
 PINK_NONNULL(1)
 pink_easy_process_tree_t *
 pink_easy_context_get_tree(const pink_easy_context_t *ctx);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

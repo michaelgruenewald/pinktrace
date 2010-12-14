@@ -36,16 +36,14 @@
 /**
  * \file
  * \brief Pink's easy tracing function call
- **/
-
-/**
- * \defgroup call Pink's easy tracing function call
- * \ingroup easy
- * \{
+ *
+ * \ingroup g_easy_call
  **/
 
 /**
  * Call a simple function which will be traced.
+ *
+ * \ingroup g_easy_call
  *
  * \note This function uses fork() to spawn the initial child.
  *
@@ -58,9 +56,5 @@
 PINK_NONNULL(1,2)
 int
 pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata);
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_EASY_GUARD_CALL_H */

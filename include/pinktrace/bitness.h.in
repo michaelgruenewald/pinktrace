@@ -36,18 +36,14 @@
  * \brief Pink's bitness modes
  **/
 
-/**
- * \defgroup bitness Pink's bitness modes
- * \ingroup core
- * \{
- **/
-
 #include <sys/types.h>
 
 #include <pinktrace/gcc.h>
 
 /**
  * Bitness modes
+ *
+ * \ingroup g_bitness
  **/
 typedef enum {
 	/** Unknown bitness ( error with #pink_bitness_get ) **/
@@ -60,21 +56,29 @@ typedef enum {
 
 /**
  * Default bitness (eg #PINK_BITNESS_64 on x86_64, #PINK_BITNESS_32 on i386)
+ *
+ * \ingroup g_bitness
  **/
 #define PINKTRACE_BITNESS_DEFAULT @PINKTRACE_BITNESS_DEFAULT@
 
 /**
  * Number of supported bitnesses (eg 2 on x86_64, 1 on i386)
+ *
+ * \ingroup g_bitness
  **/
 #define PINKTRACE_BITNESS_COUNT_SUPPORTED @PINKTRACE_BITNESS_COUNT_SUPPORTED@
 
 /**
  * Non-zero if 64bit is supported, 0 otherwise (eg 1 on x86_64, 0 on i386)
+ *
+ * \ingroup g_bitness
  **/
 #define PINKTRACE_BITNESS_64_SUPPORTED @PINKTRACE_BITNESS_64_SUPPORTED@
 
 /**
  * Non-zero if 32bit is supported, 0 otherwise (eg 1 on i386, 0 on ia64)
+ *
+ * \ingroup g_bitness
  **/
 #define PINKTRACE_BITNESS_32_SUPPORTED @PINKTRACE_BITNESS_32_SUPPORTED@
 
@@ -84,6 +88,8 @@ extern "C" {
 
 /**
  * Return the bitness of the given process ID.
+ *
+ * \ingroup g_bitness
  *
  * \param pid Process ID of the process whose bitness is to be returned.
  *
@@ -95,6 +101,8 @@ pink_bitness_get(pid_t pid);
 /**
  * Return the string representation of the given bitness.
  *
+ * \ingroup g_bitness
+ *
  * \param bitness The bitness to be stringified.
  *
  * \return String representation of the bitness.
@@ -105,6 +113,8 @@ pink_bitness_name(pink_bitness_t bitness);
 
 /**
  * Return the word size of the given bitness.
+ *
+ * \ingroup g_bitness
  *
  * \param bitness Bitness of the child
  *
@@ -119,9 +129,5 @@ pink_bitness_wordsize(pink_bitness_t bitness);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-/**
- * \}
- **/
 
 #endif /* !PINKTRACE_GUARD_BITNESS_H */

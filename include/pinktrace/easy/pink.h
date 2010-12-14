@@ -33,15 +33,8 @@
 /**
  * \file
  * \brief A header file including all other header files part of pinktrace-easy
- **/
-
-/**
- * \defgroup easy Easy library (pinktrace-easy)
  *
- * This is a callback-driven library built on top of \ref core.
- *
- * \attention This library is only available on Linux because FreeBSD's
- * \c ptrace(2) doesn't support event decisions yet.
+ * \ingroup g_easy
  **/
 
 #include <pinktrace/pink.h>

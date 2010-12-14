@@ -1,6 +1,11 @@
 SUBDIRS= .
-EXTRA_DIST= doxygen.conf.in
-MAINTAINERCLEANFILES = Makefile.in doxygen.conf
+EXTRA_DIST= \
+	    doxygen.conf.in \
+	    groups.doxygen \
+	    main_page.doxygen
+MAINTAINERCLEANFILES = \
+		       Makefile.in \
+		       doxygen.conf
 CLEANFILES= *~ c/* libpinktrace.tag
 
 if HAVE_DOXYGEN
