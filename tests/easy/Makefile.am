@@ -67,3 +67,14 @@ t04_pre_exit_SOURCES= $(t04_SRCS)
 t04_pre_exit_CFLAGS= $(COMMON_CFLAGS)
 t04_pre_exit_LDADD= $(COMMON_LINK)
 endif # WANT_EASY
+
+t05_SRCS= \
+	  t05-pre-exit-signal.c
+EXTRA_DIST+= $(t05_SRCS)
+if WANT_EASY
+TESTS+= t05_pre_exit_signal
+check_PROGRAMS+= t05_pre_exit_signal
+t05_pre_exit_signal_SOURCES= $(t05_SRCS)
+t05_pre_exit_signal_CFLAGS= $(COMMON_CFLAGS)
+t05_pre_exit_signal_LDADD= $(COMMON_LINK)
+endif # WANT_EASY

@@ -91,7 +91,7 @@ main(void)
 	tbl.death = cb_death;
 	tbl.exit_signal = cb_exit_signal;
 
-	ctx = pink_easy_context_new(0, &tbl, NULL, NULL);
+	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &tbl, NULL, NULL);
 	if (!ctx) {
 		perror("pink_easy_context_new");
 		abort();
@@ -111,7 +111,7 @@ main(void)
 	}
 	pink_easy_context_clear_error(ctx);
 
-	sig = SIGKILL;
+	sig = SIGINT;
 	pink_easy_call(ctx, signal_immediately_func, &sig);
 	error = pink_easy_context_get_error(ctx);
 	if (error != PINK_EASY_ERROR_CALLBACK_ABORT) {

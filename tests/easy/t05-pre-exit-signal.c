@@ -29,6 +29,7 @@
 
 #include <sys/types.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,36 +46,49 @@ eb_child(pink_easy_child_error_t error)
 	return -1;
 }
 
+static void
+cb_death(PINK_UNUSED const pink_easy_context_t *ctx, const pink_easy_process_t *current)
+{
+	fprintf(stderr, "%s:%d: child:%i died\n",
+			__func__, __LINE__,
+			pink_easy_process_get_pid(current));
+}
+
 static short
 cb_pre_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *current, unsigned long status)
 {
 	short f;
 
 	f = 0;
-	if (WEXITSTATUS(status) != 127) {
-		fprintf(stderr, "%s:%d: 127 != %i\n", __func__, __LINE__, WEXITSTATUS(status));
+	if (WTERMSIG(status) != SIGTERM) {
+		fprintf(stderr, "%s:%d: %d (%s) != %d (%s)\n",
+				__func__, __LINE__,
+				WTERMSIG(status), strsignal(WTERMSIG(status)),
+				SIGTERM, strsignal(SIGTERM));
 		f |= PINK_EASY_CFLAG_ABORT;
 	}
 	return f;
 }
 
 static int
-exit_immediately_func(void *data)
+signal_immediately_func(void *data)
 {
-	int code = *((int *)data);
-	return code;
+	int sig = *((int *)data);
+	kill(getpid(), sig);
+	return -1;
 }
 
 int
 main(void)
 {
-	int ret;
+	int sig;
 	pink_easy_error_t error;
 	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
 
 	memset(&tbl, 0, sizeof(pink_easy_callback_table_t));
 	tbl.cerror = eb_child;
+	tbl.death = cb_death;
 	tbl.pre_exit = cb_pre_exit;
 
 	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD | PINK_TRACE_OPTION_EXIT, &tbl, NULL, NULL);
@@ -83,8 +97,8 @@ main(void)
 		abort();
 	}
 
-	ret = 127;
-	pink_easy_call(ctx, exit_immediately_func, &ret);
+	sig = SIGTERM;
+	pink_easy_call(ctx, signal_immediately_func, &sig);
 	error = pink_easy_context_get_error(ctx);
 	if (error != PINK_EASY_ERROR_SUCCESS) {
 		fprintf(stderr, "%s:%d: %i (%s) != %i (%s) -> %d (%s)\n",
@@ -98,8 +112,8 @@ main(void)
 
 	pink_easy_context_clear_error(ctx);
 
-	ret = 128;
-	pink_easy_call(ctx, exit_immediately_func, &ret);
+	sig = SIGINT;
+	pink_easy_call(ctx, signal_immediately_func, &sig);
 	error = pink_easy_context_get_error(ctx);
 	if (error != PINK_EASY_ERROR_CALLBACK_ABORT) {
 		fprintf(stderr, "%s:%d: %i (%s) != %i (%s) -> %d (%s)\n",
