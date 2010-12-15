@@ -78,6 +78,8 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "Initial step failed";
 	case PINK_EASY_ERROR_STEP_STOP:
 		return "Failed to step after event stop";
+	case PINK_EASY_ERROR_STEP_TRAP:
+		return "Failed to step after event trap";
 	case PINK_EASY_ERROR_STEP_SYSCALL:
 		return "Failed to step after event syscall";
 	case PINK_EASY_ERROR_STEP_EXIT:

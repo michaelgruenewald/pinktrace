@@ -46,6 +46,8 @@ error_step(pink_event_t event)
 	switch (event) {
 	case PINK_EVENT_STOP:
 		return PINK_EASY_ERROR_STEP_STOP;
+	case PINK_EVENT_TRAP:
+		return PINK_EASY_ERROR_STEP_TRAP;
 	case PINK_EVENT_SYSCALL:
 		return PINK_EASY_ERROR_STEP_SYSCALL;
 	case PINK_EVENT_EXEC:
@@ -172,6 +174,31 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 
 	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
 	assert(dummy);
+
+	return PINK_EASY_TRIBOOL_NONE;
+}
+
+static pink_easy_tribool_t
+handle_trap(pink_easy_context_t *ctx, pink_easy_process_t *proc)
+{
+	bool abrt;
+	short flags;
+
+	/* Run the "trap" callback */
+	if (ctx->tbl->trap) {
+		flags = ctx->tbl->trap(ctx, proc);
+
+		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		if (abrt)
+			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
+
+		if (flags & PINK_EASY_CFLAG_DEAD) {
+			handle_death(ctx, proc);
+			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
+		}
+		else if (abrt)
+			return PINK_EASY_TRIBOOL_FALSE;
+	}
 
 	return PINK_EASY_TRIBOOL_NONE;
 }
@@ -474,6 +501,25 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			proc = pink_easy_process_tree_search(ctx->tree, pid);
 			nproc = NULL;
 			ret = handle_stop(ctx, pid, &nproc);
+			if (ret == PINK_EASY_TRIBOOL_NONE) {
+				if (nproc && !(nproc->flags & PINK_EASY_PROCESS_SUSPENDED)) {
+					/* Push the process to move! */
+					ret = handle_step(ctx, nproc, 0, event);
+					if (ret == PINK_EASY_TRIBOOL_FALSE)
+						return -ctx->error;
+				}
+			}
+			else if (ret == PINK_EASY_TRIBOOL_FALSE) {
+				/* Nothing is fine, abort the loop! */
+				return -ctx->error;
+			}
+			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
+			break;
+		case PINK_EVENT_TRAP:
+			/* Search the child in the process tree */
+			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			assert(proc != NULL);
+			ret = handle_trap(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				if (nproc && !(nproc->flags & PINK_EASY_PROCESS_SUSPENDED)) {
 					/* Push the process to move! */

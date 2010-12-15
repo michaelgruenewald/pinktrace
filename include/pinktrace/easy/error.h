@@ -100,6 +100,8 @@ typedef enum {
 	PINK_EASY_ERROR_STEP_INITIAL,
 	/** Stepping after event #PINK_EVENT_STOP failed **/
 	PINK_EASY_ERROR_STEP_STOP,
+	/** Stepping after event #PINK_EVENT_TRAP failed **/
+	PINK_EASY_ERROR_STEP_TRAP,
 	/** Stepping after event #PINK_EVENT_SYSCALL failed **/
 	PINK_EASY_ERROR_STEP_SYSCALL,
 	/** Stepping after event #PINK_EVENT_EXIT failed **/

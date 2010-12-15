@@ -64,9 +64,6 @@ typedef struct pink_easy_context pink_easy_context_t;
  * destruction yourself or use the standard free() function from stdlib.h for
  * basic destruction.
  *
- * \bug You \b must set #PINK_TRACE_OPTION_SYSGOOD in the options argument for
- * the event loop to work correctly most of the time.
- *
  * \param options Options for pink_trace_setup()
  * \param tbl Callback table
  * \param data User data

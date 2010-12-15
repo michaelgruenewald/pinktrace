@@ -96,6 +96,7 @@ struct pink_easy_context;
      - BITNESS           +      pink_easy_process_t *current              -
      - STEP_INITIAL      +      pink_easy_process_t *current              -
      - STEP_STOP         +      pink_easy_process_t *current              -
+     - STEP_TRAP         +      pink_easy_process_t *current              -
      - STEP_SYSCALL      +      pink_easy_process_t *current              -
      - STEP_FORK         +      pink_easy_process_t *current              -
      - STEP_EXEC         +      pink_easy_process_t *current              -
@@ -171,6 +172,18 @@ typedef void (*pink_easy_callback_death_t) (const struct pink_easy_context *ctx,
  * \return This value is returned by pink_easy_loop()
  **/
 typedef int (*pink_easy_callback_end_t) (const struct pink_easy_context *ctx, bool echild);
+
+/**
+ * Callback for #PINK_EVENT_TRAP
+ *
+ * \ingroup g_easy_callback
+ *
+ * \param ctx Tracing context
+ * \param current Current child
+ *
+ * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
+ **/
+typedef short (*pink_easy_callback_trap_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current);
 
 /**
  * Callback for #PINK_EVENT_SYSCALL
@@ -273,6 +286,8 @@ typedef struct pink_easy_callback_table {
 	/** "end" callback **/
 	pink_easy_callback_end_t end;
 
+	/** "trap" callback **/
+	pink_easy_callback_trap_t trap;
 	/** "syscall" callback **/
 	pink_easy_callback_syscall_t syscall;
 	/** "fork" callback **/
