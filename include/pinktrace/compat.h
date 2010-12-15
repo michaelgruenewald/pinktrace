@@ -107,4 +107,13 @@
  **/
 #define PINK_UTIL_SET_ARG_AVAILABLE 1
 
+/**
+ * Define for the availability of #PINK_EVENT_TRAP constant.
+ *
+ * \see pink_event_decide()
+ *
+ * \since 0.0.6
+ **/
+#define PINK_EVENT_TRAP_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

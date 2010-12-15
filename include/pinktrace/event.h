@@ -49,6 +49,8 @@
 typedef enum {
 	/** Child has been stopped **/
 	PINK_EVENT_STOP,
+	/** Child has been trapped **/
+	PINK_EVENT_TRAP,
 	/** Child has entered/exited a system call **/
 	PINK_EVENT_SYSCALL,
 	/** Child has called fork() **/
@@ -81,9 +83,6 @@ extern "C" {
  * Return the last event made by child.
  *
  * \note Availability: Linux
- *
- * \note This function expects #PINK_TRACE_OPTION_SYSGOOD has been passed to
- * #pink_trace_setup.
  *
  * \param status The status argument, received from wait(2) system call.
  *

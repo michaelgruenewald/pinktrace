@@ -60,7 +60,7 @@ pink_event_decide(int status)
 			case PTRACE_EVENT_EXIT:
 				return PINK_EVENT_EXIT;
 			default:
-				return PINK_EVENT_GENUINE;
+				return PINK_EVENT_TRAP;
 			}
 		default:
 			return PINK_EVENT_GENUINE;
@@ -80,6 +80,8 @@ pink_event_name(pink_event_t event)
 	switch (event) {
 	case PINK_EVENT_STOP:
 		return "stop";
+	case PINK_EVENT_TRAP:
+		return "trap";
 	case PINK_EVENT_SYSCALL:
 		return "syscall";
 	case PINK_EVENT_FORK:

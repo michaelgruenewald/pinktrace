@@ -2,7 +2,7 @@
 # coding: utf-8
 # vim: set sw=4 ts=4 sts=4 et tw=80 :
 
-import os, signal, sys, unittest
+import os, signal, sys, time, unittest
 
 sys.path.insert(0, '.')
 from pinktrace import event, trace
@@ -40,11 +40,11 @@ class TestEvent_02(unittest.TestCase):
             trace.me()
             os.kill(os.getpid(), signal.SIGSTOP)
 
-            os.sleep(1)
+            time.sleep(1)
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             trace.syscall(pid)
             pid, status = os.waitpid(pid, 0)

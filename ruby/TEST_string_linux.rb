@@ -63,7 +63,7 @@ class TestPinkString
       File.open '/dev/null'
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -96,7 +96,7 @@ class TestPinkString
       File.open '/dev/null'
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.
@@ -134,7 +134,7 @@ class TestPinkString
       exit 1
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     # Loop until we get to the open() system call as there's no guarantee that
     # other system calls won't be called beforehand.

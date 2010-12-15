@@ -24,7 +24,7 @@ class TestSocketLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the socket() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -59,7 +59,7 @@ class TestSocketLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the socket() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -89,7 +89,7 @@ class TestSocketLinux_01(unittest.TestCase):
             s.connect(TEST_UNIX_SOCKET)
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -130,7 +130,7 @@ class TestSocketLinux_01(unittest.TestCase):
             s.connect(("127.0.0.1", 12345))
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -172,7 +172,7 @@ class TestSocketLinux_01(unittest.TestCase):
             s.connect(TEST_UNIX_SOCKET)
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -215,7 +215,7 @@ class TestSocketLinux_01(unittest.TestCase):
             s.connect(("127.0.0.1", 12345))
         else: # parent
             os.waitpid(pid, 0)
-            pinktrace.trace.setup(pid)
+            pinktrace.trace.setup(pid, pinktrace.trace.OPTION_SYSGOOD)
 
             # Loop until we get to the connect() system call as there's no
             # guarantee that other system calls won't be called beforehand.

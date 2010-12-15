@@ -48,7 +48,7 @@ class TestPinkSocket
       UNIXServer.new TEST_SOCKET
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
 
     # Loop until we get to the socket() system call as there's no guarantee

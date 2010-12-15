@@ -34,7 +34,7 @@ class TestPinkEvent < Test::Unit::TestCase
       sleep 1
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     PinkTrace::Trace.syscall pid
     Process.waitpid pid
@@ -122,7 +122,7 @@ class TestPinkEvent < Test::Unit::TestCase
       Process.kill 'TSTP', Process.pid
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     PinkTrace::Trace.cont pid
     Process.waitpid pid
@@ -141,7 +141,7 @@ class TestPinkEvent < Test::Unit::TestCase
       exit 0
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     PinkTrace::Trace.cont pid
     Process.waitpid pid
@@ -159,7 +159,7 @@ class TestPinkEvent < Test::Unit::TestCase
       Process.kill 'KILL', Process.pid
     end
     Process.waitpid pid
-    PinkTrace::Trace.setup pid
+    PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
     PinkTrace::Trace.cont pid
     Process.waitpid pid
