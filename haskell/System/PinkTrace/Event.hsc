@@ -109,7 +109,7 @@ decipherWaitStatus wstat =
                   let termsig = c_WTERMSIG wstat
                   return (Terminated (fromIntegral termsig))
             else
-                if event == #{const PINK_EVENT_STOP} || event == #{const PINK_EVENT_GENUINE}
+                if event == #{const PINK_EVENT_STOP} || event == #{const PINK_EVENT_TRAP} || event == #{const PINK_EVENT_GENUINE}
                     then do
                          let stopsig = c_WSTOPSIG wstat
                          return (Stopped (fromIntegral stopsig))

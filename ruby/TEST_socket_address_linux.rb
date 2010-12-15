@@ -58,7 +58,7 @@ if PinkTrace::Syscall.name 0
         UNIXSocket.new TEST_UNIX_SOCKET
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the connect() system call.
       event = -1
@@ -102,7 +102,7 @@ if PinkTrace::Syscall.name 0
         UNIXSocket.new TEST_UNIX_SOCKET
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the connect() system call.
       event = -1

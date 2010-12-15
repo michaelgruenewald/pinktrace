@@ -19,7 +19,7 @@ class TestSyscallLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -52,7 +52,7 @@ class TestSyscallLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -84,7 +84,7 @@ class TestSyscallLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -120,7 +120,7 @@ class TestSyscallLinux_01(unittest.TestCase):
             os._exit(0)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             # Loop until we get to the open() system call as there's no
             # guarantee that other system calls won't be called beforehand.
@@ -161,7 +161,7 @@ class TestSyscallLinux_01(unittest.TestCase):
                 os._exit(1)
         else: # parent
             os.waitpid(pid, 0)
-            trace.setup(pid)
+            trace.setup(pid, trace.OPTION_SYSGOOD)
 
             # Loop until we get to the kill() system call as there's no
             # guarantee that other system calls won't be called beforehand.

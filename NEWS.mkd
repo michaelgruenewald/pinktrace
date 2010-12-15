@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* Add new event PINK\_EVENT\_TRAP for genuine `SIGTRAP`
 * Merge Haskell bindings
 
 ### 0.0.5

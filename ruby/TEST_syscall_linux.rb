@@ -84,7 +84,7 @@ if PinkTrace::Syscall.name 0
         Process.kill 0, Process.pid
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.
@@ -119,7 +119,7 @@ if PinkTrace::Syscall.name 0
         Process.kill 0, Process.pid
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.
@@ -153,7 +153,7 @@ if PinkTrace::Syscall.name 0
         Process.kill 0, Process.pid
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.
@@ -189,7 +189,7 @@ if PinkTrace::Syscall.name 0
         rescue Errno::ENOENT ;end
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.
@@ -226,7 +226,7 @@ if PinkTrace::Syscall.name 0
         exit 1
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.
@@ -267,7 +267,7 @@ if PinkTrace::Syscall.name 0
         exit 1
       end
       Process.waitpid pid
-      PinkTrace::Trace.setup pid
+      PinkTrace::Trace.setup pid, PinkTrace::Trace::OPTION_SYSGOOD
 
       # Loop until we get to the kill() system call as there's no guarantee that
       # other system calls won't be called beforehand.

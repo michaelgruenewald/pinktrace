@@ -368,7 +368,7 @@ static char pinkpy_trace_setup_doc[] = ""
 	"\n"
 	"@param pid: Process ID of the traced child\n"
 	"@param options: Bitwise OR'ed C{pinktrace.trace.OPTION_*} flags\n"
-	"(Optional, defaults to C{pinktrace.trace.OPTION_SYSGOOD})\n"
+	"(Optional, defaults to 0)\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
 pinkpy_trace_setup(PINK_UNUSED PyObject *self,
@@ -381,7 +381,7 @@ pinkpy_trace_setup(PINK_UNUSED PyObject *self,
 	pid_t pid;
 	int opts;
 
-	opts = PINK_TRACE_OPTION_SYSGOOD;
+	opts = 0;
 	if (!PyArg_ParseTuple(args, PARSE_PID"|i", &pid, &opts))
 		return NULL;
 

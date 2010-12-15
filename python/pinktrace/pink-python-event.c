@@ -47,8 +47,6 @@ static char pinkpy_event_decide_doc[] = ""
 	"Return the last event made by child.\n"
 	"\n"
 	"@note: Availability: Linux\n"
-	"@note: This function expects C{pinktrace.trace.OPTION_SYSGOOD} has been passed\n"
-	"to C{pinktrace.trace.setup()}\n"
 	"\n"
 	"@param status: The status argument, received from os.waitpid() call.\n"
 	"@rtype: int\n"
@@ -90,6 +88,7 @@ event_init(
 {
 #if defined(PINKTRACE_LINUX)
 	PyModule_AddIntConstant(mod, "EVENT_STOP", PINK_EVENT_STOP);
+	PyModule_AddIntConstant(mod, "EVENT_TRAP", PINK_EVENT_TRAP);
 	PyModule_AddIntConstant(mod, "EVENT_SYSCALL", PINK_EVENT_SYSCALL);
 	PyModule_AddIntConstant(mod, "EVENT_FORK", PINK_EVENT_FORK);
 	PyModule_AddIntConstant(mod, "EVENT_VFORK", PINK_EVENT_VFORK);

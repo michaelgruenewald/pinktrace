@@ -712,7 +712,7 @@ pinkrb_trace_geteventmsg(PINK_UNUSED VALUE mod,
 
 /*
  * Document-method: PinkTrace::Trace.setup
- * call-seq: PinkTrace::Trace.setup(pid, [options=PinkTrace::Trace::OPTION_SYSGOOD]) => nil
+ * call-seq: PinkTrace::Trace.setup(pid, [options=0]) => nil
  *
  * Sets the tracing options.
  *
@@ -737,7 +737,7 @@ pinkrb_trace_setup(
 
 	switch (rb_scan_args(argc, argv, "11", &vpid, &vopts)) {
 	case 1:
-		opts = PINK_TRACE_OPTION_SYSGOOD;
+		opts = 0;
 		break;
 	case 2:
 		opts = NUM2INT(vopts);
@@ -825,6 +825,10 @@ pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * - PinkTrace::Event::EVENT_STOP
  *
  *   The traced child has received a SIGSTOP.
+ *
+ * - PinkTrace::Event::EVENT_TRAP
+ *
+ *   The traced child has received a SIGTRAP.
  *
  * - PinkTrace::Event::EVENT_SYSCALL
  *
@@ -2193,6 +2197,7 @@ Init_PinkTrace(void)
 	event_mod = rb_define_module_under(mod, "Event");
 #if defined(PINKTRACE_LINUX)
 	rb_define_const(event_mod, "EVENT_STOP", INT2FIX(PINK_EVENT_STOP));
+	rb_define_const(event_mod, "EVENT_TRAP", INT2FIX(PINK_EVENT_TRAP));
 	rb_define_const(event_mod, "EVENT_SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
 	rb_define_const(event_mod, "EVENT_FORK", INT2FIX(PINK_EVENT_FORK));
 	rb_define_const(event_mod, "EVENT_VFORK", INT2FIX(PINK_EVENT_VFORK));
