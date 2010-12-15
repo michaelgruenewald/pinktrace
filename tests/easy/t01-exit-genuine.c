@@ -77,7 +77,7 @@ main(void)
 	tbl.cerror = eb_child;
 	tbl.exit = cb_exit_genuine;
 
-	ctx = pink_easy_context_new(PINK_TRACE_OPTION_SYSGOOD, &tbl, NULL, NULL);
+	ctx = pink_easy_context_new(0, &tbl, NULL, NULL);
 	if (!ctx) {
 		perror("pink_easy_context_new");
 		abort();

@@ -106,7 +106,11 @@ handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_ea
 static bool
 handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig, pink_event_t event)
 {
+	int mysig;
+
 	assert(proc != NULL);
+
+	mysig = proc->flags & PINK_EASY_CFLAG_IGNORE ? sig : 0;
 
 	if (pink_trace_syscall(proc->pid, sig))
 		return true;
@@ -521,12 +525,10 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			assert(proc != NULL);
 			ret = handle_trap(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
-				if (nproc && !(nproc->flags & PINK_EASY_PROCESS_SUSPENDED)) {
-					/* Push the process to move! */
-					ret = handle_step(ctx, nproc, 0, event);
-					if (ret == PINK_EASY_TRIBOOL_FALSE)
-						return -ctx->error;
-				}
+				/* Push the process to move! */
+				ret = handle_step(ctx, proc, SIGTRAP, event);
+				if (ret == PINK_EASY_TRIBOOL_FALSE)
+					return -ctx->error;
 			}
 			else if (ret == PINK_EASY_TRIBOOL_FALSE) {
 				/* Nothing is fine, abort the loop! */

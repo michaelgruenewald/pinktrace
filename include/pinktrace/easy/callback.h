@@ -49,12 +49,18 @@
  **/
 #define PINK_EASY_CFLAG_ABORT		00001
 /**
+ * Do not deliver the signal to the traced child.
+ *
+ * \ingroup g_easy_callback
+ **/
+#define PINK_EASY_CFLAG_IGNORE		00002
+/**
  * Implies that the current process has exited and should be removed from the
  * process tree. Useful for handling -ESRCH in callbacks.
  *
  * \ingroup g_easy_callback
  **/
-#define PINK_EASY_CFLAG_DEAD		00002
+#define PINK_EASY_CFLAG_DEAD		00003
 /**
  * Implies that the child of the current process has exited and should be
  * removed from the process tree. Useful for handling -ESRCH.
@@ -62,7 +68,7 @@
  *
  * \ingroup g_easy_callback
  **/
-#define PINK_EASY_CFLAG_CHILD_DEAD	00003
+#define PINK_EASY_CFLAG_CHILD_DEAD	00004
 
 struct pink_easy_context;
 
