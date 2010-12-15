@@ -44,9 +44,6 @@
  *
  * \ingroup g_easy_loop
  *
- * \warning Mainly for internal use, use high level functions like
- * pink_easy_call() or pink_easy_execvp() where possible.
- *
  * \param ctx Tracing context
  *
  * \return In case of success, if the "cb_end" callback exists this function

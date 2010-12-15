@@ -69,7 +69,7 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 	/* parent */
 
 	if (!pink_easy_internal_init(ctx, proc, SIGSTOP))
-		return pink_easy_loop(ctx);
+		return 0;
 fail:
 	free(proc);
 	return -ctx->error;

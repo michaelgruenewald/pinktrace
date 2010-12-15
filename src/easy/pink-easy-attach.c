@@ -85,5 +85,5 @@ pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...)
 			break;
 	}
 	va_end(ap);
-	return (ret < 0) ? ret : pink_easy_loop(ctx);
+	return (ret < 0) ? ret : 0;
 }

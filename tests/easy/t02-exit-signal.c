@@ -81,7 +81,7 @@ signal_immediately_func(void *data)
 int
 main(void)
 {
-	int sig;
+	int ret, sig;
 	pink_easy_error_t error;
 	pink_easy_callback_table_t tbl;
 	pink_easy_context_t *ctx;
@@ -98,7 +98,13 @@ main(void)
 	}
 
 	sig = SIGTERM;
-	pink_easy_call(ctx, signal_immediately_func, &sig);
+	if ((ret = pink_easy_call(ctx, signal_immediately_func, &sig))) {
+		fprintf(stderr, "%s:%d: pink_easy_call: %d %d(%s)\n",
+				__func__, __LINE__,
+				ret, errno, strerror(errno));
+		abort();
+	}
+	pink_easy_loop(ctx);
 	error = pink_easy_context_get_error(ctx);
 	if (error != PINK_EASY_ERROR_SUCCESS) {
 		fprintf(stderr, "%s:%d: %i (%s) != %i (%s) -> %d (%s)\n",
@@ -112,7 +118,13 @@ main(void)
 	pink_easy_context_clear_error(ctx);
 
 	sig = SIGINT;
-	pink_easy_call(ctx, signal_immediately_func, &sig);
+	if ((ret = pink_easy_call(ctx, signal_immediately_func, &sig))) {
+		fprintf(stderr, "%s:%d: pink_easy_call: %d %d(%s)\n",
+				__func__, __LINE__,
+				ret, errno, strerror(errno));
+		abort();
+	}
+	pink_easy_loop(ctx);
 	error = pink_easy_context_get_error(ctx);
 	if (error != PINK_EASY_ERROR_CALLBACK_ABORT) {
 		fprintf(stderr, "%s:%d: %i (%s) != %i (%s) -> %d (%s)\n",
