@@ -38,8 +38,8 @@
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
-static int
-pink_easy_attach_one(pink_easy_context_t *ctx, pid_t pid)
+int
+pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 {
 	int ret;
 	pink_easy_process_t *proc;
@@ -68,22 +68,4 @@ pink_easy_attach_one(pink_easy_context_t *ctx, pid_t pid)
 
 	proc->flags |= PINK_EASY_PROCESS_ATTACHED;
 	return 0;
-}
-
-int
-pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...)
-{
-	int ret;
-	pid_t pid;
-	va_list ap;
-
-	ret = 0;
-	va_start(ap, count);
-	for (unsigned int i = 0; i < count; i++) {
-		pid = va_arg(ap, pid_t);
-		if ((ret = pink_easy_attach_one(ctx, pid)) < 0)
-			break;
-	}
-	va_end(ap);
-	return (ret < 0) ? ret : 0;
 }

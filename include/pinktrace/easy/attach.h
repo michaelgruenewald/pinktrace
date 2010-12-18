@@ -42,18 +42,19 @@
 #include <pinktrace/easy/context.h>
 
 /**
- * Attach to processes for tracing
+ * Attach to a process for tracing.
+ * Call this multiple times before pink_easy_loop() to attach to multiple
+ * processes.
  *
  * \ingroup g_easy_attach
  *
  * \param ctx Tracing context
- * \param count Number of processes to attach
- * \param ... Process ID's of the processes to attach, the number of arguments
- * must not exceed the count argument.
+ * \param pid Process ID
  *
  * \return Depends on the callbacks.
  **/
+PINK_NONNULL(1)
 int
-pink_easy_attach(pink_easy_context_t *ctx, unsigned count, ...);
+pink_easy_attach(pink_easy_context_t *ctx, pid_t pid);
 
 #endif /* !PINKTRACE_EASY_GUARD_ATTACH_H */
