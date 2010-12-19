@@ -160,17 +160,17 @@ inline
 static pid_t
 pink_easy_internal_wait(int *status)
 {
-	pid_t ret;
+	pid_t pid;
 
-begin:
+again:
 #ifdef __WALL
-	ret = waitpid(-1, status, __WALL);
+	pid = waitpid(0, status, __WALL);
 #else
-	ret = waitpid(-1, status, 0);
+	pid = waitpid(0, status, 0);
 #endif /* __WALL */
-	if (ret < 0 && errno == EINTR)
-		goto begin;
-	return ret;
+	if (pid < 0 && errno == EINTR)
+		goto again;
+	return pid;
 }
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */
