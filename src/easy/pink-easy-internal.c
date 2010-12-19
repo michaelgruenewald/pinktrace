@@ -27,8 +27,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -36,79 +34,6 @@
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
-
-struct _status {
-	pink_easy_process_t *proc;
-	int status;
-};
-
-/** Non-intrusive waitpid(-1) **/
-static bool
-pink_easy_internal_waiting_walk(pink_easy_process_t *proc, void *userdata)
-{
-	int status;
-	pid_t pid;
-	struct _status *s;
-
-	pid = waitpid(proc->pid, &status, WNOHANG);
-	if (!pid) {
-		/* No change in state, go on */
-		return true;
-	}
-
-	s = userdata;
-	s->proc = proc;
-
-	if (pid > 0) {
-		/* Process changed state! */
-		s->status = status;
-		return false;
-	}
-
-	/* waitpid() error */
-	return false;
-}
-
-pid_t
-pink_easy_internal_wait(pink_easy_context_t *ctx, int *status)
-{
-	bool dummy;
-	struct _status s;
-
-	for (;;) {
-		s.proc = NULL;
-		s.status = 0;
-		errno = 0;
-		pink_easy_process_tree_walk(ctx->tree, pink_easy_internal_waiting_walk, &s);
-		if (!s.proc)
-			continue;
-		if (errno) {
-			if (errno != ECHILD)
-				return -1;
-			/* Don't die on me Mia! */
-			dummy = pink_easy_process_tree_remove(ctx->tree, s.proc->pid);
-			assert(dummy);
-
-			/* R.I.P. */
-			if (ctx->tbl->death)
-				ctx->tbl->death(ctx, s.proc);
-			if (s.proc->destroy && s.proc->data)
-				s.proc->destroy(s.proc->data);
-			free(s.proc);
-
-			if (!ctx->tree->count) {
-				errno = ECHILD;
-				return -1;
-			}
-
-			continue;
-		}
-		break;
-	}
-
-	*status = s.status;
-	return s.proc->pid;
-}
 
 /** Initialize tracing **/
 int
@@ -118,7 +43,7 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc, int
 	int status;
 
 	/* Wait for the initial sig */
-	if (waitpid(proc->pid, &status, 0) < 0) {
+	if (pink_easy_internal_wait(&status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx, proc->pid);

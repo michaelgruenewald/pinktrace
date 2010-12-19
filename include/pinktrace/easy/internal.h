@@ -151,12 +151,26 @@ PINK_NONNULL(1,2)
 bool
 pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
 
-/** Non-intrusive waitpid(-1) **/
-pid_t
-pink_easy_internal_wait(struct pink_easy_context *ctx, int *status);
-
 /** Initialize tracing **/
 int
 pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc, int sig);
+
+/** Simple waitpid() wrapper which handles EINTR **/
+inline
+static pid_t
+pink_easy_internal_wait(int *status)
+{
+	pid_t ret;
+
+begin:
+#ifdef __WALL
+	ret = waitpid(-1, status, __WALL);
+#else
+	ret = waitpid(-1, status, 0);
+#endif /* __WALL */
+	if (ret < 0 && errno == EINTR)
+		goto begin;
+	return ret;
+}
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */
