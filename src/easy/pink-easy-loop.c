@@ -152,6 +152,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 			ctx->tbl->birth(ctx, proc, pproc);
 
 		proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
+		*nproc = proc;
 
 		return PINK_EASY_TRIBOOL_NONE;
 	}
@@ -302,7 +303,7 @@ PINK_NONNULL(1,4)
 static pink_easy_tribool_t
 handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t event, pink_easy_process_t **nproc)
 {
-	bool abrt, suspended;
+	bool abrt, dummy, suspended;
 	short flags;
 	unsigned long cpid;
 	pink_easy_process_t *cproc;
@@ -351,6 +352,9 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 		cproc->flags |= PINK_EASY_PROCESS_ATTACHED;
 	if (proc->flags & PINK_EASY_PROCESS_FOLLOWFORK)
 		cproc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
+
+	dummy = pink_easy_process_tree_insert(ctx->tree, cproc);
+	assert(dummy);
 
 	/* Last but not least, run the callback */
 	cbfork = (event == PINK_EVENT_FORK)
@@ -502,7 +506,6 @@ pink_easy_loop(pink_easy_context_t *ctx)
 		switch (event) {
 		case PINK_EVENT_STOP:
 			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
 			nproc = NULL;
 			ret = handle_stop(ctx, pid, &nproc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
