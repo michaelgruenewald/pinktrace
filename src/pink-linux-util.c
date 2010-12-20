@@ -308,8 +308,9 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		while (n & (sizeof(long) - 1))
 			if (u.x[n++] == '\0')
 				return res;
-		addr += sizeof(long), res_ptr += m;
+		addr += sizeof(long);
 	}
+
 	for (;;) {
 		if (PINK_UNLIKELY(!pink_util_peekdata(pid, addr, &u.val))) {
 			if (PINK_LIKELY(started && (errno == EPERM || errno == EIO || errno == EFAULT))) {
@@ -324,17 +325,16 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 			}
 			return NULL;
 		}
-		m = sizeof(long);
-		sum += m;
+		sum += sizeof(long);
 		if ((res = realloc(res, sum)) == NULL)
 			return NULL;
-		res_ptr = started ? res + (sum - m) : res;
+		res_ptr = started ? res + (sum - sizeof(long)) : res;
 		started = true;
-		memcpy(res_ptr, u.x, m);
+		memcpy(res_ptr, u.x, sizeof(long));
 		for (unsigned int i = 0; i < sizeof(long); i++)
 			if (u.x[i] == '\0')
 				return res;
-		addr += sizeof(long), res_ptr += m;
+		addr += sizeof(long);
 	}
 	/* never reached */
 	assert(false);
