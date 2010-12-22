@@ -47,28 +47,32 @@
  *
  * \ingroup g_easy_callback
  **/
-#define PINK_EASY_CFLAG_ABORT		00001
+#define PINK_EASY_CFLAG_ABRT		(1 << 0)
+
+/**
+ * Implies that the current process should be removed from the
+ * process tree. Useful for handling -ESRCH in callbacks.
+ *
+ * \ingroup g_easy_callback
+ **/
+#define PINK_EASY_CFLAG_DROP		(1 << 1)
+
+/**
+ * Implies that the child of the current process should be removed from the
+ * process tree. Useful for handling -ESRCH.
+ *
+ * This only makes sense for fork,vfork and clone events.
+ *
+ * \ingroup g_easy_callback
+ **/
+#define PINK_EASY_CFLAG_DROP_CHILD	(1 << 2)
+
 /**
  * Do not deliver the signal to the traced child.
  *
  * \ingroup g_easy_callback
  **/
-#define PINK_EASY_CFLAG_IGNORE		00002
-/**
- * Implies that the current process has exited and should be removed from the
- * process tree. Useful for handling -ESRCH in callbacks.
- *
- * \ingroup g_easy_callback
- **/
-#define PINK_EASY_CFLAG_DEAD		00003
-/**
- * Implies that the child of the current process has exited and should be
- * removed from the process tree. Useful for handling -ESRCH.
- * Only makes sense for fork,vfork and clone callbacks.
- *
- * \ingroup g_easy_callback
- **/
-#define PINK_EASY_CFLAG_CHILD_DEAD	00004
+#define PINK_EASY_CFLAG_SIGIGN		(1 << 3)
 
 struct pink_easy_context;
 
@@ -189,7 +193,7 @@ typedef int (*pink_easy_callback_end_t) (const struct pink_easy_context *ctx, bo
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_trap_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current);
+typedef int (*pink_easy_callback_trap_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current);
 
 /**
  * Callback for #PINK_EVENT_SYSCALL
@@ -203,7 +207,7 @@ typedef short (*pink_easy_callback_trap_t) (const struct pink_easy_context *ctx,
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_syscall_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, bool entering);
+typedef int (*pink_easy_callback_syscall_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, bool entering);
 
 /**
  * Callback for #PINK_EVENT_FORK, #PINK_EVENT_VFORK and #PINK_EVENT_CLONE
@@ -217,7 +221,7 @@ typedef short (*pink_easy_callback_syscall_t) (const struct pink_easy_context *c
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_fork_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
+typedef int (*pink_easy_callback_fork_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, pink_easy_process_t *child, bool alive);
 
 /**
  * Callback for #PINK_EVENT_EXEC
@@ -232,7 +236,7 @@ typedef short (*pink_easy_callback_fork_t) (const struct pink_easy_context *ctx,
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_exec_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t old_bitness);
+typedef int (*pink_easy_callback_exec_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, pink_bitness_t old_bitness);
 
 /**
  * Callback for #PINK_EVENT_EXIT
@@ -245,7 +249,7 @@ typedef short (*pink_easy_callback_exec_t) (const struct pink_easy_context *ctx,
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
+typedef int (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
 
 /**
  * Callback for #PINK_EVENT_GENUINE
@@ -258,7 +262,7 @@ typedef short (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_signal_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
+typedef int (*pink_easy_callback_signal_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
 
 /**
  * Callback for #PINK_EVENT_EXIT and #PINK_EVENT_EXIT_SIGNAL
@@ -272,7 +276,7 @@ typedef short (*pink_easy_callback_signal_t) (const struct pink_easy_context *ct
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef short (*pink_easy_callback_exit_t) (const struct pink_easy_context *ctx, pid_t pid, int cs);
+typedef int (*pink_easy_callback_exit_t) (const struct pink_easy_context *ctx, pid_t pid, int cs);
 
 /**
  * \brief Structure which represents a callback table

@@ -106,11 +106,7 @@ handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_ea
 static bool
 handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig, pink_event_t event)
 {
-	int mysig;
-
 	assert(proc != NULL);
-
-	mysig = proc->flags & PINK_EASY_CFLAG_IGNORE ? sig : 0;
 
 	if (pink_trace_syscall(proc->pid, sig))
 		return true;
@@ -187,17 +183,17 @@ static pink_easy_tribool_t
 handle_trap(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	bool abrt;
-	short flags;
+	int flags;
 
 	/* Run the "trap" callback */
 	if (ctx->tbl->trap) {
 		flags = ctx->tbl->trap(ctx, proc);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -212,7 +208,7 @@ static pink_easy_tribool_t
 handle_syscall(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	bool abrt, entering;
-	unsigned flags;
+	int flags;
 
 	entering = !(proc->flags & PINK_EASY_PROCESS_INSYSCALL);
 	proc->flags ^= PINK_EASY_PROCESS_INSYSCALL;
@@ -220,11 +216,11 @@ handle_syscall(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	if (ctx->tbl->syscall) {
 		flags = ctx->tbl->syscall(ctx, proc, entering);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -239,7 +235,7 @@ static pink_easy_tribool_t
 handle_exec(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	bool abrt;
-	short flags;
+	int flags;
 	pink_bitness_t old_bitness;
 
 	/* Update bitness */
@@ -253,11 +249,11 @@ handle_exec(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	if (ctx->tbl->exec) {
 		flags = ctx->tbl->exec(ctx, proc, old_bitness);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -272,7 +268,7 @@ static pink_easy_tribool_t
 handle_pre_exit(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	bool abrt;
-	short flags;
+	int flags;
 	unsigned long status;
 
 	/* Run the "pre_exit" callback */
@@ -284,11 +280,11 @@ handle_pre_exit(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 
 		flags = ctx->tbl->pre_exit(ctx, proc, status);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -304,7 +300,7 @@ static pink_easy_tribool_t
 handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t event, pink_easy_process_t **nproc)
 {
 	bool abrt, dummy, suspended;
-	short flags;
+	int flags;
 	unsigned long cpid;
 	pink_easy_process_t *cproc;
 	pink_easy_callback_fork_t cbfork;
@@ -367,11 +363,11 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 		suspended = cproc->flags & PINK_EASY_PROCESS_SUSPENDED;
 		flags = cbfork(ctx, proc, cproc, suspended);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_CHILD_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP_CHILD) {
 			/* Received ESRCH from the new-born child */
 
 			/*
@@ -385,7 +381,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 		else
 			*nproc = cproc;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -399,7 +395,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 static bool
 handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 {
-	short flags;
+	int flags;
 	pink_easy_process_t *proc;
 
 	/* R.I.P. */
@@ -414,7 +410,7 @@ handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 	if (WIFSIGNALED(status)) {
 		if (ctx->tbl->exit_signal) {
 			flags = ctx->tbl->exit_signal(ctx, pid, WTERMSIG(status));
-			if (flags & PINK_EASY_CFLAG_ABORT) {
+			if (flags & PINK_EASY_CFLAG_ABRT) {
 				ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 				return false;
 			}
@@ -422,7 +418,7 @@ handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 	}
 	else if (ctx->tbl->exit) {
 		flags = ctx->tbl->exit(ctx, pid, WEXITSTATUS(status));
-		if (flags & PINK_EASY_CFLAG_ABORT) {
+		if (flags & PINK_EASY_CFLAG_ABRT) {
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 			return false;
 		}
@@ -432,11 +428,13 @@ handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 }
 
 static pink_easy_tribool_t
-handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, bool unknown)
+handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, bool unknown, int *mysig)
 {
 	bool abrt;
-	short flags;
+	int flags;
 	int stopsig;
+
+	assert(mysig);
 
 	if (unknown && !WIFSTOPPED(status)) {
 		/* In an ideal world, this should not happen,
@@ -449,16 +447,20 @@ handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, b
 	}
 
 	stopsig = WSTOPSIG(status);
+	*mysig = stopsig;
 
 	/* Run the "signal" callback */
 	if (ctx->tbl->signal) {
 		flags = ctx->tbl->signal(ctx, proc, stopsig);
 
-		abrt = flags & PINK_EASY_CFLAG_ABORT;
+		if (flags & PINK_EASY_CFLAG_SIGIGN)
+			*mysig = 0;
+
+		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
-		if (flags & PINK_EASY_CFLAG_DEAD) {
+		if (flags & PINK_EASY_CFLAG_DROP) {
 			handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
@@ -472,7 +474,7 @@ handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, b
 int
 pink_easy_loop(pink_easy_context_t *ctx)
 {
-	int status;
+	int status, mysig;
 	pid_t pid;
 	pink_event_t event;
 	pink_easy_tribool_t ret;
@@ -621,10 +623,10 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* Search the child in the process tree */
 			proc = pink_easy_process_tree_search(ctx->tree, pid);
 			assert(proc != NULL);
-			ret = handle_signal(ctx, proc, status, event == PINK_EVENT_UNKNOWN);
+			ret = handle_signal(ctx, proc, status, event == PINK_EVENT_UNKNOWN, &mysig);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, WSTOPSIG(status), event);
+				ret = handle_step(ctx, proc, mysig, event);
 				if (ret == PINK_EASY_TRIBOOL_FALSE)
 					return -ctx->error;
 			}
