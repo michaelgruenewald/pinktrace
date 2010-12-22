@@ -164,9 +164,9 @@ pink_easy_internal_wait(int *status)
 
 again:
 #ifdef __WALL
-	pid = waitpid(0, status, __WALL);
+	pid = waitpid(-1, status, __WALL);
 #else
-	pid = waitpid(0, status, 0);
+	pid = waitpid(-1, status, 0);
 #endif /* __WALL */
 	if (pid < 0 && errno == EINTR)
 		goto again;
