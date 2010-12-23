@@ -53,10 +53,6 @@
  * Implies that the current process should be removed from the
  * process tree. Useful for handling -ESRCH in callbacks.
  *
- * \note pinktrace will not call the pre_exit callback of the process in
- * question if you return this from a previous event callback. This is for
- * simplicity.
- *
  * \ingroup g_easy_callback
  **/
 #define PINK_EASY_CFLAG_DROP		(1 << 1)

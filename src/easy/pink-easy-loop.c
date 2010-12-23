@@ -576,16 +576,9 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_EXIT:
-			/* Search the child in the process tree.
-			 * Process doesn't necessarily have to be in the
-			 * process tree at this point. For example, a previous
-			 * event callback may have returned
-			 * PINK_EASY_CFLAG_DROP and caused its removal from the
-			 * tree.
-			 */
+			/* Search the child in the process tree */
 			proc = pink_easy_process_tree_search(ctx->tree, pid);
-			if (!proc)
-				break;
+			assert(proc != NULL);
 			ret = handle_pre_exit(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", continue to step */
