@@ -88,18 +88,24 @@ handle_death(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 }
 
 static bool
-handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_easy_error_t error)
+handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_error_t error, pink_easy_process_t *proc, pid_t pid)
 {
 	if (errno == ESRCH) {
 		/* Child is dead! */
-		handle_death(ctx, proc);
+		if (proc)
+			handle_death(ctx, proc);
 		return true;
 	}
 
 	/* Fatal ptrace() error! */
 	ctx->error = error;
-	if (ctx->tbl->error)
-		ctx->tbl->error(ctx, proc);
+	if (ctx->tbl->error) {
+		if (proc)
+			ctx->tbl->error(ctx, proc);
+		else
+			ctx->tbl->error(ctx, pid);
+	}
+
 	return false;
 }
 
@@ -110,7 +116,7 @@ handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig, pink_e
 
 	if (pink_trace_syscall(proc->pid, sig))
 		return true;
-	return handle_ptrace_error(ctx, proc, error_step(event));
+	return handle_ptrace_error(ctx, error_step(event), proc, -1);
 }
 
 static pink_easy_tribool_t
@@ -137,7 +143,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 
 		/* Set up the child */
 		if (!pink_trace_setup(proc->pid, ctx->options))
-			return handle_ptrace_error(ctx, proc, PINK_EASY_ERROR_SETUP)
+			return handle_ptrace_error(ctx, PINK_EASY_ERROR_SETUP, proc, -1)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
 
@@ -241,7 +247,7 @@ handle_exec(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	/* Update bitness */
 	old_bitness = proc->bitness;
 	if ((proc->bitness = pink_bitness_get(proc->pid)) == PINK_BITNESS_UNKNOWN)
-		return handle_ptrace_error(ctx, proc, PINK_EASY_ERROR_BITNESS)
+		return handle_ptrace_error(ctx, PINK_EASY_ERROR_BITNESS, proc, -1)
 			? PINK_EASY_TRIBOOL_TRUE
 			: PINK_EASY_TRIBOOL_FALSE;
 
@@ -265,7 +271,7 @@ handle_exec(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 }
 
 static pink_easy_tribool_t
-handle_pre_exit(pink_easy_context_t *ctx, pink_easy_process_t *proc)
+handle_pre_exit(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t *proc)
 {
 	bool abrt;
 	int flags;
@@ -273,19 +279,20 @@ handle_pre_exit(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 
 	/* Run the "pre_exit" callback */
 	if (ctx->tbl->pre_exit) {
-		if (!pink_trace_geteventmsg(proc->pid, &status))
-			return handle_ptrace_error(ctx, proc, PINK_EASY_ERROR_GETEVENTMSG_FORK)
+		if (!pink_trace_geteventmsg(pid, &status))
+			return handle_ptrace_error(ctx, PINK_EASY_ERROR_GETEVENTMSG_EXIT, proc, pid)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
 
-		flags = ctx->tbl->pre_exit(ctx, proc, status);
+		flags = ctx->tbl->pre_exit(ctx, pid, status);
 
 		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 
 		if (flags & PINK_EASY_CFLAG_DROP) {
-			handle_death(ctx, proc);
+			if (proc)
+				handle_death(ctx, proc);
 			return abrt ? PINK_EASY_TRIBOOL_FALSE : PINK_EASY_TRIBOOL_TRUE;
 		}
 		else if (abrt)
@@ -306,7 +313,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 	pink_easy_callback_fork_t cbfork;
 
 	if (!pink_trace_geteventmsg(proc->pid, &cpid))
-		return handle_ptrace_error(ctx, proc, PINK_EASY_ERROR_GETEVENTMSG_FORK)
+		return handle_ptrace_error(ctx, PINK_EASY_ERROR_GETEVENTMSG_FORK, proc, -1)
 			? PINK_EASY_TRIBOOL_TRUE
 			: PINK_EASY_TRIBOOL_FALSE;
 
@@ -324,7 +331,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 
 		/* Set the child up */
 		if (!pink_trace_setup(cproc->pid, ctx->options))
-			return handle_ptrace_error(ctx, proc, PINK_EASY_ERROR_SETUP)
+			return handle_ptrace_error(ctx, PINK_EASY_ERROR_SETUP, proc, -1)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
 
@@ -576,15 +583,18 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_EXIT:
-			/* Search the child in the process tree */
+			/* Search the child in the process tree,
+			 * she may or may not exist in the tree at this point.
+			 */
 			proc = pink_easy_process_tree_search(ctx->tree, pid);
-			assert(proc != NULL);
-			ret = handle_pre_exit(ctx, proc);
+			ret = handle_pre_exit(ctx, pid, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
-				/* "Alles in Ordnung", continue to step */
-				ret = handle_step(ctx, proc, 0, event);
-				if (ret == PINK_EASY_TRIBOOL_FALSE)
-					return -ctx->error;
+				/* "Alles in Ordnung", resume the child */
+				if (!pink_trace_resume(pid, 0)) {
+					ret = handle_ptrace_error(ctx, error_step(event), proc, pid);
+					if (ret == PINK_EASY_TRIBOOL_FALSE)
+						return -ctx->error;
+				}
 			}
 			else if (ret == PINK_EASY_TRIBOOL_FALSE) {
 				/* Nothing is fine, abort the loop! */

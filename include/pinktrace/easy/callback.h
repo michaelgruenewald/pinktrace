@@ -113,7 +113,7 @@ struct pink_easy_context;
      - STEP_EXIT         +      pink_easy_process_t *current              -
      - STEP_SIGNAL       +      pink_easy_process_t *current, int status  -
      - GETEVENTMSG_FORK  +      pink_easy_process_t *current              -
-     - GETEVENTMSG_EXIT  +      pink_easy_process_t *current              -
+     - GETEVENTMSG_EXIT  +      pid_t pid                                 -
      - EVENT_UNKNOWN     -      pink_easy_process_t *current, int status  -
      ----------------------------------------------------------------------
    \endverbatim
@@ -243,13 +243,17 @@ typedef int (*pink_easy_callback_exec_t) (const struct pink_easy_context *ctx, p
  *
  * \ingroup g_easy_callback
  *
+ * \warning The current child may or may not exist in the process tree at this
+ * point so this callback is called with a pid_t value. You may manually use
+ * pink_easy_process_tree_search() to get a #pink_easy_process_t value.
+ *
  * \param ctx Tracing context
- * \param current Current child
+ * \param current Process ID
  * \param status Exit status
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/
-typedef int (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, unsigned long status);
+typedef int (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *ctx, pid_t pid, unsigned long status);
 
 /**
  * Callback for #PINK_EVENT_GENUINE
