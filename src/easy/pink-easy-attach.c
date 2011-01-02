@@ -63,7 +63,7 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 		return -ctx->error;
 	}
 
-	if ((ret = pink_easy_internal_init(ctx, proc, SIGSTOP)) < 0)
+	if ((ret = pink_easy_internal_init(ctx, proc)) < 0)
 		return ret;
 
 	proc->flags |= PINK_EASY_PROCESS_ATTACHED;

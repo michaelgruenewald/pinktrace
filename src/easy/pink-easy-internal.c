@@ -37,7 +37,7 @@
 
 /** Initialize tracing **/
 int
-pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig)
+pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	bool dummy;
 	int status;
@@ -49,8 +49,8 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc, int
 			ctx->tbl->error(ctx, proc->pid);
 		return -ctx->error;
 	}
-	if (!WIFSTOPPED(status) || WSTOPSIG(status) != sig) {
-		ctx->error = PINK_EASY_ERROR_SIGNAL_INITIAL;
+	if (!WIFSTOPPED(status) /* || WSTOPSIG(status) != SIGTRAP */) {
+		ctx->error = PINK_EASY_ERROR_STOP_ELDEST;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx, proc->pid, status);
 		return -ctx->error;

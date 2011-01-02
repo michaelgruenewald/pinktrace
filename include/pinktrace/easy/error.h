@@ -83,8 +83,8 @@ typedef enum {
 	/** wait(2) failed **/
 	PINK_EASY_ERROR_WAIT,
 
-	/** Incorrect initial signal **/
-	PINK_EASY_ERROR_SIGNAL_INITIAL,
+	/** Eldest child didn't stop **/
+	PINK_EASY_ERROR_STOP_ELDEST,
 
 	/** Setting up ptrace() options for the eldest child failed **/
 	PINK_EASY_ERROR_SETUP_ELDEST,

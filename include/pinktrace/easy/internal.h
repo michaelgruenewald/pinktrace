@@ -153,7 +153,7 @@ pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_
 
 /** Initialize tracing **/
 int
-pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc, int sig);
+pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc);
 
 /** Simple waitpid() wrapper which handles EINTR **/
 inline

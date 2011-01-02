@@ -63,12 +63,12 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 	else if (!proc->pid) { /* child */
 		if (!pink_trace_me())
 			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
-		kill(getpid(), SIGSTOP);
+		kill(getpid(), SIGTRAP);
 		_exit(func(userdata));
 	}
 	/* parent */
 
-	if (!pink_easy_internal_init(ctx, proc, SIGSTOP))
+	if (!pink_easy_internal_init(ctx, proc))
 		return 0;
 fail:
 	free(proc);

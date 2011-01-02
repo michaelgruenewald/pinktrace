@@ -99,7 +99,7 @@ struct pink_easy_context;
      - VFORK             +      -                                         -
      - WAIT_ELDEST       +      pid_t pid                                 -
      - WAIT              +      -                                         -
-     - SIGNAL_INITIAL    -      pid_t pid, int status                     -
+     - STOP_ELDEST       -      pid_t pid, int status                     -
      - SETUP_ELDEST      +      pid_t pid                                 -
      - SETUP             -      pink_easy_process_t *current              -
      - BITNESS_ELDEST    +      pid_t pid                                 -

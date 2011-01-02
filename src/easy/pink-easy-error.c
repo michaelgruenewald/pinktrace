@@ -64,8 +64,8 @@ pink_easy_strerror(pink_easy_error_t e)
 		return "fork() failed";
 	case PINK_EASY_ERROR_VFORK:
 		return "vfork() failed";
-	case PINK_EASY_ERROR_SIGNAL_INITIAL:
-		return "Incorrect initial signal";
+	case PINK_EASY_ERROR_STOP_ELDEST:
+		return "Eldest child didn't stop";
 	case PINK_EASY_ERROR_SETUP_ELDEST:
 		return "Failed to set up eldest child";
 	case PINK_EASY_ERROR_SETUP:
