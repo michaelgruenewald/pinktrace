@@ -60,11 +60,14 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 		ctx->error = PINK_EASY_ERROR_ATTACH;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx, proc->pid);
+		free(proc);
 		return -ctx->error;
 	}
 
-	if ((ret = pink_easy_internal_init(ctx, proc)) < 0)
+	if ((ret = pink_easy_internal_init(ctx, proc)) < 0) {
+		free(proc);
 		return ret;
+	}
 
 	proc->flags |= PINK_EASY_PROCESS_ATTACHED;
 	return 0;
