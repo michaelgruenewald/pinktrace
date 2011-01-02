@@ -64,7 +64,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 		return -ctx->error;
 	}
 
-	if ((proc->pid = vfork()) < 0) {
+	if ((proc->pid = fork()) < 0) {
 		ctx->error = PINK_EASY_ERROR_VFORK;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx);

@@ -493,7 +493,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	/* Enter the event loop */
 	for (;;) {
 		/* Wait for children */
-		if ((pid = pink_easy_internal_wait(&status)) < 0) {
+		if ((pid = pink_easy_internal_wait(-1, &status)) < 0) {
 			if (errno == ECHILD) {
 				/* Received ECHILD, end of tracing */
 				return ctx->tbl->end ? ctx->tbl->end(ctx, true) : EXIT_SUCCESS;

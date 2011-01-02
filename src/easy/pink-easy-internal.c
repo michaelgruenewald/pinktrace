@@ -43,7 +43,7 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc, int
 	int status;
 
 	/* Wait for the initial sig */
-	if (pink_easy_internal_wait(&status) < 0) {
+	if (pink_easy_internal_wait(proc->pid, &status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx, proc->pid);

@@ -158,19 +158,19 @@ pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc
 /** Simple waitpid() wrapper which handles EINTR **/
 inline
 static pid_t
-pink_easy_internal_wait(int *status)
+pink_easy_internal_wait(pid_t pid, int *status)
 {
-	pid_t pid;
+	pid_t p;
 
 again:
 #ifdef __WALL
-	pid = waitpid(-1, status, __WALL);
+	p = waitpid(pid, status, __WALL);
 #else
-	pid = waitpid(-1, status, 0);
+	p = waitpid(pid, status, 0);
 #endif /* __WALL */
-	if (pid < 0 && errno == EINTR)
+	if (p < 0 && errno == EINTR)
 		goto again;
-	return pid;
+	return p;
 }
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */
