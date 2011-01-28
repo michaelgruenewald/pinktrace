@@ -82,6 +82,7 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
  * \return The path on success, NULL on failure and sets errno
  * accordingly.
  **/
+PINK_MALLOC
 char *
 pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
 
@@ -121,6 +122,7 @@ pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, uns
  *
  * \since 0.0.3
  **/
+PINK_MALLOC
 char *
 pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind);
 
