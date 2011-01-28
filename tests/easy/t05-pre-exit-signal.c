@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,10 +54,10 @@ cb_death(PINK_UNUSED const pink_easy_context_t *ctx, const pink_easy_process_t *
 			pink_easy_process_get_pid(current));
 }
 
-static short
-cb_pre_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *current, unsigned long status)
+static int
+cb_pre_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pid_t pid, unsigned long status)
 {
-	short f;
+	int f;
 
 	f = 0;
 	if (WTERMSIG(status) != SIGTERM) {
@@ -65,7 +65,7 @@ cb_pre_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_pr
 				__func__, __LINE__,
 				WTERMSIG(status), strsignal(WTERMSIG(status)),
 				SIGTERM, strsignal(SIGTERM));
-		f |= PINK_EASY_CFLAG_ABORT;
+		f |= PINK_EASY_CFLAG_ABRT;
 	}
 	return f;
 }

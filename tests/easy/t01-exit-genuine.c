@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,15 +45,15 @@ eb_child(pink_easy_child_error_t error)
 	return -1;
 }
 
-static short
+static int
 cb_exit_genuine(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pid_t pid, int code)
 {
-	short f;
+	int f;
 
 	f = 0;
 	if (code != 127) {
 		fprintf(stderr, "%s:%d: 127 != %i\n", __func__, __LINE__, code);
-		f |= PINK_EASY_CFLAG_ABORT;
+		f |= PINK_EASY_CFLAG_ABRT;
 	}
 	return f;
 }
