@@ -44,6 +44,7 @@
 #define PINK_NORETURN __attribute__((noreturn))
 #define PINK_PURE __attribute__((pure))
 #define PINK_SENTINEL(x) __attribute__((sentinel((x))))
+#define PINK_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 #define PINK_UNUSED __attribute__((unused))
 #define PINK_LIKELY(x) __builtin_expect(!!(x), 1)
 #define PINK_UNLIKELY(x) __builtin_expect(!!(x), 0)
@@ -79,6 +80,10 @@
  * \ingroup g_gcc
  **/
 #define PINK_SENTINEL(x)
+/**
+ * GCC warn_unused_result attribute
+ **/
+#define PINK_WARN_UNUSED_RESULT
 /**
  * GCC unused attribute
  *

@@ -220,6 +220,7 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
  * \return The string on success and NULL on failure and sets errno
  * accordingly.
  **/
+PINK_MALLOC
 char *
 pink_util_movestr_persistent(pid_t pid, long addr);
 
