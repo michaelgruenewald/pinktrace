@@ -269,14 +269,14 @@ typedef int (*pink_easy_callback_pre_exit_t) (const struct pink_easy_context *ct
 typedef int (*pink_easy_callback_signal_t) (const struct pink_easy_context *ctx, pink_easy_process_t *current, int stopsig);
 
 /**
- * Callback for #PINK_EVENT_EXIT and #PINK_EVENT_EXIT_SIGNAL
+ * Callback for #PINK_EVENT_EXIT_GENUINE and #PINK_EVENT_EXIT_SIGNAL
  *
  * \ingroup g_easy_callback
  *
  * \param ctx Tracing context
  * \param pid Process ID of the child
- * \param cs Exit code for #PINK_EVENT_EXIT, termination signal for
- * #PINK_EVENT_SIGNAL.
+ * \param cs Exit code for #PINK_EVENT_EXIT_GENUINE, termination signal for
+ * #PINK_EVENT_EXIT_SIGNAL.
  *
  * \return See PINK_EASY_CFLAG_* for flags to set in the return value.
  **/

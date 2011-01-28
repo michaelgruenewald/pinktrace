@@ -82,8 +82,7 @@ pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *
  * the tree. The user data of the processes are free'd if a destructor function
  * was provided with pink_easy_process_set_data(). The user data of the context
  * is free'd if a destructor function was provided with
- * pink_easy_context_new(). If you need to do further cleanup, use the
- * cb_destroy callback provided by #pink_easy_callback_t.
+ * pink_easy_context_new().
  *
  * \ingroup g_easy_context
  *
