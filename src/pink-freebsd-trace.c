@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,27 @@ pink_trace_syscall_exit(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PT_TO_SCX, pid, (caddr_t)1, sig));
 }
+
+bool
+pink_trace_lwpinfo(pid_t pid, void *info, size_t size)
+{
+	return !(0 > ptrace(PT_LWPINFO, pid, (caddr_t)info, size));
+}
+
+#ifdef PT_FOLLOW_FORK
+bool
+pink_trace_followfork(pid_t pid, bool on)
+{
+	return !(0 > ptrace(PT_FOLLOW_FORK, pid, (caddr_t)1, on));
+}
+#else
+bool
+pink_trace_followfork(PINK_UNUSED pid_t pid, PINK_UNUSED bool on)
+{
+	errno = ENOTSUP;
+	return false;
+}
+#endif /* PT_FOLLOW_FORK */
 
 bool
 pink_trace_attach(pid_t pid)

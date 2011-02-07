@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -237,6 +237,39 @@ pink_trace_syscall_entry(pid_t pid, int sig);
  **/
 bool
 pink_trace_syscall_exit(pid_t pid, int sig);
+
+/**
+ * This request can be used to obtain information about the kernel thread, also
+ * known as light-weight process, that caused the traced process to stop.
+ *
+ * \note Availability: FreeBSD
+ * \since 0.0.6
+ *
+ * \param pid Process ID of the child
+ * \param info Pointer to a 'struct ptrace_lwpinfo'
+ * \param size Size of 'struct ptrace_lwpinfo'
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_lwpinfo(pid_t pid, void *info, size_t size);
+
+/**
+ * This request controls tracing for new child processes of a traced process.
+ * If the second argument is 'true', then new child processes will enable
+ * tracing and stop before executing their first instruction.
+ *
+ * \note Availability: FreeBSD
+ * \since 0.0.6
+ *
+ * \param pid Process ID of the child
+ * \param on true to follow forks, false otherwise.
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_trace_followfork(pid_t pid, bool on);
+
 #endif /* defined(PINKTRACE_FREEBSD)... */
 
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
