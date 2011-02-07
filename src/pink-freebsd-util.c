@@ -121,9 +121,11 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 	save_errno = errno;
 	diff = 0;
 	totalsize = size = BLOCKSIZE;
+
 	buf = malloc(sizeof(char) * totalsize);
 	if (PINK_UNLIKELY(!buf))
 		return NULL;
+
 	for (;;) {
 		diff = totalsize - size;
 		if (PINK_UNLIKELY(!pink_util_moven(pid, addr + diff, buf + diff, size))) {
@@ -151,7 +153,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 			size = BLOCKSIZE;
 		}
 		else {
-			buf[totalsize] = '\0';
+			buf[totalsize - 1] = '\0';
 			return buf;
 		}
 	}
