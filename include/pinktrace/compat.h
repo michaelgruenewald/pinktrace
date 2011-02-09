@@ -134,4 +134,22 @@
  **/
 #define PINK_EVENT_TRAP_AVAILABLE 1
 
+/**
+ * Define for the availability of pink_trace_lwpinfo() function.
+ *
+ * \see pink_trace_lwpinfo()
+ *
+ * \since 0.0.6
+ **/
+#define PINK_TRACE_LWPINFO_AVAILABLE 1
+
+/**
+ * Define for the availability of pink_trace_followfork() function.
+ *
+ * \see pink_trace_followfork()
+ *
+ * \since 0.0.6
+ **/
+#define PINK_TRACE_FOLLOWFORK_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */
