@@ -130,16 +130,6 @@ linux*)
 esac
 AM_CONDITIONAL([FREEBSD], test x"$opsys" = x"freebsd")
 AM_CONDITIONAL([LINUX], test x"$opsys" = x"linux")
-
-AC_MSG_CHECKING([whether ptrace() can decide events])
-if test x"$opsys" = x"freebsd" ; then
-	WANT_EASY=0
-	AC_MSG_RESULT([no, pinktrace_easy will not be built])
-elif test x"$opsys" = x"linux" ; then
-	WANT_EASY=1
-	AC_MSG_RESULT([yes, pinktrace_easy will be built])
-fi
-AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"1")
 dnl }}}
 
 dnl {{{ Check for supported architecture
@@ -255,9 +245,6 @@ REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
 if test x"$opsys" = x"linux" ; then
 	REQUIRED_HEADERS="${REQUIRED_HEADERS} linux/ptrace.h"
 fi
-if test x"$WANT_EASY" = x"1" ; then
-	REQUIRED_HEADERS="${REQUIRED_HEADERS} alloca.h"
-fi
 for header in $REQUIRED_HEADERS ; do
 	AC_CHECK_HEADER([$header], [],
 					AC_MSG_ERROR([Required header $header not found!]))
@@ -341,6 +328,55 @@ else
 fi
 dnl }}}
 
+dnl {{{ pinktrace-easy
+AC_ARG_ENABLE([easy],
+			  [AS_HELP_STRING([--disable-easy],
+							  [Do not build pinktrace_easy library])],
+			  [WANT_EASY="$enableval"],
+			  [WANT_EASY="yes"])
+if test x"$WANT_EASY" = x"yes" ; then
+	AC_CHECK_HEADER([alloca.h], [], AC_MSG_ERROR([pinktrace_easy requires alloca.h]))
+
+	if test x"$opsys" = x"freebsd" ; then
+		AC_MSG_CHECKING([whether ptrace() defines required requests])
+		AC_PREPROC_IFELSE([AC_LANG_SOURCE([
+#include <sys/types.h>
+#include <sys/ptrace.h>
+
+#ifndef PT_LWPINFO
+#error nope
+#endif
+
+#ifndef PL_FLAG_SCE
+#error nope
+#endif
+
+#ifndef PL_FLAG_SCX
+#error nope
+#endif
+
+#ifndef PL_FLAG_EXEC
+#error nope
+#endif
+
+#ifndef PL_FLAG_FORKED
+#error nope
+#endif
+
+#ifndef PT_FOLLOW_FORK
+#error nope
+#endif
+])],
+	[AC_MSG_RESULT([yes])],
+	[AC_MSG_RESULT([NO!])
+	 AC_MSG_ERROR([required ptrace() defines are missing!])])
+	#elif test x"$opsys" = x"linux" ; then
+	fi
+fi
+AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"yes")
+dnl }}}
+
+dnl }}}
 dnl {{{ Extra CFLAGS
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
 for flag in $WANTED_CFLAGS ; do
