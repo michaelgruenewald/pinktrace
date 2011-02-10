@@ -130,8 +130,6 @@ pink_event_decide(int status);
  *
  * \ingroup g_event
  *
- * \note Availability: Linux
- *
  * \param event The event to be stringified.
  *
  * \return The string representation of the event.
