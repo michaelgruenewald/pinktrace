@@ -529,7 +529,7 @@ if test x"$enable_python" = x"yes" ; then
 	if test x"$WANT_IPV6" = x"yes" ; then
 		PYTHON_HAVE_IPV6="True"
 	else
-		PYTNON_HAVE_IPV6="False"
+		PYTHON_HAVE_IPV6="False"
 	fi
 	AC_SUBST([PYTHON_HAVE_IPV6])
 
