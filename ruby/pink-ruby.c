@@ -865,7 +865,6 @@ pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * - PinkTrace::Event::EVENT_EXIT_SIGNAL
  *
  *   The traced child has been terminated with a signal.
- *
  */
 
 /*
@@ -873,22 +872,10 @@ pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * call-seq: PinkTrace::Event.decide([status=$?.status]) => fixnum
  *
  * Returns the last event made by child.
- *
- * Availability: Linux
  */
-#if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
-#endif
 static VALUE
-pinkrb_event_decide(
-#if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
-#else
-	int argc, VALUE *argv,
-#endif
-	PINK_UNUSED VALUE mod)
+pinkrb_event_decide(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
 {
-#if defined(PINKTRACE_LINUX)
 	unsigned int event;
 	int status;
 	VALUE vstatus, ls;
@@ -914,9 +901,6 @@ pinkrb_event_decide(
 
 	event = pink_event_decide(status);
 	return UINT2NUM(event);
-#else
-	rb_raise(rb_eNotImpError, "Not implemented");
-#endif /* defined(PINKTRACE_LINUX) */
 }
 
 /*
@@ -2195,7 +2179,6 @@ Init_PinkTrace(void)
 
 	/* event.h */
 	event_mod = rb_define_module_under(mod, "Event");
-#if defined(PINKTRACE_LINUX)
 	rb_define_const(event_mod, "EVENT_STOP", INT2FIX(PINK_EVENT_STOP));
 	rb_define_const(event_mod, "EVENT_TRAP", INT2FIX(PINK_EVENT_TRAP));
 	rb_define_const(event_mod, "EVENT_SYSCALL", INT2FIX(PINK_EVENT_SYSCALL));
@@ -2209,7 +2192,6 @@ Init_PinkTrace(void)
 	rb_define_const(event_mod, "EVENT_EXIT_GENUINE", INT2FIX(PINK_EVENT_EXIT_GENUINE));
 	rb_define_const(event_mod, "EVENT_EXIT_SIGNAL", INT2FIX(PINK_EVENT_EXIT_SIGNAL));
 	rb_define_const(event_mod, "EVENT_UNKNOWN", INT2FIX(PINK_EVENT_UNKNOWN));
-#endif /* defined(PINKTRACE_LINUX) */
 	rb_define_module_function(event_mod, "decide", pinkrb_event_decide, -1);
 
 	/* bitness.h */

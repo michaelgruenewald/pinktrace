@@ -3,6 +3,7 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+* Implement basic pink\_event\_decide() for FreeBSD
 * New functions pink\_trace\_lwpinfo() and pink\_trace\_followfork() for FreeBSD
 * Add new event PINK\_EVENT\_TRAP for genuine `SIGTRAP`
 * Merge Haskell bindings
