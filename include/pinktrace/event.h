@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,31 +39,57 @@
 
 #include <pinktrace/gcc.h>
 
-#if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
-
 /**
  * Event constants
  *
- * \note Availability: Linux
+ * \note Some of these events are only available on Linux.
  **/
 typedef enum {
 	/** Child has been stopped **/
 	PINK_EVENT_STOP,
 	/** Child has been trapped **/
 	PINK_EVENT_TRAP,
-	/** Child has entered/exited a system call **/
+	/**
+	 * Child has entered/exited a system call
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_SYSCALL,
-	/** Child has called fork() **/
+	/**
+	 * Child has called fork()
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_FORK,
-	/** Child has called vfork() **/
+	/**
+	 * Child has called vfork()
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_VFORK,
-	/** Child has called clone() **/
+	/**
+	 * Child has called clone()
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_CLONE,
-	/** Child has exited a vfork() call **/
+	/**
+	 * Child has exited a vfork() call
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_VFORK_DONE,
-	/** Child has called execve() **/
+	/**
+	 * Child has called execve()
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_EXEC,
-	/** Child is exiting (ptrace way, stopped before exit) **/
+	/**
+	 * Child is exiting (ptrace way, stopped before exit)
+	 *
+	 * \note Availability: Linux
+	 **/
 	PINK_EVENT_EXIT,
 	/** Child has received a genuine signal **/
 	PINK_EVENT_GENUINE,
@@ -82,7 +108,8 @@ extern "C" {
 /**
  * Return the last event made by child.
  *
- * \note Availability: Linux
+ * \note On FreeBSD, this function gives only limited information about the
+ * event. To get more information use pink_trace_lwpinfo()
  *
  * \param status The status argument, received from wait(2) system call.
  *
@@ -108,7 +135,5 @@ pink_event_name(pink_event_t event);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif /* defined(PINKTRACE_LINUX)... */
 
 #endif /* !PINKTRACE_GUARD_EVENT_H */

@@ -31,6 +31,7 @@ libpinktrace_@PINKTRACE_PC_SLOT@_la_LDFLAGS= -version-info @VERSION_LIB_CURRENT@
 # Operating system specific sources
 if FREEBSD
 libpinktrace_@PINKTRACE_PC_SLOT@_la_SOURCES+= \
+					      pink-freebsd-event.c \
 					      pink-freebsd-trace.c \
 					      pink-freebsd-util.c
 
