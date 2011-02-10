@@ -122,8 +122,6 @@ pink_event_decide(int status);
 /**
  * Return a string representation of the event.
  *
- * \note Availability: Linux
- *
  * \param event The event to be stringified.
  *
  * \return The string representation of the event.
