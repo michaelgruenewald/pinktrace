@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon strace which is:
  *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
  *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
@@ -35,15 +35,16 @@
 #define PINKTRACE_EASY_GUARD_INTERNAL_H 1
 
 #include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/callback.h>
 #include <pinktrace/easy/error.h>
+
+/** Simple waitpid() wrapper which handles EINTR **/
+pid_t
+waitpid_nointr(pid_t pid, int *status);
 
 /** We have just begun ptracing this process. **/
 #define PINK_EASY_PROCESS_STARTUP		00001
@@ -154,23 +155,5 @@ pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_
 /** Initialize tracing **/
 int
 pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc);
-
-/** Simple waitpid() wrapper which handles EINTR **/
-inline
-static pid_t
-pink_easy_internal_wait(pid_t pid, int *status)
-{
-	pid_t p;
-
-again:
-#ifdef __WALL
-	p = waitpid(pid, status, __WALL);
-#else
-	p = waitpid(pid, status, 0);
-#endif /* __WALL */
-	if (p < 0 && errno == EINTR)
-		goto again;
-	return p;
-}
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */

@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,37 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <assert.h>
 #include <stdbool.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
+
+pid_t
+waitpid_nointr(pid_t pid, int *status)
+{
+	pid_t p;
+
+	for (;;) {
+		if ((p = waitpid(pid, status,
+#ifdef __WALL
+						__WALL
+#else
+						0
+#endif /* __WALL */
+				)) >= 0)
+			return p;
+
+		if (errno != EINTR)
+			return p;
+	}
+	/* never reached */
+	assert(false);
+}
 
 /** Initialize tracing **/
 int
@@ -43,7 +67,7 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	int status;
 
 	/* Wait for the initial sig */
-	if (pink_easy_internal_wait(proc->pid, &status) < 0) {
+	if (waitpid_nointr(proc->pid, &status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST;
 		if (ctx->tbl->error)
 			ctx->tbl->error(ctx, proc->pid);
