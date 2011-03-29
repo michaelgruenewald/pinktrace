@@ -34,17 +34,12 @@
 #ifndef PINKTRACE_EASY_GUARD_INTERNAL_H
 #define PINKTRACE_EASY_GUARD_INTERNAL_H 1
 
-#include <assert.h>
 #include <stdbool.h>
 #include <sys/types.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/callback.h>
 #include <pinktrace/easy/error.h>
-
-/** Simple waitpid() wrapper which handles EINTR **/
-pid_t
-waitpid_nointr(pid_t pid, int *status);
 
 /** We have just begun ptracing this process. **/
 #define PINK_EASY_PROCESS_STARTUP		00001

@@ -37,6 +37,7 @@
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
+#include <pinktrace/easy/internal-util.h>
 #include <pinktrace/easy/pink.h>
 
 inline
