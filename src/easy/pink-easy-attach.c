@@ -49,16 +49,16 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {
 		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx);
 		return -ctx->error;
 	}
 	proc->pid = pid;
 
 	if (!pink_trace_attach(proc->pid)) {
 		ctx->error = PINK_EASY_ERROR_ATTACH;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc->pid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc->pid);
 		free(proc);
 		return -ctx->error;
 	}

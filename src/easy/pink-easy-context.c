@@ -37,30 +37,27 @@
 #include <pinktrace/easy/pink.h>
 
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *data, pink_easy_free_func_t func)
+pink_easy_context_new(int ptrace_options, const pink_easy_callback_table_t *callback_table, void *userdata, pink_easy_free_func_t userdata_destroy)
 {
 	pink_easy_context_t *ctx;
 
-	ctx = calloc(1, sizeof(pink_easy_context_t));
+	ctx = malloc(sizeof(pink_easy_context_t));
 	if (!ctx)
 		return NULL;
 
+	/* Properties */
+	ctx->ptrace_options = ptrace_options;
+	ctx->error = PINK_EASY_ERROR_SUCCESS;
+
 	/* Callbacks */
-	ctx->tbl = malloc(sizeof(pink_easy_callback_table_t));
-	if (!ctx->tbl) {
-		free(ctx);
-		return NULL;
-	}
-	memcpy(ctx->tbl, tbl, sizeof(pink_easy_callback_table_t));
+	memcpy(&ctx->callback_table, callback_table, sizeof(pink_easy_callback_table_t));
 
 	/* Process list */
 	SLIST_INIT(&ctx->process_list);
 
 	/* User data */
-	ctx->data = data;
-	ctx->error = PINK_EASY_ERROR_SUCCESS;
-	ctx->options = options;
-	ctx->destroy = func;
+	ctx->userdata = userdata;
+	ctx->userdata_destroy = userdata_destroy;
 
 	return ctx;
 }
@@ -84,25 +81,29 @@ pink_easy_context_destroy(pink_easy_context_t *ctx)
 
 	assert(ctx != NULL);
 
-	if (ctx->destroy && ctx->data)
-		ctx->destroy(ctx->data);
+	if (ctx->userdata_destroy && ctx->userdata)
+		ctx->userdata_destroy(ctx->userdata);
 
 	SLIST_FOREACH(current, &ctx->process_list, entries) {
-		if (current->destroy && current->data)
-			current->destroy(current->data);
+		if (current->userdata_destroy && current->userdata)
+			current->userdata_destroy(current->userdata);
 		free(current);
 	}
-
-	if (ctx->tbl)
-		free(ctx->tbl);
 
 	free(ctx);
 }
 
-void *
-pink_easy_context_get_data(const pink_easy_context_t *ctx)
+void
+pink_easy_context_set_userdata(pink_easy_context_t *ctx, void *userdata, pink_easy_free_func_t userdata_destroy)
 {
-	return ctx->data;
+	ctx->userdata = userdata;
+	ctx->userdata_destroy = userdata_destroy;
+}
+
+void *
+pink_easy_context_get_userdata(const pink_easy_context_t *ctx)
+{
+	return ctx->userdata;
 }
 
 pink_easy_process_list_t *

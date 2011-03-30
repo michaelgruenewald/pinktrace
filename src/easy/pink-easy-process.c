@@ -56,16 +56,16 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc)
 }
 
 void *
-pink_easy_process_get_data(const pink_easy_process_t *proc)
+pink_easy_process_get_userdata(const pink_easy_process_t *proc)
 {
-	return proc->data;
+	return proc->userdata;
 }
 
 void
-pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free_func_t func)
+pink_easy_process_set_userdata(pink_easy_process_t *proc, void *userdata, pink_easy_free_func_t userdata_destroy)
 {
-	proc->data = data;
-	proc->destroy = func;
+	proc->userdata = userdata;
+	proc->userdata_destroy = userdata_destroy;
 }
 
 pink_easy_process_t *

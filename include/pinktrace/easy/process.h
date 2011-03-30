@@ -113,12 +113,12 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc);
  * basic destruction.
  *
  * \param proc Process entry
- * \param data User data
- * \param func The destructor function of the user data
+ * \param userdata User data
+ * \param userdata_destroy The destructor function of the user data
  **/
 PINK_NONNULL(1)
 void
-pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free_func_t func);
+pink_easy_process_set_userdata(pink_easy_process_t *proc, void *userdata, pink_easy_free_func_t userdata_destroy);
 
 /**
  * Get the user data of the process entry, previously set by
@@ -132,7 +132,7 @@ pink_easy_process_set_data(pink_easy_process_t *proc, void *data, pink_easy_free
  **/
 PINK_NONNULL(1)
 void *
-pink_easy_process_get_data(const pink_easy_process_t *proc);
+pink_easy_process_get_userdata(const pink_easy_process_t *proc);
 
 /**
  * Remove a process from the process list.

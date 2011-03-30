@@ -78,10 +78,10 @@ struct pink_easy_process {
 	pink_bitness_t bitness;
 
 	/** Per-process user data **/
-	void *data;
+	void *userdata;
 
 	/** Destructor for user data **/
-	pink_easy_free_func_t destroy;
+	pink_easy_free_func_t userdata_destroy;
 
 	SLIST_ENTRY(pink_easy_process) entries;
 };
@@ -92,14 +92,11 @@ struct pink_easy_context {
 	/** Process list **/
 	struct pink_easy_process_list process_list;
 
+	/** Callback table **/
+	pink_easy_callback_table_t callback_table;
+
 	/** pink_trace_setup() options **/
-	int options;
-
-	/** User data **/
-	void *data;
-
-	/** Destructor for the user data **/
-	pink_easy_free_func_t destroy;
+	int ptrace_options;
 
 	/** Last error **/
 	pink_easy_error_t error;
@@ -107,8 +104,11 @@ struct pink_easy_context {
 	/** Was the error fatal? **/
 	bool fatal;
 
-	/** Callback table **/
-	pink_easy_callback_table_t *tbl;
+	/** User data **/
+	void *userdata;
+
+	/** Destructor for the user data **/
+	pink_easy_free_func_t userdata_destroy;
 };
 
 /** Initialize tracing **/

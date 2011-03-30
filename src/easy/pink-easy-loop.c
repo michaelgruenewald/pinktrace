@@ -79,10 +79,10 @@ handle_death(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	pink_easy_process_list_remove(&ctx->process_list, proc);
 
 	/* R.I.P. */
-	if (ctx->tbl->death)
-		ctx->tbl->death(ctx, proc);
-	if (proc->destroy && proc->data)
-		proc->destroy(proc->data);
+	if (ctx->callback_table.death)
+		ctx->callback_table.death(ctx, proc);
+	if (proc->userdata_destroy && proc->userdata)
+		proc->userdata_destroy(proc->userdata);
 	free(proc);
 }
 
@@ -98,11 +98,11 @@ handle_ptrace_error(pink_easy_context_t *ctx, pink_easy_error_t error, pink_easy
 
 	/* Fatal ptrace() error! */
 	ctx->error = error;
-	if (ctx->tbl->error) {
+	if (ctx->callback_table.error) {
 		if (proc)
-			ctx->tbl->error(ctx, proc);
+			ctx->callback_table.error(ctx, proc);
 		else
-			ctx->tbl->error(ctx, pid);
+			ctx->callback_table.error(ctx, pid);
 	}
 
 	return false;
@@ -140,7 +140,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 		assert(pproc != NULL);
 
 		/* Set up the child */
-		if (!pink_trace_setup(proc->pid, ctx->options))
+		if (!pink_trace_setup(proc->pid, ctx->ptrace_options))
 			return handle_ptrace_error(ctx, PINK_EASY_ERROR_SETUP, proc, -1)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
@@ -148,8 +148,8 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 		/*
 		 * Happy birthday kiddo!
 		 */
-		if (ctx->tbl->birth)
-			ctx->tbl->birth(ctx, proc, pproc);
+		if (ctx->callback_table.birth)
+			ctx->callback_table.birth(ctx, proc, pproc);
 
 		proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
 		*nproc = proc;
@@ -166,8 +166,8 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 	if (!proc) {
 		/* OOM */
 		ctx->error = PINK_EASY_ERROR_ALLOC;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, pid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, pid);
 		return PINK_EASY_TRIBOOL_FALSE;
 	}
 
@@ -188,8 +188,8 @@ handle_trap(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	int flags;
 
 	/* Run the "trap" callback */
-	if (ctx->tbl->trap) {
-		flags = ctx->tbl->trap(ctx, proc);
+	if (ctx->callback_table.trap) {
+		flags = ctx->callback_table.trap(ctx, proc);
 
 		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
@@ -215,8 +215,8 @@ handle_syscall(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	entering = !(proc->flags & PINK_EASY_PROCESS_INSYSCALL);
 	proc->flags ^= PINK_EASY_PROCESS_INSYSCALL;
 
-	if (ctx->tbl->syscall) {
-		flags = ctx->tbl->syscall(ctx, proc, entering);
+	if (ctx->callback_table.syscall) {
+		flags = ctx->callback_table.syscall(ctx, proc, entering);
 
 		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
@@ -248,8 +248,8 @@ handle_exec(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 			: PINK_EASY_TRIBOOL_FALSE;
 
 	/* Run the "exec" callback */
-	if (ctx->tbl->exec) {
-		flags = ctx->tbl->exec(ctx, proc, old_bitness);
+	if (ctx->callback_table.exec) {
+		flags = ctx->callback_table.exec(ctx, proc, old_bitness);
 
 		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
@@ -274,13 +274,13 @@ handle_pre_exit(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t *proc)
 	unsigned long status;
 
 	/* Run the "pre_exit" callback */
-	if (ctx->tbl->pre_exit) {
+	if (ctx->callback_table.pre_exit) {
 		if (!pink_trace_geteventmsg(pid, &status))
 			return handle_ptrace_error(ctx, PINK_EASY_ERROR_GETEVENTMSG_EXIT, proc, pid)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
 
-		flags = ctx->tbl->pre_exit(ctx, pid, status);
+		flags = ctx->callback_table.pre_exit(ctx, pid, status);
 
 		abrt = flags & PINK_EASY_CFLAG_ABRT;
 		if (abrt)
@@ -326,7 +326,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 			cproc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
 		/* Set the child up */
-		if (!pink_trace_setup(cproc->pid, ctx->options))
+		if (!pink_trace_setup(cproc->pid, ctx->ptrace_options))
 			return handle_ptrace_error(ctx, PINK_EASY_ERROR_SETUP, proc, -1)
 				? PINK_EASY_TRIBOOL_TRUE
 				: PINK_EASY_TRIBOOL_FALSE;
@@ -338,8 +338,8 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 	cproc = calloc(1, sizeof(pink_easy_process_t));
 	if (!cproc) {
 		ctx->error = PINK_EASY_ERROR_ALLOC;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc, cpid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc, cpid);
 		return PINK_EASY_TRIBOOL_FALSE;
 	}
 
@@ -355,10 +355,10 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 
 	/* Last but not least, run the callback */
 	cbfork = (event == PINK_EVENT_FORK)
-		? ctx->tbl->fork
+		? ctx->callback_table.fork
 		: ((event == PINK_EVENT_VFORK)
-				? ctx->tbl->vfork
-				: ctx->tbl->clone);
+				? ctx->callback_table.vfork
+				: ctx->callback_table.clone);
 
 	if (cbfork) {
 		suspended = cproc->flags & PINK_EASY_PROCESS_SUSPENDED;
@@ -409,16 +409,16 @@ handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 	}
 
 	if (WIFSIGNALED(status)) {
-		if (ctx->tbl->exit_signal) {
-			flags = ctx->tbl->exit_signal(ctx, pid, WTERMSIG(status));
+		if (ctx->callback_table.exit_signal) {
+			flags = ctx->callback_table.exit_signal(ctx, pid, WTERMSIG(status));
 			if (flags & PINK_EASY_CFLAG_ABRT) {
 				ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 				return false;
 			}
 		}
 	}
-	else if (ctx->tbl->exit) {
-		flags = ctx->tbl->exit(ctx, pid, WEXITSTATUS(status));
+	else if (ctx->callback_table.exit) {
+		flags = ctx->callback_table.exit(ctx, pid, WEXITSTATUS(status));
 		if (flags & PINK_EASY_CFLAG_ABRT) {
 			ctx->error = PINK_EASY_ERROR_CALLBACK_ABORT;
 			return false;
@@ -442,8 +442,8 @@ handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, b
 		 * but it does...
 		 */
 		ctx->error = PINK_EASY_ERROR_EVENT_UNKNOWN;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc, status);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc, status);
 		return false;
 	}
 
@@ -451,8 +451,8 @@ handle_signal(pink_easy_context_t *ctx, pink_easy_process_t *proc, int status, b
 	*mysig = stopsig;
 
 	/* Run the "signal" callback */
-	if (ctx->tbl->signal) {
-		flags = ctx->tbl->signal(ctx, proc, stopsig);
+	if (ctx->callback_table.signal) {
+		flags = ctx->callback_table.signal(ctx, proc, stopsig);
 
 		if (flags & PINK_EASY_CFLAG_SIGIGN)
 			*mysig = 0;
@@ -489,7 +489,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 		if ((pid = waitpid_nointr(-1, &status)) < 0) {
 			if (errno == ECHILD) {
 				/* Received ECHILD, end of tracing */
-				return ctx->tbl->end ? ctx->tbl->end(ctx, true) : EXIT_SUCCESS;
+				return ctx->callback_table.end ? ctx->callback_table.end(ctx, true) : EXIT_SUCCESS;
 			}
 
 			/*
@@ -497,8 +497,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			 * The rest are fatal errors.
 			 */
 			ctx->error = PINK_EASY_ERROR_WAIT, ctx->fatal = true;
-			if (ctx->tbl->error)
-				ctx->tbl->error(ctx);
+			if (ctx->callback_table.error)
+				ctx->callback_table.error(ctx);
 			return -ctx->error;
 		}
 
@@ -644,7 +644,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			if (!handle_exit(ctx, pid, status))
 				return -ctx->error;
 			if (SLIST_EMPTY(&ctx->process_list))
-				return ctx->tbl->end ? ctx->tbl->end(ctx, false) : EXIT_SUCCESS;
+				return ctx->callback_table.end ? ctx->callback_table.end(ctx, false) : EXIT_SUCCESS;
 			break;
 		default:
 			abort();

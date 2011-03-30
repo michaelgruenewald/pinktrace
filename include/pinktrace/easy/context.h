@@ -64,10 +64,10 @@ typedef struct pink_easy_context pink_easy_context_t;
  * destruction yourself or use the standard free() function from stdlib.h for
  * basic destruction.
  *
- * \param options Options for pink_trace_setup()
- * \param tbl Callback table
- * \param data User data
- * \param func The desctructor function for the user data
+ * \param ptrace_options Options for pink_trace_setup()
+ * \param callback_table Callback table
+ * \param userdata User data
+ * \param userdata_destroy The desctructor function for the user data
  *
  * \return The tracing context on success, NULL on failure and sets errno
  * accordingly.
@@ -75,7 +75,7 @@ typedef struct pink_easy_context pink_easy_context_t;
 PINK_MALLOC
 PINK_NONNULL(2)
 pink_easy_context_t *
-pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *data, pink_easy_free_func_t func);
+pink_easy_context_new(int ptrace_options, const pink_easy_callback_table_t *callback_table, void *userdata, pink_easy_free_func_t userdata_destroy);
 
 /**
  * Destroy a tracing context; destroys the process list and all the members of
@@ -117,6 +117,24 @@ void
 pink_easy_context_clear_error(pink_easy_context_t *ctx);
 
 /**
+ * Set user data and destruction function of the tracing context
+ *
+ * \ingroup g_easy_context
+ *
+ * \note This function accepts a destructor function pointer which may be used
+ * to free the user data. You may pass NULL if you want to handle the
+ * destruction yourself or use the standard free() function from stdlib.h for
+ * basic destruction.
+ *
+ * \param ctx Tracing context
+ * \param userdata User data
+ * \param userdata_destroy The desctructor function for the user data
+ **/
+PINK_NONNULL(1)
+void
+pink_easy_context_set_userdata(pink_easy_context_t *ctx, void *userdata, pink_easy_free_func_t userdata_destroy);
+
+/**
  * Returns the user data of the tracing context
  *
  * \param ctx Tracing context
@@ -125,7 +143,7 @@ pink_easy_context_clear_error(pink_easy_context_t *ctx);
  **/
 PINK_NONNULL(1)
 void *
-pink_easy_context_get_data(const pink_easy_context_t *ctx);
+pink_easy_context_get_userdata(const pink_easy_context_t *ctx);
 
 /**
  * Returns the process list

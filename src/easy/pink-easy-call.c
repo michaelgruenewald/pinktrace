@@ -48,20 +48,20 @@ pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *user
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {
 		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx);
 		return -ctx->error;
 	}
 
 	if ((proc->pid = fork()) < 0) {
 		ctx->error = PINK_EASY_ERROR_FORK;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx);
 		goto fail;
 	}
 	else if (!proc->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->callback_table.cerror ? ctx->callback_table.cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		kill(getpid(), SIGTRAP);
 		_exit(func(userdata));
 	}

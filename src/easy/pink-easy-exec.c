@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,20 +58,20 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {
 		ctx->error = PINK_EASY_ERROR_ALLOC_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx);
 		return -ctx->error;
 	}
 
 	if ((proc->pid = fork()) < 0) {
 		ctx->error = PINK_EASY_ERROR_VFORK;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx);
 		goto fail;
 	}
 	else if (!proc->pid) { /* child */
 		if (!pink_trace_me())
-			_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
+			_exit(ctx->callback_table.cerror ? ctx->callback_table.cerror(PINK_EASY_CHILD_ERROR_SETUP) : EXIT_FAILURE);
 		switch (type) {
 		case PINK_INTERNAL_FUNC_EXECVE:
 			execve(filename, argv, envp);
@@ -86,7 +86,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 			abort();
 		}
 		/* execve() failed */
-		_exit(ctx->tbl->cerror ? ctx->tbl->cerror(PINK_EASY_CHILD_ERROR_EXEC) : EXIT_FAILURE);
+		_exit(ctx->callback_table.cerror ? ctx->callback_table.cerror(PINK_EASY_CHILD_ERROR_EXEC) : EXIT_FAILURE);
 	}
 	/* parent */
 

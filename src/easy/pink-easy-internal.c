@@ -70,38 +70,38 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	/* Wait for the initial sig */
 	if (waitpid_nointr(proc->pid, &status) < 0) {
 		ctx->error = PINK_EASY_ERROR_WAIT_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc->pid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc->pid);
 		return -ctx->error;
 	}
 	if (!WIFSTOPPED(status) /* || WSTOPSIG(status) != SIGTRAP */) {
 		ctx->error = PINK_EASY_ERROR_STOP_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc->pid, status);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc->pid, status);
 		return -ctx->error;
 	}
 
 	/* Set up tracing options */
-	if (!pink_trace_setup(proc->pid, ctx->options)) {
+	if (!pink_trace_setup(proc->pid, ctx->ptrace_options)) {
 		ctx->error = PINK_EASY_ERROR_SETUP_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc->pid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc->pid);
 		return -ctx->error;
 	}
 
 	/* Figure out bitness */
 	if ((proc->bitness = pink_bitness_get(proc->pid)) == PINK_BITNESS_UNKNOWN) {
 		ctx->error = PINK_EASY_ERROR_BITNESS_ELDEST;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc->pid);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc->pid);
 		return -ctx->error;
 	}
 
 	/* Set up flags */
 	proc->flags |= PINK_EASY_PROCESS_STARTUP;
-	if (ctx->options & PINK_TRACE_OPTION_FORK
-			|| ctx->options & PINK_TRACE_OPTION_VFORK
-			|| ctx->options & PINK_TRACE_OPTION_CLONE)
+	if (ctx->ptrace_options & PINK_TRACE_OPTION_FORK
+			|| ctx->ptrace_options & PINK_TRACE_OPTION_VFORK
+			|| ctx->ptrace_options & PINK_TRACE_OPTION_CLONE)
 		proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
 	/* Insert the process into the list */
@@ -110,14 +110,14 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 	SLIST_INSERT_HEAD(&ctx->process_list, proc, entries);
 
 	/* Happy birthday! */
-	if (ctx->tbl->birth)
-		ctx->tbl->birth(ctx, proc, NULL);
+	if (ctx->callback_table.birth)
+		ctx->callback_table.birth(ctx, proc, NULL);
 
 	/* Push the child to move! */
 	if (!pink_trace_syscall(proc->pid, 0)) {
 		ctx->error = PINK_EASY_ERROR_STEP_INITIAL;
-		if (ctx->tbl->error)
-			ctx->tbl->error(ctx, proc);
+		if (ctx->callback_table.error)
+			ctx->callback_table.error(ctx, proc);
 		return -ctx->error;
 	}
 
