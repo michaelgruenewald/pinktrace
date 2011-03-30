@@ -252,12 +252,6 @@ done
 AC_CHECK_HEADERS([machine/reg.h machine/psl.h sys/reg.h], [], [])
 dnl }}}
 
-dnl {{{ Check functions
-if test x"$WANT_EASY" = x"1" ; then
-	AC_FUNC_ALLOCA
-fi
-dnl }}}
-
 dnl {{{ Check types
 AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,
 			   [#include <sys/ptrace.h>])
@@ -335,42 +329,45 @@ AC_ARG_ENABLE([easy],
 			  [WANT_EASY="$enableval"],
 			  [WANT_EASY="yes"])
 if test x"$WANT_EASY" = x"yes" ; then
+	AC_CHECK_HEADER([sys/queue.h], [], AC_MSG_ERROR([pinktrace_easy requires sys/queue.h]))
 	AC_CHECK_HEADER([alloca.h], [], AC_MSG_ERROR([pinktrace_easy requires alloca.h]))
+	AC_FUNC_ALLOCA
 
 	if test x"$opsys" = x"freebsd" ; then
-		AC_MSG_CHECKING([whether ptrace() defines required requests])
-		AC_PREPROC_IFELSE([AC_LANG_SOURCE([
-#include <sys/types.h>
-#include <sys/ptrace.h>
-
-#ifndef PT_LWPINFO
-#error nope
-#endif
-
-#ifndef PL_FLAG_SCE
-#error nope
-#endif
-
-#ifndef PL_FLAG_SCX
-#error nope
-#endif
-
-#ifndef PL_FLAG_EXEC
-#error nope
-#endif
-
-#ifndef PL_FLAG_FORKED
-#error nope
-#endif
-
-#ifndef PT_FOLLOW_FORK
-#error nope
-#endif
-])],
-	[AC_MSG_RESULT([yes])],
-	[AC_MSG_RESULT([NO!])
-	 AC_MSG_ERROR([required ptrace() defines are missing!])])
-	#elif test x"$opsys" = x"linux" ; then
+		AC_MSG_ERROR([pinktrace_easy is not available for FreeBSD])
+dnl 		AC_MSG_CHECKING([whether ptrace() defines required requests])
+dnl 		AC_PREPROC_IFELSE([AC_LANG_SOURCE([
+dnl #include <sys/types.h>
+dnl #include <sys/ptrace.h>
+dnl
+dnl #ifndef PT_LWPINFO
+dnl #error nope
+dnl #endif
+dnl
+dnl #ifndef PL_FLAG_SCE
+dnl #error nope
+dnl #endif
+dnl
+dnl #ifndef PL_FLAG_SCX
+dnl #error nope
+dnl #endif
+dnl
+dnl #ifndef PL_FLAG_EXEC
+dnl #error nope
+dnl #endif
+dnl
+dnl #ifndef PL_FLAG_FORKED
+dnl #error nope
+dnl #endif
+dnl
+dnl #ifndef PT_FOLLOW_FORK
+dnl #error nope
+dnl #endif
+dnl ])],
+dnl 	[AC_MSG_RESULT([yes])],
+dnl 	[AC_MSG_RESULT([NO!])
+dnl 	 AC_MSG_ERROR([required ptrace() defines are missing!])])
+dnl 	#elif test x"$opsys" = x"linux" ; then
 	fi
 fi
 AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"yes")
