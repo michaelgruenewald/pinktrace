@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,8 @@ pink_easy_context_t *
 pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *data, pink_easy_free_func_t func);
 
 /**
- * Destroy a tracing context; destroys the process tree and all the members of
- * the tree. The user data of the processes are free'd if a destructor function
+ * Destroy a tracing context; destroys the process list and all the members of
+ * the list. The user data of the processes are free'd if a destructor function
  * was provided with pink_easy_process_set_data(). The user data of the context
  * is free'd if a destructor function was provided with
  * pink_easy_context_new().
@@ -128,16 +128,16 @@ void *
 pink_easy_context_get_data(const pink_easy_context_t *ctx);
 
 /**
- * Returns the process tree
+ * Returns the process list
  *
  * \ingroup g_easy_context
  *
  * \param ctx Tracing context
  *
- * \return Process tree
+ * \return Process list
  **/
 PINK_NONNULL(1)
-pink_easy_process_tree_t *
-pink_easy_context_get_tree(const pink_easy_context_t *ctx);
+pink_easy_process_list_t *
+pink_easy_context_get_process_list(pink_easy_context_t *ctx);
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

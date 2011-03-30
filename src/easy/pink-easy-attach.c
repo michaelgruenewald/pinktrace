@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 	pink_easy_process_t *proc;
 
 	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
 
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {

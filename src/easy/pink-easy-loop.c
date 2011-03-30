@@ -27,13 +27,14 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/queue.h>
+#include <sys/wait.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
@@ -73,12 +74,9 @@ error_step(pink_event_t event)
 static void
 handle_death(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
-	bool dummy;
-
 	assert(proc != NULL);
 
-	dummy = pink_easy_process_tree_remove(ctx->tree, proc->pid);
-	assert(dummy);
+	pink_easy_process_list_remove(&ctx->process_list, proc);
 
 	/* R.I.P. */
 	if (ctx->tbl->death)
@@ -123,10 +121,9 @@ handle_step(pink_easy_context_t *ctx, pink_easy_process_t *proc, int sig, pink_e
 static pink_easy_tribool_t
 handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 {
-	bool dummy;
 	pink_easy_process_t *proc, *pproc;
 
-	proc = pink_easy_process_tree_search(ctx->tree, pid);
+	proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 	if (proc) {
 		if (!(proc->flags & PINK_EASY_PROCESS_STARTUP)) {
 			/*
@@ -139,7 +136,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 		}
 
 		assert(proc->ppid > 0);
-		pproc = pink_easy_process_tree_search(ctx->tree, proc->ppid);
+		pproc = pink_easy_process_list_lookup(&ctx->process_list, proc->ppid);
 		assert(pproc != NULL);
 
 		/* Set up the child */
@@ -163,7 +160,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 	/*
 	 * Child is born before PINK_EVENT_FORK
 	 * Not much we can do other than allocating the process structure,
-	 * inserting into the tree and marking it suspended.
+	 * inserting into the list and marking it suspended.
 	 */
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {
@@ -179,9 +176,7 @@ handle_stop(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t **nproc)
 	 */
 	proc->pid = pid;
 	proc->flags |= PINK_EASY_PROCESS_SUSPENDED;
-
-	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
-	assert(dummy);
+	SLIST_INSERT_HEAD(&ctx->process_list, proc, entries);
 
 	return PINK_EASY_TRIBOOL_NONE;
 }
@@ -307,7 +302,7 @@ PINK_NONNULL(1,4)
 static pink_easy_tribool_t
 handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t event, pink_easy_process_t **nproc)
 {
-	bool abrt, dummy, suspended;
+	bool abrt, suspended;
 	int flags;
 	unsigned long cpid;
 	pink_easy_process_t *cproc;
@@ -318,7 +313,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 			? PINK_EASY_TRIBOOL_TRUE
 			: PINK_EASY_TRIBOOL_FALSE;
 
-	cproc = pink_easy_process_tree_search(ctx->tree, (pid_t)cpid);
+	cproc = pink_easy_process_list_lookup(&ctx->process_list, (pid_t)cpid);
 	if (cproc) {
 		/* Child was born before PINK_EVENT_FORK */
 		assert(cproc->flags & PINK_EASY_PROCESS_SUSPENDED);
@@ -356,9 +351,7 @@ handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t ev
 		cproc->flags |= PINK_EASY_PROCESS_ATTACHED;
 	if (proc->flags & PINK_EASY_PROCESS_FOLLOWFORK)
 		cproc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
-
-	dummy = pink_easy_process_tree_insert(ctx->tree, cproc);
-	assert(dummy);
+	SLIST_INSERT_HEAD(&ctx->process_list, cproc, entries);
 
 	/* Last but not least, run the callback */
 	cbfork = (event == PINK_EVENT_FORK)
@@ -407,7 +400,7 @@ handle_exit(pink_easy_context_t *ctx, pid_t pid, int status)
 	pink_easy_process_t *proc;
 
 	/* R.I.P. */
-	proc = pink_easy_process_tree_search(ctx->tree, pid);
+	proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 	if (proc) {
 		/* Child is not dead yet!
 		 * Kill it with fire!
@@ -489,7 +482,6 @@ pink_easy_loop(pink_easy_context_t *ctx)
 	pink_easy_process_t *proc, *nproc;
 
 	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
 
 	/* Enter the event loop */
 	for (;;) {
@@ -515,7 +507,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 
 		switch (event) {
 		case PINK_EVENT_STOP:
-			/* Search the child in the process tree */
+			/* Search the child in the process list */
 			nproc = NULL;
 			ret = handle_stop(ctx, pid, &nproc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
@@ -533,8 +525,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_TRAP:
-			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			/* Search the child in the process list */
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			assert(proc != NULL);
 			ret = handle_trap(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
@@ -550,8 +542,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_SYSCALL:
-			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			/* Search the child in the process list */
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			assert(proc != NULL);
 			ret = handle_syscall(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
@@ -567,8 +559,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_EXEC:
-			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			/* Search the child in the process list */
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			assert(proc != NULL);
 			ret = handle_exec(ctx, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
@@ -584,10 +576,10 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			/* else if (ret == PINK_EASY_TRIBOOL_TRUE); */
 			break;
 		case PINK_EVENT_EXIT:
-			/* Search the child in the process tree,
-			 * she may or may not exist in the tree at this point.
+			/* Search the child in the process list,
+			 * she may or may not exist in the list at this point.
 			 */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			ret = handle_pre_exit(ctx, pid, proc);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
 				/* "Alles in Ordnung", resume the child */
@@ -606,8 +598,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 		case PINK_EVENT_FORK:
 		case PINK_EVENT_VFORK:
 		case PINK_EVENT_CLONE:
-			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			/* Search the child in the process list */
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			assert(proc != NULL);
 			nproc = NULL;
 			ret = handle_fork(ctx, proc, event, &nproc);
@@ -631,8 +623,8 @@ pink_easy_loop(pink_easy_context_t *ctx)
 			break;
 		case PINK_EVENT_GENUINE:
 		case PINK_EVENT_UNKNOWN:
-			/* Search the child in the process tree */
-			proc = pink_easy_process_tree_search(ctx->tree, pid);
+			/* Search the child in the process list */
+			proc = pink_easy_process_list_lookup(&ctx->process_list, pid);
 			assert(proc != NULL);
 			ret = handle_signal(ctx, proc, status, event == PINK_EVENT_UNKNOWN, &mysig);
 			if (ret == PINK_EASY_TRIBOOL_NONE) {
@@ -651,7 +643,7 @@ pink_easy_loop(pink_easy_context_t *ctx)
 		case PINK_EVENT_EXIT_SIGNAL:
 			if (!handle_exit(ctx, pid, status))
 				return -ctx->error;
-			if (!ctx->tree->count)
+			if (SLIST_EMPTY(&ctx->process_list))
 				return ctx->tbl->end ? ctx->tbl->end(ctx, false) : EXIT_SUCCESS;
 			break;
 		default:

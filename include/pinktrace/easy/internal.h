@@ -35,6 +35,7 @@
 #define PINKTRACE_EASY_GUARD_INTERNAL_H 1
 
 #include <stdbool.h>
+#include <sys/queue.h>
 #include <sys/types.h>
 
 #include <pinktrace/pink.h>
@@ -82,32 +83,14 @@ struct pink_easy_process {
 	/** Destructor for user data **/
 	pink_easy_free_func_t destroy;
 
-	/** Colour of the entry **/
-	unsigned colour:1;
-
-	/** Parent of this process **/
-	struct pink_easy_process *parent;
-
-	/** Left node (internal) **/
-	struct pink_easy_process *lnode;
-
-	/** Right node (internal) **/
-	struct pink_easy_process *rnode;
+	SLIST_ENTRY(pink_easy_process) entries;
 };
-
-/** This structure represents a process tree. **/
-struct pink_easy_process_tree {
-	/** Count of the nodes **/
-	unsigned count;
-
-	/** Root of the process tree. **/
-	struct pink_easy_process *root;
-};
+SLIST_HEAD(pink_easy_process_list, pink_easy_process);
 
 /** Tracing context **/
 struct pink_easy_context {
-	/** Process table **/
-	struct pink_easy_process_tree *tree;
+	/** Process list **/
+	struct pink_easy_process_list process_list;
 
 	/** pink_trace_setup() options **/
 	int options;
@@ -127,25 +110,6 @@ struct pink_easy_context {
 	/** Callback table **/
 	pink_easy_callback_table_t *tbl;
 };
-
-/**
- * Allocate a process tree
- **/
-pink_easy_process_tree_t *
-pink_easy_process_tree_new(void);
-
-/**
- * Insert a new process to the process tree.
- *
- * \param tree The process tree
- * \param proc New process
- *
- * \return true if insertion was successful, false if there is already a
- * process with the same process id.
- **/
-PINK_NONNULL(1,2)
-bool
-pink_easy_process_tree_insert(pink_easy_process_tree_t *tree, pink_easy_process_t *proc);
 
 /** Initialize tracing **/
 int

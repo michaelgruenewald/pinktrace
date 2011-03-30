@@ -54,7 +54,6 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	pink_easy_process_t *proc;
 
 	assert(ctx != NULL);
-	assert(ctx->tree != NULL);
 
 	proc = calloc(1, sizeof(pink_easy_process_t));
 	if (!proc) {

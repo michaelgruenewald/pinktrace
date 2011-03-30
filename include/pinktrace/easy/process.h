@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,19 +49,19 @@
  *
  * \ingroup g_easy_process
  *
- * This entries are allocated internally by the tracing context.
+ * These entries are allocated internally by the tracing context.
  **/
 typedef struct pink_easy_process pink_easy_process_t;
 
 /**
  * \struct pink_easy_process_tree_t
- * \brief Opaque structure which represents a process tree.
+ * \brief Opaque structure which represents a process list.
  *
  * \ingroup g_easy_process
  *
- * This tree is allocated internally by the tracing context.
+ * This list is maintained internally by the tracing context.
  **/
-typedef struct pink_easy_process_tree pink_easy_process_tree_t;
+typedef struct pink_easy_process_list pink_easy_process_list_t;
 
 /**
  * Returns the process ID of the entry.
@@ -135,19 +135,7 @@ void *
 pink_easy_process_get_data(const pink_easy_process_t *proc);
 
 /**
- * Returns the count of entries in the tree.
- *
- * \ingroup g_easy_process
- *
- * \param tree Process tree
- *
- * \return Number of entries in the tree
- **/
-unsigned
-pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
-
-/**
- * Remove a process from the process tree.
+ * Remove a process from the process list.
  *
  * \ingroup g_easy_process
  *
@@ -155,35 +143,33 @@ pink_easy_process_tree_get_count(const pink_easy_process_tree_t *tree);
  * handled internally by this library. You may, however, need to remove an
  * entry due to problems (e.g. -ESRCH) caused by the process.
  *
- * \param tree Process tree
+ * \param list Process list
  * \param pid Process ID
- *
- * \return true if process entry was found and removed, false otherwise
  **/
 PINK_NONNULL(1)
-bool
-pink_easy_process_tree_remove(pink_easy_process_tree_t *tree, pid_t pid);
+void
+pink_easy_process_list_remove(pink_easy_process_list_t *list, const pink_easy_process_t *proc);
 
 /**
- * Search the process tree for the given process ID.
+ * Look up the process list for the given process ID.
  *
  * \ingroup g_easy_process
  *
- * \param tree The process tree
+ * \param list The process list
  * \param pid Process ID
  *
- * \return The process on successful lookup, NULL on failure.
+ * \return The process on successful look up, NULL on failure.
  **/
 PINK_NONNULL(1)
 pink_easy_process_t *
-pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
+pink_easy_process_list_lookup(const pink_easy_process_list_t *list, pid_t pid);
 
 /**
  * Walk the process tree.
  *
  * \ingroup g_easy_process
  *
- * \param tree Process tree
+ * \param list Process list
  * \param func Walk function
  * \param userdata User data to pass to the walk function
  *
@@ -191,6 +177,6 @@ pink_easy_process_tree_search(const pink_easy_process_tree_t *tree, pid_t pid);
  **/
 PINK_NONNULL(1,2)
 unsigned
-pink_easy_process_tree_walk(const pink_easy_process_tree_t *tree, pink_easy_walk_func_t func, void *userdata);
+pink_easy_process_list_walk(const pink_easy_process_list_t *list, pink_easy_walk_func_t func, void *userdata);
 
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

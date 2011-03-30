@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,21 +30,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/queue.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
-
-static bool
-pink_easy_process_tree_free_entry(pink_easy_process_t *proc, PINK_UNUSED void *userdata)
-{
-	if (proc) {
-		if (proc->destroy && proc->data)
-			proc->destroy(proc->data);
-		free(proc);
-	}
-	return true;
-}
 
 pink_easy_context_t *
 pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *data, pink_easy_free_func_t func)
@@ -55,20 +45,16 @@ pink_easy_context_new(int options, const pink_easy_callback_table_t *tbl, void *
 	if (!ctx)
 		return NULL;
 
-	ctx->tree = pink_easy_process_tree_new();
-	if (!ctx->tree) {
-		free(ctx);
-		return NULL;
-	}
-
 	/* Callbacks */
 	ctx->tbl = malloc(sizeof(pink_easy_callback_table_t));
 	if (!ctx->tbl) {
-		free(ctx->tree);
 		free(ctx);
 		return NULL;
 	}
 	memcpy(ctx->tbl, tbl, sizeof(pink_easy_callback_table_t));
+
+	/* Process list */
+	SLIST_INIT(&ctx->process_list);
 
 	/* User data */
 	ctx->data = data;
@@ -94,14 +80,17 @@ pink_easy_context_clear_error(pink_easy_context_t *ctx)
 void
 pink_easy_context_destroy(pink_easy_context_t *ctx)
 {
+	pink_easy_process_t *current;
+
 	assert(ctx != NULL);
 
 	if (ctx->destroy && ctx->data)
 		ctx->destroy(ctx->data);
 
-	if (ctx->tree) {
-		pink_easy_process_tree_walk(ctx->tree, pink_easy_process_tree_free_entry, NULL);
-		free(ctx->tree);
+	SLIST_FOREACH(current, &ctx->process_list, entries) {
+		if (current->destroy && current->data)
+			current->destroy(current->data);
+		free(current);
 	}
 
 	if (ctx->tbl)
@@ -116,8 +105,8 @@ pink_easy_context_get_data(const pink_easy_context_t *ctx)
 	return ctx->data;
 }
 
-pink_easy_process_tree_t *
-pink_easy_context_get_tree(const pink_easy_context_t *ctx)
+pink_easy_process_list_t *
+pink_easy_context_get_process_list(pink_easy_context_t *ctx)
 {
-	return ctx->tree;
+	return &ctx->process_list;
 }

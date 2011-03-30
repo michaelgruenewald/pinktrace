@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/queue.h>
 
 #include <pinktrace/pink.h>
 #include <pinktrace/easy/internal.h>
@@ -64,7 +65,6 @@ waitpid_nointr(pid_t pid, int *status)
 int
 pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
-	bool dummy;
 	int status;
 
 	/* Wait for the initial sig */
@@ -104,11 +104,10 @@ pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 			|| ctx->options & PINK_TRACE_OPTION_CLONE)
 		proc->flags |= PINK_EASY_PROCESS_FOLLOWFORK;
 
-	/* Insert the process into the tree */
+	/* Insert the process into the list */
 	proc->ppid = -1;
 	proc->flags &= ~PINK_EASY_PROCESS_STARTUP;
-	dummy = pink_easy_process_tree_insert(ctx->tree, proc);
-	assert(dummy);
+	SLIST_INSERT_HEAD(&ctx->process_list, proc, entries);
 
 	/* Happy birthday! */
 	if (ctx->tbl->birth)
