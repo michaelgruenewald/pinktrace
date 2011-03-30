@@ -144,7 +144,7 @@ pink_easy_process_get_data(const pink_easy_process_t *proc);
  * entry due to problems (e.g. -ESRCH) caused by the process.
  *
  * \param list Process list
- * \param pid Process ID
+ * \param proc Process entry
  **/
 PINK_NONNULL(1)
 void
