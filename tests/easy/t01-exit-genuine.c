@@ -46,7 +46,7 @@ eb_child(pink_easy_child_error_t error)
 }
 
 static int
-cb_exit_genuine(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pid_t pid, int code)
+cb_exit_genuine(PINK_GCC_ATTR((unused)) const pink_easy_context_t *ctx, PINK_GCC_ATTR((unused)) pid_t pid, int code)
 {
 	int f;
 

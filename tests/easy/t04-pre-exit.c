@@ -46,7 +46,7 @@ eb_child(pink_easy_child_error_t error)
 }
 
 static int
-cb_pre_exit(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pid_t pid, unsigned long status)
+cb_pre_exit(PINK_GCC_ATTR((unused)) const pink_easy_context_t *ctx, PINK_GCC_ATTR((unused)) pid_t pid, unsigned long status)
 {
 	int f;
 

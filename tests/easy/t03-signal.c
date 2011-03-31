@@ -47,7 +47,7 @@ eb_child(pink_easy_child_error_t error)
 }
 
 static void
-cb_death(PINK_UNUSED const pink_easy_context_t *ctx, const pink_easy_process_t *current)
+cb_death(PINK_GCC_ATTR((unused)) const pink_easy_context_t *ctx, const pink_easy_process_t *current)
 {
 	fprintf(stderr, "%s:%d: child:%i died\n",
 			__func__, __LINE__,
@@ -55,7 +55,7 @@ cb_death(PINK_UNUSED const pink_easy_context_t *ctx, const pink_easy_process_t *
 }
 
 static int
-cb_signal(PINK_UNUSED const pink_easy_context_t *ctx, PINK_UNUSED pink_easy_process_t *current, int sig)
+cb_signal(PINK_GCC_ATTR((unused)) const pink_easy_context_t *ctx, PINK_GCC_ATTR((unused)) pink_easy_process_t *current, int sig)
 {
 	int f;
 
