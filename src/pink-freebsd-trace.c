@@ -91,7 +91,7 @@ pink_trace_followfork(pid_t pid, bool on)
 }
 #else
 bool
-pink_trace_followfork(PINK_UNUSED pid_t pid, PINK_UNUSED bool on)
+pink_trace_followfork(PINK_GCC_ATTR((unused)) pid_t pid, PINK_GCC_ATTR((unused)) bool on)
 {
 	errno = ENOTSUP;
 	return false;

@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon truss which is:
  *   Copyright (c) 1997 Sean Eric Fagan
  * All rights reserved.
@@ -66,25 +66,25 @@ pink_util_arg_offset_i386(struct reg r, unsigned ind)
 }
 
 pink_bitness_t
-pink_bitness_get(PINK_UNUSED pid_t pid)
+pink_bitness_get(PINK_GCC_ATTR((unused)) pid_t pid)
 {
 	return PINK_BITNESS_32;
 }
 
 inline
 unsigned short
-pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+pink_bitness_wordsize(PINK_GCC_ATTR((unused)) pink_bitness_t bitness)
 {
 	return 4;
 }
 
 bool
-pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
+pink_util_get_syscall(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, long *res)
 {
 	unsigned parm_offset;
 	struct reg r;
 
-	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	/*
@@ -97,7 +97,7 @@ pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 	case SYS_syscall:
 	case SYS___syscall:
 		parm_offset = r.r_esp + sizeof(int);
-		if (PINK_UNLIKELY(!pink_util_peekdata(pid, parm_offset, res)))
+		if (PINK_GCC_UNLIKELY(!pink_util_peekdata(pid, parm_offset, res)))
 			return false;
 		return true;
 	default:
@@ -106,11 +106,11 @@ pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
 }
 
 bool
-pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, long scno)
 {
 	struct reg r;
 
-	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	r.r_eax = scno;
@@ -126,7 +126,7 @@ pink_util_get_return(pid_t pid, long *res)
 
 	assert(res != NULL);
 
-	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	errorp = !!(r.r_eflags & PSL_C);
@@ -140,7 +140,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	struct reg r;
 
-	if (PINK_UNLIKELY(!pink_util_get_regs(pid, &r)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_regs(pid, &r)))
 		return false;
 
 	if (ret < 0) {
@@ -154,7 +154,7 @@ pink_util_set_return(pid_t pid, long ret)
 }
 
 bool
-pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
+pink_util_get_arg(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, unsigned ind, long *res)
 {
 	struct reg r;
 
@@ -165,7 +165,7 @@ pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, l
 }
 
 bool
-pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+pink_util_set_arg(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, unsigned ind, long arg)
 {
 	struct reg r;
 
@@ -218,10 +218,10 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(ind < PINK_MAX_INDEX);
 	assert(paddr != NULL);
 
-	if (PINK_UNLIKELY(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
+	if (PINK_GCC_UNLIKELY(fd && !pink_util_get_arg(pid, bitness, 0, fd)))
 		return false;
 
-	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)
+	if (PINK_GCC_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)
 				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 

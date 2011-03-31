@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon strace which is:
  *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
  *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
@@ -55,7 +55,7 @@
 		: (sizeof(unsigned long) * ((i) + PT_R3)))
 
 pink_bitness_t
-pink_bitness_get(PINK_UNUSED pid_t pid)
+pink_bitness_get(PINK_GCC_ATTR((unused)) pid_t pid)
 {
 #if defined(POWERPC)
 	return PINK_BITNESS_32;
@@ -68,7 +68,7 @@ pink_bitness_get(PINK_UNUSED pid_t pid)
 
 inline
 unsigned short
-pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
+pink_bitness_wordsize(PINK_GCC_ATTR((unused)) pink_bitness_t bitness)
 {
 #if defined(POWERPC)
 	return sizeof(int);
@@ -80,13 +80,13 @@ pink_bitness_wordsize(PINK_UNUSED pink_bitness_t bitness)
 }
 
 bool
-pink_util_get_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long *res)
+pink_util_get_syscall(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, long *res)
 {
 	return pink_util_peek(pid, ORIG_ACCUM, res);
 }
 
 bool
-pink_util_set_syscall(pid_t pid, PINK_UNUSED pink_bitness_t bitness, long scno)
+pink_util_set_syscall(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, long scno)
 {
 	return pink_util_poke(pid, ORIG_ACCUM, scno);
 }
@@ -98,11 +98,11 @@ pink_util_get_return(pid_t pid, long *res)
 
 	assert(res != NULL);
 
-	if (PINK_UNLIKELY(!pink_util_peek(pid, ACCUM, res)
+	if (PINK_GCC_UNLIKELY(!pink_util_peek(pid, ACCUM, res)
 				|| !pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
-	if (PINK_UNLIKELY(flags & SO_MASK))
+	if (PINK_GCC_UNLIKELY(flags & SO_MASK))
 		*res = -(*res);
 
 	return true;
@@ -113,7 +113,7 @@ pink_util_set_return(pid_t pid, long ret)
 {
 	long flags;
 
-	if (PINK_UNLIKELY(!pink_util_peek(pid, ACCUM_FLAGS, &flags)))
+	if (PINK_GCC_UNLIKELY(!pink_util_peek(pid, ACCUM_FLAGS, &flags)))
 		return false;
 
 	if (ret < 0) {
@@ -127,7 +127,7 @@ pink_util_set_return(pid_t pid, long ret)
 }
 
 bool
-pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long *res)
+pink_util_get_arg(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, unsigned ind, long *res)
 {
 	assert(ind < PINK_MAX_INDEX);
 
@@ -135,7 +135,7 @@ pink_util_get_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, l
 }
 
 bool
-pink_util_set_arg(pid_t pid, PINK_UNUSED pink_bitness_t bitness, unsigned ind, long arg)
+pink_util_set_arg(pid_t pid, PINK_GCC_ATTR((unused)) pink_bitness_t bitness, unsigned ind, long arg)
 {
 	assert(ind < PINK_MAX_INDEX);
 
@@ -171,7 +171,7 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind)
 
 	assert(ind < PINK_MAX_INDEX);
 
-	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_arg(pid, bitness, ind, &addr)))
 		return false;
 
 	return pink_util_movestr_persistent(pid, addr);
@@ -198,7 +198,7 @@ pink_encode_simple_safe(pid_t pid, pink_bitness_t bitness, unsigned ind, const v
 }
 
 bool
-pink_has_socketcall(PINK_UNUSED pink_bitness_t bitness)
+pink_has_socketcall(PINK_GCC_ATTR((unused)) pink_bitness_t bitness)
 {
 	return true;
 }
@@ -221,7 +221,7 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
 	assert(ind < PINK_MAX_INDEX);
 
 	/* Decode socketcall(2) */
-	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
 
 	size = pink_bitness_wordsize(bitness);
@@ -250,19 +250,19 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	assert(paddr != NULL);
 
 	/* Decode socketcall(2) */
-	if (PINK_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
+	if (PINK_GCC_UNLIKELY(!pink_util_get_arg(pid, bitness, 1, &args)))
 		return false;
-	if (fd && PINK_UNLIKELY(!pink_util_move(pid, args, fd)))
+	if (fd && PINK_GCC_UNLIKELY(!pink_util_move(pid, args, fd)))
 		return false;
 
 	size = pink_bitness_wordsize(bitness);
 	if (size == sizeof(int)) {
 		unsigned int iaddr, iaddrlen;
 		args += ind * size;
-		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
+		if (PINK_GCC_UNLIKELY(!pink_util_move(pid, args, &iaddr)))
 			return false;
 		args += size;
-		if (PINK_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
+		if (PINK_GCC_UNLIKELY(!pink_util_move(pid, args, &iaddrlen)))
 			return false;
 
 		addr = iaddr;
@@ -271,10 +271,10 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 	else if (size == sizeof(long)) {
 		unsigned long laddr, laddrlen;
 		args += ind * size;
-		if (PINK_UNLIKELY(!pink_util_move(pid, args, &laddr)))
+		if (PINK_GCC_UNLIKELY(!pink_util_move(pid, args, &laddr)))
 			return false;
 		args += size;
-		if (PINK_UNLIKELY(!pink_util_move(pid, args, &laddrlen)))
+		if (PINK_GCC_UNLIKELY(!pink_util_move(pid, args, &laddrlen)))
 			return false;
 
 		addr = laddr;

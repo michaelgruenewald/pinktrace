@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -295,7 +295,7 @@ check_index(unsigned ind)
  * only by the parent.
  */
 static VALUE
-pinkrb_trace_me(PINK_UNUSED VALUE mod)
+pinkrb_trace_me(PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	if (!pink_trace_me())
 		rb_sys_fail("pink_trace_me()");
@@ -320,7 +320,7 @@ pinkrb_trace_me(PINK_UNUSED VALUE mod)
  * On Linux, this argument is not used.
  */
 static VALUE
-pinkrb_trace_cont(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_trace_cont(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	long sig, addr;
@@ -363,7 +363,7 @@ pinkrb_trace_cont(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * is delivered or not.
  */
 static VALUE
-pinkrb_trace_resume(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_trace_resume(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -394,7 +394,7 @@ pinkrb_trace_resume(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Kills the traced child process with SIGKILL.
  */
 static VALUE
-pinkrb_trace_kill(PINK_UNUSED VALUE mod, VALUE vpid)
+pinkrb_trace_kill(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 
@@ -416,7 +416,7 @@ pinkrb_trace_kill(PINK_UNUSED VALUE mod, VALUE vpid)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_singlestep(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_trace_singlestep(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -451,7 +451,7 @@ pinkrb_trace_singlestep(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_trace_syscall(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -488,16 +488,16 @@ pinkrb_trace_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Availability: FreeBSD
  */
 #if !defined(PINKTRACE_FREEBSD)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_trace_syscall_entry(
 #if !defined(PINKTRACE_FREEBSD)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
@@ -538,16 +538,16 @@ pinkrb_trace_syscall_entry(
  * Availability: FreeBSD
  */
 #if !defined(PINKTRACE_FREEBSD)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_trace_syscall_exit(
 #if !defined(PINKTRACE_FREEBSD)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_FREEBSD)
 	pid_t pid;
@@ -588,16 +588,16 @@ pinkrb_trace_syscall_exit(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_trace_sysemu(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -638,16 +638,16 @@ pinkrb_trace_sysemu(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_trace_sysemu_singlestep(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -687,12 +687,12 @@ pinkrb_trace_sysemu_singlestep(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
-pinkrb_trace_geteventmsg(PINK_UNUSED VALUE mod,
+pinkrb_trace_geteventmsg(PINK_GCC_ATTR((unused)) VALUE mod,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	VALUE vpid)
 {
@@ -719,16 +719,16 @@ pinkrb_trace_geteventmsg(PINK_UNUSED VALUE mod,
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_trace_setup(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -767,7 +767,7 @@ pinkrb_trace_setup(
  * child to stop.
  */
 static VALUE
-pinkrb_trace_attach(PINK_UNUSED VALUE mod, VALUE vpid)
+pinkrb_trace_attach(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 
@@ -789,7 +789,7 @@ pinkrb_trace_attach(PINK_UNUSED VALUE mod, VALUE vpid)
  * PinkTrace::Trace.cont.
  */
 static VALUE
-pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_trace_detach(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	long sig;
@@ -874,7 +874,7 @@ pinkrb_trace_detach(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Returns the last event made by child.
  */
 static VALUE
-pinkrb_event_decide(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_event_decide(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	unsigned int event;
 	int status;
@@ -942,7 +942,7 @@ pinkrb_event_decide(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Returns the bitness of the traced child.
  */
 static VALUE
-pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE vpid)
+pinkrb_bitness_get(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 	int bit;
@@ -962,7 +962,7 @@ pinkrb_bitness_get(PINK_UNUSED VALUE mod, VALUE vpid)
  * Returns the name of the given bitness.
  */
 static VALUE
-pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE vbit)
+pinkrb_bitness_name(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vbit)
 {
 	pink_bitness_t bit;
 
@@ -977,7 +977,7 @@ pinkrb_bitness_name(PINK_UNUSED VALUE mod, VALUE vbit)
  * Returns the word size of the given bitness.
  */
 static VALUE
-pinkrb_bitness_wordsize(PINK_UNUSED VALUE mod, VALUE vbit)
+pinkrb_bitness_wordsize(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vbit)
 {
 	unsigned short wordsize;
 	unsigned bit;
@@ -1017,7 +1017,7 @@ pinkrb_bitness_wordsize(PINK_UNUSED VALUE mod, VALUE vbit)
  * or undefined.
  */
 static VALUE
-pinkrb_name_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_name_syscall(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	unsigned bit;
 	long scno;
@@ -1052,7 +1052,7 @@ pinkrb_name_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_name_lookup(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_name_lookup(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	unsigned bit;
 	const char *name;
@@ -1086,7 +1086,7 @@ pinkrb_name_lookup(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Returns the last system call number called by the traced child.
  */
 static VALUE
-pinkrb_util_get_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_util_get_syscall(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit;
@@ -1119,7 +1119,7 @@ pinkrb_util_get_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Sets the system call number for the traced child.
  */
 static VALUE
-pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit;
@@ -1153,7 +1153,7 @@ pinkrb_util_set_syscall(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Returns the return value of the last system call called by the traced child.
  */
 static VALUE
-pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE vpid)
+pinkrb_util_get_return(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vpid)
 {
 	pid_t pid;
 	long ret;
@@ -1172,7 +1172,7 @@ pinkrb_util_get_return(PINK_UNUSED VALUE mod, VALUE vpid)
  * Set the return value of the system call for the traced child.
  */
 static VALUE
-pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE vpid, VALUE vret)
+pinkrb_util_set_return(PINK_GCC_ATTR((unused)) VALUE mod, VALUE vpid, VALUE vret)
 {
 	pid_t pid;
 	long ret;
@@ -1199,7 +1199,7 @@ pinkrb_util_set_return(PINK_UNUSED VALUE mod, VALUE vpid, VALUE vret)
  * or undefined.
  */
 static VALUE
-pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_util_get_arg(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1240,7 +1240,7 @@ pinkrb_util_get_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_util_set_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_util_set_arg(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1290,7 +1290,7 @@ pinkrb_util_set_arg(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_decode_string(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1356,16 +1356,16 @@ pinkrb_decode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_encode_string_safe(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1420,7 +1420,7 @@ pinkrb_encode_string_safe(
  * or undefined.
  */
 static VALUE
-pinkrb_encode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_encode_string(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1478,7 +1478,7 @@ pinkrb_encode_string(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_decode_strarray(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_decode_strarray(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	bool nil;
 	pid_t pid;
@@ -1556,16 +1556,16 @@ pinkrb_decode_strarray(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
-pinkrb_has_socketcall(PINK_UNUSED VALUE mod,
+pinkrb_has_socketcall(PINK_GCC_ATTR((unused)) VALUE mod,
 #if !defined(PINKTRACE_LINUX)
-		PINK_UNUSED
+		PINK_GCC_ATTR((unused))
 #endif
 		int argc,
 #if !defined(PINKTRACE_LINUX)
-		PINK_UNUSED
+		PINK_GCC_ATTR((unused))
 #endif
 		VALUE *argv)
 {
@@ -1600,12 +1600,12 @@ pinkrb_has_socketcall(PINK_UNUSED VALUE mod,
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
-pinkrb_name_socket_subcall(PINK_UNUSED VALUE mod,
+pinkrb_name_socket_subcall(PINK_GCC_ATTR((unused)) VALUE mod,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	VALUE vsubcall)
 {
@@ -1636,16 +1636,16 @@ pinkrb_name_socket_subcall(PINK_UNUSED VALUE mod,
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_decode_socket_call(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1693,16 +1693,16 @@ pinkrb_decode_socket_call(
  * Availability: Linux
  */
 #if !defined(PINKTRACE_LINUX)
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif
 static VALUE
 pinkrb_decode_socket_fd(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED int argc, PINK_UNUSED VALUE *argv,
+	PINK_GCC_ATTR((unused)) int argc, PINK_GCC_ATTR((unused)) VALUE *argv,
 #else
 	int argc, VALUE *argv,
 #endif
-	PINK_UNUSED VALUE mod)
+	PINK_GCC_ATTR((unused)) VALUE mod)
 {
 #if defined(PINKTRACE_LINUX)
 	pid_t pid;
@@ -1761,7 +1761,7 @@ pinkrb_decode_socket_fd(
  * or undefined.
  */
 static VALUE
-pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1807,7 +1807,7 @@ pinkrb_decode_socket_address(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
  * or undefined.
  */
 static VALUE
-pinkrb_decode_socket_address_fd(int argc, VALUE *argv, PINK_UNUSED VALUE mod)
+pinkrb_decode_socket_address_fd(int argc, VALUE *argv, PINK_GCC_ATTR((unused)) VALUE mod)
 {
 	pid_t pid;
 	unsigned bit, ind;
@@ -1908,12 +1908,12 @@ pinkrb_Address_is_inet(VALUE self)
  * Returns true if the address is of family +AF_INET6+.
  */
 #if !PINKTRACE_HAVE_IPV6
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif /* !PINKTRACE_HAVE_IPV6 */
 static VALUE
 pinkrb_Address_is_inet6(
 #if !PINKTRACE_HAVE_IPV6
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_IPV6 */
 	VALUE self)
 {
@@ -1934,12 +1934,12 @@ pinkrb_Address_is_inet6(
  * Returns true if the address is of family +AF_NETLINK+.
  */
 #if !PINKTRACE_HAVE_NETLINK
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_is_netlink(
 #if !PINKTRACE_HAVE_NETLINK
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
 {
@@ -2041,12 +2041,12 @@ pinkrb_Address_ip(VALUE self)
  * Returns the IPV6 address of an Inet6 socket address as string.
  */
 #if !PINKTRACE_HAVE_IPV6
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif /* !PINKTRACE_HAVE_IPV6 */
 static VALUE
 pinkrb_Address_ipv6(
 #if !PINKTRACE_HAVE_IPV6
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_IPV6 */
 	VALUE self)
 {
@@ -2075,12 +2075,12 @@ pinkrb_Address_ipv6(
  * Returns the process ID of the netlink socket address
  */
 #if !PINKTRACE_HAVE_NETLINK
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_pid(
 #if !PINKTRACE_HAVE_NETLINK
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
 {
@@ -2101,12 +2101,12 @@ pinkrb_Address_pid(
  * Returns the mcast groups mask of the netlink socket address
  */
 #if !PINKTRACE_HAVE_NETLINK
-PINK_NORETURN
+PINK_GCC_ATTR((noreturn))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 static VALUE
 pinkrb_Address_groups(
 #if !PINKTRACE_HAVE_NETLINK
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_NETLINK */
 	VALUE self)
 {

@@ -115,9 +115,8 @@ extern "C" {
  *
  * \return One of PINK_EVENT_* constants
  **/
-PINK_PURE
 pink_event_t
-pink_event_decide(int status);
+pink_event_decide(int status) PINK_GCC_ATTR((pure));
 
 /**
  * Return a string representation of the event.
@@ -126,9 +125,8 @@ pink_event_decide(int status);
  *
  * \return The string representation of the event.
  **/
-PINK_PURE
 const char *
-pink_event_name(pink_event_t event);
+pink_event_name(pink_event_t event) PINK_GCC_ATTR((pure));
 
 #ifdef __cplusplus
 }

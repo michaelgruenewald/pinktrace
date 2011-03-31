@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,8 @@ extern "C" {
  *
  * \return The name of the system call, NULL if system call name is unknown.
  **/
-PINK_PURE
 const char *
-pink_name_syscall(long scno, pink_bitness_t bitness);
+pink_name_syscall(long scno, pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
 /**
  * Look up the number of the given system call name.
@@ -67,9 +66,8 @@ pink_name_syscall(long scno, pink_bitness_t bitness);
  *
  * \return The system call number on success, -1 on failure.
  **/
-PINK_PURE
 long
-pink_name_lookup(const char *name, pink_bitness_t bitness);
+pink_name_lookup(const char *name, pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
 #ifdef __cplusplus
 }

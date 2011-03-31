@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,53 +37,24 @@
 
 #if !defined(SPARSE) && defined(__GNUC__) && __GNUC__ >= 3
 
-#define PINK_MALLOC __attribute__((malloc))
-#define PINK_NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
-#define PINK_NORETURN __attribute__((noreturn))
-#define PINK_PURE __attribute__((pure))
-#define PINK_SENTINEL(x) __attribute__((sentinel((x))))
-#define PINK_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-#define PINK_UNUSED __attribute__((unused))
-#define PINK_LIKELY(x) __builtin_expect(!!(x), 1)
-#define PINK_UNLIKELY(x) __builtin_expect(!!(x), 0)
+#define PINK_GCC_ATTR(x) __attribute__(x)
+#define PINK_GCC_LIKELY(x) __builtin_expect(!!(x), 1)
+#define PINK_GCC_UNLIKELY(x) __builtin_expect(!!(x), 0)
 
 #else
+
 /**
- * GCC malloc attribute
+ * Macro for GCC attributes
  **/
-#define PINK_MALLOC
-/**
- * GCC nonnull attribute
- **/
-#define PINK_NONNULL(...)
-/**
- * GCC noreturn attribute
- **/
-#define PINK_NORETURN
-/**
- * GCC pure attribute
- **/
-#define PINK_PURE
-/**
- * GCC sentinel attribute
- **/
-#define PINK_SENTINEL(x)
-/**
- * GCC warn_unused_result attribute
- **/
-#define PINK_WARN_UNUSED_RESULT
-/**
- * GCC unused attribute
- **/
-#define PINK_UNUSED
+#define PINK_GCC_ATTR(x)
 /**
  * GCC builtin_expect macro
  **/
-#define PINK_LIKELY(x) (x)
+#define PINK_GCC_LIKELY(x) (x)
 /**
  * GCC builtin_expect macro
  **/
-#define PINK_UNLIKELY(x) (x)
+#define PINK_GCC_UNLIKELY(x) (x)
 
 #endif /* !defined(SPARSE) ... */
 

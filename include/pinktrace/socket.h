@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -163,9 +163,8 @@ extern "C" {
  * \param bitness Bitness of the child
  * \return true if socketcall() system call is available, false otherwise.
  **/
-PINK_PURE
 bool
-pink_has_socketcall(pink_bitness_t bitness);
+pink_has_socketcall(pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
 /**
  * Name the given socket subcall
@@ -176,9 +175,8 @@ pink_has_socketcall(pink_bitness_t bitness);
  *
  * \return The name of the subcall
  **/
-PINK_PURE
 const char *
-pink_name_socket_subcall(pink_socket_subcall_t subcall);
+pink_name_socket_subcall(pink_socket_subcall_t subcall) PINK_GCC_ATTR((pure));
 
 #ifdef __cplusplus
 }

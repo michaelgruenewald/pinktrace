@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,8 @@ extern "C" {
  * \param dest Pointer to store the data
  * \param len Length of the data
  **/
-PINK_NONNULL(4)
 bool
-pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len);
+pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, size_t len) PINK_GCC_ATTR((nonnull(4)));
 
 /**
  * Get the string argument and place it in dest.
@@ -72,9 +71,8 @@ pink_decode_simple(pid_t pid, pink_bitness_t bitness, unsigned ind, void *dest, 
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(4)
 bool
-pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len);
+pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, size_t len) PINK_GCC_ATTR((nonnull(4)));
 
 /**
  * Like pink_decode_string() but allocates the string itself.
@@ -82,9 +80,8 @@ pink_decode_string(pid_t pid, pink_bitness_t bitness, unsigned ind, char *dest, 
  * \return The path on success, NULL on failure and sets errno
  * accordingly.
  **/
-PINK_MALLOC
 char *
-pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
+pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind) PINK_GCC_ATTR((malloc));
 
 /**
  * Decode the requested member of a NULL-terminated string array.
@@ -102,9 +99,8 @@ pink_decode_string_persistent(pid_t pid, pink_bitness_t bitness, unsigned ind);
  *
  * \since 0.0.3
  **/
-PINK_NONNULL(5)
 bool
-pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind, char *dest, size_t len, bool *nil);
+pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind, char *dest, size_t len, bool *nil) PINK_GCC_ATTR((nonnull(5)));
 
 /**
  * Like pink_decode_string_array_member() but allocates the string itself.
@@ -122,9 +118,8 @@ pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, uns
  *
  * \since 0.0.3
  **/
-PINK_MALLOC
 char *
-pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind);
+pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, long arg, unsigned ind) PINK_GCC_ATTR((malloc));
 
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
@@ -142,9 +137,8 @@ pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, lo
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(3)
 bool
-pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
+pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall) PINK_GCC_ATTR((nonnull(3)));
 
 /**
  * Get the socket file descriptor in argument arg and place it in fd.
@@ -160,9 +154,8 @@ pink_decode_socket_call(pid_t pid, pink_bitness_t bitness, long *subcall);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(4)
 bool
-pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd);
+pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd) PINK_GCC_ATTR((nonnull(4)));
 #endif /* defined(PINKTRACE_LINUX)... */
 
 /**
@@ -186,9 +179,8 @@ pink_decode_socket_fd(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd)
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(5)
 bool
-pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr);
+pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long *fd, pink_socket_address_t *paddr) PINK_GCC_ATTR((nonnull(5)));
 
 #ifdef __cplusplus
 }

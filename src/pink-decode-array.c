@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon strace which is:
  *   Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
  *   Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
@@ -57,7 +57,7 @@ pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, uns
 	wordsize = pink_bitness_wordsize(bitness);
 	arg += ind * wordsize;
 
-	if (PINK_UNLIKELY(!pink_util_moven(pid, arg, cp.data, wordsize)))
+	if (PINK_GCC_UNLIKELY(!pink_util_moven(pid, arg, cp.data, wordsize)))
 		return false;
 	if (bitness == PINK_BITNESS_32)
 		cp.p64 = cp.p32;
@@ -87,7 +87,7 @@ pink_decode_string_array_member_persistent(pid_t pid, pink_bitness_t bitness, lo
 	wordsize = pink_bitness_wordsize(bitness);
 	arg += ind * wordsize;
 
-	if (PINK_UNLIKELY(!pink_util_moven(pid, arg, cp.data, wordsize)))
+	if (PINK_GCC_UNLIKELY(!pink_util_moven(pid, arg, cp.data, wordsize)))
 		return NULL;
 	if (bitness == PINK_BITNESS_32)
 		cp.p64 = cp.p32;

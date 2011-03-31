@@ -59,7 +59,7 @@ static char pinkpy_strarray_decode_doc[] = ""
 	"@rtype: str\n"
 	"@return: The decoded string, C{None} if the member is NULL.";
 static PyObject *
-pinkpy_strarray_decode(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_strarray_decode(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	bool nil;
 	pid_t pid;
