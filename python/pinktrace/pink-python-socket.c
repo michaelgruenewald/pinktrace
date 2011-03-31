@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,9 +81,9 @@ static char pinkpy_socket_has_socketcall_doc[] = ""
 	"(Optional, defaults to C{pinktrace.bitness.DEFAULT_BITNESS})\n"
 	"@raise ValueError: Raised if the given bitness is either unsupported or invalid\n";
 static PyObject *
-pinkpy_socket_has_socketcall(PINK_UNUSED PyObject *self,
+pinkpy_socket_has_socketcall(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -118,9 +118,9 @@ static char pinkpy_socket_name_doc[] = ""
 	"@rtype: str\n"
 	"@return: The name of the socket subcall or C{None}";
 static PyObject *
-pinkpy_socket_name(PINK_UNUSED PyObject *self,
+pinkpy_socket_name(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -155,9 +155,9 @@ static char pinkpy_socket_decode_call_doc[] = ""
 	"@rtype: long\n"
 	"@return: The decoded socket call";
 static PyObject *
-pinkpy_socket_decode_call(PINK_UNUSED PyObject *self,
+pinkpy_socket_decode_call(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -199,9 +199,9 @@ static char pinkpy_socket_decode_fd_doc[] = ""
 	"@rtype: long\n"
 	"@return: The socket file descriptor";
 static PyObject *
-pinkpy_socket_decode_fd(PINK_UNUSED PyObject *self,
+pinkpy_socket_decode_fd(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -230,7 +230,7 @@ pinkpy_socket_decode_fd(PINK_UNUSED PyObject *self,
 }
 
 static PyObject *
-Address_new(PyTypeObject *t, PINK_UNUSED PyObject *a, PINK_UNUSED PyObject *k)
+Address_new(PyTypeObject *t, PINK_GCC_ATTR((unused)) PyObject *a, PINK_GCC_ATTR((unused)) PyObject *k)
 {
 	return t->tp_alloc(t, 0);
 }
@@ -242,7 +242,7 @@ Address_dealloc(PyObject *o)
 }
 
 static PyObject *
-Address_family(PyObject *self, PINK_UNUSED void *x)
+Address_family(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	Address *addr = (Address *)self;
 #if PY_MAJOR_VERSION > 2
@@ -253,7 +253,7 @@ Address_family(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
-Address_length(PyObject *self, PINK_UNUSED void *x)
+Address_length(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	Address *addr = (Address *)self;
 #if PY_MAJOR_VERSION > 2
@@ -264,7 +264,7 @@ Address_length(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
-Address_abstract(PyObject *self, PINK_UNUSED void *x)
+Address_abstract(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	Address *addr = (Address *)self;
 
@@ -277,7 +277,7 @@ Address_abstract(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
-Address_path(PyObject *self, PINK_UNUSED void *x)
+Address_path(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	Address *addr = (Address *)self;
 
@@ -292,7 +292,7 @@ Address_path(PyObject *self, PINK_UNUSED void *x)
 }
 
 static PyObject *
-Address_ip(PyObject *self, PINK_UNUSED void *x)
+Address_ip(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	char *ip;
 	PyObject *ipObj;
@@ -315,7 +315,7 @@ Address_ip(PyObject *self, PINK_UNUSED void *x)
 
 #if PINKTRACE_HAVE_IPV6
 static PyObject *
-Address_ipv6(PyObject *self, PINK_UNUSED void *x)
+Address_ipv6(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	char *ip;
 	PyObject *ipObj;
@@ -334,7 +334,7 @@ Address_ipv6(PyObject *self, PINK_UNUSED void *x)
 #endif /* PINKTRACE_HAVE_IPV6 */
 
 static PyObject *
-Address_port(PyObject *self, PINK_UNUSED void *x)
+Address_port(PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 	Address *addr = (Address *)self;
 
@@ -362,9 +362,9 @@ Address_port(PyObject *self, PINK_UNUSED void *x)
 static PyObject *
 Address_pid(
 #if !PINKTRACE_HAVE_NETLINK
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_NETLINK */
-	PyObject *self, PINK_UNUSED void *x)
+	PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 #if PINKTRACE_HAVE_NETLINK
 	Address *addr = (Address *)self;
@@ -379,9 +379,9 @@ Address_pid(
 static PyObject *
 Address_groups(
 #if !PINKTRACE_HAVE_NETLINK
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif /* !PINKTRACE_HAVE_NETLINK */
-	PyObject *self, PINK_UNUSED void *x)
+	PyObject *self, PINK_GCC_ATTR((unused)) void *x)
 {
 #if PINKTRACE_HAVE_NETLINK
 	Address *addr = (Address *)self;
@@ -564,7 +564,7 @@ static char pinkpy_socket_decode_address_doc[] = ""
 	"@rtype: pinktrace.socket.Address\n"
 	"@return: The decoded socket address";
 static PyObject *
-pinkpy_socket_decode_address(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_socket_decode_address(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;
@@ -608,7 +608,7 @@ static char pinkpy_socket_decode_address_fd_doc[] = ""
 	"@rtype: tuple\n"
 	"@return: The decoded socket address and the file descriptor";
 static PyObject *
-pinkpy_socket_decode_address_fd(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_socket_decode_address_fd(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned ind;

@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ static char pinkpy_event_decide_doc[] = ""
 	"@rtype: int\n"
 	"@return: One of the C{pinktrace.event.EVENT_*} constants";
 static PyObject *
-pinkpy_event_decide(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_event_decide(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	int status;
 	pink_event_t event;

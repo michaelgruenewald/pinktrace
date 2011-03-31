@@ -40,7 +40,7 @@ pink_util_peek(pid_t pid, long off, long *res)
 
 	errno = 0;
 	val = ptrace(PT_READ_I, pid, (caddr_t)off, 0);
-	if (PINK_UNLIKELY(val == -1 && errno != 0))
+	if (PINK_GCC_UNLIKELY(val == -1 && errno != 0))
 		return false;
 
 	if (res)
@@ -56,7 +56,7 @@ pink_util_peekdata(pid_t pid, long off, long *res)
 
 	errno = 0;
 	val = ptrace(PT_READ_D, pid, (caddr_t)off, 0);
-	if (PINK_UNLIKELY(val == -1 && errno != 0))
+	if (PINK_GCC_UNLIKELY(val == -1 && errno != 0))
 		return false;
 
 	if (res)
@@ -123,12 +123,12 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 	totalsize = size = BLOCKSIZE;
 
 	buf = malloc(sizeof(char) * totalsize);
-	if (PINK_UNLIKELY(!buf))
+	if (PINK_GCC_UNLIKELY(!buf))
 		return NULL;
 
 	for (;;) {
 		diff = totalsize - size;
-		if (PINK_UNLIKELY(!pink_util_moven(pid, addr + diff, buf + diff, size))) {
+		if (PINK_GCC_UNLIKELY(!pink_util_moven(pid, addr + diff, buf + diff, size))) {
 			if (diff == 0 && (errno == EFAULT || errno == EIO)) {
 				/* NULL */
 				free(buf);
@@ -148,7 +148,7 @@ pink_util_movestr_persistent(pid_t pid, long addr)
 		if (totalsize < MAXSIZE - BLOCKSIZE) {
 			totalsize += BLOCKSIZE;
 			buf = realloc(buf, totalsize);
-			if (PINK_UNLIKELY(!buf))
+			if (PINK_GCC_UNLIKELY(!buf))
 				return NULL;
 			size = BLOCKSIZE;
 		}

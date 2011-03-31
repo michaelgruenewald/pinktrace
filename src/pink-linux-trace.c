@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ pink_trace_me(void)
 }
 
 bool
-pink_trace_cont(pid_t pid, int sig, PINK_UNUSED char *addr)
+pink_trace_cont(pid_t pid, int sig, PINK_GCC_ATTR((unused)) char *addr)
 {
 	return !(0 > ptrace(PTRACE_CONT, pid, NULL, sig));
 }
@@ -73,7 +73,7 @@ pink_trace_sysemu(pid_t pid, int sig)
 }
 #else
 bool
-pink_trace_sysemu(PINK_UNUSED pid_t pid, PINK_UNUSED int sig)
+pink_trace_sysemu(PINK_GCC_ATTR((unused)) pid_t pid, PINK_GCC_ATTR((unused)) int sig)
 {
 	errno = ENOTSUP;
 	return false;
@@ -88,7 +88,7 @@ pink_trace_sysemu_singlestep(pid_t pid, int sig)
 }
 #else
 bool
-pink_trace_sysemu_singlestep(PINK_UNUSED pid_t pid, PINK_UNUSED int sig)
+pink_trace_sysemu_singlestep(PINK_GCC_ATTR((unused)) pid_t pid, PINK_GCC_ATTR((unused)) int sig)
 {
 	errno = ENOTSUP;
 	return false;

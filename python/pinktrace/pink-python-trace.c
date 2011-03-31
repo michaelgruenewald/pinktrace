@@ -52,7 +52,7 @@ static char pinkpy_trace_me_doc[] = ""
 	"\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
-pinkpy_trace_me(PINK_UNUSED PyObject *self, PINK_UNUSED PyObject *args)
+pinkpy_trace_me(PINK_GCC_ATTR((unused)) PyObject *self, PINK_GCC_ATTR((unused)) PyObject *args)
 {
 	if (!pink_trace_me())
 		return PyErr_SetFromErrno(PyExc_OSError);
@@ -75,7 +75,7 @@ static char pinkpy_trace_cont_doc[] = ""
 	"(Optional, defaults to C{1})\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
-pinkpy_trace_cont(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_cont(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
@@ -103,7 +103,7 @@ static char pinkpy_trace_resume_doc[] = ""
 	"is delivered or not. (Optional, defaults to C{0})\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
-pinkpy_trace_resume(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_resume(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
@@ -124,7 +124,7 @@ static char pinkpy_trace_kill_doc[] = ""
 	"@param pid: Process ID of the traced child\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.";
 static PyObject *
-pinkpy_trace_kill(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_kill(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 
@@ -146,7 +146,7 @@ static char pinkpy_trace_singlestep_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_singlestep(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_singlestep(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
@@ -170,7 +170,7 @@ static char pinkpy_trace_syscall_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_syscall(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_syscall(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
@@ -196,9 +196,9 @@ static char pinkpy_trace_syscall_entry_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_syscall_entry(PINK_UNUSED PyObject *self,
+pinkpy_trace_syscall_entry(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_FREEBSD)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -231,9 +231,9 @@ static char pinkpy_trace_syscall_exit_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_syscall_exit(PINK_UNUSED PyObject *self,
+pinkpy_trace_syscall_exit(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_FREEBSD)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -266,9 +266,9 @@ static char pinkpy_trace_sysemu_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_sysemu(PINK_UNUSED PyObject *self,
+pinkpy_trace_sysemu(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -301,9 +301,9 @@ static char pinkpy_trace_sysemu_singlestep_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_sysemu_singlestep(PINK_UNUSED PyObject *self,
+pinkpy_trace_sysemu_singlestep(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -338,9 +338,9 @@ static char pinkpy_trace_geteventmsg_doc[] = ""
 	"@rtype: long\n"
 	"@return: The event message";
 static PyObject *
-pinkpy_trace_geteventmsg(PINK_UNUSED PyObject *self,
+pinkpy_trace_geteventmsg(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -371,9 +371,9 @@ static char pinkpy_trace_setup_doc[] = ""
 	"(Optional, defaults to 0)\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_trace_setup(PINK_UNUSED PyObject *self,
+pinkpy_trace_setup(PINK_GCC_ATTR((unused)) PyObject *self,
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *args)
 {
@@ -405,7 +405,7 @@ static char pinkpy_trace_attach_doc[] = ""
 	"@param pid: Process ID of the traced child\n"
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n";
 static PyObject *
-pinkpy_trace_attach(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_attach(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 
@@ -428,7 +428,7 @@ static char pinkpy_trace_detach_doc[] = ""
 	"@raise OSError: Raised when the underlying I{ptrace(2)} call fails.\n"
 	"@see: pinktrace.trace.cont";
 static PyObject *
-pinkpy_trace_detach(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_trace_detach(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	int sig;
@@ -446,7 +446,7 @@ pinkpy_trace_detach(PINK_UNUSED PyObject *self, PyObject *args)
 static void
 trace_init(
 #if !defined(PINKTRACE_LINUX)
-	PINK_UNUSED
+	PINK_GCC_ATTR((unused))
 #endif
 	PyObject *mod)
 {

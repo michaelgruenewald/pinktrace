@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@
 
 #include <stdbool.h>
 #include <sys/types.h>
+
+#include <pinktrace/gcc.h>
 
 /**
  * The index arguments should be smaller than this define.
@@ -220,9 +222,8 @@ pink_util_movestr(pid_t pid, long addr, char *dest, size_t len);
  * \return The string on success and NULL on failure and sets errno
  * accordingly.
  **/
-PINK_MALLOC
 char *
-pink_util_movestr_persistent(pid_t pid, long addr);
+pink_util_movestr_persistent(pid_t pid, long addr) PINK_GCC_ATTR((malloc));
 
 /**
  * Copy len bytes of data to process pid, at address addr, from our address space
@@ -335,9 +336,8 @@ pink_util_set_syscall(pid_t pid, pink_bitness_t bitness, long scno);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(2)
 bool
-pink_util_get_return(pid_t pid, long *res);
+pink_util_get_return(pid_t pid, long *res) PINK_GCC_ATTR((nonnull(2)));
 
 /**
  * Sets the return value of the last system call called by child with the given
@@ -366,9 +366,8 @@ pink_util_set_return(pid_t pid, long ret);
  *
  * \return true on success, false on failure and sets errno accordingly.
  **/
-PINK_NONNULL(4)
 bool
-pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res);
+pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res) PINK_GCC_ATTR((nonnull(4)));
 
 /**
  * Set the given argument

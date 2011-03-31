@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon Python-2.6.4's Modules/posixmodule.c which is:
  *   Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
  *   Python Software Foundation
@@ -80,7 +80,7 @@
 
 #endif /* PY_MAJOR_VERSION < 3 */
 
-PINK_UNUSED
+PINK_GCC_ATTR((unused))
 static bool
 check_bitness(int bit)
 {
@@ -105,7 +105,7 @@ check_bitness(int bit)
 	return true;
 }
 
-PINK_UNUSED
+PINK_GCC_ATTR((unused))
 static bool
 check_index(unsigned ind)
 {

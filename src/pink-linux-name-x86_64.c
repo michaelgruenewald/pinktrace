@@ -64,7 +64,7 @@ pink_name_syscall(long scno, pink_bitness_t bitness)
 		return NULL;
 	}
 
-	if (PINK_UNLIKELY(scno < 0 || scno >= n))
+	if (PINK_GCC_UNLIKELY(scno < 0 || scno >= n))
 		return NULL;
 	return names[scno];
 }
@@ -76,7 +76,7 @@ pink_name_lookup(const char *name, pink_bitness_t bitness)
 	long scno;
 	const char **names;
 
-	if (PINK_UNLIKELY(name == NULL || name[0] == '\0'))
+	if (PINK_GCC_UNLIKELY(name == NULL || name[0] == '\0'))
 		return -1;
 
 	switch (bitness) {

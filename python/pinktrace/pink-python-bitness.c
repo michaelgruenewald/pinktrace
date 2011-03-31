@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ static char pinkpy_bitness_get_doc[] = ""
 	"@rtype: int\n"
 	"@return: One of C{pinktrace.bitness.BITNESS_*} constants";
 static PyObject *
-pinkpy_bitness_get(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_bitness_get(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	pink_bitness_t bit;
@@ -73,7 +73,7 @@ static char pinkpy_bitness_name_doc[] = ""
 	"@rtype: str\n"
 	"@return: The name of the bitness";
 static PyObject *
-pinkpy_bitness_name(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_bitness_name(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	const char *strbit;
 	pink_bitness_t bit;
@@ -98,7 +98,7 @@ static char pinkpy_bitness_wordsize_doc[] = ""
 	"@rtype: int\n"
 	"@return: The word size of the bitness";
 static PyObject *
-pinkpy_bitness_wordsize(PINK_UNUSED PyObject *self, PyObject *args)
+pinkpy_bitness_wordsize(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	unsigned short wordsize;
 	pink_bitness_t bit;

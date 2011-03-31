@@ -2,7 +2,7 @@
 @GENERATED_FILE@
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,9 +107,8 @@ pink_bitness_get(pid_t pid);
  *
  * \return String representation of the bitness.
  **/
-PINK_PURE
 const char *
-pink_bitness_name(pink_bitness_t bitness);
+pink_bitness_name(pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
 /**
  * Return the word size of the given bitness.
@@ -122,9 +121,8 @@ pink_bitness_name(pink_bitness_t bitness);
  *
  * \since 0.0.3
  **/
-PINK_PURE
 unsigned short
-pink_bitness_wordsize(pink_bitness_t bitness);
+pink_bitness_wordsize(pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
 #ifdef __cplusplus
 }
