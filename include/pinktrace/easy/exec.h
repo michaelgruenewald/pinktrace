@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #ifndef PINKTRACE_GUARD_EASY_EXEC_H
 #define PINKTRACE_GUARD_EASY_EXEC_H 1
 
+#include <pinktrace/pink.h>
 #include <pinktrace/easy/context.h>
 
 /**
@@ -53,9 +54,8 @@
  *
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
-PINK_NONNULL(1)
 int
-pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const argv[], char *const envp[]);
+pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const argv[], char *const envp[]) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
@@ -70,10 +70,8 @@ pink_easy_execve(pink_easy_context_t *ctx, const char *filename, char *const arg
  *
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
-PINK_NONNULL(1)
-PINK_SENTINEL(0)
 int
-pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...);
+pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...) PINK_GCC_ATTR((nonnull(1), sentinel(0)));
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
@@ -88,10 +86,8 @@ pink_easy_execl(pink_easy_context_t *ctx, const char *file, const char *arg, ...
  *
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
-PINK_NONNULL(1)
-PINK_SENTINEL(0)
 int
-pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ...);
+pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ...) PINK_GCC_ATTR((nonnull(1), sentinel(0)));
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
@@ -105,9 +101,8 @@ pink_easy_execlp(pink_easy_context_t *ctx, const char *file, const char *arg, ..
  *
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
-PINK_NONNULL(1)
 int
-pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]);
+pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * This function calls vfork() to spawn a new child, does the necessary
@@ -121,8 +116,7 @@ pink_easy_execv(pink_easy_context_t *ctx, const char *path, char *const argv[]);
  *
  * \return Depends on the callbacks, see pink_easy_loop()
  **/
-PINK_NONNULL(1)
 int
-pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[]);
+pink_easy_execvp(pink_easy_context_t *ctx, const char *file, char *const argv[])  PINK_GCC_ATTR((nonnull(1)));
 
 #endif /* !PINKTRACE_GUARD_EASY_EXEC_H */

@@ -72,9 +72,8 @@ typedef struct pink_easy_process_list pink_easy_process_list_t;
  *
  * \return Process ID
  **/
-PINK_NONNULL(1)
 pid_t
-pink_easy_process_get_pid(const pink_easy_process_t *proc);
+pink_easy_process_get_pid(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Returns the process ID of this entry's parent or -1 for the eldest entries.
@@ -85,9 +84,8 @@ pink_easy_process_get_pid(const pink_easy_process_t *proc);
  *
  * \return Parent Process ID or -1
  **/
-PINK_NONNULL(1)
 pid_t
-pink_easy_process_get_ppid(const pink_easy_process_t *proc);
+pink_easy_process_get_ppid(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Returns the bitness of the entry
@@ -98,9 +96,8 @@ pink_easy_process_get_ppid(const pink_easy_process_t *proc);
  *
  * \return Bitness
  **/
-PINK_NONNULL(1)
 pink_bitness_t
-pink_easy_process_get_bitness(const pink_easy_process_t *proc);
+pink_easy_process_get_bitness(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Set the user data of the process entry.
@@ -116,9 +113,8 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc);
  * \param userdata User data
  * \param userdata_destroy The destructor function of the user data
  **/
-PINK_NONNULL(1)
 void
-pink_easy_process_set_userdata(pink_easy_process_t *proc, void *userdata, pink_easy_free_func_t userdata_destroy);
+pink_easy_process_set_userdata(pink_easy_process_t *proc, void *userdata, pink_easy_free_func_t userdata_destroy) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Get the user data of the process entry, previously set by
@@ -130,9 +126,8 @@ pink_easy_process_set_userdata(pink_easy_process_t *proc, void *userdata, pink_e
  *
  * \return User data
  **/
-PINK_NONNULL(1)
 void *
-pink_easy_process_get_userdata(const pink_easy_process_t *proc);
+pink_easy_process_get_userdata(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Remove a process from the process list.
@@ -146,9 +141,8 @@ pink_easy_process_get_userdata(const pink_easy_process_t *proc);
  * \param list Process list
  * \param proc Process entry
  **/
-PINK_NONNULL(1)
 void
-pink_easy_process_list_remove(pink_easy_process_list_t *list, const pink_easy_process_t *proc);
+pink_easy_process_list_remove(pink_easy_process_list_t *list, const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Look up the process list for the given process ID.
@@ -160,9 +154,8 @@ pink_easy_process_list_remove(pink_easy_process_list_t *list, const pink_easy_pr
  *
  * \return The process on successful look up, NULL on failure.
  **/
-PINK_NONNULL(1)
 pink_easy_process_t *
-pink_easy_process_list_lookup(const pink_easy_process_list_t *list, pid_t pid);
+pink_easy_process_list_lookup(const pink_easy_process_list_t *list, pid_t pid) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Walk the process tree.
@@ -175,8 +168,7 @@ pink_easy_process_list_lookup(const pink_easy_process_list_t *list, pid_t pid);
  *
  * \return Number of visited entries
  **/
-PINK_NONNULL(1,2)
 unsigned
-pink_easy_process_list_walk(const pink_easy_process_list_t *list, pink_easy_walk_func_t func, void *userdata);
+pink_easy_process_list_walk(const pink_easy_process_list_t *list, pink_easy_walk_func_t func, void *userdata)  PINK_GCC_ATTR((nonnull(1,2)));
 
 #endif /* !PINKTRACE_EASY_GUARD_PROCESS_H */

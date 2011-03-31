@@ -72,10 +72,9 @@ typedef struct pink_easy_context pink_easy_context_t;
  * \return The tracing context on success, NULL on failure and sets errno
  * accordingly.
  **/
-PINK_MALLOC
-PINK_NONNULL(2)
 pink_easy_context_t *
-pink_easy_context_new(int ptrace_options, const pink_easy_callback_table_t *callback_table, void *userdata, pink_easy_free_func_t userdata_destroy);
+pink_easy_context_new(int ptrace_options, const pink_easy_callback_table_t *callback_table, void *userdata, pink_easy_free_func_t userdata_destroy)
+	PINK_GCC_ATTR((malloc, nonnull(2)));
 
 /**
  * Destroy a tracing context; destroys the process list and all the members of
@@ -88,9 +87,8 @@ pink_easy_context_new(int ptrace_options, const pink_easy_callback_table_t *call
  *
  * \param ctx Tracing context
  **/
-PINK_NONNULL(1)
 void
-pink_easy_context_destroy(pink_easy_context_t *ctx);
+pink_easy_context_destroy(pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Returns the last error saved in the context.
@@ -101,9 +99,8 @@ pink_easy_context_destroy(pink_easy_context_t *ctx);
  *
  * \return Error condition
  **/
-PINK_NONNULL(1)
 pink_easy_error_t
-pink_easy_context_get_error(const pink_easy_context_t *ctx);
+pink_easy_context_get_error(const pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Clears the error saved in the context.
@@ -112,9 +109,8 @@ pink_easy_context_get_error(const pink_easy_context_t *ctx);
  *
  * \param ctx Tracing context
  **/
-PINK_NONNULL(1)
 void
-pink_easy_context_clear_error(pink_easy_context_t *ctx);
+pink_easy_context_clear_error(pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Set user data and destruction function of the tracing context
@@ -130,9 +126,8 @@ pink_easy_context_clear_error(pink_easy_context_t *ctx);
  * \param userdata User data
  * \param userdata_destroy The desctructor function for the user data
  **/
-PINK_NONNULL(1)
 void
-pink_easy_context_set_userdata(pink_easy_context_t *ctx, void *userdata, pink_easy_free_func_t userdata_destroy);
+pink_easy_context_set_userdata(pink_easy_context_t *ctx, void *userdata, pink_easy_free_func_t userdata_destroy) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Returns the user data of the tracing context
@@ -141,9 +136,8 @@ pink_easy_context_set_userdata(pink_easy_context_t *ctx, void *userdata, pink_ea
  *
  * \return User data
  **/
-PINK_NONNULL(1)
 void *
-pink_easy_context_get_userdata(const pink_easy_context_t *ctx);
+pink_easy_context_get_userdata(const pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Returns the process list
@@ -154,8 +148,7 @@ pink_easy_context_get_userdata(const pink_easy_context_t *ctx);
  *
  * \return Process list
  **/
-PINK_NONNULL(1)
 pink_easy_process_list_t *
-pink_easy_context_get_process_list(pink_easy_context_t *ctx);
+pink_easy_context_get_process_list(pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 #endif /* !PINKTRACE_EASY_GUARD_CONTEXT_H */

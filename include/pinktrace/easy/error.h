@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 
 #ifndef PINKTRACE_EASY_GUARD_ERROR_H
 #define PINKTRACE_EASY_GUARD_ERROR_H 1
+
+#include <pinktrace/pink.h>
 
 /**
  * \file
@@ -134,7 +136,6 @@ typedef enum {
  *
  * \return A string describing the error
  **/
-PINK_PURE
 const char *
 pink_easy_child_strerror(pink_easy_child_error_t e);
 
@@ -147,8 +148,7 @@ pink_easy_child_strerror(pink_easy_child_error_t e);
  *
  * \return A string describing the error
  **/
-PINK_PURE
 const char *
-pink_easy_strerror(pink_easy_error_t e);
+pink_easy_strerror(pink_easy_error_t e) PINK_GCC_ATTR((pure));
 
 #endif /* !PINKTRACE_EASY_GUARD_ERROR_H */

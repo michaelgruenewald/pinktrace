@@ -298,7 +298,7 @@ handle_pre_exit(pink_easy_context_t *ctx, pid_t pid, pink_easy_process_t *proc)
 	return PINK_EASY_TRIBOOL_NONE;
 }
 
-PINK_NONNULL(1,4)
+PINK_GCC_ATTR((nonnull(1,4)))
 static pink_easy_tribool_t
 handle_fork(pink_easy_context_t *ctx, pink_easy_process_t *proc, pink_event_t event, pink_easy_process_t **nproc)
 {

@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #ifndef PINKTRACE_EASY_GUARD_CALL_H
 #define PINKTRACE_EASY_GUARD_CALL_H 1
 
+#include <pinktrace/pink.h>
 #include <pinktrace/easy/context.h>
 #include <pinktrace/easy/func.h>
 
@@ -53,8 +54,7 @@
  *
  * \return Depends on the callbacks.
  **/
-PINK_NONNULL(1,2)
 int
-pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata);
+pink_easy_call(pink_easy_context_t *ctx, pink_easy_child_func_t func, void *userdata) PINK_GCC_ATTR((nonnull(1,2)));
 
 #endif /* !PINKTRACE_EASY_GUARD_CALL_H */

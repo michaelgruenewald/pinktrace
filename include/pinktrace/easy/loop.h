@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #ifndef PINKTRACE_EASY_GUARD_LOOP_H
 #define PINKTRACE_EASY_GUARD_LOOP_H 1
 
+#include <pinktrace/pink.h>
 #include <pinktrace/easy/context.h>
 
 /**
@@ -51,8 +52,7 @@
  * returns zero. In case of any error condition, this callback calls the
  * "cb_error" callback and returns the error condition negated.
  **/
-PINK_NONNULL(1)
 int
-pink_easy_loop(pink_easy_context_t *ctx);
+pink_easy_loop(pink_easy_context_t *ctx) PINK_GCC_ATTR((nonnull(1)));
 
 #endif /* PINKTRACE_EASY_GUARD_LOOP_H */
