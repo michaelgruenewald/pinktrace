@@ -53,6 +53,15 @@ pink_easy_process_kill(const pink_easy_process_t *proc, int sig)
 #endif
 }
 
+bool
+pink_easy_process_resume(const pink_easy_process_t *proc, int sig)
+{
+	if (proc->flags & PINK_EASY_PROCESS_ATTACHED)
+		return pink_trace_detach(proc->pid, sig);
+	else
+		return pink_trace_resume(proc->pid, sig);
+}
+
 pid_t
 pink_easy_process_get_pid(const pink_easy_process_t *proc)
 {

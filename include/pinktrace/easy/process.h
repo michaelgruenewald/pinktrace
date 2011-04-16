@@ -79,6 +79,21 @@ int
 pink_easy_process_kill(const pink_easy_process_t *proc, int sig);
 
 /**
+ * Detach from a process as necessary and resume its execution. This function
+ * calls pink_trace_detach() if the process is attached and pink_trace_resume() if
+ * the process is spawned.
+ *
+ * \ingroup g_easy_process
+ *
+ * \param process Process entry
+ * \param sig Same as pink_trace_cont()
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ **/
+bool
+pink_easy_process_resume(const pink_easy_process_t *proc, int sig);
+
+/**
  * Returns the process ID of the entry.
  *
  * \ingroup g_easy_process
