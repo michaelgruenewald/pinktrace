@@ -27,6 +27,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+#include <pinktrace/easy/internal-util.h>
+
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -37,8 +40,6 @@
 #include <sys/wait.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
-#include <pinktrace/easy/internal-util.h>
 #include <pinktrace/easy/pink.h>
 
 inline

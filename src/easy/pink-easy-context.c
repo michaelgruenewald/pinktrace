@@ -27,13 +27,14 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
 pink_easy_context_t *

@@ -64,6 +64,21 @@ typedef struct pink_easy_process pink_easy_process_t;
 typedef struct pink_easy_process_list pink_easy_process_list_t;
 
 /**
+ * Kill a process
+ *
+ * \note This function uses tgkill(2) or tkill(2) if available.
+ *
+ * \ingroup g_easy_process
+ *
+ * \param proc Process entry
+ * \param sig Signal to deliver
+ *
+ * \return Same as kill(2)
+ **/
+int
+pink_easy_process_kill(const pink_easy_process_t *proc, int sig);
+
+/**
  * Returns the process ID of the entry.
  *
  * \ingroup g_easy_process
@@ -110,6 +125,20 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc) PINK_GCC_ATTR((no
  **/
 bool
 pink_easy_process_is_attached(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
+
+/**
+ * Is this process a clone?
+ *
+ * \ingroup g_easy_process
+ *
+ * \see pink_easy_attach()
+ *
+ * \param proc Process entry
+ *
+ * \return true if the process is a clone, false otherwise
+ **/
+bool
+pink_easy_process_is_clone(const pink_easy_process_t *proc)  PINK_GCC_ATTR((nonnull(1)));
 
 /**
  * Set the user data of the process entry.

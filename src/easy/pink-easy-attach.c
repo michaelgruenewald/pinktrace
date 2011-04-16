@@ -27,6 +27,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -35,11 +37,10 @@
 #include <unistd.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
 int
-pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
+pink_easy_attach(pink_easy_context_t *ctx, pid_t pid, pid_t ppid)
 {
 	int ret;
 	pink_easy_process_t *proc;
@@ -54,6 +55,10 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 		return -ctx->error;
 	}
 	proc->pid = pid;
+	proc->ppid = ppid;
+	proc->flags |= PINK_EASY_PROCESS_ATTACHED;
+	if (proc->ppid > 0) /* clone */
+		proc->flags |= PINK_EASY_PROCESS_CLONE_THREAD;
 
 	if (!pink_trace_attach(proc->pid)) {
 		ctx->error = PINK_EASY_ERROR_ATTACH;
@@ -68,6 +73,5 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid)
 		return ret;
 	}
 
-	proc->flags |= PINK_EASY_PROCESS_ATTACHED;
 	return 0;
 }

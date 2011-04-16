@@ -34,6 +34,10 @@
 #ifndef PINKTRACE_EASY_GUARD_INTERNAL_H
 #define PINKTRACE_EASY_GUARD_INTERNAL_H 1
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif /* HAVE_CONFIG_H */
+
 #include <stdbool.h>
 #include <sys/queue.h>
 #include <sys/types.h>
@@ -56,6 +60,8 @@
 #define PINK_EASY_PROCESS_SUSPENDED		00040
 /** Process should have forks followed **/
 #define PINK_EASY_PROCESS_FOLLOWFORK		00100
+/** Process is a clone **/
+#define PINK_EASY_PROCESS_CLONE_THREAD		00200
 
 typedef enum {
 	PINK_EASY_TRIBOOL_FALSE = 0,

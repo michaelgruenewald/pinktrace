@@ -27,15 +27,31 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/queue.h>
+#include <sys/syscall.h>
+#include <asm/unistd.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
+
+int
+pink_easy_process_kill(const pink_easy_process_t *proc, int sig)
+{
+#if defined(__NR_tgkill)
+	return syscall(__NR_tgkill, proc->ppid > 0 ? proc->ppid : proc->pid, proc->pid, sig);
+#elif defined(__NR_tkill)
+	return syscall(__NR_tkill, proc->pid, sig);
+#else
+	return kill(proc->pid, sig);
+#endif
+}
 
 pid_t
 pink_easy_process_get_pid(const pink_easy_process_t *proc)
@@ -59,6 +75,12 @@ bool
 pink_easy_process_is_attached(const pink_easy_process_t *proc)
 {
 	return !!(proc->flags & PINK_EASY_PROCESS_ATTACHED);
+}
+
+bool
+pink_easy_process_is_clone(const pink_easy_process_t *proc)
+{
+	return !!(proc->flags & PINK_EASY_PROCESS_CLONE_THREAD);
 }
 
 void *

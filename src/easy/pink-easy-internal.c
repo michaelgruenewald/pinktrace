@@ -27,6 +27,9 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+#include <pinktrace/easy/internal-util.h>
+
 #include <assert.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -35,8 +38,6 @@
 #include <sys/queue.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
-#include <pinktrace/easy/internal-util.h>
 #include <pinktrace/easy/pink.h>
 
 pid_t

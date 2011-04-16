@@ -27,6 +27,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -34,7 +36,6 @@
 #include <unistd.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
 
 int

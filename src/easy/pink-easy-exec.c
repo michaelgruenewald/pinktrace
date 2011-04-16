@@ -27,6 +27,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <pinktrace/easy/internal.h>
+
 #include <assert.h>
 #include <alloca.h>
 #include <errno.h>
@@ -37,10 +39,7 @@
 #include <sys/wait.h>
 
 #include <pinktrace/pink.h>
-#include <pinktrace/easy/internal.h>
 #include <pinktrace/easy/pink.h>
-
-extern char **environ;
 
 enum {
 	PINK_INTERNAL_FUNC_EXECVE,
