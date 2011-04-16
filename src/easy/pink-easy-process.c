@@ -55,6 +55,12 @@ pink_easy_process_get_bitness(const pink_easy_process_t *proc)
 	return proc->bitness;
 }
 
+bool
+pink_easy_process_is_attached(const pink_easy_process_t *proc)
+{
+	return !!(proc->flags & PINK_EASY_PROCESS_ATTACHED);
+}
+
 void *
 pink_easy_process_get_userdata(const pink_easy_process_t *proc)
 {

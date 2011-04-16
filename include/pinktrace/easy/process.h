@@ -100,6 +100,18 @@ pink_bitness_t
 pink_easy_process_get_bitness(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
 
 /**
+ * Are we attached to the process?
+ *
+ * \ingroup g_easy_process
+ *
+ * \param proc Process entry
+ *
+ * \return true if the process is attached, false otherwise
+ **/
+bool
+pink_easy_process_is_attached(const pink_easy_process_t *proc) PINK_GCC_ATTR((nonnull(1)));
+
+/**
  * Set the user data of the process entry.
  *
  * \ingroup g_easy_process
