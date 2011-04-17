@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/queue.h>
 #include <sys/syscall.h>
@@ -44,13 +45,18 @@
 int
 pink_easy_process_kill(const pink_easy_process_t *proc, int sig)
 {
+	if (proc->flags & PINK_EASY_PROCESS_CLONE_THREAD) {
 #if defined(__NR_tgkill)
-	return syscall(__NR_tgkill, proc->ppid > 0 ? proc->ppid : proc->pid, proc->pid, sig);
+		return syscall(__NR_tgkill, proc->ppid > 0 ? proc->ppid : proc->pid, proc->pid, sig);
 #elif defined(__NR_tkill)
-	return syscall(__NR_tkill, proc->pid, sig);
+		return syscall(__NR_tkill, proc->pid, sig);
 #else
-	return kill(proc->pid, sig);
+#warning "Neither tgkill(2) nor tkill(2) available, killing threads may not work correctly!"
+		/* void */;
 #endif
+	}
+
+	return kill(proc->pid, sig);
 }
 
 bool
