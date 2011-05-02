@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES= Makefile.in
 CLEANFILES= pinktrace.pc
-EXTRA_DIST= pinktrace.pc.in pinktrace-easy.pc.in
+EXTRA_DIST= pinktrace.pc.in pinktrace_easy.pc.in
 
 pkgconfigdir=$(libdir)/pkgconfig
 pkgconfig_DATA=pinktrace.pc
