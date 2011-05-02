@@ -3,6 +3,8 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+### 0.1.0
+* Add initial implementation of a higher-level library on top with the name pinktrace-easy
 * Simplify GCC macros
 * Implement basic pink\_event\_decide() for FreeBSD
 * New functions pink\_trace\_lwpinfo() and pink\_trace\_followfork() for FreeBSD

@@ -26,8 +26,10 @@ applications. It consists of the following parts:
 - Wrappers around different *ptrace()* requests.
 - An API for decoding arguments (strings, socket addresses, ...)
 - An **experimental** API for encoding arguments.
+- An initial implementation of a callback-driven higher-level library called pinktrace-easy.
 
 **PinkTrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
+[Pandora](http://github.com/alip/pandora) uses **PinkTrace-Easy**.
 
 ## Current Status
 Version {{ site.version }} has an unstable [API](http://en.wikipedia.org/wiki/Api) and
@@ -43,10 +45,13 @@ Bindings are available for:
 - [Ruby]({{ site.url }}/api/ruby)
 - [Python]({{ site.url }}/api/python)
 
+**Note**: Bindings for pinktrace-easy have not been written yet.
+
 ## Building
 This package is made with the GNU autotools, you should run `./configure` inside the distribution directory for
 configuring the source tree. Some notable options you may pass to `./configure` are:
 
+* `--enable-easy` Build pinktrace-easy (default)
 * `--enable-ipv6` Enable support for [IPV6](http://en.wikipedia.org/wiki/Ipv6)
 * `--enable-doxygen` Build API documentation using [Doxygen](http://www.doxygen.org/)
 * `--enable-python` Build [Python](http://www.python.org/) bindings
@@ -83,6 +88,8 @@ usual way to do this is via **pkg-config**:
     $ gcc -c $(pkg-config --cflags pinktrace) -o example.o example.c
     $ gcc $(pkg-config --libs pinktrace) -o example example.o
 {% endhighlight %}
+
+To use pinktrace-easy use pinktrace\_easy, e.g. `pkg-config --cflags pinktrace_easy`
 
 If you are using autotools, consider using **PKG\_CHECK\_MODULES** rather than
 calling **pkg-config** by hand.
@@ -199,6 +206,8 @@ There are examples how to use the various parts of the library.
     </tr>
 </table>
 
+**Note**: There are not any examples for pinktrace-easy at the moment.
+
 ## Contribute
 Clone [{{ site.scm }}]({{ site.scm }}).  
 Format patches are preferred. Either send a mail to me or poke me on IRC.  
@@ -216,6 +225,8 @@ The supported architectures are:
 - [ppc](http://en.wikipedia.org/wiki/PowerPC) (Linux only)
 - [ppc64](http://en.wikipedia.org/wiki/Ppc64) (Linux only)
 - [arm](http://en.wikipedia.org/wiki/ARM_architecture) (Linux only)
+
+**Note**: pinktrace-easy does **not** support FreeBSD at the moment, but support is planned.
 
 ## License
 Copyright &copy; 2010 Ali Polatel &lt;[alip@exherbo.org](mailto:alip@exherbo.org)&gt;  
@@ -245,6 +256,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
+
+*Mon May 02 2011:*
+
+[Version 0.1.0]({{ site.url }}/release/pinktrace-0.0.6.tar.bz2) released;
+
+- Add initial implementation of a higher-level library on top with the name pinktrace-easy
+- Simplify GCC macros
+- Implement basic pink\_event\_decide() for FreeBSD
+- New functions pink\_trace\_lwpinfo() and pink\_trace\_followfork() for FreeBSD
+- Add new event PINK\_EVENT\_TRAP for genuine `SIGTRAP`
+- Merge Haskell bindings
+
 
 *Sat Oct 30 2010:*
 
