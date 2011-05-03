@@ -54,6 +54,7 @@ configuring the source tree. Some notable options you may pass to `./configure` 
 * `--enable-easy` Build pinktrace-easy (default)
 * `--enable-ipv6` Enable support for [IPV6](http://en.wikipedia.org/wiki/Ipv6)
 * `--enable-doxygen` Build API documentation using [Doxygen](http://www.doxygen.org/)
+* `--enable-haskell` Checks for cabal and generates *Setup.lhs*
 * `--enable-python` Build [Python](http://www.python.org/) bindings
 * `--enable-python-doc` Build API documentation of [Python](http://www.python.org/) using
   [epydoc](http://epydoc.sourceforge.net/)
@@ -84,10 +85,8 @@ site will be built under the `_site` directory. You may then run `make site-chec
 You will need to specify various compiler flags when compiling C code. The
 usual way to do this is via **pkg-config**:
 
-{% highlight sh %}
     $ gcc -c $(pkg-config --cflags pinktrace) -o example.o example.c
     $ gcc $(pkg-config --libs pinktrace) -o example example.o
-{% endhighlight %}
 
 To use pinktrace-easy use pinktrace\_easy, e.g. `pkg-config --cflags pinktrace_easy`
 
