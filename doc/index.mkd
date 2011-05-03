@@ -257,6 +257,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
 
+*Tue May 03 2011:*
+
+[Version 0.1.1]({{ site.url }}/release/pinktrace-0.1.1.tar.bz2) released;
+
+- Include pinktrace.cabal.in and Setup.lhs.in in the tarball
+- Include examples in the tarball
+
+
 *Mon May 02 2011:*
 
 [Version 0.1.0]({{ site.url }}/release/pinktrace-0.1.0.tar.bz2) released;
