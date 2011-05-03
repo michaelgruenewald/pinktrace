@@ -29,6 +29,7 @@ applications. It consists of the following parts:
 - An initial implementation of a callback-driven higher-level library called pinktrace-easy.
 
 **PinkTrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
+
 [Pandora](http://github.com/alip/pandora) uses **PinkTrace-Easy**.
 
 ## Current Status
