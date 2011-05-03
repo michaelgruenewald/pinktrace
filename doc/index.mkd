@@ -228,7 +228,7 @@ The supported architectures are:
 **Note**: pinktrace-easy does **not** support FreeBSD at the moment, but support is planned.
 
 ## License
-Copyright &copy; 2010 Ali Polatel &lt;[alip@exherbo.org](mailto:alip@exherbo.org)&gt;  
+Copyright &copy; 2010, 2011 Ali Polatel &lt;[alip@exherbo.org](mailto:alip@exherbo.org)&gt;  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
