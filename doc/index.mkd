@@ -259,7 +259,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *Mon May 02 2011:*
 
-[Version 0.1.0]({{ site.url }}/release/pinktrace-0.0.6.tar.bz2) released;
+[Version 0.1.0]({{ site.url }}/release/pinktrace-0.1.0.tar.bz2) released;
 
 - Add initial implementation of a higher-level library on top with the name pinktrace-easy
 - Simplify GCC macros
