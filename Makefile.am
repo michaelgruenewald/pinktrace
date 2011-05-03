@@ -4,7 +4,7 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
 EXTRA_DIST= autogen.sh haddock.sh COPYRIGHT README.mkd TODO.mkd misc/generated-file.txt
-SUBDIRS= src tests haskell python ruby doc pkg-config
+SUBDIRS= src tests haskell python ruby doc pkg-config examples
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
@@ -44,6 +44,7 @@ endif # WANT_EASY
 EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
 
+EXTRA_DIST+= pinktrace.cabal.in Setup.lhs.in
 noinst_DATA= pinktrace.cabal Setup.lhs
 pinktrace.cabal: pinktrace.cabal.in Makefile
 	$(AM_V_GEN)
