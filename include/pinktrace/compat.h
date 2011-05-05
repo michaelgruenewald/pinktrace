@@ -152,4 +152,13 @@
  **/
 #define PINK_TRACE_FOLLOWFORK_AVAILABLE 1
 
+/**
+ * Define for the availability of the pink_name_lookup_with_length() function.
+ *
+ * \see pink_name_lookup_with_length()
+ *
+ * \since 0.1.2
+ **/
+#define PINK_NAME_LOOKUP_WITH_LENGTH_AVAILABLE 1
+
 #endif /* PINKTRACE_GUARD_COMPAT_H */

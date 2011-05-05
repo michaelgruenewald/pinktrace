@@ -1,7 +1,7 @@
 /* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
 
 /*
- * Copyright (c) 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright (c) 2010, 2011 Ali Polatel <alip@exherbo.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,24 @@ pink_name_lookup(const char *name, pink_bitness_t bitness)
 
 	for (scno = 0; scno < nsys; scno++) {
 		if (!strcmp(sysnames[scno], name))
+			return scno;
+	}
+
+	return -1;
+}
+
+long
+pink_name_lookup_with_length(const char *name, size_t length, pink_bitness_t bitness)
+{
+	long scno;
+
+	if (PINK_GCC_UNLIKELY(bitness != PINK_BITNESS_32))
+		return -1;
+	if (PINK_GCC_UNLIKELY(name == NULL || name[0] == '\0'))
+		return -1;
+
+	for (scno = 0; scno < nsys; scno++) {
+		if (!strncmp(sysnames[scno], name, length))
 			return scno;
 	}
 

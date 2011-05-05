@@ -75,6 +75,20 @@ pink_name_syscall(long scno, pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 long
 pink_name_lookup(const char *name, pink_bitness_t bitness) PINK_GCC_ATTR((pure));
 
+/**
+ * Look up the number of the given system call name.
+ *
+ * \ingroup g_name
+ *
+ * \param name Name of the system call
+ * \param length Length of the name
+ * \param bitness Bitness of the child
+ *
+ * \return The system call number on success, -1 on failure.
+ **/
+long
+pink_name_lookup_with_length(const char *name, size_t length, pink_bitness_t bitness) PINK_GCC_ATTR((pure));
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
