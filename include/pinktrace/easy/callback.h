@@ -61,7 +61,7 @@
  * Implies that the child of the current process should be removed from the
  * process tree. Useful for handling -ESRCH.
  *
- * This only makes sense for fork,vfork and clone events.
+ * This only makes sense for fork, vfork and clone events.
  *
  * \ingroup g_easy_callback
  **/

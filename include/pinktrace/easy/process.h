@@ -85,7 +85,7 @@ pink_easy_process_kill(const pink_easy_process_t *proc, int sig);
  *
  * \ingroup g_easy_process
  *
- * \param process Process entry
+ * \param proc Process entry
  * \param sig Same as pink_trace_cont()
  *
  * \return true on success, false on failure and sets errno accordingly.

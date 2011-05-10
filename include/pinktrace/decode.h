@@ -124,7 +124,7 @@ pink_decode_string_array_member(pid_t pid, pink_bitness_t bitness, long arg, uns
  * \param pid Process ID of the child
  * \param bitness Bitness of the child
  * \param arg The address of the argument, see pink_util_get_arg()
- * \param ind The index of the string in teh array
+ * \param ind The index of the string in the array
  *
  * \return The string on success, NULL on failure and sets errno accordingly.
  *
