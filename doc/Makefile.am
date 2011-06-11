@@ -25,7 +25,6 @@ CLEANFILES= $(GENERATED_FILES)
 WWW_FILES= \
 	   _layouts/default.html \
 	   _includes/footer.html \
-	   _includes/google-analytics.html \
 	   _includes/menu.html \
 	   _scripts/examples.rb \
 	   css/syntax.css \
