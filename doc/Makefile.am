@@ -49,19 +49,19 @@ EXTRA_DIST= $(WWW_FILES)
 		-e "s,##SCM_URI##,$(SCM_URI),g" \
 		$< > $@
 
-c-%.html: ../examples/c/%.c
+c-%.html: $(top_srcdir)/examples/c/%.c
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-hs-%.html: ../examples/haskell/%.hs
+hs-%.html: $(top_srcdir)/examples/haskell/%.hs
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-py-%.html: ../examples/python/%.py
+py-%.html: $(top_srcdir)/examples/python/%.py
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-rb-%.html: ../examples/ruby/%.rb
+rb-%.html: $(top_srcdir)/examples/ruby/%.rb
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
