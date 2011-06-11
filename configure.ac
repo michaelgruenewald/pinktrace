@@ -408,7 +408,8 @@ dnl }}}
 
 dnl {{{ Library checks
 PKG_PROG_PKG_CONFIG([0.20.0])
-PKG_CHECK_MODULES([check], [check >= 0.9.4],,)
+PKG_CHECK_MODULES([check], [check >= 0.9.4], [have_libcheck=yes], [have_libcheck=no])
+AM_CONDITIONAL([HAVE_LIBCHECK], test "x$have_libcheck" = "xyes")
 dnl }}}
 
 dnl {{{ Doxygen
