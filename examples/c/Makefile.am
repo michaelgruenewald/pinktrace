@@ -10,3 +10,10 @@ examples_DATA= \
 	       pink-simple-strace-freebsd.c \
 	       pink-simple-strace-linux.c
 
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/examples/c
+	cp $(examples_DATA) $(SITE_INSTALL_DIR)/examples/c
+endif
+
+.PHONY: site

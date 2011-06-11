@@ -11,3 +11,11 @@ if ENABLE_RUBY
 examplesdir=$(docdir)/examples/ruby
 examples_SCRIPTS= $(EXAMPLES)
 endif # ENABLE_RUBY
+
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/examples/ruby
+	cp $(EXAMPLES) $(SITE_INSTALL_DIR)/examples/ruby
+endif
+
+.PHONY: site

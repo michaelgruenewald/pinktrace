@@ -11,3 +11,11 @@ if ENABLE_PYTHON
 examplesdir=$(docdir)/examples/python
 examples_SCRIPTS= $(EXAMPLES)
 endif # ENABLE_PYTHON
+
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/examples/python
+	cp $(EXAMPLES) $(SITE_INSTALL_DIR)/examples/python
+endif
+
+.PHONY: site

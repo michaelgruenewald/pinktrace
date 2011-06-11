@@ -84,6 +84,7 @@ rdoc:
 
 site:
 	$(MAKE) -C doc $@
+	$(MAKE) -C examples $@
 
 site-check:
 	$(MAKE) -C doc $@
