@@ -637,10 +637,6 @@ fi
 AM_CONDITIONAL([ENABLE_PYTHON_DOC], test x"$enable_python_doc" = x"yes")
 dnl }}}
 
-dnl {{{ Use AM_SILENT_RULES if available
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
-dnl }}}
-
 dnl {{{ Built sources
 GENERATED_FILE=misc/generated-file.txt
 AC_SUBST_FILE([GENERATED_FILE])
