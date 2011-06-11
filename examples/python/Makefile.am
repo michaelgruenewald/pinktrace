@@ -1,5 +1,4 @@
 SUBDIRS= .
-CLEANFILES= *.pyc
 EXAMPLES= \
 	  pink-about.py \
 	  pink-fork-freebsd.py \
@@ -7,4 +6,8 @@ EXAMPLES= \
 	  pink-simple-strace-freebsd.py \
 	  pink-simple-strace-linux.py
 EXTRA_DIST= $(EXAMPLES)
-noinst_SCRIPTS= $(EXAMPLES)
+
+if ENABLE_PYTHON
+examplesdir=$(docdir)/examples/python
+examples_SCRIPTS= $(EXAMPLES)
+endif # ENABLE_PYTHON
