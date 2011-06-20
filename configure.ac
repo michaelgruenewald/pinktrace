@@ -1,4 +1,3 @@
-
 dnl Program, version
 AC_PREREQ([2.59])
 
@@ -86,7 +85,7 @@ LT_INIT
 
 dnl Check for supported operating system
 SYSSRC_DEFAULT=/usr/src/sys
-AC_ARG_VAR([SYSSRC], [Path to the system sources for FreeBSD (default: $SYSSRC_DEFAULT)])
+AC_ARG_VAR([SYSSRC], [Path to the system sources for FreeBSD (default: /usr/src/sys)])
 AC_MSG_CHECKING([for supported operating system])
 case "$host_os" in
 freebsd*)

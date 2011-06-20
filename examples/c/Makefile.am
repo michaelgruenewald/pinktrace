@@ -9,6 +9,7 @@ examples_DATA= \
 	       pink-fork-linux.c \
 	       pink-simple-strace-freebsd.c \
 	       pink-simple-strace-linux.c
+EXTRA_DIST= $(examples_DATA)
 
 if ENABLE_SITE
 site:

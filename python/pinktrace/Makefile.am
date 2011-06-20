@@ -1,4 +1,4 @@
-CLEANFILES= *.so *.pyc
+CLEANFILES= *.so *.pyc *.pyo
 SUBDIRS= .
 IF_PYTHON_FILES= \
 		 __init__.py.in \
@@ -23,6 +23,7 @@ pythonlibdir= @PYTHON_INSTALL_DIR@/pinktrace
 pythonlib_LTLIBRARIES=
 
 pythonlib_DATA= __init__.py
+CLEANFILES+= __init__.py
 
 __init__.py: __init__.py.in
 	$(AM_V_GEN)
@@ -91,7 +92,8 @@ noinst_DATA= \
 # Remove the .la files - *.la is never linked against (pinktrace is a module)
 # and Python doesn't use libltdl. Note that the library gets installed by
 # install-data, so that's where we need to hook.
-install-data-hook:
-	rm -f $(DESTDIR)$(pythonlibdir)/*.la
+# XXX: This breaks distcheck!
+#install-data-hook:
+#	rm -f $(DESTDIR)$(pythonlibdir)/*.la
 
 endif # ENABLE_PYTHON

@@ -1,6 +1,5 @@
 IF_RUBY_FILES= pink-ruby.c
 IF_RUBY_TESTS= \
-	       ruby-test.sh \
 	       TEST_trace.rb \
 	       TEST_bitness.rb \
 	       TEST_syscall_freebsd.rb \
@@ -16,6 +15,8 @@ IF_RUBY_TESTS= \
 EXTRA_DIST= $(IF_RUBY_FILES) $(IF_RUBY_TESTS)
 CLEANFILES= TEST_UNIX_SOCKET
 
+dist_noinst_SCRIPTS= ruby-test.sh
+
 if ENABLE_RUBY
 AM_CFLAGS= \
 	   -I. -I@RUBY_HDRDIR@ -I@RUBY_HDRARCHDIR@ \
@@ -29,7 +30,7 @@ PinkTrace_la_SOURCES= $(IF_RUBY_FILES)
 PinkTrace_la_LDFLAGS= -module -avoid-version -shared
 PinkTrace_la_LIBADD= $(top_builddir)/src/libpinktrace_@PINKTRACE_PC_SLOT@.la
 
-TESTS_ENVIRONMENT= RUBY="$(RUBY)" ./ruby-test.sh
+TESTS_ENVIRONMENT= RUBY="$(RUBY)" $(srcdir)/ruby-test.sh
 TESTS= \
        TEST_trace.rb \
        TEST_bitness.rb
@@ -55,6 +56,7 @@ endif # LINUX
 # Remove the .la file - PinkTrace.la is never linked against (it's a module)
 # and Ruby doesn't use libltdl. Note that the library gets installed by
 # install-data, so that's where we need to hook.
-install-data-hook:
-	rm -f $(DESTDIR)$(rubylibdir)/PinkTrace.la
+# XXX: This breaks distcheck!
+#install-data-hook:
+#	rm -f $(DESTDIR)$(rubylibdir)/PinkTrace.la
 endif # ENABLE_RUBY

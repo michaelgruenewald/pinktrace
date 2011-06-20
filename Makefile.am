@@ -3,13 +3,21 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 		      config.h config.h.in INSTALL
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
-EXTRA_DIST= autogen.sh haddock.sh COPYRIGHT misc/generated-file.txt
+EXTRA_DIST= autogen.sh COPYRIGHT misc/generated-file.txt
 SUBDIRS= src tests python ruby doc pkg-config examples
+
+DISTCHECK_CONFIGURE_FLAGS= \
+			   --enable-ipv6 \
+			   --enable-doxygen \
+			   --enable-python --enable-python-doc \
+			   --enable-ruby --enable-ruby-doc \
+			   --with-ruby-install-dir='$${DESTDIR}$${prefix}/ruby-bindings'
 
 doc_DATA= \
 	  README.markdown \
 	  NEWS.markdown \
 	  TODO.markdown
+EXTRA_DIST+= $(doc_DATA)
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
@@ -55,20 +63,20 @@ checksum: dist
 	@echo "SIGN $(PACKAGE)-$(VERSION).tar.bz2"
 	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
 
-doxygen:
+doxygen: all
 	$(MAKE) -C doc $@
 
-epydoc:
+epydoc: all
 	$(MAKE) -C doc $@
 
-rdoc:
+rdoc: all
 	$(MAKE) -C doc $@
 
-site:
+site: doxygen epydoc rdoc
 	$(MAKE) -C doc $@
 	$(MAKE) -C examples $@
 
-site-check:
+site-check: site
 	$(MAKE) -C doc $@
 
 .PHONY: doxygen epydoc rdoc site site-check

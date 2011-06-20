@@ -2,7 +2,7 @@ SUBDIRS= .
 MAINTAINERCLEANFILES = \
 		       Makefile.in \
 		       doxygen.conf
-CLEANFILES= *~ c/* libpinktrace.tag
+CLEANFILES= *~ c/* pinktrace.tag
 
 doxygen_files= \
 	       groups.doxygen \
@@ -44,7 +44,7 @@ endif # HAVE_DOXYGEN
 clean-local:
 	rm -fr c
 
-unistall-data-local:
+uninstall-local:
 	rm -fr $(DESTDIR)$(htmldir)/api/c
 
 .PHONY: doxygen site

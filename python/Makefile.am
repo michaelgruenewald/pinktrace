@@ -1,7 +1,6 @@
-CLEANFILES= *.pyc
+CLEANFILES= *.pyc *.pyo
 SUBDIRS= pinktrace .
 IF_PYTHON_TESTS= \
-		 python-test.sh \
 		 TEST_trace.py \
 		 TEST_bitness.py \
 		 TEST_syscall.py \
@@ -18,8 +17,10 @@ IF_PYTHON_TESTS= \
 		 TEST_socket_linux.py
 EXTRA_DIST= $(IF_PYTHON_TESTS)
 
+dist_noinst_SCRIPTS= python-test.sh
+
 if ENABLE_PYTHON
-TESTS_ENVIRONMENT= PYTHON="$(PYTHON)" ./python-test.sh
+TESTS_ENVIRONMENT= PYTHON="$(PYTHON)" $(srcdir)/python-test.sh
 TESTS= \
        TEST_trace.py \
        TEST_bitness.py \

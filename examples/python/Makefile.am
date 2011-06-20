@@ -9,7 +9,7 @@ EXTRA_DIST= $(EXAMPLES)
 
 if ENABLE_PYTHON
 examplesdir=$(docdir)/examples/python
-examples_SCRIPTS= $(EXAMPLES)
+examples_DATA= $(EXAMPLES)
 endif # ENABLE_PYTHON
 
 if ENABLE_SITE

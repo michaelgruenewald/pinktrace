@@ -9,7 +9,7 @@ EXTRA_DIST= $(EXAMPLES)
 
 if ENABLE_RUBY
 examplesdir=$(docdir)/examples/ruby
-examples_SCRIPTS= $(EXAMPLES)
+examples_DATA= $(EXAMPLES)
 endif # ENABLE_RUBY
 
 if ENABLE_SITE
