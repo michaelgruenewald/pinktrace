@@ -171,7 +171,7 @@ There are examples how to use the various parts of the library.
 ## Contribute
 Clone [{{ site.url_scm }}]({{ site.url_scm }}).  
 Format patches are preferred. Either send a mail to me or poke me on IRC.  
-My personal e-mail address is [{{ site.author }}](mailto://{{ site.mail }})  
+My personal e-mail address is [{{ site.mail }}](mailto://{{ site.mail }})  
 
 ## Supported Platforms
 FreeBSD and Linux operating systems are supported.  
