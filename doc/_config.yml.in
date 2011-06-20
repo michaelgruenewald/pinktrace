@@ -5,7 +5,7 @@ markdown: maruku
 permalink: "/:year/:month/:day/:title"
 pygments: true
 lsi: false
-exclude: [ api, Makefile, Makefile.am, Makefile.in, css/screen.css.in ]
+exclude: [ Makefile, Makefile.am, Makefile.in ]
 
 # Custom variables
 author: "Ali Polatel"
