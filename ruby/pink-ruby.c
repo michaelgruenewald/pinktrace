@@ -94,7 +94,6 @@ static VALUE pinkrb_eIndexError;
 
 static VALUE pinkrb_cAddress;
 
-inline
 static void
 check_bitness(unsigned bit)
 {
@@ -115,7 +114,6 @@ check_bitness(unsigned bit)
 	}
 }
 
-inline
 static void
 check_index(unsigned ind)
 {
