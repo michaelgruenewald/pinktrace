@@ -76,92 +76,45 @@ calling **pkg-config** by hand.
 ## Examples
 There are examples how to use the various parts of the library.
 
-<table border="0">
+<table border="0" summary="examples">
     <tr>
         <th>Example</th>
-        <th>C</th>
-        <th>Python</th>
-        <th>Ruby</th>
+        <th colspan="3">Language</th>
         <th>Description</th>
     </tr>
     <tr>
         <td>about</td>
-        <td>
-            <a href="{{ site.url }}c-pink-about.html">about.c</a>
-            (<a href="{{ site.url }}examples/c/pink-about.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}py-pink-about.html">about.py</a>
-            (<a href="{{ site.url }}examples/python/pink-about.py">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}rb-pink-about.html">about.rb</a>
-            (<a href="{{ site.url }}examples/ruby/pink-about.rb">raw</a>)
-        </td>
+        <td><a href="{{ site.url }}c-pink-about.html">C</a></td>
+        <td><a href="{{ site.url }}py-pink-about.html">Python</a></td>
+        <td><a href="{{ site.url }}rb-pink-about.html">Ruby</a></td>
         <td>How to use pinktrace version macros</td>
     </tr>
     <tr>
-        <td>fork (FreeBSD)</td>
-        <td>
-            <a href="{{ site.url }}c-pink-fork-freebsd.html">fork-freebsd.c</a>
-            (<a href="{{ site.url }}examples/c/pink-fork-freebsd.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}py-pink-fork-freebsd.html">fork-freebsd.py</a>
-            (<a href="{{ site.url }}examples/python/pink-fork-freebsd.py">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}rb-pink-fork-freebsd.html">fork-freebsd.rb</a>
-            (<a href="{{ site.url }}examples/ruby/pink-fork-freebsd.rb">raw</a>)
-        </td>
+        <td>fork_freebsd</td>
+        <td><a href="{{ site.url }}c-pink-fork-freebsd.html">C</a></td>
+        <td><a href="{{ site.url }}py-pink-fork-freebsd.html">Python</a></td>
+        <td><a href="{{ site.url }}rb-pink-fork-freebsd.html">Ruby</a></td>
         <td>How to do tracing fork on FreeBSD</td>
     </tr>
     <tr>
-        <td>fork (Linux)</td>
-        <td>
-            <a href="{{ site.url }}c-pink-fork-linux.html">fork-linux.c</a>
-            (<a href="{{ site.url }}examples/c/pink-fork-linux.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}py-pink-fork-linux.html">fork-linux.py</a>
-            (<a href="{{ site.url }}examples/python/pink-fork-linux.py">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}rb-pink-fork-linux.html">fork-linux.rb</a>
-            (<a href="{{ site.url }}examples/ruby/pink-fork-linux.rb">raw</a>)
-        </td>
+        <td>fork_linux</td>
+        <td><a href="{{ site.url }}c-pink-fork-linux.html">C</a></td>
+        <td><a href="{{ site.url }}py-pink-fork-linux.html">Python</a></td>
+        <td><a href="{{ site.url }}rb-pink-fork-linux.html">Ruby</a></td>
         <td>How to do tracing fork on Linux</td>
     </tr>
     <tr>
-        <td>simple-strace (FreeBSD)</td>
-        <td>
-            <a href="{{ site.url }}c-pink-simple-strace-freebsd.html">simple-strace-freebsd.c</a>
-            (<a href="{{ site.url }}examples/c/pink-simple-strace-freebsd.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}py-pink-simple-strace-freebsd.html">simple-strace-freebsd.py</a>
-            (<a href="{{ site.url }}examples/python/pink-simple-strace-freebsd.py">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}rb-pink-simple-strace-freebsd.html">simple-strace-freebsd.rb</a>
-            (<a href="{{ site.url }}examples/ruby/pink-simple-strace-freebsd.rb">raw</a>)
-        </td>
+        <td>simple_strace_freebsd</td>
+        <td><a href="{{ site.url }}c-pink-simple-strace-freebsd.html">C</a></td>
+        <td><a href="{{ site.url }}py-pink-simple-strace-freebsd.html">Python</a></td>
+        <td><a href="{{ site.url }}rb-pink-simple-strace-freebsd.html">Ruby</a></td>
         <td>A simple strace-like program for FreeBSD</td>
     </tr>
     <tr>
-        <td>simple-strace (Linux)</td>
-        <td>
-            <a href="{{ site.url }}c-pink-simple-strace-linux.html">simple-strace-linux.c</a>
-            (<a href="{{ site.url }}examples/c/pink-simple-strace-linux.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}py-pink-simple-strace-linux.html">simple-strace-linux.py</a>
-            (<a href="{{ site.url }}examples/python/pink-simple-strace-linux.py">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.url }}rb-pink-simple-strace-linux.html">simple-strace-linux.rb</a>
-            (<a href="{{ site.url }}examples/ruby/pink-simple-strace-linux.rb">raw</a>)
-        </td>
+        <td>simple_strace_linux</td>
+        <td><a href="{{ site.url }}c-pink-simple-strace-linux.html">C</a></td>
+        <td><a href="{{ site.url }}py-pink-simple-strace-linux.html">Python</a></td>
+        <td><a href="{{ site.url }}rb-pink-simple-strace-linux.html">Ruby</a></td>
         <td>A simple strace-like program for Linux</td>
     </tr>
 </table>

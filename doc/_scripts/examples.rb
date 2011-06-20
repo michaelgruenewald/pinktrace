@@ -25,7 +25,7 @@ ARGV.each do |example|
 layout: default
 title: #{File.basename example}
 ---
-<h3>#{File.basename example}</h3>
+<h2>#{File.basename example} | <a href="{{ site.url }}examples/#{lang}/#{File.basename example}">raw</a></h2>
 
 {% highlight #{lang} linenos %}
 EOF
