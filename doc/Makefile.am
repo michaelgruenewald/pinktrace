@@ -5,9 +5,6 @@ GENERATED_FILES= \
 		 c-pink-fork-linux.html \
 		 c-pink-simple-strace-freebsd.html \
 		 c-pink-simple-strace-linux.html \
-		 hs-pink-about.html \
-		 hs-pink-fork-freebsd.html \
-		 hs-pink-fork-linux.html \
 		 py-pink-about.html \
 		 py-pink-fork-freebsd.html \
 		 py-pink-fork-linux.html \
