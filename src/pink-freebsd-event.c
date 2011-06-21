@@ -26,6 +26,7 @@
  */
 
 #include <assert.h>
+#include <signal.h>
 #include <sys/wait.h>
 
 #include <pinktrace/internal.h>
