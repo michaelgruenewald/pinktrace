@@ -1,10 +1,20 @@
-CLEANFILES= *~ pinktrace.cabal
-MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
-		      config.h config.h.in INSTALL
+SUBDIRS= src tests python ruby doc pkg-config examples
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
-EXTRA_DIST= autogen.sh COPYRIGHT misc/generated-file.txt
-SUBDIRS= src tests python ruby doc pkg-config examples
+
+CLEANFILES= *~
+MAINTAINERCLEANFILES= \
+		      Makefile.in \
+		      configure \
+		      aclocal.m4 \
+		      config.h \
+		      config.h.in \
+		      INSTALL
+EXTRA_DIST= \
+	    autogen.sh \
+	    COPYRIGHT \
+	    misc/generated-file.txt \
+	    misc/site-commit-template.txt
 
 DISTCHECK_CONFIGURE_FLAGS= \
 			   --enable-ipv6 \
@@ -57,12 +67,6 @@ endif # WANT_EASY
 EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
 
-checksum: dist
-	@echo "SHA1 $(PACKAGE)-$(VERSION).tar.bz2"
-	sha1sum $(PACKAGE)-$(VERSION).tar.bz2 > $(PACKAGE)-$(VERSION).tar.bz2.sha1sum
-	@echo "SIGN $(PACKAGE)-$(VERSION).tar.bz2"
-	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
-
 doxygen: all
 	$(MAKE) -C doc $@
 
@@ -79,4 +83,26 @@ site: doxygen epydoc rdoc
 site-check: site
 	$(MAKE) -C doc $@
 
-.PHONY: doxygen epydoc rdoc site site-check
+checksum: dist
+	sha1sum $(PACKAGE)-$(VERSION).tar.bz2 > $(PACKAGE)-$(VERSION).tar.bz2.sha1sum
+
+sign: dist
+	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
+
+release: site dist checksum sign
+	if ! test -d $(SITE_INSTALL_DIR)/release; then echo "No SITE_INSTALL_DIR/release"; exit 1; fi
+	$(INSTALL) \
+		-m 644 -p \
+		-t $(SITE_INSTALL_DIR)/release \
+		$(PACKAGE)-$(VERSION).tar.bz2 \
+		$(PACKAGE)-$(VERSION).tar.bz2.sha1sum \
+		$(PACKAGE)-$(VERSION).tar.bz2.asc
+
+git-release: release
+	git --git-dir=$(SITE_INSTALL_DIR) add --update
+	$(SED) \
+		-e 's/@VERSION@/$(VERSION)/' \
+		$(top_srcdir)/misc/site-commit-template.txt |\
+		git --git-dir=$(SITE_INSTALL_DIR) commit -F - -m
+
+.PHONY: doxygen epydoc rdoc site site-check checksum sign release git-release
