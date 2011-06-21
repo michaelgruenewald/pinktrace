@@ -28,8 +28,7 @@ main(void)
 
 	if (strncmp(PINKTRACE_GIT_HEAD, "", 1))
 		printf(" %s", PINKTRACE_GIT_HEAD);
-
-	fputc('\n', stdout);
+	putchar('\n');
 
 	return EXIT_SUCCESS;
 }

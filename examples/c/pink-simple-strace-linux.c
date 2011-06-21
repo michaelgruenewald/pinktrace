@@ -103,7 +103,7 @@ decode_open(pid_t pid, pink_bitness_t bitness)
 
 	printf("open(\"%s\", ", buf);
 	print_open_flags(flags);
-	fputc(')', stdout);
+	putchar(')');
 }
 
 /* A very basic decoder for execve(2) system call. */
@@ -132,10 +132,8 @@ decode_execve(pid_t pid, pink_bitness_t bitness)
 			perror("pink_decode_string_array_member");
 			return;
 		}
-		printf("%s", sep);
-		fputc('"', stdout);
-		printf("%s", buf);
-		fputc('"', stdout);
+
+		printf("%s\"%s\"", sep, buf);
 
 		if (nil) {
 			printf("], envp[])");
@@ -189,17 +187,20 @@ decode_socketcall(pid_t pid, pink_bitness_t bitness, const char *scname)
 		break;
 	case AF_INET:
 		inet_ntop(AF_INET, &addr.u.sa_in.sin_addr, ip, sizeof(ip));
-		printf("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa_in.sin_port), ip);
+		printf("{sa_family=AF_INET, sin_port=htons(%d), sin_addr=inet_addr(\"%s\")}",
+				ntohs(addr.u.sa_in.sin_port), ip);
 		break;
 #if PINKTRACE_HAVE_IPV6
 	case AF_INET6:
 		inet_ntop(AF_INET6, &addr.u.sa6.sin6_addr, ip, sizeof(ip));
-		printf("{sa_family=AF_INET6, sin_port=htons(%d), sin6_addr=inet_addr(\"%s\")}", ntohs(addr.u.sa6.sin6_port), ip);
+		printf("{sa_family=AF_INET6, sin_port=htons(%d), sin6_addr=inet_addr(\"%s\")}",
+				ntohs(addr.u.sa6.sin6_port), ip);
 		break;
 #endif /* PINKTRACE_HAVE_IPV6 */
 #if PINKTRACE_HAVE_NETLINK
 	case AF_NETLINK:
-		printf("{sa_family=AF_NETLINK, nl_pid=%d, nl_groups=%08x}", addr.u.nl.nl_pid, addr.u.nl.nl_groups);
+		printf("{sa_family=AF_NETLINK, nl_pid=%d, nl_groups=%08x}",
+				addr.u.nl.nl_pid, addr.u.nl.nl_groups);
 		break;
 #endif /* PINKTRACE_HAVE_NETLINK */
 	default: /* Unknown family */
@@ -223,9 +224,9 @@ handle_syscall(struct child *son)
 		/* Exiting the system call, print the
 		 * return value. */
 		son->insyscall = false;
-		fputc(' ', stdout);
+		putchar(' ');
 		print_ret(son->pid);
-		fputc('\n', stdout);
+		putchar('\n');
 	}
 	else {
 		/* Get the system call number and call
@@ -296,7 +297,7 @@ main(int argc, char **argv)
 		/* Figure out the bitness of the traced child. */
 		son.bitness = pink_bitness_get(son.pid);
 		if (son.bitness == PINK_BITNESS_UNKNOWN)
-			err(EXIT_FAILURE, "pink_bitness_get");
+			err(1, "pink_bitness_get");
 		printf("Child %i runs in %s mode\n", son.pid, pink_bitness_name(son.bitness));
 
 		son.dead = son.insyscall = false;
@@ -328,7 +329,7 @@ main(int argc, char **argv)
 				/* Update bitness */
 				son.bitness = pink_bitness_get(son.pid);
 				if (son.bitness == PINK_BITNESS_UNKNOWN)
-					err(EXIT_FAILURE, "pink_bitness_get");
+					err(1, "pink_bitness_get");
 				else
 					printf(" (Updating the bitness of child %i to %s mode)\n",
 						son.pid, pink_bitness_name(son.bitness));
