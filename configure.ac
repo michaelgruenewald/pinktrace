@@ -323,9 +323,12 @@ fi
 
 dnl pinktrace-easy
 AC_ARG_ENABLE([easy],
-	      [AS_HELP_STRING([--disable-easy], [Do not build pinktrace_easy library])],
+	      [AS_HELP_STRING([--disable-easy], [Do not build pinktrace_easy library (availability: Linux)])],
 	      [WANT_EASY="$enableval"],
-	      [WANT_EASY="yes"])
+	      [if test x"$opsys" = "linux";
+	       then WANT_EASY="yes"
+	       else AC_MSG_ERROR([pinktrace_easy is only available on Linux])
+	       fi])
 if test x"$WANT_EASY" = x"yes" ; then
 	AC_CHECK_HEADER([sys/queue.h], [], AC_MSG_ERROR([pinktrace_easy requires sys/queue.h]))
 	AC_CHECK_HEADER([alloca.h], [], AC_MSG_ERROR([pinktrace_easy requires alloca.h]))
