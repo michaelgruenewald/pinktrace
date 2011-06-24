@@ -117,6 +117,6 @@ struct pink_easy_context {
 
 /** Initialize tracing **/
 int
-pink_easy_internal_init(struct pink_easy_context *ctx, pink_easy_process_t *proc);
+_pink_easy_init(struct pink_easy_context *ctx, pink_easy_process_t *proc);
 
 #endif /* !PINKTRACE_EASY_GUARD_INTERNAL_H */

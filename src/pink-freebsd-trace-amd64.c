@@ -360,7 +360,7 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 				|| !pink_util_get_arg(pid, bitness, ind + 1, &addrlen)))
 		return false;
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
+	return _pink_decode_socket_address(pid, addr, addrlen, paddr);
 }
 
 bool

@@ -280,5 +280,5 @@ pink_decode_socket_address(pid_t pid, pink_bitness_t bitness, unsigned ind, long
 		abort();
 	}
 
-	return pink_internal_decode_socket_address(pid, addr, addrlen, paddr);
+	return _pink_decode_socket_address(pid, addr, addrlen, paddr);
 }

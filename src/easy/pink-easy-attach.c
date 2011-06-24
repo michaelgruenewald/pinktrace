@@ -66,7 +66,7 @@ pink_easy_attach(pink_easy_context_t *ctx, pid_t pid, pid_t ppid)
 		return -ctx->error;
 	}
 
-	if ((ret = pink_easy_internal_init(ctx, proc)) < 0) {
+	if ((ret = _pink_easy_init(ctx, proc)) < 0) {
 		free(proc);
 		return ret;
 	}

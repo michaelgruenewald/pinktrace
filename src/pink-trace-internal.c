@@ -35,7 +35,7 @@
  **/
 
 bool
-pink_internal_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *paddr)
+_pink_decode_socket_address(pid_t pid, long addr, long addrlen, pink_socket_address_t *paddr)
 {
 	if (addr == 0) {
 		/* NULL */

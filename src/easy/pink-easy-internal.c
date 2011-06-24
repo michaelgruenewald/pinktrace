@@ -62,7 +62,7 @@ waitpid_nointr(pid_t pid, int *status)
 
 /** Initialize tracing **/
 int
-pink_easy_internal_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
+_pink_easy_init(pink_easy_context_t *ctx, pink_easy_process_t *proc)
 {
 	int status;
 

@@ -87,7 +87,7 @@ pink_easy_exec_helper(pink_easy_context_t *ctx, int type, const char *filename, 
 	}
 	/* parent */
 
-	if (!pink_easy_internal_init(ctx, proc))
+	if (!_pink_easy_init(ctx, proc))
 		return 0;
 fail:
 	free(proc);
