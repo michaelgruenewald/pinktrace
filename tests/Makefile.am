@@ -1,29 +1,33 @@
 SUBDIRS= . easy
 EXTRA_DIST=
 
+IF_CHECK_FREEBSD_SRCS= \
+		       check_freebsd_trace.c \
+		       check_freebsd_util.c \
+		       check_freebsd_decode.c \
+		       check_freebsd_encode.c
+
+IF_CHECK_LINUX_SRCS= \
+		     check_linux_trace.c \
+		     check_linux_util.c \
+		     check_linux_decode.c \
+		     check_linux_encode.c \
+		     check_linux_event.c
+
 IF_CHECK_SRCS= \
 	       check_bitness.c \
 	       main.c
 
+noinst_HEADERS= check_pinktrace.h
+EXTRA_DIST+= $(IF_CHECK_FREEBSD_SRCS) $(IF_CHECK_LINUX_SRCS) $(IF_CHECK_SRCS)
+
 if FREEBSD
-IF_CHECK_SRCS+= \
-		check_freebsd_trace.c \
-		check_freebsd_util.c \
-		check_freebsd_decode.c \
-		check_freebsd_encode.c
+IF_CHECK_SRCS+= $(IF_CHECK_FREEBSD_SRCS)
 endif # FREEBSD
 
 if LINUX
-IF_CHECK_SRCS+= \
-		check_linux_trace.c \
-		check_linux_util.c \
-		check_linux_decode.c \
-		check_linux_encode.c \
-		check_linux_event.c
+IF_CHECK_SRCS+= $(IF_CHECK_LINUX_SRCS)
 endif # LINUX
-
-noinst_HEADERS= check_pinktrace.h
-EXTRA_DIST+= $(IF_CHECK_SRCS)
 
 if HAVE_LIBCHECK
 TESTS= check_pinktrace
