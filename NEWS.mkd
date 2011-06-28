@@ -3,6 +3,8 @@
 This file lists the major changes between versions. For a more detailed list of
 every change, see git log.
 
+### 0.1.2
+* autotools: fix kernel version check for Linux-3.0
 * New function pink\_name\_lookup\_with\_length()
 
 ### 0.1.1

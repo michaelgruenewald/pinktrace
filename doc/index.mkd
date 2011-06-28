@@ -257,6 +257,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## News
 
+*Tue Jun 28 2011:*
+
+[Version 0.1.2]({{ site.url }}/release/pinktrace-0.1.2.tar.bz2) released:
+
+- autotools: fix kernel version check for Linux-3.0
+- New function pink\_name\_lookup\_with\_length()
+
 *Tue May 03 2011:*
 
 [Version 0.1.1]({{ site.url }}/release/pinktrace-0.1.1.tar.bz2) released;
