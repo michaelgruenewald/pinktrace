@@ -37,13 +37,13 @@ Version {{ site.version }} has an unstable [API](http://en.wikipedia.org/wiki/Ap
 [ABI](http://en.wikipedia.org/wiki/Application_binary_interface).
 
 ## Documentation
-An extensive API reference is [available]({{ site.uri }}api/c).
+An extensive API reference is [available]({{ site.url }}api/c).
 
 ## Bindings
 Bindings are available for:
 
-- [Ruby]({{ site.uri }}api/ruby)
-- [Python]({{ site.uri }}api/python)
+- [Ruby]({{ site.url }}api/ruby)
+- [Python]({{ site.url }}api/python)
 
 **Note**: Bindings for pinktrace-easy have not been written yet.
 
@@ -89,80 +89,80 @@ There are examples how to use the various parts of the library.
     <tr>
         <td>about</td>
         <td>
-            <a href="{{ site.uri }}c-pink-about.html">about.c</a>
-            (<a href="{{ site.uri }}examples/c/pink-about.c">raw</a>)
+            <a href="{{ site.url }}c-pink-about.html">about.c</a>
+            (<a href="{{ site.url }}examples/c/pink-about.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}py-pink-about.html">about.py</a>
-            (<a href="{{ site.uri }}examples/python/pink-about.py">raw</a>)
+            <a href="{{ site.url }}py-pink-about.html">about.py</a>
+            (<a href="{{ site.url }}examples/python/pink-about.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}rb-pink-about.html">about.rb</a>
-            (<a href="{{ site.uri }}examples/ruby/pink-about.rb">raw</a>)
+            <a href="{{ site.url }}rb-pink-about.html">about.rb</a>
+            (<a href="{{ site.url }}examples/ruby/pink-about.rb">raw</a>)
         </td>
         <td>How to use pinktrace version macros</td>
     </tr>
     <tr>
         <td>fork (FreeBSD)</td>
         <td>
-            <a href="{{ site.uri }}c-pink-fork-freebsd.html">fork-freebsd.c</a>
-            (<a href="{{ site.uri }}examples/c/pink-fork-freebsd.c">raw</a>)
+            <a href="{{ site.url }}c-pink-fork-freebsd.html">fork-freebsd.c</a>
+            (<a href="{{ site.url }}examples/c/pink-fork-freebsd.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}py-pink-fork-freebsd.html">fork-freebsd.py</a>
-            (<a href="{{ site.uri }}examples/python/pink-fork-freebsd.py">raw</a>)
+            <a href="{{ site.url }}py-pink-fork-freebsd.html">fork-freebsd.py</a>
+            (<a href="{{ site.url }}examples/python/pink-fork-freebsd.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}rb-pink-fork-freebsd.html">fork-freebsd.rb</a>
-            (<a href="{{ site.uri }}examples/ruby/pink-fork-freebsd.rb">raw</a>)
+            <a href="{{ site.url }}rb-pink-fork-freebsd.html">fork-freebsd.rb</a>
+            (<a href="{{ site.url }}examples/ruby/pink-fork-freebsd.rb">raw</a>)
         </td>
         <td>How to do tracing fork on FreeBSD</td>
     </tr>
     <tr>
         <td>fork (Linux)</td>
         <td>
-            <a href="{{ site.uri }}c-pink-fork-linux.html">fork-linux.c</a>
-            (<a href="{{ site.uri }}examples/c/pink-fork-linux.c">raw</a>)
+            <a href="{{ site.url }}c-pink-fork-linux.html">fork-linux.c</a>
+            (<a href="{{ site.url }}examples/c/pink-fork-linux.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}py-pink-fork-linux.html">fork-linux.py</a>
-            (<a href="{{ site.uri }}examples/python/pink-fork-linux.py">raw</a>)
+            <a href="{{ site.url }}py-pink-fork-linux.html">fork-linux.py</a>
+            (<a href="{{ site.url }}examples/python/pink-fork-linux.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}rb-pink-fork-linux.html">fork-linux.rb</a>
-            (<a href="{{ site.uri }}examples/ruby/pink-fork-linux.rb">raw</a>)
+            <a href="{{ site.url }}rb-pink-fork-linux.html">fork-linux.rb</a>
+            (<a href="{{ site.url }}examples/ruby/pink-fork-linux.rb">raw</a>)
         </td>
         <td>How to do tracing fork on Linux</td>
     </tr>
     <tr>
         <td>simple-strace (FreeBSD)</td>
         <td>
-            <a href="{{ site.uri }}c-pink-simple-strace-freebsd.html">simple-strace-freebsd.c</a>
-            (<a href="{{ site.uri }}examples/c/pink-simple-strace-freebsd.c">raw</a>)
+            <a href="{{ site.url }}c-pink-simple-strace-freebsd.html">simple-strace-freebsd.c</a>
+            (<a href="{{ site.url }}examples/c/pink-simple-strace-freebsd.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}py-pink-simple-strace-freebsd.html">simple-strace-freebsd.py</a>
-            (<a href="{{ site.uri }}examples/python/pink-simple-strace-freebsd.py">raw</a>)
+            <a href="{{ site.url }}py-pink-simple-strace-freebsd.html">simple-strace-freebsd.py</a>
+            (<a href="{{ site.url }}examples/python/pink-simple-strace-freebsd.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}rb-pink-simple-strace-freebsd.html">simple-strace-freebsd.rb</a>
-            (<a href="{{ site.uri }}examples/ruby/pink-simple-strace-freebsd.rb">raw</a>)
+            <a href="{{ site.url }}rb-pink-simple-strace-freebsd.html">simple-strace-freebsd.rb</a>
+            (<a href="{{ site.url }}examples/ruby/pink-simple-strace-freebsd.rb">raw</a>)
         </td>
         <td>A simple strace-like program for FreeBSD</td>
     </tr>
     <tr>
         <td>simple-strace (Linux)</td>
         <td>
-            <a href="{{ site.uri }}c-pink-simple-strace-linux.html">simple-strace-linux.c</a>
-            (<a href="{{ site.uri }}examples/c/pink-simple-strace-linux.c">raw</a>)
+            <a href="{{ site.url }}c-pink-simple-strace-linux.html">simple-strace-linux.c</a>
+            (<a href="{{ site.url }}examples/c/pink-simple-strace-linux.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}py-pink-simple-strace-linux.html">simple-strace-linux.py</a>
-            (<a href="{{ site.uri }}examples/python/pink-simple-strace-linux.py">raw</a>)
+            <a href="{{ site.url }}py-pink-simple-strace-linux.html">simple-strace-linux.py</a>
+            (<a href="{{ site.url }}examples/python/pink-simple-strace-linux.py">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}rb-pink-simple-strace-linux.html">simple-strace-linux.rb</a>
-            (<a href="{{ site.uri }}examples/ruby/pink-simple-strace-linux.rb">raw</a>)
+            <a href="{{ site.url }}rb-pink-simple-strace-linux.html">simple-strace-linux.rb</a>
+            (<a href="{{ site.url }}examples/ruby/pink-simple-strace-linux.rb">raw</a>)
         </td>
         <td>A simple strace-like program for Linux</td>
     </tr>
@@ -171,7 +171,7 @@ There are examples how to use the various parts of the library.
 **Note**: There are not any examples for pinktrace-easy at the moment.
 
 ## Contribute
-Clone [{{ site.uri_scm }}]({{ site.uri_scm }}).  
+Clone [{{ site.url_scm }}]({{ site.url_scm }}).  
 Format patches are preferred. Either send a mail to me or poke me on IRC.  
 My personal e-mail address is [{{ site.author }}](mailto://{{ site.mail }})  
 
@@ -220,7 +220,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *Tue May 03 2011:*
 
-[Version 0.1.1]({{ site.uri }}release/pinktrace-0.1.1.tar.bz2) released;
+[Version 0.1.1]({{ site.url }}release/pinktrace-0.1.1.tar.bz2) released;
 
 - Include pinktrace.cabal.in and Setup.lhs.in in the tarball
 - Include examples in the tarball
@@ -228,7 +228,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *Mon May 02 2011:*
 
-[Version 0.1.0]({{ site.uri }}release/pinktrace-0.1.0.tar.bz2) released;
+[Version 0.1.0]({{ site.url }}release/pinktrace-0.1.0.tar.bz2) released;
 
 - Add initial implementation of a higher-level library on top with the name pinktrace-easy
 - Simplify GCC macros
@@ -240,7 +240,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *Sat Oct 30 2010:*
 
-[Version 0.0.5]({{ site.uri }}release/pinktrace-0.0.5.tar.bz2) released;
+[Version 0.0.5]({{ site.url }}release/pinktrace-0.0.5.tar.bz2) released;
 changes include:
 - Add new function `pink_util_set_arg()`
 - Add new functions `pink_trace_sysemu()` and `pink_trace_sysemu_singlestep()`
@@ -249,19 +249,19 @@ changes include:
 
 *Sun Oct 17 2010:*
 
-[Version 0.0.4]({{ site.uri }}release/pinktrace-0.0.4.tar.bz2) released;
+[Version 0.0.4]({{ site.url }}release/pinktrace-0.0.4.tar.bz2) released;
 fixes socket decoding functions for PPC64.
 
 *Tue Oct 12 2010:*
 
-[Version 0.0.3]({{ site.uri }}release/pinktrace-0.0.3.tar.bz2) released;
+[Version 0.0.3]({{ site.url }}release/pinktrace-0.0.3.tar.bz2) released;
 fixes a few bugs and adds an [API](http://en.wikipedia.org/wiki/Api) to decode NULL-terminated string arrays.
 
 *Sun Oct 3 2010:*
 
-[Version 0.0.2]({{ site.uri }}release/pinktrace-0.0.2.tar.bz2) released;
+[Version 0.0.2]({{ site.url }}release/pinktrace-0.0.2.tar.bz2) released;
 fixes compilation on ARM due to missing header
 
 *Sun Oct 3 2010:*
 
-[Version 0.0.1]({{ site.uri }}release/pinktrace-0.0.1.tar.bz2) released
+[Version 0.0.1]({{ site.url }}release/pinktrace-0.0.1.tar.bz2) released
