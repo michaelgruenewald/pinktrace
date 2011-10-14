@@ -1,23 +1,60 @@
 # gitignore for pinktrace
-.*.swp
-*~
-*.[oa]
-*.py[co]
 
-tags
-
-*.lo
+# Normal rules
+.*
+*.o
+*.o.*
+*.a
+*.s
+*.ko
+*.so
+*.so.dbg
 *.la
+*.lo
+*.pyc
+*.pyo
+*.gz
+*.bz2
+*.lzma
+*.lzo
+*.xz
+*.patch
+*.gcno
+*.log
 
-.deps
-.libs
-Makefile.in
-Makefile
+# backup files
+*.orig
+*~
+\#*#
+.*.swp
 
+# git files that we don't want to ignore even it they are dot-files
+!.gitignore
+!.mailmap
+
+# stgit generated dirs
+patches-*
+
+# quilt's files
+patches
+series
+
+# cscope files
+cscope.*
+ncscope.*
+
+# gnu global files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
+# gprof files
 gmon.out
 gprof*
 
-/pinktrace-*
+# autohell
+/build-aux
 /INSTALL
 /aclocal.m4
 /autom4te.cache
@@ -30,50 +67,52 @@ gprof*
 /configure
 /compile
 /depcomp
-/dist
 /install-sh
 /missing
 /stamp-h1
+Makefile
+Makefile.in
+
+# libtool
+.deps
+.libs
 /libtool
 /ltmain.sh
-/pinktrace.cabal
-/Setup.lhs
+/m4/libtool.m4
+/m4/lt*.m4
 
-doc/css/screen.css
-doc/_config.yml
-doc/*.html
-doc/_site
-doc/api/c/c
-doc/api/c/doxygen.conf
-doc/api/c/pinktrace.tag
-doc/api/python/python
-doc/api/ruby/ruby
+# generated files
+/doc/_config.yml
+/doc/*.html
+/doc/_site
+/doc/api/c/c
+/doc/api/c/doxygen.conf
+/doc/api/c/pinktrace.tag
+/doc/api/python/python
+/doc/api/ruby/ruby
 
-examples/c/pink-about
-examples/c/pink-fork
-examples/c/pink-simple-strace
+/examples/c/pink-about
+/examples/c/pink-fork
+/examples/c/pink-simple-strace
 
-haskell/System/PinkTrace.hs
+/include/pinktrace/about.h
+/include/pinktrace/bitness.h
+/include/pinktrace/system.h
 
-include/pinktrace/about.h
-include/pinktrace/bitness.h
+/pkg-config/pinktrace.pc
+/pkg-config/pinktrace_easy.pc
 
-m4/libtool.m4
-m4/lt*.m4
+/python/pinktrace/__init__.py
+/python/pinktrace/*.so
 
-pkg-config/pinktrace.pc
-pkg-config/pinktrace_easy.pc
+/src/*_test
+/src/freebsd/amd64/fbsd32-syscalls.master
+/src/freebsd/amd64/pink-syscallent32.h
+/src/freebsd/init_sysent.c
+/src/freebsd/syscalls.c
+/src/freebsd/syscalls.master
+/src/freebsd/pink-syscallent.h
 
-python/pinktrace/__init__.py
-python/pinktrace/*.so
-
-src/freebsd/amd64/fbsd32-syscalls.master
-src/freebsd/amd64/pink-syscallent32.h
-src/freebsd/init_sysent.c
-src/freebsd/syscalls.c
-src/freebsd/syscalls.master
-src/freebsd/pink-syscallent.h
-
-tests/check_pinktrace
-tests/easy/check_pinktrace_easy
-tests/easy/t[0-9][0-9]_*
+/tests/pink-check
+/tests/easy/check_pinktrace_easy
+/tests/easy/t[0-9][0-9]_*
