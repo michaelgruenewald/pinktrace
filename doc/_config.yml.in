@@ -8,7 +8,11 @@ lsi: false
 exclude: [ api, Makefile, Makefile.am, Makefile.in, css/screen.css.in ]
 
 # Custom variables
-title: "PinkTrace-##VERSION##"
-url: "##HOMEPAGE##"
-scm: "##SCM_URI##"
-version: "##VERSION##"
+version: "@VERSION@"
+title: "@PACKAGE@-@VERSION@"
+uri: "@SITE_URI_HOME@"
+uri_scm: "@SITE_URI_SCM@"
+uri_scm_view: "@SITE_URI_SCM_VIEW@"
+uri_support: "@SITE_URI_SUPPORT@"
+author: "@SITE_CONTACT_NAME@"
+mail: "@SITE_CONTACT_MAIL@"

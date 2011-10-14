@@ -37,6 +37,20 @@ AC_SUBST([VERSION_SUFFIX])
 AC_SUBST([VERSION_LIB_CURRENT])
 AC_SUBST([VERSION_LIB_REVISION])
 
+SITE_URI_HOME="http://alip.github.com/pinktrace/"
+SITE_URI_SCM="git://github.com/alip/pinktrace.git"
+SITE_URI_SCM_VIEW="http://github.com/alip/pinktrace/"
+SITE_URI_SUPPORT="http://github.com/alip/pinktrace/issues/"
+SITE_CONTACT_NAME="Ali Polatel"
+SITE_CONTACT_MAIL="alip@exherbo.org"
+
+AC_SUBST([SITE_URI_HOME])
+AC_SUBST([SITE_URI_SCM])
+AC_SUBST([SITE_URI_SCM_VIEW])
+AC_SUBST([SITE_URI_SUPPORT])
+AC_SUBST([SITE_CONTACT_NAME])
+AC_SUBST([SITE_CONTACT_MAIL])
+
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip std-options foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -589,7 +603,7 @@ if test x"$enable_python" = x"yes" ; then
 	AC_ARG_WITH([python-install-dir],
 				AS_HELP_STRING([--with-python-install-dir=dir],
 							   [Specify Python installation directory]),
-				PYTHON_INSTALL_DIR=`eval echo $withval`
+				PYTHON_INSTALL_DIR=`eval echo $withval`,
 				PYTHON_INSTALL_DIR=)
 	if test x"$PYTHON_INSTALL_DIR" = x ; then
 		PYTHON_INSTALL_DIR="$pyexecdir"
@@ -637,6 +651,61 @@ fi
 AM_CONDITIONAL([ENABLE_PYTHON_DOC], test x"$enable_python_doc" = x"yes")
 dnl }}}
 
+dnl {{{ Enable site copy/generation
+AC_MSG_CHECKING([whether site should be copied])
+AC_ARG_ENABLE([site-copy],
+			  AS_HELP_STRING([--enable-site-copy],
+							 [Enable site copy (default: disable)]),
+			  enable_site_copy="$enableval",
+			  enable_site_copy=no)
+AC_MSG_RESULT([$enable_site_copy])
+
+AC_MSG_CHECKING([whether site should be generated])
+AC_ARG_ENABLE([site-gen],
+			  AS_HELP_STRING([--enable-site-gen],
+							 [Enable site generation (default: disable)]),
+			  enable_site_gen="$enableval",
+			  enable_site_gen=no)
+AC_MSG_RESULT([$enable_site_gen])
+
+if test x"$enable_site_copy" = x"yes" -a x"$enable_site_gen" = x"yes"; then
+	AC_MSG_ERROR([--enable-site-copy and --enable-site-gen are mutually exclusive options])
+fi
+
+AC_ARG_VAR([JEKYLL], [Path to jekyll])
+AC_ARG_VAR([RSYNC], [Path to rsync])
+if test x"$enable_site_copy" = x"yes"; then
+	AC_PATH_PROG([RSYNC], rsync)
+	if test x"$RSYNC" = x; then
+		AC_MSG_ERROR([rsync is required to copy site])
+	fi
+fi
+
+if test x"$enable_site_gen" = x"yes"; then
+	AC_PATH_PROG([JEKYLL], jekyll)
+	if test x"$JEKYLL" = x; then
+		AC_MSG_ERROR([jekyll (http://jekyllrb.com/) is required to generate site])
+	fi
+fi
+
+if test x"$enable_site_copy" = x"yes" -o x"$enable_site_gen" = x"yes"; then
+	AC_MSG_CHECKING([for site install directory])
+	AC_ARG_WITH([site-install-dir],
+				AS_HELP_STRING([--with-site-install-dir=dir],
+							   [Specify site installation directory]),
+				SITE_INSTALL_DIR=`eval echo $withval`,
+				SITE_INSTALL_DIR=)
+	if test x"$SITE_INSTALL_DIR" = x; then
+		AC_MSG_ERROR([Site install directory not specified])
+	fi
+	AC_MSG_RESULT([$SITE_INSTALL_DIR])
+	AC_SUBST([SITE_INSTALL_DIR])
+fi
+AM_CONDITIONAL([ENABLE_SITE], test x"$enable_site_copy" = x"yes" -o x"$enable_site_gen" = x"yes")
+AM_CONDITIONAL([ENABLE_SITE_COPY], test x"$enable_site_copy" = x"yes")
+AM_CONDITIONAL([ENABLE_SITE_GEN], test x"$enable_site_gen" = x"yes")
+dnl }}}
+
 dnl {{{ Built sources
 GENERATED_FILE=misc/generated-file.txt
 AC_SUBST_FILE([GENERATED_FILE])
@@ -645,6 +714,7 @@ dnl }}}
 dnl {{{ Output
 AC_OUTPUT(
 		  Makefile
+		  doc/_config.yml
 		  doc/Makefile
 		  doc/api/Makefile
 		  doc/api/c/Makefile

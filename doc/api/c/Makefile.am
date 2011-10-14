@@ -22,17 +22,19 @@ install-data-local:
 	mkdir -p $(DESTDIR)$(htmldir)/api
 	cp -R c $(DESTDIR)$(htmldir)/api
 
-upload-doc: doxygen
-	rsync -avze ssh --delete --partial --progress c bach.exherbo.org:public_html/pinktrace/api
-
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/api
+	cp -R c $(SITE_INSTALL_DIR)/api
+endif
 else
 doxygen:
 	@echo "You don't have doxygen installed!"
 	exit 1
-upload-doc:
-	@echo "Not uploading C API documentation"
+site:
+	@echo "Can't copy C API docs"
 	exit 0
-endif
+endif # HAVE_DOXYGEN
 
 clean-local:
 	rm -fr c
@@ -40,4 +42,4 @@ clean-local:
 unistall-data-local:
 	rm -fr $(DESTDIR)$(htmldir)/api/c
 
-.PHONY: doxygen upload-doc
+.PHONY: doxygen site

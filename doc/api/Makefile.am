@@ -9,9 +9,9 @@ epydoc:
 rdoc:
 	$(MAKE) -C ruby $@
 
-upload-doc:
+site:
 	$(MAKE) -C c $@
 	$(MAKE) -C ruby $@
 	$(MAKE) -C python $@
 
-.PHONY: doxygen epydoc rdoc upload-doc
+.PHONY: doxygen epydoc rdoc site

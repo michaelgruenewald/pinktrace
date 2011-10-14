@@ -3,8 +3,13 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 		      config.h config.h.in INSTALL
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
-EXTRA_DIST= autogen.sh haddock.sh COPYRIGHT README.mkd TODO.mkd misc/generated-file.txt
+EXTRA_DIST= autogen.sh haddock.sh COPYRIGHT misc/generated-file.txt
 SUBDIRS= src tests haskell python ruby doc pkg-config examples
+
+doc_DATA= \
+	  README.markdown \
+	  NEWS.markdown \
+	  TODO.markdown
 
 pinktrace_includedir=$(includedir)/pinktrace-$(PINKTRACE_PC_SLOT)/pinktrace/
 pinktrace_include_HEADERS= \
@@ -68,10 +73,6 @@ checksum: dist
 	@echo "SIGN $(PACKAGE)-$(VERSION).tar.bz2"
 	gpg --detach-sign --armor $(PACKAGE)-$(VERSION).tar.bz2
 
-upload-release:
-	@echo "UPLOAD $(PACKAGE)-$(VERSION).tar.bz2*"
-	scp $(PACKAGE)-$(VERSION).tar.bz2* bach.exherbo.org:public_html/pinktrace/release
-
 doxygen:
 	$(MAKE) -C doc $@
 
@@ -81,15 +82,10 @@ epydoc:
 rdoc:
 	$(MAKE) -C doc $@
 
-upload-doc:
+site:
 	$(MAKE) -C doc $@
 
-upload-example:
-	$(MAKE) -C examples $@
-
-upload-www:
+site-check:
 	$(MAKE) -C doc $@
 
-upload: upload-doc upload-example upload-www
-
-.PHONY: doxygen epydoc rdoc upload upload-doc upload-example upload-www upload-release
+.PHONY: doxygen epydoc rdoc site site-check

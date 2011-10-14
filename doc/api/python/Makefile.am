@@ -1,9 +1,10 @@
 SUBDIRS= .
 EXTRA_DIST= epydoc.css
 EPYDOC_FLAGS= \
+	      --debug \
 	      --verbose \
 	      --name "pinktrace" \
-	      --url "http://dev.exherbo.org/~alip/pinktrace/api/python" \
+	      --url "$(SITE_URI_HOME)api/python" \
 	      --no-frames \
 	      --css $(srcdir)/epydoc.css
 
@@ -16,27 +17,27 @@ python:
 	$(AM_V_GEN)
 	$(AM_V_at)rm -fr python
 	$(AM_V_at)mkdir -p python
-	PYTHON_PATH=$(top_builddir)/python $(EPYDOC) $(EPYDOC_FLAGS) -o $@ \
-		    $(top_builddir)/python/pinktrace
+	$(EPYDOC) $(EPYDOC_FLAGS) -o $@ $(top_builddir)/python/pinktrace
 
 install-data-local:
 	mkdir -p $(DESTDIR)$(htmldir)/api
 	cp -R python $(DESTDIR)$(htmldir)/api
 
-upload-doc: epydoc
-	rsync -avze ssh --delete --partial --progress python bach.exherbo.org:public_html/pinktrace/api
-
-.PHONY: epydoc symlinks upload-doc
-else
-upload-doc:
-	@echo "Not uploading Python API documentation"
-	exit 0
-
-.PHONY: upload-doc
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/api
+	cp -R python $(SITE_INSTALL_DIR)/api
 endif
+else
+site:
+	@echo "Can't copy Python API docs"
+	exit 0
+endif # ENABLE_PYTHON_DOC
 
 clean-local:
 	rm -fr python
 
 uninstall-local:
 	rm -fr $(DESTDIR)$(htmldir)/api/python
+
+.PHONY: epydoc site

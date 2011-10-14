@@ -15,16 +15,15 @@ install-data-local:
 	mkdir -p $(DESTDIR)$(htmldir)/api
 	cp -R ruby $(DESTDIR)$(htmldir)/api
 
-upload-doc: rdoc
-	rsync -avze ssh --delete --partial --progress ruby bach.exherbo.org:public_html/pinktrace/api
-
-.PHONY: rdoc upload-doc
+if ENABLE_SITE
+site:
+	mkdir -p $(SITE_INSTALL_DIR)/api
+	cp -R ruby $(SITE_INSTALL_DIR)/api
+endif
 else
-upload-doc:
-	@echo "Not uploading Ruby API documentation"
+site:
+	@echo "Can't copy Ruby API docs"
 	exit 0
-
-.PHONY: upload-doc
 endif
 
 clean-local:
@@ -32,3 +31,5 @@ clean-local:
 
 uninstall-local:
 	rm -fr $(DESTDIR)$(htmldir)/api/ruby
+
+.PHONY: rdoc site
