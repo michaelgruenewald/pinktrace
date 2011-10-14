@@ -3,7 +3,7 @@ AC_PREREQ([2.59])
 
 m4_define([pinktrace_version_major],  [0])
 m4_define([pinktrace_version_minor],  [1])
-m4_define([pinktrace_version_micro],  [1])
+m4_define([pinktrace_version_micro],  [3])
 m4_define([pinktrace_version_suffix], [])
 m4_define([pinktrace_version_full],   [pinktrace_version_major.pinktrace_version_minor.pinktrace_version_micro[]pinktrace_version_suffix])
 m4_define([pinktrace_version],        [pinktrace_version_full])
