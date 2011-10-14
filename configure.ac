@@ -2,17 +2,32 @@ dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}}
 
 dnl {{{ Program, version
 AC_PREREQ(2.59)
-AC_INIT([src/pink-bitness.c])
+
+m4_define([pinktrace_version_major],  [0])
+m4_define([pinktrace_version_minor],  [1])
+m4_define([pinktrace_version_micro],  [1])
+m4_define([pinktrace_version_suffix], [])
+m4_define([pinktrace_version_full],   [pinktrace_version_major.pinktrace_version_minor.pinktrace_version_micro[]pinktrace_version_suffix])
+m4_define([pinktrace_version],        [pinktrace_version_full])
+m4_define([pinktrace_lib_current],    [m4_eval(100 * pinktrace_version_major + pinktrace_version_minor)])
+m4_define([pinktrace_lib_revision],   [pinktrace_version_micro])
+
+AC_INIT([pinktrace], [pinktrace_version], [alip@exherbo.org], [pinktrace])
+
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR([build-aux])
+
 AC_CANONICAL_HOST
 
-VERSION_MAJOR=0
-VERSION_MINOR=1
-VERSION_MICRO=2
-VERSION_SUFFIX=
-VERSION_FULL="$VERSION_MAJOR.$VERSION_MINOR.$VERSION_MICRO$VERSION_SUFFIX"
-VERSION="$VERSION_FULL"
-VERSION_LIB_CURRENT=`expr 100 '*' $VERSION_MAJOR + $VERSION_MINOR`
-VERSION_LIB_REVISION="$VERSION_MICRO"
+VERSION_MAJOR=pinktrace_version_major
+VERSION_MINOR=pinktrace_version_minor
+VERSION_MICRO=pinktrace_version_micro
+VERSION_SUFFIX=pinktrace_version_suffix
+VERSION_FULL=pinktrace_version_full
+VERSION=pinktrace_version
+VERSION_LIB_CURRENT=pinktrace_lib_current
+VERSION_LIB_REVISION=pinktrace_lib_revision
 
 AC_SUBST([VERSION_MAJOR])
 AC_SUBST([VERSION_MINOR])
@@ -22,7 +37,8 @@ AC_SUBST([VERSION_SUFFIX])
 AC_SUBST([VERSION_LIB_CURRENT])
 AC_SUBST([VERSION_LIB_REVISION])
 
-AM_INIT_AUTOMAKE(pinktrace, [$VERSION_FULL])
+AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip std-options foreign])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 dnl {{{ Git revision
 if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
@@ -630,7 +646,6 @@ AC_SUBST_FILE([GENERATED_FILE])
 dnl }}}
 
 dnl {{{ Output
-AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
 		  Makefile
 		  doc/Makefile
