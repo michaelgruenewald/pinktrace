@@ -25,7 +25,6 @@ DISTCHECK_CONFIGURE_FLAGS= \
 
 doc_DATA= \
 	  README.markdown \
-	  NEWS.markdown \
 	  TODO.markdown
 EXTRA_DIST+= $(doc_DATA)
 
