@@ -657,7 +657,6 @@ AC_CONFIG_FILES([
 		 doc/api/c/doxygen.conf
 		 doc/api/python/Makefile
 		 doc/api/ruby/Makefile
-		 doc/css/screen.css
 		 examples/Makefile
 		 examples/c/Makefile
 		 examples/python/Makefile

@@ -1,5 +1,8 @@
+---
+layout: nil
+---
 /*
- * Copyright 2009, 2010 Ali Polatel <alip@exherbo.org>
+ * Copyright 2009, 2010, 2011 Ali Polatel <alip@exherbo.org>
  * Based in part upon:
  *  Screen CSS for 0x90.dk
  *  Copyright 2009 Alexander Færøy <ahf@exherbo.org>
@@ -64,7 +67,7 @@ tt {
 }
 
 div#header {
-  background: url("@@SITE_URI_HOME@@/images/header.png") repeat-x;
+  background: url("{{ site.url }}/images/header.png") repeat-x;
 }
 
 div#header a {
