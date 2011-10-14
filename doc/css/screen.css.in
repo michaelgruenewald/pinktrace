@@ -64,7 +64,7 @@ tt {
 }
 
 div#header {
-  background: url("##HOMEPAGE##/images/header.png") repeat-x;
+  background: url("@@SITE_URI_HOME@@/images/header.png") repeat-x;
 }
 
 div#header a {

@@ -41,15 +41,11 @@ SITE_URI_HOME="http://alip.github.com/pinktrace/"
 SITE_URI_SCM="git://github.com/alip/pinktrace.git"
 SITE_URI_SCM_VIEW="http://github.com/alip/pinktrace/"
 SITE_URI_SUPPORT="http://github.com/alip/pinktrace/issues/"
-SITE_CONTACT_NAME="Ali Polatel"
-SITE_CONTACT_MAIL="alip@exherbo.org"
 
 AC_SUBST([SITE_URI_HOME])
 AC_SUBST([SITE_URI_SCM])
 AC_SUBST([SITE_URI_SCM_VIEW])
 AC_SUBST([SITE_URI_SUPPORT])
-AC_SUBST([SITE_CONTACT_NAME])
-AC_SUBST([SITE_CONTACT_MAIL])
 
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip std-options foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -721,6 +717,7 @@ AC_OUTPUT(
 		  doc/api/c/doxygen.conf
 		  doc/api/python/Makefile
 		  doc/api/ruby/Makefile
+		  doc/css/screen.css
 		  examples/Makefile
 		  examples/c/Makefile
 		  examples/haskell/Makefile
