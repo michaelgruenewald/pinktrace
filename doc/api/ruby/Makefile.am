@@ -6,10 +6,10 @@ all-local: rdoc
 
 rdoc: ruby
 
-ruby: $(top_srcdir)/ruby/pink-ruby.c
+ruby:
 	$(AM_V_GEN)
 	$(AM_V_at)rm -fr ruby
-	$(AM_V_at)$(RDOC) $(RDOC_FLAGS) --op $@ $<
+	$(AM_V_at)$(RDOC) $(RDOC_FLAGS) --op $@ $(wildcard $(top_srcdir)/ruby/*.c)
 
 install-data-local:
 	mkdir -p $(DESTDIR)$(htmldir)/api

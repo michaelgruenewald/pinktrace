@@ -1,4 +1,11 @@
-IF_RUBY_FILES= pink-ruby.c
+IF_RUBY_FILES= \
+	       trace.c \
+	       event.c \
+	       bitness.c \
+	       syscall.c \
+	       string.c \
+	       socket.c \
+	       init.c
 IF_RUBY_TESTS= \
 	       TEST_trace.rb \
 	       TEST_bitness.rb \
@@ -15,6 +22,7 @@ IF_RUBY_TESTS= \
 EXTRA_DIST= $(IF_RUBY_FILES) $(IF_RUBY_TESTS)
 CLEANFILES= TEST_UNIX_SOCKET
 
+dist_noinst_HEADERS= globals.h
 dist_noinst_SCRIPTS= ruby-test.sh
 
 if ENABLE_RUBY

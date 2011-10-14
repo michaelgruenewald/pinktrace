@@ -488,7 +488,7 @@ if test x"$enable_ruby" = x"yes" ; then
 	fi
 
 	# Extra cflags for Ruby to quiet useless warnings
-	WANTED_RUBY_CFLAGS="-Wno-strict-prototypes -Wno-missing-prototypes -Wno-redundant-decls"
+	WANTED_RUBY_CFLAGS="-Wno-strict-prototypes -Wno-missing-prototypes -Wno-redundant-decls -Wno-missing-noreturn -Wno-unused"
 	PINKTRACE_RUBY_CFLAGS=
 	for flag in $WANTED_RUBY_CFLAGS ; do
 		AX_CHECK_COMPILER_FLAGS([$flag], [PINKTRACE_RUBY_CFLAGS="$PINKTRACE_RUBY_CFLAGS $flag"],)
