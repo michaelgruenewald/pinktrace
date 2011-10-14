@@ -12,7 +12,7 @@ m4_define([pinktrace_version],        [pinktrace_version_full])
 m4_define([pinktrace_lib_current],    [m4_eval(100 * pinktrace_version_major + pinktrace_version_minor)])
 m4_define([pinktrace_lib_revision],   [pinktrace_version_micro])
 
-AC_INIT([pinktrace], [pinktrace_version], [alip@exherbo.org], [pinktrace])
+AC_INIT([pinktrace], [pinktrace_version], [http://github.com/alip/pinktrace/issues], [pinktrace])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
