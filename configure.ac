@@ -1,7 +1,7 @@
 dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}} :
 
-dnl {{{ Program, version
-AC_PREREQ(2.59)
+dnl Program, version
+AC_PREREQ([2.59])
 
 m4_define([pinktrace_version_major],  [0])
 m4_define([pinktrace_version_minor],  [1])
@@ -50,7 +50,7 @@ AC_SUBST([SITE_URI_SUPPORT])
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip std-options foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
-dnl {{{ Git revision
+dnl Git revision
 if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
 	GITHEAD=`git describe 2>/dev/null`
 	if test -z "${GITHEAD}" ; then
@@ -69,7 +69,6 @@ AC_ARG_WITH([git-head],
 	GITHEAD=`eval echo $GITHEAD`)
 AC_MSG_RESULT([$GITHEAD])
 AC_SUBST([GITHEAD])
-dnl }}}
 
 PINKTRACE_PC_VERSION="${VERSION_FULL}"
 PINKTRACE_PC_SLOT="${VERSION_MAJOR}.${VERSION_MINOR}${VERSION_SUFFIX}"
@@ -82,9 +81,8 @@ PINKTRACE_CFLAGS=
 PINKTRACE_PC_CFLAGS=
 PINKTRACE_PC_LIBS="-lpinktrace_${PINKTRACE_PC_SLOT}"
 PINKTRACE_EASY_PC_LIBS="-lpinktrace_easy_${PINKTRACE_PC_SLOT}"
-dnl }}}
 
-dnl {{{ Toolchain checks
+dnl Toolchain checks
 AC_PROG_CC_C99
 if test x"$ac_cv_prog_cc_c99" = x"no"; then
 	AC_MSG_ERROR([pinktrace requires a C compiler that supports ISO C99!])
@@ -92,13 +90,12 @@ fi
 AC_USE_SYSTEM_EXTENSIONS
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
-AC_PROG_LIBTOOL
 AC_PROG_EGREP
 AC_PROG_SED
 AC_PROG_LN_S
-dnl }}}
+LT_INIT
 
-dnl {{{ Check for supported operating system
+dnl Check for supported operating system
 SYSSRC_DEFAULT=/usr/src/sys
 AC_ARG_VAR([SYSSRC], [Path to the system sources for FreeBSD (default: $SYSSRC_DEFAULT)])
 AC_MSG_CHECKING([for supported operating system])
@@ -156,9 +153,8 @@ linux*)
 esac
 AM_CONDITIONAL([FREEBSD], test x"$opsys" = x"freebsd")
 AM_CONDITIONAL([LINUX], test x"$opsys" = x"linux")
-dnl }}}
 
-dnl {{{ Check for supported architecture
+dnl Check for supported architecture
 AC_MSG_CHECKING([for supported architecture])
 case "$host_cpu" in
 i[[3456]]86|pentium)
@@ -252,21 +248,18 @@ else
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbadca11"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_INVALID_SYSCALL=0xbadca11"
 fi
-dnl }}}
 
-dnl {{{ Check for types
+dnl Check for types
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-dnl }}}
 
-dnl {{{ Check for sizes
+dnl Check for sizes
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([long long])
 AC_CHECK_SIZEOF([pid_t])
-dnl }}}
 
-dnl {{{ Check headers
+dnl Check headers
 REQUIRED_HEADERS="sys/ptrace.h sys/types.h sys/wait.h netinet/in.h sys/un.h"
 if test x"$opsys" = x"linux" ; then
 	REQUIRED_HEADERS="${REQUIRED_HEADERS} linux/ptrace.h"
@@ -276,18 +269,15 @@ for header in $REQUIRED_HEADERS ; do
 					AC_MSG_ERROR([Required header $header not found!]))
 done
 AC_CHECK_HEADERS([machine/reg.h machine/psl.h sys/reg.h], [], [])
-dnl }}}
 
-dnl {{{ Check types
+dnl Check types
 AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,
 			   [#include <sys/ptrace.h>])
-dnl }}}
 
-dnl {{{ Check for gcc
+dnl Check for gcc
 AM_CONDITIONAL(GCC, test x"$GCC" = x"yes")
-dnl }}}
 
-dnl {{{ Check for IPV6 support
+dnl Check for IPV6 support
 AC_ARG_ENABLE([ipv6],
 			  [AS_HELP_STRING([--disable-ipv6],
 							  [disable IPV6 support])],
@@ -320,9 +310,8 @@ else
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_IPV6=0"
 fi
-dnl }}}
 
-dnl {{{ Check for Netlink support
+dnl Check for Netlink support
 AC_CHECK_HEADER([linux/netlink.h],
 				[AC_CHECK_TYPES([struct sockaddr_nl],
 								[WANT_NETLINK="yes"],
@@ -346,9 +335,8 @@ else
 	PINKTRACE_CFLAGS="${PINKTRACE_CFLAGS} -DPINKTRACE_HAVE_NETLINK=0"
 	PINKTRACE_PC_CFLAGS="${PINKTRACE_PC_CFLAGS} -DPINKTRACE_HAVE_NETLINK=0"
 fi
-dnl }}}
 
-dnl {{{ pinktrace-easy
+dnl pinktrace-easy
 AC_ARG_ENABLE([easy],
 			  [AS_HELP_STRING([--disable-easy],
 							  [Do not build pinktrace_easy library])],
@@ -397,32 +385,27 @@ dnl 	#elif test x"$opsys" = x"linux" ; then
 	fi
 fi
 AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"yes")
-dnl }}}
 
-dnl }}}
-dnl {{{ Extra CFLAGS
+dnl Extra CFLAGS
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
 for flag in $WANTED_CFLAGS ; do
 	AX_CHECK_COMPILER_FLAGS([$flag], [PINKTRACE_CFLAGS="$PINKTRACE_CFLAGS $flag"],)
 done
 AC_SUBST([PINKTRACE_CFLAGS])
-dnl }}}
 
-dnl {{{ pkg-config
+dnl pkg-config
 AC_SUBST([PINKTRACE_PC_CFLAGS])
 AC_SUBST([PINKTRACE_PC_LIBS])
 AC_SUBST([PINKTRACE_PC_VERSION])
 AC_SUBST([PINKTRACE_PC_SLOT])
 AC_SUBST([PINKTRACE_EASY_PC_LIBS])
-dnl }}}
 
-dnl {{{ Library checks
+dnl Library checks
 PKG_PROG_PKG_CONFIG([0.20.0])
 PKG_CHECK_MODULES([check], [check >= 0.9.4], [have_libcheck=yes], [have_libcheck=no])
 AM_CONDITIONAL([HAVE_LIBCHECK], test "x$have_libcheck" = "xyes")
-dnl }}}
 
-dnl {{{ Doxygen
+dnl Doxygen
 AC_MSG_CHECKING([whether to enable doxygen])
 AC_ARG_ENABLE([doxygen],
 			  AS_HELP_STRING([--enable-doxygen], [Enable 'make doxygen' (developer docs)]),
@@ -432,9 +415,8 @@ AC_ARG_ENABLE([doxygen],
 			   AC_CHECK_PROG(HAVE_DOXYGEN, [doxygen], [yes], [no])])
 AC_SUBST([HAVE_DOXYGEN])
 AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
-dnl }}}
 
-dnl {{{ Haskell interface
+dnl Haskell interface
 AC_ARG_VAR([CABAL], [Path to the cabal install tool])
 AC_MSG_CHECKING([whether to build the Haskell interface])
 AC_ARG_ENABLE([haskell],
@@ -450,9 +432,8 @@ if test x"$enable_haskell" = x"yes" ; then
 	fi
 fi
 AM_CONDITIONAL([ENABLE_HASKELL], test x"$enable_haskell" = x"yes")
-dnl }}}
 
-dnl {{{ Ruby interface
+dnl Ruby interface
 AC_ARG_VAR([RUBY], [Path to the Ruby interpreter])
 AC_MSG_CHECKING([whether to build the Ruby interface])
 AC_ARG_ENABLE([ruby],
@@ -545,9 +526,8 @@ if test x"$enable_ruby" = x"yes" ; then
 	AC_SUBST([PINKTRACE_RUBY_CFLAGS])
 fi
 AM_CONDITIONAL([ENABLE_RUBY], test x"$enable_ruby" = x"yes")
-dnl }}}
 
-dnl {{{ Ruby documentation
+dnl Ruby documentation
 AC_MSG_CHECKING([whether to build the Ruby documentation])
 AC_ARG_VAR([RDOC], [Path to rdoc documentation tool])
 AC_ARG_ENABLE([ruby-doc],
@@ -568,9 +548,8 @@ if test x"$enable_ruby_doc" = x"yes" ; then
 	fi
 fi
 AM_CONDITIONAL([ENABLE_RUBY_DOC], test x"$enable_ruby_doc" = x"yes")
-dnl }}}
 
-dnl {{{ Python interface
+dnl Python interface
 AC_ARG_VAR([PYTHON], [path to the Python interpreter])
 AC_MSG_CHECKING([whether to build the Python interface])
 AC_ARG_ENABLE([python],
@@ -622,9 +601,8 @@ if test x"$enable_python" = x"yes" ; then
 	AC_SUBST([PYTHON_HAVE_NETLINK])
 fi
 AM_CONDITIONAL([ENABLE_PYTHON], test x"$enable_python" = x"yes")
-dnl }}}
 
-dnl {{{ Python documentation
+dnl Python documentation
 AC_ARG_VAR([EPYDOC], [Path to the epydoc documentation tool])
 AC_MSG_CHECKING([whether to build the Python documentation])
 AC_ARG_ENABLE([python-doc],
@@ -645,9 +623,8 @@ if test x"$enable_python_doc" = x"yes" ; then
 	fi
 fi
 AM_CONDITIONAL([ENABLE_PYTHON_DOC], test x"$enable_python_doc" = x"yes")
-dnl }}}
 
-dnl {{{ Enable site copy/generation
+dnl Enable site copy/generation
 AC_MSG_CHECKING([whether site should be copied])
 AC_ARG_ENABLE([site-copy],
 			  AS_HELP_STRING([--enable-site-copy],
@@ -700,60 +677,58 @@ fi
 AM_CONDITIONAL([ENABLE_SITE], test x"$enable_site_copy" = x"yes" -o x"$enable_site_gen" = x"yes")
 AM_CONDITIONAL([ENABLE_SITE_COPY], test x"$enable_site_copy" = x"yes")
 AM_CONDITIONAL([ENABLE_SITE_GEN], test x"$enable_site_gen" = x"yes")
-dnl }}}
 
-dnl {{{ Built sources
+dnl Built sources
 GENERATED_FILE=misc/generated-file.txt
 AC_SUBST_FILE([GENERATED_FILE])
-dnl }}}
 
-dnl {{{ Output
-AC_OUTPUT(
-		  Makefile
-		  doc/_config.yml
-		  doc/Makefile
-		  doc/api/Makefile
-		  doc/api/c/Makefile
-		  doc/api/c/doxygen.conf
-		  doc/api/python/Makefile
-		  doc/api/ruby/Makefile
-		  doc/css/screen.css
-		  examples/Makefile
-		  examples/c/Makefile
-		  examples/haskell/Makefile
-		  examples/python/Makefile
-		  examples/ruby/Makefile
-		  haskell/Makefile
-		  haskell/System/Makefile
-		  haskell/System/PinkTrace/Makefile
-		  haskell/cbits/Makefile
-		  haskell/include/Makefile
-		  haskell/tests/Makefile
-		  haskell/tests/freebsd/Makefile
-		  haskell/tests/linux/Makefile
-		  haskell/System/PinkTrace.hs
-		  include/pinktrace/about.h
-		  include/pinktrace/bitness.h
-		  python/Makefile
-		  python/pinktrace/Makefile
-		  ruby/Makefile
-		  pkg-config/Makefile
-		  src/Makefile
-		  src/easy/Makefile
-		  src/freebsd/Makefile
-		  src/freebsd/amd64/Makefile
-		  src/linux/Makefile
-		  src/linux/x86/Makefile
-		  src/linux/x86_64/Makefile
-		  src/linux/ia64/Makefile
-		  src/linux/powerpc/Makefile
-		  src/linux/arm/Makefile
-		  tests/Makefile
-		  tests/easy/Makefile
-	)
-dnl }}}
+dnl Output
+AC_CONFIG_FILES([
+				 Makefile
+				 doc/_config.yml
+				 doc/Makefile
+				 doc/api/Makefile
+				 doc/api/c/Makefile
+				 doc/api/c/doxygen.conf
+				 doc/api/python/Makefile
+				 doc/api/ruby/Makefile
+				 doc/css/screen.css
+				 examples/Makefile
+				 examples/c/Makefile
+				 examples/haskell/Makefile
+				 examples/python/Makefile
+				 examples/ruby/Makefile
+				 haskell/Makefile
+				 haskell/System/Makefile
+				 haskell/System/PinkTrace/Makefile
+				 haskell/cbits/Makefile
+				 haskell/include/Makefile
+				 haskell/tests/Makefile
+				 haskell/tests/freebsd/Makefile
+				 haskell/tests/linux/Makefile
+				 haskell/System/PinkTrace.hs
+				 include/pinktrace/about.h
+				 include/pinktrace/bitness.h
+				 python/Makefile
+				 python/pinktrace/Makefile
+				 ruby/Makefile
+				 pkg-config/Makefile
+				 src/Makefile
+				 src/easy/Makefile
+				 src/freebsd/Makefile
+				 src/freebsd/amd64/Makefile
+				 src/linux/Makefile
+				 src/linux/x86/Makefile
+				 src/linux/x86_64/Makefile
+				 src/linux/ia64/Makefile
+				 src/linux/powerpc/Makefile
+				 src/linux/arm/Makefile
+				 tests/Makefile
+				 tests/easy/Makefile
+				 ])
+AC_OUTPUT
 
-dnl {{{ User message
+dnl User message
 echo
 echo "PinkTrace was configured successfully"
 echo "-----------------------------------------------------"
@@ -789,4 +764,3 @@ fi
 echo "Now run make (or gmake on FreeBSD) to build PinkTrace"
 echo "To build the Haskell bindings, use cabal after make"
 echo "-----------------------------------------------------"
-dnl }}}
