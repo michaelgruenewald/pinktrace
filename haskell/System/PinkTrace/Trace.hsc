@@ -349,4 +349,3 @@ traceDetach sig pid = do
     ret <- pink_trace_detach pid sig
     when (ret == 0) (throwErrno "pink_trace_detach")
 --}}}
--- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

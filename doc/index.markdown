@@ -298,5 +298,3 @@ fixes compilation on ARM due to missing header
 *Sun Oct 3 2010:*
 
 [Version 0.0.1]({{ site.uri }}release/pinktrace-0.0.1.tar.bz2) released
-
-<!-- vim: set tw=120 ft=markdown spell spelllang=en sw=4 sts=4 et : -->

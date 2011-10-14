@@ -162,4 +162,3 @@ encodeStringSafe index src bit pid
 encodeSafe _ _ _ _ = error "encodeStringSafe: not implemented"
 #endif
 --}}}
--- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

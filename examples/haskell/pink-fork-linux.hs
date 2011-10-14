@@ -1,5 +1,4 @@
 -- A simple example showing how to do tracing fork on Linux
--- vim: set ft=haskell et ts=4 sts=4 sw=4 fdm=marker :
 
 import Data.Maybe
 import Control.Monad

@@ -354,4 +354,3 @@ groupsOfNetlinkSocketAddress _ = error "groupsOfNetlinkSocketAddress: not implem
 #endif
 
 --}}}
--- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

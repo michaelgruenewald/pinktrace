@@ -1,4 +1,3 @@
-dnl vim: set sw=4 sts=4 ts=4 noet ft=config foldmethod=marker foldmarker={{{,}}} :
 dnl Based in part upon netmap-5.00
 
 AC_DEFUN([APR_CHECK_SOCKADDR_IN6],[

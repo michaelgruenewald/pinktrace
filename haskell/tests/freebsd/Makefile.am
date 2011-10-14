@@ -12,4 +12,3 @@ EXTRA_DIST= \
 	    test10TraceSystemCallExit.lhs \
 	    test11TraceSystemCallExitSignal.lhs \
 	    test12SystemCallGetNumber.lhs
-

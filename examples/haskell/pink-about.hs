@@ -1,5 +1,4 @@
 -- A simple example showing how to use PinkTrace version macros
--- vim: set ft=haskell et ts=4 sts=4 sw=4 fdm=marker :
 
 import System.PinkTrace
 

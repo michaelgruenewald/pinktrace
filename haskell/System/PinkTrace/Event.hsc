@@ -234,4 +234,3 @@ getAnyProcessStatus block stopped = getGroupProcessStatus block stopped 1
 getAnyProcessStatus _ _ = error "getAnyProcessStatus: not implemented"
 #endif
 --}}}
--- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

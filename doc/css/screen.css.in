@@ -187,5 +187,3 @@ div#menu p {
   line-height: 1.5;
   text-align: justify;
 }
-
-/* vim: set et ts=2 sts=2 sw=2 : */

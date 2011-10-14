@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 # coding: utf-8
-# vim: set sw=2 sts=2 et fenc=utf-8 :
 
 =begin
 An example demonstrating the tracing fork on FreeBSD

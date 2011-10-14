@@ -1,5 +1,3 @@
-/* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
-
 /*
  * Copyright (c) 2010, 2011 Ali Polatel <alip@exheribo.org>
  * Based in part upon truss which is:

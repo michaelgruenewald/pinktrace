@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 # coding: utf-8
-# vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
 
 ARGV.each do |example|
   unless File.readable? example
@@ -35,5 +34,4 @@ EOF
   IO.foreach(example) {|line| puts "\t#{line}"}
   puts
   puts '{% endhighlight %}'
-  puts '<!-- vim: set ro : -->'
 end

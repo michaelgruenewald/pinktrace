@@ -1,5 +1,3 @@
-/* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
-
 #define SYSCALL_OFFSET_IA64 1024
 	"ni_syscall", /* 1024 */
 	"exit", /* 1025 */

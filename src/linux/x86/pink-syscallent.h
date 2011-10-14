@@ -1,5 +1,3 @@
-/* vim: set cino= fo=croql sw=8 ts=8 sts=0 noet cin fdm=syntax : */
-
 	"restart_syscall", /* 0 */
 	"_exit", /* 1 */
 	"fork", /* 2 */

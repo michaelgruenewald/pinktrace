@@ -225,4 +225,3 @@ setSystemCallArgument index val bit pid
         index' :: CUInt
         index' = (fromIntegral . fromEnum) index
 --}}}
--- vim: set ft=chaskell et ts=4 sts=4 sw=4 fdm=marker :

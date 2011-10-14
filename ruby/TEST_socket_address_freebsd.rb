@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 # coding: utf-8
-# vim: set sw=2 sts=2 et nowrap fenc=utf-8 :
 
 require 'socket'
 require 'test/unit'
