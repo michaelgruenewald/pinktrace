@@ -17,10 +17,10 @@ title: Home
 * [News](#news)
 
 ## About
-**PinkTrace** is a *ptrace()* wrapper library.
+**pinktrace** is a *ptrace()* wrapper library.
 
 ## Overview
-**PinkTrace** is a lightweight [C99](http://en.wikipedia.org/wiki/C99) library that eases the writing of tracing
+**pinktrace** is a lightweight [C99](http://en.wikipedia.org/wiki/C99) library that eases the writing of tracing
 applications. It consists of the following parts:
 
 - Wrappers around different *ptrace()* requests.
@@ -28,9 +28,9 @@ applications. It consists of the following parts:
 - An **experimental** API for encoding arguments.
 - An initial implementation of a callback-driven higher-level library called pinktrace-easy.
 
-**PinkTrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
+**pinktrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
 
-[Pandora](http://github.com/alip/pandora) uses **PinkTrace-Easy**.
+[Pandora](http://github.com/alip/pandora) uses **pinktrace-Easy**.
 
 ## Current Status
 Version {{ site.version }} has an unstable [API](http://en.wikipedia.org/wiki/Api) and
@@ -60,7 +60,7 @@ configuring the source tree. Some notable options you may pass to `./configure` 
 * `--enable-ruby` Build [Ruby](http://ruby-lang.org/) bindings
 * `--enable-ruby-doc` Build API documentation of [Ruby](http://ruby-lang.org/) using [rdoc](http://rdoc.sourceforge.net/)
 
-After that you should run `make` for compilation and `make install` (as **root**) for installation of **PinkTrace**.
+After that you should run `make` for compilation and `make install` (as **root**) for installation of **pinktrace**.
 Optionally you may run `make check` to run the unit tests.
 
 ## Compiling C Code
@@ -100,7 +100,7 @@ There are examples how to use the various parts of the library.
             <a href="{{ site.uri }}rb-pink-about.html">about.rb</a>
             (<a href="{{ site.uri }}examples/ruby/pink-about.rb">raw</a>)
         </td>
-        <td>How to use PinkTrace version macros</td>
+        <td>How to use pinktrace version macros</td>
     </tr>
     <tr>
         <td>fork (FreeBSD)</td>

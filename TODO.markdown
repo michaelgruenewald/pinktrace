@@ -1,6 +1,6 @@
-## PinkTrace TODO list
+## pinktrace TODO list
 
-PinkTrace is a work in progress.  
+pinktrace is a work in progress.  
 To contribute start by searching the source tree for TODO and FIXME.
 In addition you may:
 
