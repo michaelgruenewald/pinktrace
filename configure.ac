@@ -270,18 +270,16 @@ done
 AC_CHECK_HEADERS([machine/reg.h machine/psl.h sys/reg.h], [], [])
 
 dnl Check types
-AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,
-			   [#include <sys/ptrace.h>])
+AC_CHECK_TYPES([struct pt_all_user_regs, struct ia64_fpreg],,,[#include <sys/ptrace.h>])
 
 dnl Check for gcc
 AM_CONDITIONAL(GCC, test x"$GCC" = x"yes")
 
 dnl Check for IPV6 support
 AC_ARG_ENABLE([ipv6],
-			  [AS_HELP_STRING([--disable-ipv6],
-							  [disable IPV6 support])],
-			  WANT_IPV6="$enableval",
-			  WANT_IPV6="yes")
+	      [AS_HELP_STRING([--disable-ipv6], [disable IPV6 support])],
+	      WANT_IPV6="$enableval",
+	      WANT_IPV6="yes")
 if test x"$WANT_IPV6" = x"yes" ; then
 	APR_CHECK_SOCKADDR_IN6
 	CHECK_AF_INET6_DEFINE
@@ -312,18 +310,17 @@ fi
 
 dnl Check for Netlink support
 AC_CHECK_HEADER([linux/netlink.h],
-				[AC_CHECK_TYPES([struct sockaddr_nl],
-								[WANT_NETLINK="yes"],
-								[WANT_NETLINK="no"],
-								[#include <stddef.h>
-								 #include <sys/socket.h>
-								 #include <asm/types.h>
-								 #include <linux/netlink.h>])],
+		[AC_CHECK_TYPES([struct sockaddr_nl],
+				[WANT_NETLINK="yes"],
 				[WANT_NETLINK="no"],
 				[#include <stddef.h>
 				 #include <sys/socket.h>
 				 #include <asm/types.h>
-				])
+				 #include <linux/netlink.h>])],
+		[WANT_NETLINK="no"],
+		[#include <stddef.h>
+		 #include <sys/socket.h>
+		 #include <asm/types.h>])
 AC_MSG_CHECKING([for Netlink support])
 AC_MSG_RESULT([$WANT_NETLINK])
 AM_CONDITIONAL(WANT_NETLINK, test x"$WANT_NETLINK" = x"yes")
@@ -337,10 +334,9 @@ fi
 
 dnl pinktrace-easy
 AC_ARG_ENABLE([easy],
-			  [AS_HELP_STRING([--disable-easy],
-							  [Do not build pinktrace_easy library])],
-			  [WANT_EASY="$enableval"],
-			  [WANT_EASY="yes"])
+	      [AS_HELP_STRING([--disable-easy], [Do not build pinktrace_easy library])],
+	      [WANT_EASY="$enableval"],
+	      [WANT_EASY="yes"])
 if test x"$WANT_EASY" = x"yes" ; then
 	AC_CHECK_HEADER([sys/queue.h], [], AC_MSG_ERROR([pinktrace_easy requires sys/queue.h]))
 	AC_CHECK_HEADER([alloca.h], [], AC_MSG_ERROR([pinktrace_easy requires alloca.h]))
@@ -387,7 +383,7 @@ AM_CONDITIONAL([WANT_EASY], test x"$WANT_EASY" = x"yes")
 
 dnl Extra CFLAGS
 WANTED_CFLAGS="-pedantic -Wall -W -Wextra -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wformat=2 -Wformat-security -Wformat-nonliteral -Winit-self -Winline -Wlogical-op -Wmissing-prototypes -Wmissing-declarations -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wredundant-decls -Wshadow -Wswitch-default -Wunused -Wvla"
-for flag in $WANTED_CFLAGS ; do
+for flag in $WANTED_CFLAGS; do
 	AX_CHECK_COMPILER_FLAGS([$flag], [PINKTRACE_CFLAGS="$PINKTRACE_CFLAGS $flag"],)
 done
 AC_SUBST([PINKTRACE_CFLAGS])
@@ -400,45 +396,28 @@ AC_SUBST([PINKTRACE_PC_SLOT])
 AC_SUBST([PINKTRACE_EASY_PC_LIBS])
 
 dnl Library checks
-PKG_PROG_PKG_CONFIG([0.20.0])
+PKG_PROG_PKG_CONFIG([0.9.0])
 PKG_CHECK_MODULES([check], [check >= 0.9.4], [have_libcheck=yes], [have_libcheck=no])
 AM_CONDITIONAL([HAVE_LIBCHECK], test "x$have_libcheck" = "xyes")
 
 dnl Doxygen
 AC_MSG_CHECKING([whether to enable doxygen])
 AC_ARG_ENABLE([doxygen],
-			  AS_HELP_STRING([--enable-doxygen], [Enable 'make doxygen' (developer docs)]),
-			  [HAVE_DOXYGEN=$enableval
-			   AC_MSG_RESULT([$enableval])],
-			  [AC_MSG_RESULT([autodetect])
-			   AC_CHECK_PROG(HAVE_DOXYGEN, [doxygen], [yes], [no])])
+	      AS_HELP_STRING([--enable-doxygen], [Enable 'make doxygen' (developer docs)]),
+	      [HAVE_DOXYGEN=$enableval
+	       AC_MSG_RESULT([$enableval])],
+	      [AC_MSG_RESULT([autodetect])
+	       AC_CHECK_PROG(HAVE_DOXYGEN, [doxygen], [yes], [no])])
 AC_SUBST([HAVE_DOXYGEN])
 AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
-
-dnl Haskell interface
-AC_ARG_VAR([CABAL], [Path to the cabal install tool])
-AC_MSG_CHECKING([whether to build the Haskell interface])
-AC_ARG_ENABLE([haskell],
-			  AS_HELP_STRING([--enable-haskell], [Enable Haskell interface (default: disable)]),
-			  enable_haskell="$enableval",
-			  enable_haskell=no)
-AC_MSG_RESULT([$enable_haskell])
-
-if test x"$enable_haskell" = x"yes" ; then
-	AC_PATH_PROG([CABAL], cabal)
-	if test x"$CABAL" = x ; then
-		AC_MSG_ERROR([Cabal is required for --enable-haskell])
-	fi
-fi
-AM_CONDITIONAL([ENABLE_HASKELL], test x"$enable_haskell" = x"yes")
 
 dnl Ruby interface
 AC_ARG_VAR([RUBY], [Path to the Ruby interpreter])
 AC_MSG_CHECKING([whether to build the Ruby interface])
 AC_ARG_ENABLE([ruby],
-			  AS_HELP_STRING([--enable-ruby], [Enable Ruby interface (default: disable)]),
-			  enable_ruby="$enableval",
-			  enable_ruby=no)
+	      AS_HELP_STRING([--enable-ruby], [Enable Ruby interface (default: disable)]),
+	      enable_ruby="$enableval",
+	      enable_ruby=no)
 AC_MSG_RESULT([$enable_ruby])
 
 if test x"$enable_ruby" = x"yes" ; then
@@ -472,9 +451,9 @@ if test x"$enable_ruby" = x"yes" ; then
 	AC_SUBST([RUBY_SONAME])
 
 	AC_ARG_WITH([ruby-install-dir],
-		AS_HELP_STRING([--with-ruby-install-dir=dir], [Specify Ruby installation dir]),
-		RUBY_INSTALL_DIR=`eval echo $withval`,
-		RUBY_INSTALL_DIR=)
+		    AS_HELP_STRING([--with-ruby-install-dir=dir], [Specify Ruby installation dir]),
+		    RUBY_INSTALL_DIR=`eval echo $withval`,
+		    RUBY_INSTALL_DIR=)
 	AC_MSG_CHECKING([for Ruby installation dir])
 	if test x"$RUBY_INSTALL_DIR" = x ; then
 		RUBY_INSTALL_DIR="$RUBY_SITEARCHDIR"
@@ -530,10 +509,10 @@ dnl Ruby documentation
 AC_MSG_CHECKING([whether to build the Ruby documentation])
 AC_ARG_VAR([RDOC], [Path to rdoc documentation tool])
 AC_ARG_ENABLE([ruby-doc],
-			  AS_HELP_STRING([--enable-ruby-doc],
-							 [Enable Ruby documentation, requires --enable-ruby (default: disable)]),
-			  enable_ruby_doc="$enableval",
-			  enable_ruby_doc=no)
+	      AS_HELP_STRING([--enable-ruby-doc],
+			     [Enable Ruby documentation, requires --enable-ruby (default: disable)]),
+	      enable_ruby_doc="$enableval",
+	      enable_ruby_doc=no)
 AC_MSG_RESULT([$enable_ruby_doc])
 
 if test x"$enable_ruby_doc" = x"yes" && test x"$enable_ruby" = x"no"; then
@@ -552,9 +531,9 @@ dnl Python interface
 AC_ARG_VAR([PYTHON], [path to the Python interpreter])
 AC_MSG_CHECKING([whether to build the Python interface])
 AC_ARG_ENABLE([python],
-			  AS_HELP_STRING([--enable-python], [Enable Python interface (default: disable)]),
-			  enable_python="$enableval",
-			  enable_python=no)
+	      AS_HELP_STRING([--enable-python], [Enable Python interface (default: disable)]),
+	      enable_python="$enableval",
+	      enable_python=no)
 AC_MSG_RESULT([$enable_python])
 
 if test x"$enable_python" = x"yes" ; then
@@ -605,10 +584,10 @@ dnl Python documentation
 AC_ARG_VAR([EPYDOC], [Path to the epydoc documentation tool])
 AC_MSG_CHECKING([whether to build the Python documentation])
 AC_ARG_ENABLE([python-doc],
-			  AS_HELP_STRING([--enable-python-doc],
-							 [Enable Python documentation, requires --enable-python (default: disable)]),
-			  enable_python_doc="$enableval",
-			  enable_python_doc=no)
+	      AS_HELP_STRING([--enable-python-doc],
+			     [Enable Python documentation, requires --enable-python (default: disable)]),
+	      enable_python_doc="$enableval",
+	      enable_python_doc=no)
 AC_MSG_RESULT([$enable_python_doc])
 
 if test x"$enable_python_doc" = x"yes" && test x"$enable_python" = x"no"; then
@@ -626,18 +605,16 @@ AM_CONDITIONAL([ENABLE_PYTHON_DOC], test x"$enable_python_doc" = x"yes")
 dnl Enable site copy/generation
 AC_MSG_CHECKING([whether site should be copied])
 AC_ARG_ENABLE([site-copy],
-			  AS_HELP_STRING([--enable-site-copy],
-							 [Enable site copy (default: disable)]),
-			  enable_site_copy="$enableval",
-			  enable_site_copy=no)
+	      AS_HELP_STRING([--enable-site-copy], [Enable site copy (default: disable)]),
+	      enable_site_copy="$enableval",
+	      enable_site_copy=no)
 AC_MSG_RESULT([$enable_site_copy])
 
 AC_MSG_CHECKING([whether site should be generated])
 AC_ARG_ENABLE([site-gen],
-			  AS_HELP_STRING([--enable-site-gen],
-							 [Enable site generation (default: disable)]),
-			  enable_site_gen="$enableval",
-			  enable_site_gen=no)
+	      AS_HELP_STRING([--enable-site-gen], [Enable site generation (default: disable)]),
+	      enable_site_gen="$enableval",
+	      enable_site_gen=no)
 AC_MSG_RESULT([$enable_site_gen])
 
 if test x"$enable_site_copy" = x"yes" -a x"$enable_site_gen" = x"yes"; then
@@ -663,10 +640,9 @@ fi
 if test x"$enable_site_copy" = x"yes" -o x"$enable_site_gen" = x"yes"; then
 	AC_MSG_CHECKING([for site install directory])
 	AC_ARG_WITH([site-install-dir],
-				AS_HELP_STRING([--with-site-install-dir=dir],
-							   [Specify site installation directory]),
-				SITE_INSTALL_DIR=`eval echo $withval`,
-				SITE_INSTALL_DIR=)
+		    AS_HELP_STRING([--with-site-install-dir=dir], [Specify site installation directory]),
+		    SITE_INSTALL_DIR=`eval echo $withval`,
+		    SITE_INSTALL_DIR=)
 	if test x"$SITE_INSTALL_DIR" = x; then
 		AC_MSG_ERROR([Site install directory not specified])
 	fi
@@ -683,83 +659,70 @@ AC_SUBST_FILE([GENERATED_FILE])
 
 dnl Output
 AC_CONFIG_FILES([
-				 Makefile
-				 doc/_config.yml
-				 doc/Makefile
-				 doc/api/Makefile
-				 doc/api/c/Makefile
-				 doc/api/c/doxygen.conf
-				 doc/api/python/Makefile
-				 doc/api/ruby/Makefile
-				 doc/css/screen.css
-				 examples/Makefile
-				 examples/c/Makefile
-				 examples/haskell/Makefile
-				 examples/python/Makefile
-				 examples/ruby/Makefile
-				 haskell/Makefile
-				 haskell/System/Makefile
-				 haskell/System/PinkTrace/Makefile
-				 haskell/cbits/Makefile
-				 haskell/include/Makefile
-				 haskell/tests/Makefile
-				 haskell/tests/freebsd/Makefile
-				 haskell/tests/linux/Makefile
-				 haskell/System/PinkTrace.hs
-				 include/pinktrace/about.h
-				 include/pinktrace/bitness.h
-				 python/Makefile
-				 python/pinktrace/Makefile
-				 ruby/Makefile
-				 pkg-config/Makefile
-				 src/Makefile
-				 src/easy/Makefile
-				 src/freebsd/Makefile
-				 src/freebsd/amd64/Makefile
-				 src/linux/Makefile
-				 src/linux/x86/Makefile
-				 src/linux/x86_64/Makefile
-				 src/linux/ia64/Makefile
-				 src/linux/powerpc/Makefile
-				 src/linux/arm/Makefile
-				 tests/Makefile
-				 tests/easy/Makefile
-				 ])
+		 Makefile
+		 doc/_config.yml
+		 doc/Makefile
+		 doc/api/Makefile
+		 doc/api/c/Makefile
+		 doc/api/c/doxygen.conf
+		 doc/api/python/Makefile
+		 doc/api/ruby/Makefile
+		 doc/css/screen.css
+		 examples/Makefile
+		 examples/c/Makefile
+		 examples/python/Makefile
+		 examples/ruby/Makefile
+		 include/pinktrace/about.h
+		 include/pinktrace/bitness.h
+		 python/Makefile
+		 python/pinktrace/Makefile
+		 ruby/Makefile
+		 pkg-config/Makefile
+		 src/Makefile
+		 src/easy/Makefile
+		 src/freebsd/Makefile
+		 src/freebsd/amd64/Makefile
+		 src/linux/Makefile
+		 src/linux/x86/Makefile
+		 src/linux/x86_64/Makefile
+		 src/linux/ia64/Makefile
+		 src/linux/powerpc/Makefile
+		 src/linux/arm/Makefile
+		 tests/Makefile
+		 tests/easy/Makefile])
 AC_OUTPUT
 
 dnl User message
 echo
-echo "PinkTrace was configured successfully"
+echo "pinktrace was configured successfully!"
 echo "-----------------------------------------------------"
-echo "Version: ${VERSION_FULL}"
-echo "Slot: ${PINKTRACE_PC_SLOT}"
-if test x"$enable_doxygen" = x"yes" ; then
-	echo "API documentation: Enabled"
-else
-	echo "API documentation: Disabled"
-fi
-if test x"$enable_python" = x"yes" ; then
-	echo "Python bindings: Enabled (using ${PYTHON})"
-	echo "Python install directory: ${PYTHON_INSTALL_DIR}"
-	if test x"$enable_python_doc" = x"yes" ; then
-		echo "Python API documentation: Enabled (using ${EPYDOC})"
-	else
-		echo "Python documentation: Disabled"
-	fi
-else
-	echo "Python bindings: Disabled"
-fi
-if test x"$enable_ruby" = x"yes" ; then
-	echo "Ruby bindings: Enabled (using ${RUBY})"
-	echo "Ruby install directory: ${RUBY_INSTALL_DIR}"
-	if test x"$enable_ruby_doc" = x"yes" ; then
-		echo "Ruby API documentation: Enabled (using ${RDOC})"
-	else
-		echo "Ruby API documentation: Disabled"
-	fi
-else
-	echo "Ruby bindings: Disabled"
-fi
-echo "Now run make (or gmake on FreeBSD) to build PinkTrace"
-echo "To build the Haskell bindings, use cabal after make"
+echo "version:                   ${VERSION_FULL}"
+echo "slot:                      ${PINKTRACE_PC_SLOT}"
+echo "opsys:                     ${opsys}"
+echo "arch:                      ${arch}"
+echo "supported bitness count:   ${PINKTRACE_BITNESS_COUNT_SUPPORTED}"
+echo "default bitness:           ${PINKTRACE_BITNESS_DEFAULT}"
+echo "ipv6 support:              ${WANT_IPV6}"
+echo "netlink support:           ${WANT_NETLINK}"
+echo "pinktrace-easy:            ${WANT_EASY}"
+echo "libcheck:                  ${have_libcheck}"
+echo "doxygen:                   ${HAVE_DOXYGEN}"
+echo "python bindings:           ${enable_python}"
+echo "python install directory:  ${PYTHON_INSTALL_DIR}"
+echo "python api documentation:  ${enable_python_doc}"
+echo "ruby bindings:             ${enable_ruby}"
+echo "ruby install directory:    ${RUBY_INSTALL_DIR}"
+echo "ruby api documentation:    ${enable_ruby_doc}"
+echo "site copy:                 ${enable_site_copy}"
+echo "site generation:           ${enable_site_gen}"
+echo "executables:"
+echo "  doxygen:                 doxygen"
+echo "  python:                  ${PYTHON}"
+echo "  epydoc:                  ${EPYDOC}"
+echo "  ruby:                    ${RUBY}"
+echo "  rdoc:                    ${RDOC}"
+echo "  rsync:                   ${RSYNC}"
+echo "  jekyll:                  ${JEKYLL}"
+echo "-----------------------------------------------------"
+echo "Now run make (or gmake on FreeBSD) to build pinktrace"
 echo "-----------------------------------------------------"

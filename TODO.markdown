@@ -21,7 +21,6 @@ Currently we have bindings for:
 
 - [Python](http://www.python.org/): stable, in master
 - [Ruby](http://www.ruby-lang.org/): stable, in master
-- [Haskell](http://www.haskell.org/): unstable, in master
 
 ### /proc & ioctl() based tracing
 Right now, pinktrace is just a **ptrace()** wrapper library.  

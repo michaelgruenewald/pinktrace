@@ -1,8 +1,7 @@
-SUBDIRS= c haskell python ruby .
+SUBDIRS= c python ruby .
 
 site:
 	$(MAKE) -C c $@
-	$(MAKE) -C haskell $@
 	$(MAKE) -C python $@
 	$(MAKE) -C ruby $@
 

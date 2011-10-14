@@ -42,7 +42,6 @@ An extensive API reference is [available]({{ site.uri }}api/c).
 ## Bindings
 Bindings are available for:
 
-- [Haskell]({{ site.uri }}api/haskell)
 - [Ruby]({{ site.uri }}api/ruby)
 - [Python]({{ site.uri }}api/python)
 
@@ -55,7 +54,6 @@ configuring the source tree. Some notable options you may pass to `./configure` 
 * `--enable-easy` Build pinktrace-easy (default)
 * `--enable-ipv6` Enable support for [IPV6](http://en.wikipedia.org/wiki/Ipv6)
 * `--enable-doxygen` Build API documentation using [Doxygen](http://www.doxygen.org/)
-* `--enable-haskell` Checks for cabal and generates *Setup.lhs*
 * `--enable-python` Build [Python](http://www.python.org/) bindings
 * `--enable-python-doc` Build API documentation of [Python](http://www.python.org/) using
   [epydoc](http://epydoc.sourceforge.net/)
@@ -64,18 +62,6 @@ configuring the source tree. Some notable options you may pass to `./configure` 
 
 After that you should run `make` for compilation and `make install` (as **root**) for installation of **PinkTrace**.
 Optionally you may run `make check` to run the unit tests.
-
-As an exception, you should use [Cabal](http://www.haskell.org/cabal/) to build
-[Haskell](http://www.haskell.org/haskellwiki/Haskell) bindings. After running `make` to build **PinkTrace** use
-`cabal configure` to configure [Haskell](http://www.haskell.org/haskellwiki/Haskell) bindings. Some notable flags you
-may pass to `cabal configure` are:
-
-* `-fexample` Build example programs
-* `-ftest` Build test programs
-
-After that run `cabal build` for compilation and `cabal install` (as **root**) for installation of
-[Haskell](http://www.haskell.org/haskellwiki/Haskell) bindings. Optionally you may run `cabal test` to run the unit
-tests.
 
 ## Compiling C Code
 You will need to specify various compiler flags when compiling C code. The
@@ -96,7 +82,6 @@ There are examples how to use the various parts of the library.
     <tr>
         <th>Example</th>
         <th>C</th>
-        <th>Haskell</th>
         <th>Python</th>
         <th>Ruby</th>
         <th>Description</th>
@@ -106,10 +91,6 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.uri }}c-pink-about.html">about.c</a>
             (<a href="{{ site.uri }}examples/c/pink-about.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.uri }}hs-pink-about.html">about.hs</a>
-            (<a href="{{ site.uri }}examples/haskell/pink-about.hs">raw</a>)
         </td>
         <td>
             <a href="{{ site.uri }}py-pink-about.html">about.py</a>
@@ -128,10 +109,6 @@ There are examples how to use the various parts of the library.
             (<a href="{{ site.uri }}examples/c/pink-fork-freebsd.c">raw</a>)
         </td>
         <td>
-            <a href="{{ site.uri }}hs-pink-fork-freebsd.html">fork-freebsd.hs</a>
-            (<a href="{{ site.uri }}examples/haskell/pink-fork-freebsd.hs">raw</a>)
-        </td>
-        <td>
             <a href="{{ site.uri }}py-pink-fork-freebsd.html">fork-freebsd.py</a>
             (<a href="{{ site.uri }}examples/python/pink-fork-freebsd.py">raw</a>)
         </td>
@@ -146,10 +123,6 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.uri }}c-pink-fork-linux.html">fork-linux.c</a>
             (<a href="{{ site.uri }}examples/c/pink-fork-linux.c">raw</a>)
-        </td>
-        <td>
-            <a href="{{ site.uri }}hs-pink-fork-linux.html">fork-linux.hs</a>
-            (<a href="{{ site.uri }}examples/haskell/pink-fork-linux.hs">raw</a>)
         </td>
         <td>
             <a href="{{ site.uri }}py-pink-fork-linux.html">fork-linux.py</a>
@@ -168,9 +141,6 @@ There are examples how to use the various parts of the library.
             (<a href="{{ site.uri }}examples/c/pink-simple-strace-freebsd.c">raw</a>)
         </td>
         <td>
-            simple-strace-freebsd.hs (TODO)
-        </td>
-        <td>
             <a href="{{ site.uri }}py-pink-simple-strace-freebsd.html">simple-strace-freebsd.py</a>
             (<a href="{{ site.uri }}examples/python/pink-simple-strace-freebsd.py">raw</a>)
         </td>
@@ -185,9 +155,6 @@ There are examples how to use the various parts of the library.
         <td>
             <a href="{{ site.uri }}c-pink-simple-strace-linux.html">simple-strace-linux.c</a>
             (<a href="{{ site.uri }}examples/c/pink-simple-strace-linux.c">raw</a>)
-        </td>
-        <td>
-            simple-strace-linux.hs (TODO)
         </td>
         <td>
             <a href="{{ site.uri }}py-pink-simple-strace-linux.html">simple-strace-linux.py</a>

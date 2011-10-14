@@ -4,7 +4,7 @@ MAINTAINERCLEANFILES= Makefile.in configure aclocal.m4 \
 ACLOCAL_AMFLAGS= -I m4
 AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
 EXTRA_DIST= autogen.sh haddock.sh COPYRIGHT misc/generated-file.txt
-SUBDIRS= src tests haskell python ruby doc pkg-config examples
+SUBDIRS= src tests python ruby doc pkg-config examples
 
 doc_DATA= \
 	  README.markdown \
@@ -48,24 +48,6 @@ endif # WANT_EASY
 
 EXTRA_DIST+= include/pinktrace/about.h.in include/pinktrace/bitness.h.in
 noinst_HEADERS= include/pinktrace/internal.h
-
-EXTRA_DIST+= pinktrace.cabal.in Setup.lhs.in
-noinst_DATA= pinktrace.cabal Setup.lhs
-pinktrace.cabal: pinktrace.cabal.in Makefile
-	$(AM_V_GEN)
-	$(AM_V_at)$(SED) \
-		-e "s|#VERSION#|$(VERSION)|" \
-		-e "s|#PINKTRACE_CFLAGS#|$(PINKTRACE_CFLAGS)|" \
-		-e "s|#PINKTRACE_PC_SLOT#|$(PINKTRACE_PC_SLOT)|" \
-		-e "s|#TOP_BUILDDIR#|$(top_builddir)|" \
-		-e "s|#TOP_SRCDIR#|$(top_srcdir)|" \
-		< $(srcdir)/pinktrace.cabal.in > pinktrace.cabal
-Setup.lhs: Setup.lhs.in
-	$(AM_V_GEN)
-	$(AM_V_at)$(SED) \
-		-e "s|#TOP_BUILDDIR#|$(top_builddir)|" \
-		< $(srcdir)/Setup.lhs.in > Setup.lhs
-	$(AM_V_at)chmod +x Setup.lhs
 
 checksum: dist
 	@echo "SHA1 $(PACKAGE)-$(VERSION).tar.bz2"

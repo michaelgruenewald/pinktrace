@@ -35,10 +35,6 @@ c-%.html: $(top_srcdir)/examples/c/%.c
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
 
-hs-%.html: $(top_srcdir)/examples/haskell/%.hs
-	$(AM_V_GEN)
-	$(AM_V_at)_scripts/examples.rb $< > $@
-
 py-%.html: $(top_srcdir)/examples/python/%.py
 	$(AM_V_GEN)
 	$(AM_V_at)_scripts/examples.rb $< > $@
