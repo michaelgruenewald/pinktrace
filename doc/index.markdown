@@ -30,8 +30,6 @@ applications. It consists of the following parts:
 
 **pinktrace** is currently used by [sydbox](http://git.exherbo.org/?p=sydbox.git;a=summary).
 
-[Pandora](http://github.com/alip/pandora) uses **pinktrace-Easy**.
-
 ## Current Status
 Version {{ site.version }} has an unstable [API](http://en.wikipedia.org/wiki/Api) and
 [ABI](http://en.wikipedia.org/wiki/Application_binary_interface).
