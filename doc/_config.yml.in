@@ -10,11 +10,11 @@ exclude: [ api, Makefile, Makefile.am, Makefile.in, css/screen.css.in ]
 # Custom variables
 author: "Ali Polatel"
 mail: "alip@exherbo.org"
+uri: "http://alip.github.com/pinktrace/"
+uri_scm: "git://github.com/alip/pinktrace.git"
+uri_scm_view: "http://github.com/alip/pinktrace/"
+uri_support: "http://github.com/alip/pinktrace/issues/"
 
 # Let autoconf fill the rest in
 version: "@VERSION@"
 title: "@PACKAGE@-@VERSION@"
-uri: "@SITE_URI_HOME@"
-uri_scm: "@SITE_URI_SCM@"
-uri_scm_view: "@SITE_URI_SCM_VIEW@"
-uri_support: "@SITE_URI_SUPPORT@"

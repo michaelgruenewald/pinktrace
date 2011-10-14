@@ -36,16 +36,6 @@ AC_SUBST([VERSION_SUFFIX])
 AC_SUBST([VERSION_LIB_CURRENT])
 AC_SUBST([VERSION_LIB_REVISION])
 
-SITE_URI_HOME="http://alip.github.com/pinktrace/"
-SITE_URI_SCM="git://github.com/alip/pinktrace.git"
-SITE_URI_SCM_VIEW="http://github.com/alip/pinktrace/"
-SITE_URI_SUPPORT="http://github.com/alip/pinktrace/issues/"
-
-AC_SUBST([SITE_URI_HOME])
-AC_SUBST([SITE_URI_SCM])
-AC_SUBST([SITE_URI_SCM_VIEW])
-AC_SUBST([SITE_URI_SUPPORT])
-
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip std-options foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
