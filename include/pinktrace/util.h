@@ -384,6 +384,36 @@ pink_util_get_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long *res) PI
 bool
 pink_util_set_arg(pid_t pid, pink_bitness_t bitness, unsigned ind, long arg);
 
+/**
+ * Get the value of the register with the given index
+ *
+ * \ingroup g_util
+ *
+ * \param pid Process PID of the child whose register is to be read.
+ * \param ind The index of the register
+ * \param res Pointer to store the value
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ */
+bool
+pink_util_get_reg(pid_t pid, unsigned ind, unsigned long *res);
+
+/**
+ * Set the register with the given index to the given value
+ *
+ * \ingroup g_util
+ *
+ * \param pid Process PID of the child whose register is to be read.
+ * \param ind The index of the register
+ * \param arg The value to be set
+ *
+ * \return true on success, false on failure and sets errno accordingly.
+ */
+bool
+pink_util_set_reg(pid_t pid, unsigned ind, unsigned long arg);
+
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

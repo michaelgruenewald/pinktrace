@@ -37,6 +37,7 @@
 
 #include <stdbool.h>
 #include <sys/types.h>
+#include <sys/user.h>
 
 #if defined(PINKTRACE_LINUX) || defined(DOXYGEN)
 /**
