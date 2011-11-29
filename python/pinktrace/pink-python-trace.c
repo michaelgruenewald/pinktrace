@@ -481,9 +481,59 @@ pinkpy_trace_set_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, PARSE_PID"IK", &pid, &idx, &value))
 		return NULL;
 
-	if(!pink_util_set_reg(pid, idx, value))
+	if (!pink_util_set_reg(pid, idx, value))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
+	return Py_BuildValue("");
+}
+
+static char pinkpy_trace_get_mem_doc[] = ""
+	"Read bytes from the traced child's address space.\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param addr: Address of the bytes to read.\n"
+	"@param len: Number of bytes to read.\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@return: Bytes from the traced child.\n";
+static PyObject *
+pinkpy_trace_get_mem(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	long addr;
+	size_t len;
+	PyObject *result;
+	
+	if (!PyArg_ParseTuple(args, PARSE_PID"ll", &pid, &addr, &len))
+		return NULL;
+	
+	result = PyString_FromStringAndSize(NULL, len);
+	
+	if (!pink_util_moven(pid, addr, PyString_AsString(result), len))
+		return PyErr_SetFromErrno(PyExc_OSError);
+	
+	return result;
+}
+
+static char pinkpy_trace_set_mem_doc[] = ""
+	"Write bytes to the traced child's address space.\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param addr: Address to write.\n"
+	"@param src: Bytes to be written.\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@rtype: None\n";
+static PyObject *
+pinkpy_trace_set_mem(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	long addr;
+	char *src;
+	size_t len;
+	
+	if (!PyArg_ParseTuple(args, PARSE_PID"ls#", &pid, &addr, &src, &len))
+		return NULL;
+	
+	if (!pink_util_putn(pid, addr, src, len))
+		return PyErr_SetFromErrno(PyExc_OSError);
+	
 	return Py_BuildValue("");
 }
 
@@ -524,6 +574,8 @@ static PyMethodDef trace_methods[] = {
 	{"detach", pinkpy_trace_detach, METH_VARARGS, pinkpy_trace_detach_doc},
 	{"get_reg", pinkpy_trace_get_reg, METH_VARARGS, pinkpy_trace_get_reg_doc},
 	{"set_reg", pinkpy_trace_set_reg, METH_VARARGS, pinkpy_trace_set_reg_doc},
+	{"get_mem", pinkpy_trace_get_mem, METH_VARARGS, pinkpy_trace_get_mem_doc},
+	{"set_mem", pinkpy_trace_set_mem, METH_VARARGS, pinkpy_trace_set_mem_doc},
 	{NULL, NULL, 0, NULL},
 };
 
