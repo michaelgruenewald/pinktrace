@@ -120,6 +120,8 @@ pink_util_putn(pid_t pid, long addr, const char *src, size_t len)
 
 	m = len % sizeof(long);
 	if (m) {
+		if (PINK_GCC_UNLIKELY(!pink_util_peekdata(pid, addr + n * ADDR_MUL, &u.val)))
+			return false;
 		memcpy(u.x, src, m);
 		if (PINK_GCC_UNLIKELY(!pink_util_pokedata(pid, addr + n * ADDR_MUL, u.val)))
 			return false;
