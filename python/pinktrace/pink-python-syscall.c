@@ -149,52 +149,6 @@ pinkpy_syscall_set_no(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 	return Py_BuildValue("");
 }
 
-static char pinkpy_syscall_get_reg_doc[] = ""
-	"Returns the value of the register in the traced child.\n"
-	"@param pid: Process ID of the traced child\n"
-	"@param regnum: Number of the register\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
-	"@rtype: long\n"
-	"@return: The register value";
-static PyObject *
-pinkpy_syscall_get_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
-{
-	pid_t pid;
-	unsigned int idx;
-	unsigned long value;
-
-	if (!PyArg_ParseTuple(args, PARSE_PID"I", &pid, &idx))
-		return NULL;
-
-	if (!pink_util_get_reg(pid, idx, &value))
-		return PyErr_SetFromErrno(PyExc_OSError);
-
-	return Py_BuildValue("K", value);
-}
-
-static char pinkpy_syscall_set_reg_doc[] = ""
-	"Sets the value of the register in the traced child.\n"
-	"@param pid: Process ID of the traced child\n"
-	"@param regnum: Number of the register\n"
-	"@param value: The register value\n"
-	"@raise OSError: Raised when the underlying ptrace call fails.\n"
-	"@rtype: None\n";
-static PyObject *
-pinkpy_syscall_set_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
-{
-	pid_t pid;
-	unsigned int idx;
-	unsigned long value;
-
-	if (!PyArg_ParseTuple(args, PARSE_PID"IK", &pid, &idx, &value))
-		return NULL;
-
-	if(!pink_util_set_reg(pid, idx, value))
-		return PyErr_SetFromErrno(PyExc_OSError);
-
-	return Py_BuildValue("");
-}
-
 static char pinkpy_syscall_get_ret_doc[] = ""
 	"Returns the return value of the last system call called by the traced child.\n"
 	"\n"
@@ -317,8 +271,6 @@ static PyMethodDef syscall_methods[] = {
 	{"lookup", pinkpy_syscall_lookup, METH_VARARGS, pinkpy_syscall_lookup_doc},
 	{"get_no", pinkpy_syscall_get_no, METH_VARARGS, pinkpy_syscall_get_no_doc},
 	{"set_no", pinkpy_syscall_set_no, METH_VARARGS, pinkpy_syscall_set_no_doc},
-	{"get_reg", pinkpy_syscall_get_reg, METH_VARARGS, pinkpy_syscall_get_reg_doc},
-	{"set_reg", pinkpy_syscall_set_reg, METH_VARARGS, pinkpy_syscall_set_reg_doc},
 	{"get_ret", pinkpy_syscall_get_ret, METH_VARARGS, pinkpy_syscall_get_ret_doc},
 	{"set_ret", pinkpy_syscall_set_ret, METH_VARARGS, pinkpy_syscall_set_ret_doc},
 	{"get_arg", pinkpy_syscall_get_arg, METH_VARARGS, pinkpy_syscall_get_arg_doc},

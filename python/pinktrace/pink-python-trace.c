@@ -441,6 +441,52 @@ pinkpy_trace_detach(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 	return Py_BuildValue("");
 }
 
+static char pinkpy_trace_get_reg_doc[] = ""
+	"Returns the value of the register in the traced child.\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param regnum: Number of the register\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@rtype: long\n"
+	"@return: The register value";
+static PyObject *
+pinkpy_trace_get_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	unsigned int idx;
+	unsigned long value;
+
+	if (!PyArg_ParseTuple(args, PARSE_PID"I", &pid, &idx))
+		return NULL;
+
+	if (!pink_util_get_reg(pid, idx, &value))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("K", value);
+}
+
+static char pinkpy_trace_set_reg_doc[] = ""
+	"Sets the value of the register in the traced child.\n"
+	"@param pid: Process ID of the traced child\n"
+	"@param regnum: Number of the register\n"
+	"@param value: The register value\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@rtype: None\n";
+static PyObject *
+pinkpy_trace_set_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	unsigned int idx;
+	unsigned long value;
+
+	if (!PyArg_ParseTuple(args, PARSE_PID"IK", &pid, &idx, &value))
+		return NULL;
+
+	if(!pink_util_set_reg(pid, idx, value))
+		return PyErr_SetFromErrno(PyExc_OSError);
+
+	return Py_BuildValue("");
+}
+
 static void
 trace_init(
 #if !defined(PINKTRACE_LINUX)
@@ -476,6 +522,8 @@ static PyMethodDef trace_methods[] = {
 	{"setup", pinkpy_trace_setup, METH_VARARGS, pinkpy_trace_setup_doc},
 	{"attach", pinkpy_trace_attach, METH_VARARGS, pinkpy_trace_attach_doc},
 	{"detach", pinkpy_trace_detach, METH_VARARGS, pinkpy_trace_detach_doc},
+	{"get_reg", pinkpy_trace_get_reg, METH_VARARGS, pinkpy_trace_get_reg_doc},
+	{"set_reg", pinkpy_trace_set_reg, METH_VARARGS, pinkpy_trace_set_reg_doc},
 	{NULL, NULL, 0, NULL},
 };
 
