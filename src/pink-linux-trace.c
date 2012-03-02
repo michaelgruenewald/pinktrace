@@ -135,34 +135,3 @@ pink_trace_detach(pid_t pid, int sig)
 {
 	return !(0 > ptrace(PTRACE_DETACH, pid, NULL, sig));
 }
-
-bool
-pink_util_get_reg(pid_t pid, unsigned ind, unsigned long *res)
-{
-	struct user_regs_struct regs;
-
-	assert(ind*sizeof(unsigned long)<sizeof(regs));
-
-	if(!pink_util_get_regs(pid, &regs)) {
-		return 0;
-	}
-	*res = ((unsigned long*)&regs)[ind];
-	return 1;
-}
-
-bool
-pink_util_set_reg(pid_t pid, unsigned ind, unsigned long arg)
-{
-	struct user_regs_struct regs;
-
-	assert(ind*sizeof(unsigned long)<sizeof(regs));
-
-	if(!pink_util_get_regs(pid, &regs)) {
-		return 0;
-	}
-	((unsigned long*)&regs)[ind] = arg;
-	if(!pink_util_set_regs(pid, &regs)) {
-		return 0;
-	}
-	return 1;
-}

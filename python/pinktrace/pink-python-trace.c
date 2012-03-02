@@ -453,12 +453,12 @@ pinkpy_trace_get_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned int idx;
-	unsigned long value;
+	long value;
 
 	if (!PyArg_ParseTuple(args, PARSE_PID"I", &pid, &idx))
 		return NULL;
 
-	if (!pink_util_get_reg(pid, idx, &value))
+	if (!pink_util_peek(pid, idx * sizeof value, &value))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("K", value);
@@ -476,12 +476,12 @@ pinkpy_trace_set_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 {
 	pid_t pid;
 	unsigned int idx;
-	unsigned long value;
+	long value;
 
 	if (!PyArg_ParseTuple(args, PARSE_PID"IK", &pid, &idx, &value))
 		return NULL;
 
-	if (!pink_util_set_reg(pid, idx, value))
+	if (!pink_util_poke(pid, idx * sizeof value, value))
 		return PyErr_SetFromErrno(PyExc_OSError);
 
 	return Py_BuildValue("");
