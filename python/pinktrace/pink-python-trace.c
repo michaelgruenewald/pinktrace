@@ -487,6 +487,34 @@ pinkpy_trace_set_reg(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
 	return Py_BuildValue("");
 }
 
+static char pinkpy_trace_get_all_regs_doc[] = ""
+	"Returns the value of all registers in the traced child.\n"
+	"@param pid: Process ID of the traced child\n"
+	"@raise OSError: Raised when the underlying ptrace call fails.\n"
+	"@rtype: tuple of ints\n"
+	"@return: The register contents.\n";
+static PyObject *
+pinkpy_trace_get_all_regs(PINK_GCC_ATTR((unused)) PyObject *self, PyObject *args)
+{
+	pid_t pid;
+	PyObject *result;
+	struct user_regs_struct regs;
+	int count = sizeof(regs)/sizeof(unsigned long);
+
+	if (!PyArg_ParseTuple(args, PARSE_PID, &pid))
+		return NULL;
+	
+	if (!pink_util_get_regs(pid, &regs))
+		return PyErr_SetFromErrno(PyExc_OSError);
+	
+	result = PyTuple_New(count);
+	for(int i=0; i<count; i++) {
+		PyTuple_SetItem(result, i, PyInt_FromLong(((unsigned long*)&regs)[i]));
+	}
+	
+	return result;
+}
+
 static char pinkpy_trace_get_mem_doc[] = ""
 	"Read bytes from the traced child's address space.\n"
 	"@param pid: Process ID of the traced child\n"
@@ -574,6 +602,7 @@ static PyMethodDef trace_methods[] = {
 	{"detach", pinkpy_trace_detach, METH_VARARGS, pinkpy_trace_detach_doc},
 	{"get_reg", pinkpy_trace_get_reg, METH_VARARGS, pinkpy_trace_get_reg_doc},
 	{"set_reg", pinkpy_trace_set_reg, METH_VARARGS, pinkpy_trace_set_reg_doc},
+	{"get_all_regs", pinkpy_trace_get_all_regs, METH_VARARGS, pinkpy_trace_get_all_regs_doc},
 	{"get_mem", pinkpy_trace_get_mem, METH_VARARGS, pinkpy_trace_get_mem_doc},
 	{"set_mem", pinkpy_trace_set_mem, METH_VARARGS, pinkpy_trace_set_mem_doc},
 	{NULL, NULL, 0, NULL},
